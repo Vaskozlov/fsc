@@ -3,6 +3,11 @@ func __add__(lhs: in f32, rhs : in i32) -> f32
     return rhs + lhs
 }
 
+func __mul__(lhs: in i32, rhs : in f32) -> f32
+{
+    return (lhs + 0.0) * rhs
+}
+
 func main() -> f32 {
-    return 10.5 + 4
+    return 10 * 24.52
 }

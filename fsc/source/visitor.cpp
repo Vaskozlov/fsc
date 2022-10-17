@@ -88,6 +88,10 @@ namespace fsc {
     {
         const auto &children = ctx->children;
 
+        if (children.at(0)->getText() == "(") {
+            return visit(children[1]);
+        }
+
         if (ctx->NAME()) {
             return ProgramsStack.get(ctx->getText()).value; // Handle as variable
         }
