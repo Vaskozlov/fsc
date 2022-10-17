@@ -93,7 +93,7 @@ namespace fsc {
         }
 
         if (ctx->NAME()) {
-            return ProgramsStack.get(ctx->getText()).value; // Handle as variable
+            return ProgramsStack.get(ctx->getText()).value;// Handle as variable
         }
 
         if (ctx->INT()) {

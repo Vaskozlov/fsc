@@ -56,8 +56,7 @@ namespace fsc {
         auto lhs = ProgramsStack.get(arguments[0].name).value.value;
         auto rhs = ProgramsStack.get(arguments[1].name).value.value;
 
-        return {std::any_cast<int32_t>(lhs) + std::any_cast<int32_t>(rhs),
-                Int32::hash};
+        return {std::any_cast<int32_t>(lhs) + std::any_cast<int32_t>(rhs), Int32::hash};
     }
 
     static auto sumI32AndI32Arguments = std::vector<FunctionArgument>{
@@ -69,8 +68,7 @@ namespace fsc {
         auto lhs = ProgramsStack.get(arguments[0].name).value.value;
         auto rhs = ProgramsStack.get(arguments[1].name).value.value;
 
-        return {std::any_cast<int32_t>(lhs) * std::any_cast<int32_t>(rhs),
-                Int32::hash};
+        return {std::any_cast<int32_t>(lhs) * std::any_cast<int32_t>(rhs), Int32::hash};
     }
 
     static auto mulI32AndI32Arguments = std::vector<FunctionArgument>{
@@ -82,8 +80,7 @@ namespace fsc {
         auto lhs = ProgramsStack.get(arguments[0].name).value.value;
         auto rhs = ProgramsStack.get(arguments[1].name).value.value;
 
-        return {std::any_cast<float>(lhs) * std::any_cast<float>(rhs),
-                Float::hash};
+        return {std::any_cast<float>(lhs) * std::any_cast<float>(rhs), Float::hash};
     }
 
     static auto mulF32AndF32Arguments = std::vector<FunctionArgument>{

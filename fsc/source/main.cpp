@@ -1,7 +1,8 @@
-#include <fmt/format.h>
 #include "interpreter.hpp"
+#include <fmt/format.h>
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     if (argc != 2) {
         fmt::print("Filename expected\n");
         return 1;

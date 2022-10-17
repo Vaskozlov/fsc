@@ -7,7 +7,8 @@
 namespace fsc {
     class UuidFactory {
     public:
-        auto operator()() -> size_t {
+        auto operator()() -> size_t
+        {
             return std::atomic_fetch_add_explicit(&current_id, 1U, std::memory_order_relaxed);
         }
 
