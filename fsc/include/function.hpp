@@ -12,26 +12,28 @@
 namespace fsc {
     enum struct ParameterCategory : size_t { IN, INOUT, OUT };
 
-    const extern std::map<std::string, ParameterCategory> ParameterCategories;
+    const extern std::map<std::string, ParameterCategory, std::less<>> ParameterCategories;
 
-    struct FunctionArgument {
-        auto operator==(size_t other) const noexcept
+    class FunctionArgument {
+    public:
+        friend constexpr auto operator==(const FunctionArgument &lhs, const size_t rhs) noexcept
         {
-            return type == other;
+            return lhs.type == rhs;
         }
 
-        auto operator==(const FunctionArgument &other) const noexcept
+        friend constexpr auto operator==(const FunctionArgument &lhs,
+                                         const FunctionArgument &rhs) noexcept
         {
-            return type == other.type;
+            return lhs.type == rhs.type;
         }
 
         std::string name;
         size_t type;
         ParameterCategory category;
-        FscParser::ExprContext *default_initializer{nullptr};
+        FscParser::ExprContext *defaultInitializer{nullptr};
     };
 
-    inline auto createArgument(const FscValue &value) -> FunctionArgument
+    [[nodiscrd]] inline auto createArgument(const FscValue &value) -> FunctionArgument
     {
         return FunctionArgument{{}, value.type, ParameterCategory::INOUT, nullptr};
     }
@@ -42,15 +44,15 @@ namespace fsc {
         using FscFunction = FscParser::BodyContext *;
 
         template<class... Ts>
-        struct overload : Ts... {
+        struct Overload : Ts... {
             using Ts::operator()...;
         };
 
         template<class... Ts>
-        overload(Ts...) -> overload<Ts...>;
+        Overload(Ts...) -> Overload<Ts...>;
 
     public:
-        explicit Function(FscParser::FunctionContext *function_context);
+        explicit Function(const FscParser::FunctionContext *function_context);
 
         Function(std::string name_, size_t return_type_, BuiltinFunction builtin_function_,
                  std::vector<FunctionArgument> arguments_);
@@ -60,33 +62,34 @@ namespace fsc {
             return arguments == args;
         }
 
-        auto getName() const noexcept -> const std::string &
+        [[nodiscard]] auto getName() const noexcept -> const std::string &
         {
             return name;
         }
 
-        auto getReturnType() const noexcept -> size_t
+        [[nodiscard]] auto getReturnType() const noexcept -> size_t
         {
-            return return_type;
+            return returnType;
         }
 
-        auto getArguments() const noexcept -> const std::vector<FunctionArgument> &
+        [[nodiscard]] auto getArguments() const noexcept -> const std::vector<FunctionArgument> &
         {
             return arguments;
         }
 
-        auto invoke(FscVisitor &visitor) -> FscValue;
+        [[nodiscard]] auto invoke(FscVisitor &visitor) -> FscValue;
 
     private:
         auto setReturnType(const std::vector<antlr4::tree::ParseTree *> &children) -> void;
-        auto processArguments(FscParser::ParametersContext *parameters_context) -> void;
+        auto processArguments(const FscParser::ParametersContext *parameters_context) -> void;
 
-        static auto processArgument(FscParser::Argument_definitionContext *argument_definition)
+        static auto
+        processArgument(const FscParser::Argument_definitionContext *argument_definition)
                 -> FunctionArgument;
 
         std::string name;
         std::vector<FunctionArgument> arguments;
-        size_t return_type{Auto::hash};
+        size_t returnType{Auto::hash};
         std::variant<BuiltinFunction, FscFunction> body;
     };
 }// namespace fsc

@@ -1,4 +1,5 @@
 #include "visitor.hpp"
+#include "ast/node.hpp"
 #include "builtin/statements.hpp"
 #include "functions.hpp"
 #include "stack.hpp"
@@ -7,7 +8,7 @@
 namespace fsc {
     static auto convertInt(const std::string &repr) -> std::any
     {
-        long result = 0;
+        ssize_t result = 0;
 
         if (repr.starts_with("0b")) {
             result = std::stol(repr.substr(2), nullptr, 2);
@@ -43,9 +44,8 @@ namespace fsc {
     auto Visitor::visitStmt(FscParser::StmtContext *ctx) -> std::any
     {
         const auto &children = ctx->children;
-        auto first_child = children[0]->getText();
 
-        if (first_child == "return") {
+        if (const auto first_child = children[0]->getText(); first_child == "return") {
             return ReturnStatement{visit(children[1])};
         }
 
@@ -72,7 +72,7 @@ namespace fsc {
     {
         const auto &children = ctx->children;
 
-        for (auto &&child:
+        for (auto &&child :
              children | std::views::drop(1) | std::views::take(ctx->children.size() - 2)) {
             auto result = visit(child);
 
@@ -92,31 +92,31 @@ namespace fsc {
             return visit(children[1]);
         }
 
-        if (ctx->NAME()) {
-            return ProgramsStack.get(ctx->getText()).value;// Handle as variable
+        if (ctx->NAME() != nullptr) {
+            return ProgramsStack.get(ctx->getText()).value; /* Handle as variable */
         }
 
-        if (ctx->INT()) {
+        if (ctx->INT() != nullptr) {
             return FscValue{convertInt(ctx->getText()), Int32::hash};
         }
 
-        if (ctx->FLOAT()) {
+        if (ctx->FLOAT() != nullptr) {
             return FscValue{convertFloat(ctx->getText()), Float::hash};
         }
 
-        if (ctx->ADD()) {
+        if (ctx->ADD() != nullptr) {
             return binaryOperation("__add__", children);
         }
 
-        if (ctx->SUB()) {
+        if (ctx->SUB() != nullptr) {
             return binaryOperation("__sub__", children);
         }
 
-        if (ctx->MUL()) {
+        if (ctx->MUL() != nullptr) {
             return binaryOperation("__mul__", children);
         }
 
-        if (ctx->DIV()) {
+        if (ctx->DIV() != nullptr) {
             return binaryOperation("__div__", children);
         }
 
@@ -127,8 +127,8 @@ namespace fsc {
                                   const std::vector<antlr4::tree::ParseTree *> &children)
             -> std::any
     {
-        auto lhs = std::any_cast<FscValue>(visit(children[0]));
-        auto rhs = std::any_cast<FscValue>(visit(children[2]));
+        const auto lhs = std::any_cast<FscValue>(visit(children[0]));
+        const auto rhs = std::any_cast<FscValue>(visit(children[2]));
 
         auto function = Functions.get(function_name, {createArgument(lhs), createArgument(rhs)});
         const auto &args = function.getArguments();
@@ -144,7 +144,7 @@ namespace fsc {
         return result;
     }
 
-    auto Visitor::main() -> void
+    auto Visitor::callMain() -> void
     {
         ProgramsStack.pushScope();
 

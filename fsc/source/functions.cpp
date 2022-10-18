@@ -2,43 +2,71 @@
 #include "stack.hpp"
 
 namespace fsc {
-    auto constructF32FromI32(const std::vector<FunctionArgument> &arguments) -> FscValue
+    FunctionsHolder::FunctionsHolder(const std::initializer_list<Function> &functions_)
+    {
+        for (const auto &function : functions_) {
+            functions[function.getName()].push_back(function);
+        }
+    }
+
+    auto FunctionsHolder::add(const FscParser::FunctionContext *function_context) -> Function &
+    {
+        auto function = Function(function_context);
+        const auto name = function.getName();
+
+        return functions[name].emplace_back(std::move(function));
+    }
+
+    auto FunctionsHolder::get(const std::string &name,
+                              const std::vector<FunctionArgument> &arguments) -> const Function &
+    {
+        for (const auto &possible_alternatives = functions[name];
+             const auto &function : possible_alternatives) {
+            if (function.getArguments() == arguments) {
+                return function;
+            }
+        }
+
+        throw std::runtime_error("No matching function to call");
+    }
+
+    static auto constructF32FromI32(const std::vector<FunctionArgument> &arguments) -> FscValue
     {
         auto value = ProgramsStack.get(arguments[0].name);
         return {static_cast<float>(std::any_cast<int32_t>(value)), Int32::hash};
     }
 
-    static auto constructF32FromI32Arguments = std::vector<FunctionArgument>{
+    const static auto constructF32FromI32Arguments = {
             FunctionArgument{"value", Int32::hash, ParameterCategory::IN, nullptr}};
 
-    auto constructF32FromI64(const std::vector<FunctionArgument> &arguments) -> FscValue
+    static auto constructF32FromI64(const std::vector<FunctionArgument> &arguments) -> FscValue
     {
         auto value = ProgramsStack.get(arguments[0].name);
         return {static_cast<float>(std::any_cast<int64_t>(value)), Int64::hash};
     }
 
-    static auto constructF32FromI64Arguments = std::vector<FunctionArgument>{
+    const static auto constructF32FromI64Arguments = {
             FunctionArgument{"value", Int64::hash, ParameterCategory::IN, nullptr}};
 
-    auto constructF64FromI32(const std::vector<FunctionArgument> &arguments) -> FscValue
+    static auto constructF64FromI32(const std::vector<FunctionArgument> &arguments) -> FscValue
     {
         auto value = ProgramsStack.get(arguments[0].name);
         return {static_cast<double>(std::any_cast<int32_t>(value)), Int32::hash};
     }
 
-    static auto constructF64FromI32Arguments = std::vector<FunctionArgument>{
+    const static auto constructF64FromI32Arguments = {
             FunctionArgument{"value", Int32::hash, ParameterCategory::IN, nullptr}};
 
-    auto constructF64FromI64(const std::vector<FunctionArgument> &arguments) -> FscValue
+    static auto constructF64FromI64(const std::vector<FunctionArgument> &arguments) -> FscValue
     {
         auto value = ProgramsStack.get(arguments[0].name);
         return {static_cast<double>(std::any_cast<int64_t>(value)), Int64::hash};
     }
 
-    static auto constructF64FromI64Arguments = std::vector<FunctionArgument>{
+    const static auto constructF64FromI64Arguments = {
             FunctionArgument{"value", Int64::hash, ParameterCategory::IN, nullptr}};
 
-    auto sumI32AndF32(const std::vector<FunctionArgument> &arguments) -> FscValue
+    static auto sumI32AndF32(const std::vector<FunctionArgument> &arguments) -> FscValue
     {
         auto lhs = ProgramsStack.get(arguments[0].name).value.value;
         auto rhs = ProgramsStack.get(arguments[1].name).value.value;
@@ -47,11 +75,11 @@ namespace fsc {
                 Float::hash};
     }
 
-    static auto sumI32AndF32Arguments = std::vector<FunctionArgument>{
+    const static auto sumI32AndF32Arguments = {
             FunctionArgument{"lhs", Int32::hash, ParameterCategory::IN, nullptr},
             FunctionArgument{"rhs", Float::hash, ParameterCategory::IN, nullptr}};
 
-    auto sumI32AndI32(const std::vector<FunctionArgument> &arguments) -> FscValue
+    static auto sumI32AndI32(const std::vector<FunctionArgument> &arguments) -> FscValue
     {
         auto lhs = ProgramsStack.get(arguments[0].name).value.value;
         auto rhs = ProgramsStack.get(arguments[1].name).value.value;
@@ -59,11 +87,11 @@ namespace fsc {
         return {std::any_cast<int32_t>(lhs) + std::any_cast<int32_t>(rhs), Int32::hash};
     }
 
-    static auto sumI32AndI32Arguments = std::vector<FunctionArgument>{
+    const static auto sumI32AndI32Arguments = {
             FunctionArgument{"lhs", Int32::hash, ParameterCategory::IN, nullptr},
             FunctionArgument{"rhs", Int32::hash, ParameterCategory::IN, nullptr}};
 
-    auto mulI32AndI32(const std::vector<FunctionArgument> &arguments) -> FscValue
+    static auto mulI32AndI32(const std::vector<FunctionArgument> &arguments) -> FscValue
     {
         auto lhs = ProgramsStack.get(arguments[0].name).value.value;
         auto rhs = ProgramsStack.get(arguments[1].name).value.value;
@@ -71,11 +99,11 @@ namespace fsc {
         return {std::any_cast<int32_t>(lhs) * std::any_cast<int32_t>(rhs), Int32::hash};
     }
 
-    static auto mulI32AndI32Arguments = std::vector<FunctionArgument>{
+    const static auto mulI32AndI32Arguments = {
             FunctionArgument{"lhs", Int32::hash, ParameterCategory::IN, nullptr},
             FunctionArgument{"rhs", Int32::hash, ParameterCategory::IN, nullptr}};
 
-    auto mulF32AndF32(const std::vector<FunctionArgument> &arguments) -> FscValue
+    static auto mulF32AndF32(const std::vector<FunctionArgument> &arguments) -> FscValue
     {
         auto lhs = ProgramsStack.get(arguments[0].name).value.value;
         auto rhs = ProgramsStack.get(arguments[1].name).value.value;
@@ -83,7 +111,7 @@ namespace fsc {
         return {std::any_cast<float>(lhs) * std::any_cast<float>(rhs), Float::hash};
     }
 
-    static auto mulF32AndF32Arguments = std::vector<FunctionArgument>{
+    const static auto mulF32AndF32Arguments = {
             FunctionArgument{"lhs", Float::hash, ParameterCategory::IN, nullptr},
             FunctionArgument{"rhs", Float::hash, ParameterCategory::IN, nullptr}};
 

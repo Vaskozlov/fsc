@@ -6,7 +6,7 @@
 namespace fsc {
     class Visitor : public FscBaseVisitor {
     public:
-        auto main() -> void;
+        auto callMain() -> void;
 
     private:
         auto visitStmt(FscParser::StmtContext *ctx) -> std::any override;

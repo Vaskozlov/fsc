@@ -15,6 +15,8 @@ target_link_libraries(fsc antlr4_static)
 include_directories(SYSTEM fsc/include)
 include_directories(SYSTEM fsc/antlr-generated)
 
+target_link_libraries(fsc ${llvm_libs})
+
 if (${PRECOMPILED_HEADERS})
     target_precompile_headers(
             fsc
