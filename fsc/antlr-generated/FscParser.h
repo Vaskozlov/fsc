@@ -25,7 +25,7 @@ public:
     RuleParameters = 7, RuleTyped_arguments_list = 8, RuleFunction_call = 9, 
     RuleFunction_parameter = 10, RuleFunction_typed_arguments_list = 11, 
     RuleVariable_definition = 12, RuleAuto_variable_definition = 13, RuleBody = 14, 
-    RuleParenthesized_expr = 15, RuleExpr = 16
+    RuleExpr = 15
   };
 
   explicit FscParser(antlr4::TokenStream *input);
@@ -60,7 +60,6 @@ public:
   class Variable_definitionContext;
   class Auto_variable_definitionContext;
   class BodyContext;
-  class Parenthesized_exprContext;
   class ExprContext; 
 
   class  ProgramContext : public antlr4::ParserRuleContext {
@@ -281,30 +280,16 @@ public:
 
   BodyContext* body();
 
-  class  Parenthesized_exprContext : public antlr4::ParserRuleContext {
-  public:
-    Parenthesized_exprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    ExprContext *expr();
-
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  Parenthesized_exprContext* parenthesized_expr();
-
   class  ExprContext : public antlr4::ParserRuleContext {
   public:
     ExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     Function_callContext *function_call();
-    Parenthesized_exprContext *parenthesized_expr();
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
     antlr4::tree::TerminalNode *INT();
     antlr4::tree::TerminalNode *FLOAT();
     antlr4::tree::TerminalNode *NAME();
-    std::vector<ExprContext *> expr();
-    ExprContext* expr(size_t i);
     antlr4::tree::TerminalNode *MUL();
     antlr4::tree::TerminalNode *DIV();
     antlr4::tree::TerminalNode *MOD();

@@ -49,8 +49,6 @@ public:
 
     virtual std::any visitBody(FscParser::BodyContext *context) = 0;
 
-    virtual std::any visitParenthesized_expr(FscParser::Parenthesized_exprContext *context) = 0;
-
     virtual std::any visitExpr(FscParser::ExprContext *context) = 0;
 
 

@@ -12,7 +12,8 @@ namespace fsc {
 
         FunctionsHolder(const std::initializer_list<Function> &functions_);
 
-        auto add(const FscParser::FunctionContext *function_context) -> Function &;
+        auto add(const FscParser::FunctionContext *function_context, FscVisitor &visitor)
+                -> Function &;
         auto get(const std::string &name, const std::vector<FunctionArgument> &arguments)
                 -> const Function &;
 

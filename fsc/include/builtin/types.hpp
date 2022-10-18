@@ -2,6 +2,8 @@
 #define FSC_TYPES_HPP
 
 #include "builtin/uuid_factory.hpp"
+#include <any>
+#include <fmt/core.h>
 #include <string>
 #include <unordered_map>
 
@@ -42,15 +44,40 @@ namespace fsc {
         double value;
     };
 
-    struct FscValue {
-        auto operator==(size_t other) const noexcept
+    class FscValue {
+    public:
+        friend auto operator==(const FscValue &lhs, const size_t rhs) noexcept
         {
-            return type == other;
+            return lhs.type == rhs;
         }
 
-        auto operator==(const FscValue &other) const noexcept
+        friend auto operator==(const FscValue &lhs, const FscValue &rhs) noexcept
         {
-            return type == other.type;
+            return lhs.type == rhs.type;
+        }
+
+        auto toString() const -> std::string
+        {
+            auto result = std::string{};
+            auto inserter = std::back_inserter(result);
+
+            if (type == Int32::hash) {
+                fmt::format_to(inserter, "i32: {}",
+                               value.has_value() ? 0 : std::any_cast<int32_t>(value));
+            } else if (type == Int64::hash) {
+                fmt::format_to(inserter, "i64: {}",
+                               value.has_value() ? 0L : std::any_cast<int64_t>(value));
+            } else if (type == Float::hash) {
+                fmt::format_to(inserter, "f32: {}",
+                               value.has_value() ? 0.0F : std::any_cast<float>(value));
+            } else if (type == Double::hash) {
+                fmt::format_to(inserter, "f64: {}",
+                               value.has_value() ? 0.0 : std::any_cast<double>(value));
+            } else {
+                result = "value with unprintable type";
+            }
+
+            return result;
         }
 
         static auto typeExists(const std::string &type_name) noexcept -> bool
@@ -63,7 +90,7 @@ namespace fsc {
             return defined_types.at(type_name);
         }
 
-        static auto getTypename(size_t type) -> std::string
+        static auto getTypename(const size_t type) -> std::string
         {
             return typename_by_id.at(type);
         }

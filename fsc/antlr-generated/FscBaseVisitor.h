@@ -75,10 +75,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitParenthesized_expr(FscParser::Parenthesized_exprContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitExpr(FscParser::ExprContext *ctx) override {
     return visitChildren(ctx);
   }

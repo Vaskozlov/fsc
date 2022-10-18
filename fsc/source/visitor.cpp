@@ -1,44 +1,38 @@
 #include "visitor.hpp"
-#include "ast/node.hpp"
-#include "builtin/statements.hpp"
+#include "ast/function_node.hpp"
 #include "functions.hpp"
 #include "stack.hpp"
 #include <fmt/format.h>
 
+using namespace std::string_view_literals;
+
 namespace fsc {
-    static auto convertInt(const std::string &repr) -> std::any
+    [[nodiscard]] static auto convertInt(const std::string &repr) -> std::shared_ptr<AstNode>
     {
         ssize_t result = 0;
 
         if (repr.starts_with("0b")) {
-            result = std::stol(repr.substr(2), nullptr, 2);
+            result = std::stol(repr.substr("0b"sv.size()), nullptr, 2);
         } else if (repr.starts_with("0o")) {
-            result = std::stol(repr.substr(2), nullptr, 8);
+            result = std::stol(repr.substr("0o"sv.size()), nullptr, 8);
         } else if (repr.starts_with("0x")) {
-            result = std::stol(repr.substr(2), nullptr, 16);
+            result = std::stol(repr.substr("0x"sv.size()), nullptr, 16);
         } else {
-
             result = std::stol(repr);
         }
 
-        if (result >= 0) {
-            if (result > std::numeric_limits<int32_t>::max()) {
-                return result;
-            }
-
-            return static_cast<int32_t>(result);
+        if ((result > std::numeric_limits<int32_t>::max()) ||
+            (result < std::numeric_limits<int32_t>::min())) {
+            return std::make_shared<ValueExpression>(FscValue{result, Int64::hash});
         }
 
-        if (result < std::numeric_limits<int32_t>::min()) {
-            return result;
-        }
-
-        return static_cast<int32_t>(result);
+        return std::make_shared<ValueExpression>(
+                FscValue{static_cast<int32_t>(result), Int32::hash});
     }
 
-    static auto convertFloat(const std::string &repr) -> std::any
+    [[nodiscard]] static auto convertFloat(const std::string &repr) -> std::shared_ptr<AstNode>
     {
-        return std::stof(repr);
+        return std::make_shared<ValueExpression>(FscValue{std::stof(repr), Float::hash});
     }
 
     auto Visitor::visitStmt(FscParser::StmtContext *ctx) -> std::any
@@ -46,15 +40,24 @@ namespace fsc {
         const auto &children = ctx->children;
 
         if (const auto first_child = children[0]->getText(); first_child == "return") {
-            return ReturnStatement{visit(children[1])};
+            return constructReturn(ctx);
         }
 
         return visitChildren(ctx);
     }
 
+    auto Visitor::constructReturn(FscParser::StmtContext *ctx) -> std::shared_ptr<AstNode>
+    {
+        const auto &children = ctx->children;
+
+        return std::make_shared<ReturnStatement>(
+                std::any_cast<std::shared_ptr<AstNode>>(visit(children[1])));
+    }
+
     auto Visitor::visitFunction(FscParser::FunctionContext *ctx) -> std::any
     {
-        return Functions.add(ctx);
+        Functions.add(ctx, *this);
+        return std::any{};
     }
 
     auto Visitor::visitVariable_definition(FscParser::Variable_definitionContext *ctx) -> std::any
@@ -70,78 +73,70 @@ namespace fsc {
 
     auto Visitor::visitBody(FscParser::BodyContext *ctx) -> std::any
     {
+        return constructBody(ctx);
+    }
+
+    auto Visitor::constructBody(FscParser::BodyContext *ctx) -> std::shared_ptr<AstNode>
+    {
         const auto &children = ctx->children;
+        auto body = std::make_shared<Body>();
 
         for (auto &&child :
              children | std::views::drop(1) | std::views::take(ctx->children.size() - 2)) {
-            auto result = visit(child);
-
-            if (result.type() == typeid(ReturnStatement)) {
-                return std::any_cast<ReturnStatement>(result).value;
+            if (child->getText() == "\n") {
+                continue;
             }
+
+            body->addNode(std::any_cast<std::shared_ptr<AstNode>>(visit(child)));
         }
 
-        return std::any{};
+        return body;
     }
 
     auto Visitor::visitExpr(FscParser::ExprContext *ctx) -> std::any
     {
         const auto &children = ctx->children;
-
-        if (children.at(0)->getText() == "(") {
-            return visit(children[1]);
-        }
-
-        if (ctx->NAME() != nullptr) {
-            return ProgramsStack.get(ctx->getText()).value; /* Handle as variable */
-        }
+        auto node = std::shared_ptr<AstNode>{};
 
         if (ctx->INT() != nullptr) {
-            return FscValue{convertInt(ctx->getText()), Int32::hash};
+            node = convertInt(ctx->getText());
+        } else if (ctx->FLOAT() != nullptr) {
+            node = convertFloat(ctx->getText());
+        } else if (ctx->NAME() != nullptr) {
+            node = constructVariable(ctx->getText());
+        } else if (ctx->ADD() != nullptr) {
+            node = binaryOperation("__add__", children);
+        } else if (ctx->MUL() != nullptr) {
+            node = binaryOperation("__mul__", children);
+        } else if (ctx->DIV() != nullptr) {
+            node = binaryOperation("__div__", children);
+        } else if (ctx->MOD() != nullptr) {
+            node = binaryOperation("__mod__", children);
         }
 
-        if (ctx->FLOAT() != nullptr) {
-            return FscValue{convertFloat(ctx->getText()), Float::hash};
+        if (node != nullptr) {
+            return node;
         }
 
-        if (ctx->ADD() != nullptr) {
-            return binaryOperation("__add__", children);
-        }
+        return visitChildren(ctx);
+    }
 
-        if (ctx->SUB() != nullptr) {
-            return binaryOperation("__sub__", children);
-        }
-
-        if (ctx->MUL() != nullptr) {
-            return binaryOperation("__mul__", children);
-        }
-
-        if (ctx->DIV() != nullptr) {
-            return binaryOperation("__div__", children);
-        }
-
-        return std::any{};
+    auto Visitor::constructVariable(const std::string &name) -> std::shared_ptr<AstNode>
+    {
+        return std::make_shared<VariableExpression>(name);
     }
 
     auto Visitor::binaryOperation(const std::string &function_name,
                                   const std::vector<antlr4::tree::ParseTree *> &children)
-            -> std::any
+            -> std::shared_ptr<AstNode>
     {
-        const auto lhs = std::any_cast<FscValue>(visit(children[0]));
-        const auto rhs = std::any_cast<FscValue>(visit(children[2]));
+        const auto lhs = std::any_cast<std::shared_ptr<AstNode>>(visit(children[0]));
+        const auto rhs = std::any_cast<std::shared_ptr<AstNode>>(visit(children[2]));
 
-        auto function = Functions.get(function_name, {createArgument(lhs), createArgument(rhs)});
-        const auto &args = function.getArguments();
+        auto function = Functions.get(function_name, {createArgument(lhs->getValueType()),
+                                                      createArgument(rhs->getValueType())});
 
-        ProgramsStack.pushScope();
-        ProgramsStack.addVariable(args[0].name, lhs);
-        ProgramsStack.addVariable(args[1].name, rhs);
-
-        auto result = function.invoke(*this);
-
-        ProgramsStack.popScope();
-
-        return result;
+        return std::make_unique<FunctionCall>(FunctionCall{function, {lhs, rhs}});
     }
 
     auto Visitor::callMain() -> void
@@ -149,7 +144,7 @@ namespace fsc {
         ProgramsStack.pushScope();
 
         auto function = Functions.get("main", {});
-        auto result = function.invoke(*this);
+        auto result = function.invoke();
 
         ProgramsStack.popScope();
 

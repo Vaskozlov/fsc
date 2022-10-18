@@ -4,7 +4,7 @@
 
 auto main(int argc, char **argv) -> int
 {
-    if (argc == 1) {
+    if (1 == argc) {
         fmt::print("Filename expected\n");
         return 1;
     }

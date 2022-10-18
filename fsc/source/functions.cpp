@@ -9,9 +9,10 @@ namespace fsc {
         }
     }
 
-    auto FunctionsHolder::add(const FscParser::FunctionContext *function_context) -> Function &
+    auto FunctionsHolder::add(const FscParser::FunctionContext *function_context,
+                              FscVisitor &visitor) -> Function &
     {
-        auto function = Function(function_context);
+        auto function = Function(function_context, visitor);
         const auto name = function.getName();
 
         return functions[name].emplace_back(std::move(function));

@@ -8,15 +8,25 @@ namespace fsc {
             {"out", ParameterCategory::OUT},
     };
 
-    Function::Function(const FscParser::FunctionContext *function_context)
-        : name{function_context->children.at(1)->getText()},
-          body{dynamic_cast<FscFunction>(function_context->children.back())}
+    Function::Function(const FscParser::FunctionContext *function_context, FscVisitor &visitor)
+        : name{function_context->children.at(1)->getText()}
     {
         const auto &children = function_context->children;
         const auto parameters = children.at(2);
 
         setReturnType(children);
         processArguments(dynamic_cast<const FscParser::ParametersContext *>(parameters));
+
+        ProgramsStack.pushScope();
+
+        for (const auto &arg : arguments) {
+            ProgramsStack.addVariable(arg.name, FscValue{{}, arg.type});
+        }
+
+        body = std::any_cast<std::shared_ptr<AstNode>>(
+                visitor.visit(function_context->children.back()));
+
+        ProgramsStack.popScope();
     }
 
     Function::Function(std::string name_, size_t return_type_, BuiltinFunction builtin_function_,
@@ -25,15 +35,16 @@ namespace fsc {
           returnType{return_type_}, body{builtin_function_}
     {}
 
-    auto Function::invoke(FscVisitor &visitor) -> FscValue
+    auto Function::invoke() -> FscValue
     {
         auto result = FscValue{};
 
         std::visit(Overload{[this, &result](BuiltinFunction func) {
                                 result = func(arguments);
                             },
-                            [&visitor, &result](FscFunction func) {
-                                result = std::any_cast<FscValue>(visitor.visit(func));
+                            [&result](FscFunction func) {
+                                func->print("", false);
+                                result = func->getValue();
                             }},
                    body);
 

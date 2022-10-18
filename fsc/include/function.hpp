@@ -3,6 +3,7 @@
 
 #include "FscParser.h"
 #include "FscVisitor.h"
+#include "ast/node.hpp"
 #include "builtin/types.hpp"
 #include <map>
 #include <ranges>
@@ -11,7 +12,6 @@
 
 namespace fsc {
     enum struct ParameterCategory : size_t { IN, INOUT, OUT };
-
     const extern std::map<std::string, ParameterCategory, std::less<>> ParameterCategories;
 
     class FunctionArgument {
@@ -38,10 +38,16 @@ namespace fsc {
         return FunctionArgument{{}, value.type, ParameterCategory::INOUT, nullptr};
     }
 
+
+    [[nodiscrd]] inline auto createArgument(const size_t type) -> FunctionArgument
+    {
+        return FunctionArgument{{}, type, ParameterCategory::INOUT, nullptr};
+    }
+
     class Function {
     private:
         using BuiltinFunction = FscValue (*)(const std::vector<FunctionArgument> &);
-        using FscFunction = FscParser::BodyContext *;
+        using FscFunction = std::shared_ptr<AstNode>;
 
         template<class... Ts>
         struct Overload : Ts... {
@@ -52,7 +58,8 @@ namespace fsc {
         Overload(Ts...) -> Overload<Ts...>;
 
     public:
-        explicit Function(const FscParser::FunctionContext *function_context);
+        explicit Function(const FscParser::FunctionContext *function_context,
+                          FscVisitor &visitor);
 
         Function(std::string name_, size_t return_type_, BuiltinFunction builtin_function_,
                  std::vector<FunctionArgument> arguments_);
@@ -77,7 +84,7 @@ namespace fsc {
             return arguments;
         }
 
-        [[nodiscard]] auto invoke(FscVisitor &visitor) -> FscValue;
+        [[nodiscard]] auto invoke() -> FscValue;
 
     private:
         auto setReturnType(const std::vector<antlr4::tree::ParseTree *> &children) -> void;

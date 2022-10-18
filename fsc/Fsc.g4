@@ -53,15 +53,13 @@ auto_variable_definition: 'var' NAME '=' expr;
 
 body: '{' (stmt)* '}';
 
-parenthesized_expr: '(' expr ')';
-
 expr:   expr MUL expr
     |   expr DIV expr
     |   expr MOD expr
     |   expr ADD expr
     |   expr SUB expr
     |   function_call
-    |   parenthesized_expr
+    |   '(' expr ')'
     |   INT
     |   FLOAT
     |   NAME

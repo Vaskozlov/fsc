@@ -1,5 +1,5 @@
 add_compile_options(
-        -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pedantic -Wold-style-cast
+        -Wall -Wextra -Wnon-virtual-dtor -pedantic -pedantic -Wold-style-cast
         -Wcast-align -Woverloaded-virtual -Wpedantic -Wconversion -Wsign-conversion -Wdouble-promotion
         -Wformat=2 -Wuninitialized -Wfloat-conversion
 )
