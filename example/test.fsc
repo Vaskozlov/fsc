@@ -4,5 +4,5 @@ func __add__(lhs: in f32, rhs : in i32) -> f32
 }
 
 func main() -> f32 {
-    return 10.14 + 12
+    return 10.14 + f32(12)
 }

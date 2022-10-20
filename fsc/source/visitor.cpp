@@ -112,6 +112,8 @@ namespace fsc {
             node = binaryOperation("__div__", children);
         } else if (ctx->MOD() != nullptr) {
             node = binaryOperation("__mod__", children);
+        } else if (ctx->function_call()) {
+            node = constructFunctionCall(ctx);
         }
 
         if (node != nullptr) {
@@ -119,6 +121,40 @@ namespace fsc {
         }
 
         return visitChildren(ctx);
+    }
+
+    auto Visitor::constructFunctionCall(FscParser::ExprContext *ctx) -> std::shared_ptr<AstNode>
+    {
+        const auto &children = ctx->children;
+        const auto name = children.at(0)->getText();
+        const auto parameters = getFunctionArguments(
+                dynamic_cast<FscParser::Function_parameterContext *>(children.at(1)));
+        auto function = Functions.get(name, parameters);
+
+        return std::make_shared<FunctionCall>(FunctionCall{function, {}});
+    }
+
+    auto Visitor::getFunctionArguments(FscParser::Function_parameterContext *function_parameters)
+            -> std::vector<FunctionArgument>
+    {
+        const auto &children = function_parameters->children;
+        auto result = std::vector<FunctionArgument>{};
+
+        for (const auto &parameter :
+             children | std::views::drop(1) | std::views::take(children.size() - 2)) {
+            result.push_back(constructFunctionArgument(
+                    dynamic_cast<FscParser::Function_argumentContext *>(parameter)));
+        }
+
+        return result;
+    }
+
+    auto Visitor::constructFunctionArgument(FscParser::Function_argumentContext *argument_context)
+            -> FunctionArgument
+    {
+        const auto &children = argument_context->children;
+        auto argument_node = std::any_cast<std::shared_ptr<AstNode>>(visit(children.back()));
+        return createArgument(argument_node->getValueType());
     }
 
     auto Visitor::constructVariable(const std::string &name) -> std::shared_ptr<AstNode>
@@ -136,7 +172,7 @@ namespace fsc {
         auto function = Functions.get(function_name, {createArgument(lhs->getValueType()),
                                                       createArgument(rhs->getValueType())});
 
-        return std::make_unique<FunctionCall>(FunctionCall{function, {lhs, rhs}});
+        return std::make_shared<FunctionCall>(FunctionCall{function, {lhs, rhs}});
     }
 
     auto Visitor::callMain() -> void

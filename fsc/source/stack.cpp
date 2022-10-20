@@ -1,6 +1,5 @@
 #include "stack.hpp"
 
-
 namespace fsc {
     auto Stack::addGlobalVariable(const std::string &name, const FscValue &value) -> void
     {

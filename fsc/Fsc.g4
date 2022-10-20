@@ -6,12 +6,6 @@ MUL     : [*];
 DIV     : [/];
 MOD     : [%];
 
-IF      : 'if';
-FOR     : 'for';
-WHILE   : 'while';
-FUNC    : 'func';
-RETURN  : 'return';
-
 INT     :  [0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
 FLOAT   :  [0-9]*[.][0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
 
@@ -46,7 +40,8 @@ typed_arguments_list: argument_definition ('=' expr)? ( ',' argument_definition 
 function_call: NAME function_parameter;
 
 function_parameter: '(' (function_typed_arguments_list)? ')';
-function_typed_arguments_list: (NAME '=')? expr ( ',' (NAME '=')? expr)*;
+function_typed_arguments_list: function_argument ( ',' function_argument)*;
+function_argument : (NAME '=') ? expr;
 
 variable_definition: 'var' NAME ':' NAME '=' expr;
 auto_variable_definition: 'var' NAME '=' expr;
