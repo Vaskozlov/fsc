@@ -6,7 +6,13 @@
 #include <map>
 
 namespace fsc {
-    struct FscVariable {
+    class FscVariable {
+    public:
+        FscVariable() = default;
+
+        FscVariable(const std::string &name_, const FscValue &value_) : name(name_), value(value_)
+        {}
+
         std::string name;
         FscValue value;
         bool is_constant = false;
@@ -33,7 +39,7 @@ namespace fsc {
         static auto addGlobalVariable(const std::string &name, const FscValue &value) -> void;
 
     private:
-        static inline std::map<std::string, FscVariable> global_variables;
+        static inline std::map<std::string, FscVariable, std::less<>> global_variables;
 
         storage_t storage;
     };

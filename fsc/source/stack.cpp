@@ -3,7 +3,7 @@
 namespace fsc {
     auto Stack::addGlobalVariable(const std::string &name, const FscValue &value) -> void
     {
-        global_variables.emplace(name, FscVariable{name, value});
+        global_variables.try_emplace(name, name, value);
     }
 
     auto Stack::addVariable(const std::string &name, const FscValue &value) -> void
@@ -16,12 +16,12 @@ namespace fsc {
             throw std::runtime_error("Variable already exists");
         }
 
-        storage.back()[name] = {name, value, false, false};
+        storage.back().try_emplace(name, name, value);
     }
 
     auto Stack::get(const std::string &name) -> FscVariable &
     {
-        if (not storage.empty() && storage.back().contains(name)) {
+        if ((!storage.empty()) && storage.back().contains(name)) {
             return storage.back().at(name);
         }
 

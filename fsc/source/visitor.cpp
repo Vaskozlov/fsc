@@ -1,5 +1,6 @@
 #include "visitor.hpp"
 #include "ast/function_node.hpp"
+#include "builtin/types.hpp"
 #include "functions.hpp"
 #include "stack.hpp"
 #include <fmt/format.h>
@@ -32,10 +33,10 @@ namespace fsc {
 
     [[nodiscard]] static auto convertFloat(const std::string &repr) -> std::shared_ptr<AstNode>
     {
-        return std::make_shared<ValueExpression>(FscValue{std::stof(repr), Float::hash});
+        return std::make_shared<ValueExpression>(std::stof(repr), Float32::hash);
     }
 
-    auto Visitor::visitStmt(FscParser::StmtContext *ctx) -> std::any
+    auto Visitor::visitStmt(FscParser::StmtContext *const ctx) -> std::any
     {
         const auto &children = ctx->children;
 
@@ -46,7 +47,7 @@ namespace fsc {
         return visitChildren(ctx);
     }
 
-    auto Visitor::constructReturn(FscParser::StmtContext *ctx) -> std::shared_ptr<AstNode>
+    auto Visitor::constructReturn(FscParser::StmtContext *const ctx) -> std::shared_ptr<AstNode>
     {
         const auto &children = ctx->children;
 
@@ -54,29 +55,31 @@ namespace fsc {
                 std::any_cast<std::shared_ptr<AstNode>>(visit(children[1])));
     }
 
-    auto Visitor::visitFunction(FscParser::FunctionContext *ctx) -> std::any
+    auto Visitor::visitFunction(FscParser::FunctionContext *const ctx) -> std::any
     {
         Functions.add(ctx, *this);
         return std::any{};
     }
 
-    auto Visitor::visitVariable_definition(FscParser::Variable_definitionContext *ctx) -> std::any
-    {
-        return visitChildren(ctx);
-    }
-
-    auto Visitor::visitAuto_variable_definition(FscParser::Auto_variable_definitionContext *ctx)
+    auto Visitor::visitVariable_definition(FscParser::Variable_definitionContext *const ctx)
             -> std::any
     {
         return visitChildren(ctx);
     }
 
-    auto Visitor::visitBody(FscParser::BodyContext *ctx) -> std::any
+    auto
+    Visitor::visitAuto_variable_definition(FscParser::Auto_variable_definitionContext *const ctx)
+            -> std::any
+    {
+        return visitChildren(ctx);
+    }
+
+    auto Visitor::visitBody(FscParser::BodyContext *const ctx) -> std::any
     {
         return constructBody(ctx);
     }
 
-    auto Visitor::constructBody(FscParser::BodyContext *ctx) -> std::shared_ptr<AstNode>
+    auto Visitor::constructBody(FscParser::BodyContext *const ctx) -> std::shared_ptr<AstNode>
     {
         const auto &children = ctx->children;
         auto body = std::make_shared<Body>();
@@ -93,7 +96,7 @@ namespace fsc {
         return body;
     }
 
-    auto Visitor::visitExpr(FscParser::ExprContext *ctx) -> std::any
+    auto Visitor::visitExpr(FscParser::ExprContext *const ctx) -> std::any
     {
         const auto &children = ctx->children;
         auto node = std::shared_ptr<AstNode>{};
@@ -105,14 +108,14 @@ namespace fsc {
         } else if (ctx->NAME() != nullptr) {
             node = constructVariable(ctx->getText());
         } else if (ctx->ADD() != nullptr) {
-            node = binaryOperation("__add__", children);
+            node = constructBinaryOperation("__add__", children);
         } else if (ctx->MUL() != nullptr) {
-            node = binaryOperation("__mul__", children);
+            node = constructBinaryOperation("__mul__", children);
         } else if (ctx->DIV() != nullptr) {
-            node = binaryOperation("__div__", children);
+            node = constructBinaryOperation("__div__", children);
         } else if (ctx->MOD() != nullptr) {
-            node = binaryOperation("__mod__", children);
-        } else if (ctx->function_call()) {
+            node = constructBinaryOperation("__mod__", children);
+        } else if (ctx->function_call() != nullptr) {
             node = constructFunctionCall(ctx);
         }
 
@@ -123,25 +126,35 @@ namespace fsc {
         return visitChildren(ctx);
     }
 
-    auto Visitor::constructFunctionCall(FscParser::ExprContext *ctx) -> std::shared_ptr<AstNode>
+    auto Visitor::constructFunctionCall(FscParser::ExprContext *const ctx)
+            -> std::shared_ptr<AstNode>
     {
-        const auto &children = ctx->children;
+        const auto &function_ctx = ctx->children.at(0);
+        const auto &children = function_ctx->children;
         const auto name = children.at(0)->getText();
         const auto parameters = getFunctionArguments(
                 dynamic_cast<FscParser::Function_parameterContext *>(children.at(1)));
-        auto function = Functions.get(name, parameters);
+        const auto &function = Functions.get(name, parameters);
+        auto arguments_initializer = std::vector<std::shared_ptr<AstNode>>{};
 
-        return std::make_shared<FunctionCall>(FunctionCall{function, {}});
+        for (auto &&function_arg : parameters) {
+            arguments_initializer.push_back(function_arg.initializer);
+        }
+
+        return std::make_shared<FunctionCall>(function, arguments_initializer);
     }
 
-    auto Visitor::getFunctionArguments(FscParser::Function_parameterContext *function_parameters)
+    auto
+    Visitor::getFunctionArguments(FscParser::Function_parameterContext *const function_parameters)
             -> std::vector<FunctionArgument>
     {
-        const auto &children = function_parameters->children;
+        const auto *arguments_list =
+                dynamic_cast<FscParser::Function_typed_arguments_listContext *>(
+                        function_parameters->children.at(1));
+        const auto &children = arguments_list->children;
         auto result = std::vector<FunctionArgument>{};
 
-        for (const auto &parameter :
-             children | std::views::drop(1) | std::views::take(children.size() - 2)) {
+        for (const auto &parameter : children) {
             result.push_back(constructFunctionArgument(
                     dynamic_cast<FscParser::Function_argumentContext *>(parameter)));
         }
@@ -149,12 +162,19 @@ namespace fsc {
         return result;
     }
 
-    auto Visitor::constructFunctionArgument(FscParser::Function_argumentContext *argument_context)
+    auto
+    Visitor::constructFunctionArgument(FscParser::Function_argumentContext *const argument_context)
             -> FunctionArgument
     {
+        auto name = std::string{};
         const auto &children = argument_context->children;
-        auto argument_node = std::any_cast<std::shared_ptr<AstNode>>(visit(children.back()));
-        return createArgument(argument_node->getValueType());
+
+        if (argument_context->NAME() != nullptr) {
+            name = children.at(0)->getText();
+        }
+
+        const auto argument_node = std::any_cast<std::shared_ptr<AstNode>>(visit(children.back()));
+        return {name, argument_node->getValueType(), ParameterCategory::INOUT, argument_node};
     }
 
     auto Visitor::constructVariable(const std::string &name) -> std::shared_ptr<AstNode>
@@ -162,15 +182,15 @@ namespace fsc {
         return std::make_shared<VariableExpression>(name);
     }
 
-    auto Visitor::binaryOperation(const std::string &function_name,
-                                  const std::vector<antlr4::tree::ParseTree *> &children)
+    auto Visitor::constructBinaryOperation(const std::string &function_name,
+                                           const std::vector<antlr4::tree::ParseTree *> &children)
             -> std::shared_ptr<AstNode>
     {
         const auto lhs = std::any_cast<std::shared_ptr<AstNode>>(visit(children[0]));
         const auto rhs = std::any_cast<std::shared_ptr<AstNode>>(visit(children[2]));
 
-        auto function = Functions.get(function_name, {createArgument(lhs->getValueType()),
-                                                      createArgument(rhs->getValueType())});
+        const auto function = Functions.get(function_name, {createArgument(lhs->getValueType()),
+                                                            createArgument(rhs->getValueType())});
 
         return std::make_shared<FunctionCall>(FunctionCall{function, {lhs, rhs}});
     }
@@ -186,7 +206,7 @@ namespace fsc {
 
         if (result.type == Int32::hash) {
             fmt::print("{}\n", std::any_cast<int32_t>(result.value));
-        } else if (result.type == Float::hash) {
+        } else if (result.type == Float32::hash) {
             fmt::print("{}\n", std::any_cast<float>(result.value));
         }
     }

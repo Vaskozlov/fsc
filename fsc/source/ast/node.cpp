@@ -1,4 +1,5 @@
 #include "ast/function_node.hpp"
+#include <algorithm>
 #include <ranges>
 
 using namespace std::string_view_literals;
@@ -74,6 +75,27 @@ namespace fsc {
             auto &node = arguments.back();
             node->print(expandPrefix(prefix, is_left, 1), false);
         }
+    }
+
+    auto FunctionCall::getValue() -> FscValue
+    {
+        auto new_arguments = std::vector<std::pair<std::string, FscValue>>{};
+        const auto &function_arguments = function.getArguments();
+
+        for (auto i = 0ZU; i != function_arguments.size(); ++i) {
+            new_arguments.emplace_back(function_arguments[i].name, arguments[i]->getValue());
+        }
+
+        ProgramsStack.pushScope();
+
+        for (const auto &[name, value] : new_arguments) {
+            ProgramsStack.addVariable(name, value);
+        }
+
+        auto result = function.invoke();
+
+        ProgramsStack.popScope();
+        return result;
     }
 
     auto ReturnStatement::print(const std::string &prefix, const bool /*is_left*/) const -> void

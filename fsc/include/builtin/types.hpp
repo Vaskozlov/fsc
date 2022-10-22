@@ -10,6 +10,9 @@
 namespace fsc {
     inline UuidFactory TypeFactory;
 
+    using float32 = float;
+    using float64 = double;
+
     struct Auto {
         inline const static size_t hash = TypeFactory();
     };
@@ -34,18 +37,44 @@ namespace fsc {
         int64_t value;
     };
 
-    struct Float {
+    struct Float32 {
         inline const static size_t hash = TypeFactory();
-        float value;
+        float32 value;
     };
 
-    struct Double {
+    struct Float64 {
         inline const static size_t hash = TypeFactory();
-        double value;
+        float64 value;
     };
 
     class FscValue {
     public:
+        FscValue() = default;
+
+        explicit FscValue(int32_t value_) : value(value_), type(Int32::hash)
+        {}
+
+        explicit FscValue(int64_t value_) : value(value_), type(Int64::hash)
+        {}
+
+        explicit FscValue(uint32_t value_) : value(value_), type(UInt32::hash)
+        {}
+
+        explicit FscValue(uint64_t value_) : value(value_), type(UInt64::hash)
+        {}
+
+        explicit FscValue(float32 value_) : value(value_), type(Float32::hash)
+        {}
+
+        explicit FscValue(float64 value_) : value(value_), type(Float64::hash)
+        {}
+
+        FscValue(const std::any &value_, const size_t type_) : value(value_), type(type_)
+        {}
+
+        FscValue(std::any &&value_, const size_t type_) : value(std::move(value_)), type(type_)
+        {}
+
         friend auto operator==(const FscValue &lhs, const size_t rhs) noexcept
         {
             return lhs.type == rhs;
@@ -56,63 +85,28 @@ namespace fsc {
             return lhs.type == rhs.type;
         }
 
-        auto toString() const -> std::string
-        {
-            auto result = std::string{};
-            auto inserter = std::back_inserter(result);
-
-            if (type == Int32::hash) {
-                fmt::format_to(inserter, "i32: {}",
-                               value.has_value() ? 0 : std::any_cast<int32_t>(value));
-            } else if (type == Int64::hash) {
-                fmt::format_to(inserter, "i64: {}",
-                               value.has_value() ? 0L : std::any_cast<int64_t>(value));
-            } else if (type == Float::hash) {
-                fmt::format_to(inserter, "f32: {}",
-                               value.has_value() ? 0.0F : std::any_cast<float>(value));
-            } else if (type == Double::hash) {
-                fmt::format_to(inserter, "f64: {}",
-                               value.has_value() ? 0.0 : std::any_cast<double>(value));
-            } else {
-                result = "value with unprintable type";
-            }
-
-            return result;
-        }
+        auto toString() const -> std::string;
 
         static auto typeExists(const std::string &type_name) noexcept -> bool
         {
-            return defined_types.contains(type_name);
+            return definedTypes.contains(type_name);
         }
 
         static auto typeByName(const std::string &type_name) -> size_t
         {
-            return defined_types.at(type_name);
+            return definedTypes.at(type_name);
         }
 
         static auto getTypename(const size_t type) -> std::string
         {
-            return typename_by_id.at(type);
+            return typenameById.at(type);
         }
 
-        static auto checkTypeExistence(const std::string &type_name) -> void
-        {
-            if (!typeExists(type_name)) {
-                throw std::runtime_error("Type " + type_name +
-                                         " does not exist or has not been declared yet");
-            }
-        }
+        static auto checkTypeExistence(const std::string &type_name) -> void;
 
     private:
-        static inline std::unordered_map<std::string, size_t> defined_types{
-                {"auto", Auto::hash}, {"i32", Int32::hash},  {"u32", UInt32::hash},
-                {"i64", Int64::hash}, {"u64", UInt64::hash}, {"f32", Float::hash},
-                {"f64", Double::hash}};
-
-        static inline std::unordered_map<size_t, std::string> typename_by_id{
-                {Auto::hash, "auto"}, {Int32::hash, "i32"},  {UInt32::hash, "u32"},
-                {Int64::hash, "i64"}, {UInt64::hash, "u64"}, {Float::hash, "f32"},
-                {Double::hash, "f64"}};
+        static std::unordered_map<std::string, size_t> definedTypes;
+        static std::unordered_map<size_t, std::string> typenameById;
 
     public:
         std::any value;

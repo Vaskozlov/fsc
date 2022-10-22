@@ -149,6 +149,10 @@ namespace fsc {
         explicit ValueExpression(const FscValue &value_) : AstNode(classof()), value(value_)
         {}
 
+        explicit ValueExpression(const std::any &value_, const size_t type_)
+            : AstNode(classof()), value(value_, type_)
+        {}
+
         auto print(const std::string &prefix, const bool is_left) const -> void final;
 
         [[nodiscard]] static auto classof() noexcept -> AstNodeType
