@@ -16,6 +16,7 @@ include_directories(SYSTEM fsc/include)
 include_directories(SYSTEM fsc/antlr-generated)
 
 target_link_libraries(fsc ${llvm_libs})
+target_link_libraries(fsc ${CLANG_LIBS})
 
 if (${PRECOMPILED_HEADERS})
     target_precompile_headers(

@@ -14,9 +14,10 @@ public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
-    T__14 = 15, ADD = 16, SUB = 17, MUL = 18, DIV = 19, MOD = 20, IF = 21, 
-    FOR = 22, WHILE = 23, FUNC = 24, RETURN = 25, INT = 26, FLOAT = 27, 
-    NAME = 28, LAYOUT = 29
+    T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, AS = 20, 
+    ADD = 21, SUB = 22, MUL = 23, DIV = 24, MOD = 25, EQUALITY = 26, INEQUALITY = 27, 
+    LOGICAL_AND = 28, LOGICAL_OR = 29, INT = 30, FLOAT = 31, NAME = 32, 
+    LAYOUT = 33
   };
 
   explicit FscLexer(antlr4::CharStream *input);

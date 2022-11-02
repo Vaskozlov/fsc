@@ -1,10 +1,16 @@
 grammar Fsc;
 
-ADD     : [+];
-SUB     : [-];
-MUL     : [*];
-DIV     : [/];
-MOD     : [%];
+AS          : 'as';
+ADD         : [+];
+SUB         : [-];
+MUL         : [*];
+DIV         : [/];
+MOD         : [%];
+
+EQUALITY    : '==';
+INEQUALITY  : '!=';
+LOGICAL_AND : '&&';
+LOGICAL_OR  : '||';
 
 INT     :  [0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
 FLOAT   :  [0-9]*[.][0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
@@ -13,18 +19,12 @@ NAME      : [a-zA-Z_][a-zA-Z0-9_]*;
 
 LAYOUT  : [ \t] -> skip;
 
-program: (global_stmt)*;
+program: (stmt)*;
 
-global_stmt:    function
-            |   variable_definition stmt_end
-            |   auto_variable_definition stmt_end
-            |   stmt_end
-            ;
-
-stmt:   expr stmt_end
+stmt:   function
+    |   expr stmt_end
+    |   class stmt_end
     |   'return' expr stmt_end
-    |   variable_definition stmt_end
-    |   auto_variable_definition stmt_end
     |   stmt_end
     ;
 
@@ -32,10 +32,13 @@ stmt_end: ('\n' | '\r' | ';')+;
 
 function: 'func' NAME parameters ('->' NAME) ? ('\n'*) body;
 
-argument_definition: NAME ':' argument_passing_type NAME;
+argument_definition: argument_passing_type NAME NAME;
 argument_passing_type: 'in' | 'out' | 'inout';
 parameters: '(' (typed_arguments_list)? ')';
-typed_arguments_list: argument_definition ('=' expr)? ( ',' argument_definition ('=' expr)? )*;
+typed_arguments_list: argument ( ',' argument )*;
+argument: argument_definition ('=' expr)?;
+
+class: 'class' NAME ('\n')* body;
 
 function_call: NAME function_parameter;
 
@@ -43,18 +46,28 @@ function_parameter: '(' (function_typed_arguments_list)? ')';
 function_typed_arguments_list: function_argument ( ',' function_argument)*;
 function_argument : (NAME '=') ? expr;
 
-variable_definition: 'var' NAME ':' NAME '=' expr;
-auto_variable_definition: 'var' NAME '=' expr;
+variable_definition: variable_prefix NAME ':' NAME (('=' '\n'*) expr)?;
+auto_variable_definition: variable_prefix NAME '=' expr;
+
+variable_prefix: 'let' | 'var';
 
 body: '{' (stmt)* '}';
 
-expr:   expr MUL expr
+expr:   expr AS NAME
+    |   expr MUL expr
     |   expr DIV expr
     |   expr MOD expr
     |   expr ADD expr
     |   expr SUB expr
+    |   expr EQUALITY expr
+    |   expr INEQUALITY expr
+    |   expr LOGICAL_AND expr
+    |   expr LOGICAL_OR expr
     |   function_call
+    |   variable_definition
+    |   auto_variable_definition
     |   '(' expr ')'
+    |   body
     |   INT
     |   FLOAT
     |   NAME

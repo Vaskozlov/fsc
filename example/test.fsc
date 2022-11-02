@@ -1,8 +1,21 @@
-func __add__(lhs: in f32, rhs : in i32) -> f32
+class Default
 {
-    return rhs + lhs
+    var x = 10
+
+    func test() -> i32
+    {
+        return x
+    }
 }
 
-func main() -> f32 {
-    return 10.14 + f32(12)
+func f(in i32 lhs) -> i32
+{
+    lhs + lhs
+    return lhs * lhs / 2
+}
+
+func main(in i32 lhs = 0) -> i32
+{
+    var x = 0
+    return 10 + 2 * f(5 + 10 as i32)
 }

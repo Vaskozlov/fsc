@@ -14,18 +14,19 @@ public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
-    T__14 = 15, ADD = 16, SUB = 17, MUL = 18, DIV = 19, MOD = 20, IF = 21, 
-    FOR = 22, WHILE = 23, FUNC = 24, RETURN = 25, INT = 26, FLOAT = 27, 
-    NAME = 28, LAYOUT = 29
+    T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, AS = 20, 
+    ADD = 21, SUB = 22, MUL = 23, DIV = 24, MOD = 25, EQUALITY = 26, INEQUALITY = 27, 
+    LOGICAL_AND = 28, LOGICAL_OR = 29, INT = 30, FLOAT = 31, NAME = 32, 
+    LAYOUT = 33
   };
 
   enum {
-    RuleProgram = 0, RuleGlobal_stmt = 1, RuleStmt = 2, RuleStmt_end = 3, 
-    RuleFunction = 4, RuleArgument_definition = 5, RuleArgument_passing_type = 6, 
-    RuleParameters = 7, RuleTyped_arguments_list = 8, RuleFunction_call = 9, 
-    RuleFunction_parameter = 10, RuleFunction_typed_arguments_list = 11, 
-    RuleVariable_definition = 12, RuleAuto_variable_definition = 13, RuleBody = 14, 
-    RuleExpr = 15
+    RuleProgram = 0, RuleStmt = 1, RuleStmt_end = 2, RuleFunction = 3, RuleArgument_definition = 4, 
+    RuleArgument_passing_type = 5, RuleParameters = 6, RuleTyped_arguments_list = 7, 
+    RuleArgument = 8, RuleClass = 9, RuleFunction_call = 10, RuleFunction_parameter = 11, 
+    RuleFunction_typed_arguments_list = 12, RuleFunction_argument = 13, 
+    RuleVariable_definition = 14, RuleAuto_variable_definition = 15, RuleVariable_prefix = 16, 
+    RuleBody = 17, RuleExpr = 18
   };
 
   explicit FscParser(antlr4::TokenStream *input);
@@ -46,7 +47,6 @@ public:
 
 
   class ProgramContext;
-  class Global_stmtContext;
   class StmtContext;
   class Stmt_endContext;
   class FunctionContext;
@@ -54,11 +54,15 @@ public:
   class Argument_passing_typeContext;
   class ParametersContext;
   class Typed_arguments_listContext;
+  class ArgumentContext;
+  class ClassContext;
   class Function_callContext;
   class Function_parameterContext;
   class Function_typed_arguments_listContext;
+  class Function_argumentContext;
   class Variable_definitionContext;
   class Auto_variable_definitionContext;
+  class Variable_prefixContext;
   class BodyContext;
   class ExprContext; 
 
@@ -66,8 +70,8 @@ public:
   public:
     ProgramContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<Global_stmtContext *> global_stmt();
-    Global_stmtContext* global_stmt(size_t i);
+    std::vector<StmtContext *> stmt();
+    StmtContext* stmt(size_t i);
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -76,31 +80,14 @@ public:
 
   ProgramContext* program();
 
-  class  Global_stmtContext : public antlr4::ParserRuleContext {
-  public:
-    Global_stmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    FunctionContext *function();
-    Variable_definitionContext *variable_definition();
-    Stmt_endContext *stmt_end();
-    Auto_variable_definitionContext *auto_variable_definition();
-
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  Global_stmtContext* global_stmt();
-
   class  StmtContext : public antlr4::ParserRuleContext {
   public:
     StmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    FunctionContext *function();
     ExprContext *expr();
     Stmt_endContext *stmt_end();
-    antlr4::tree::TerminalNode *RETURN();
-    Variable_definitionContext *variable_definition();
-    Auto_variable_definitionContext *auto_variable_definition();
+    ClassContext *class_();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -125,7 +112,6 @@ public:
   public:
     FunctionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *FUNC();
     std::vector<antlr4::tree::TerminalNode *> NAME();
     antlr4::tree::TerminalNode* NAME(size_t i);
     ParametersContext *parameters();
@@ -142,9 +128,9 @@ public:
   public:
     Argument_definitionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    Argument_passing_typeContext *argument_passing_type();
     std::vector<antlr4::tree::TerminalNode *> NAME();
     antlr4::tree::TerminalNode* NAME(size_t i);
-    Argument_passing_typeContext *argument_passing_type();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -182,10 +168,8 @@ public:
   public:
     Typed_arguments_listContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<Argument_definitionContext *> argument_definition();
-    Argument_definitionContext* argument_definition(size_t i);
-    std::vector<ExprContext *> expr();
-    ExprContext* expr(size_t i);
+    std::vector<ArgumentContext *> argument();
+    ArgumentContext* argument(size_t i);
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -193,6 +177,34 @@ public:
   };
 
   Typed_arguments_listContext* typed_arguments_list();
+
+  class  ArgumentContext : public antlr4::ParserRuleContext {
+  public:
+    ArgumentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    Argument_definitionContext *argument_definition();
+    ExprContext *expr();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ArgumentContext* argument();
+
+  class  ClassContext : public antlr4::ParserRuleContext {
+  public:
+    ClassContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *NAME();
+    BodyContext *body();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ClassContext* class_();
 
   class  Function_callContext : public antlr4::ParserRuleContext {
   public:
@@ -225,10 +237,8 @@ public:
   public:
     Function_typed_arguments_listContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<ExprContext *> expr();
-    ExprContext* expr(size_t i);
-    std::vector<antlr4::tree::TerminalNode *> NAME();
-    antlr4::tree::TerminalNode* NAME(size_t i);
+    std::vector<Function_argumentContext *> function_argument();
+    Function_argumentContext* function_argument(size_t i);
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -237,10 +247,25 @@ public:
 
   Function_typed_arguments_listContext* function_typed_arguments_list();
 
+  class  Function_argumentContext : public antlr4::ParserRuleContext {
+  public:
+    Function_argumentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ExprContext *expr();
+    antlr4::tree::TerminalNode *NAME();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Function_argumentContext* function_argument();
+
   class  Variable_definitionContext : public antlr4::ParserRuleContext {
   public:
     Variable_definitionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    Variable_prefixContext *variable_prefix();
     std::vector<antlr4::tree::TerminalNode *> NAME();
     antlr4::tree::TerminalNode* NAME(size_t i);
     ExprContext *expr();
@@ -256,6 +281,7 @@ public:
   public:
     Auto_variable_definitionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    Variable_prefixContext *variable_prefix();
     antlr4::tree::TerminalNode *NAME();
     ExprContext *expr();
 
@@ -265,6 +291,18 @@ public:
   };
 
   Auto_variable_definitionContext* auto_variable_definition();
+
+  class  Variable_prefixContext : public antlr4::ParserRuleContext {
+  public:
+    Variable_prefixContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Variable_prefixContext* variable_prefix();
 
   class  BodyContext : public antlr4::ParserRuleContext {
   public:
@@ -285,8 +323,11 @@ public:
     ExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     Function_callContext *function_call();
+    Variable_definitionContext *variable_definition();
+    Auto_variable_definitionContext *auto_variable_definition();
     std::vector<ExprContext *> expr();
     ExprContext* expr(size_t i);
+    BodyContext *body();
     antlr4::tree::TerminalNode *INT();
     antlr4::tree::TerminalNode *FLOAT();
     antlr4::tree::TerminalNode *NAME();
@@ -295,6 +336,11 @@ public:
     antlr4::tree::TerminalNode *MOD();
     antlr4::tree::TerminalNode *ADD();
     antlr4::tree::TerminalNode *SUB();
+    antlr4::tree::TerminalNode *EQUALITY();
+    antlr4::tree::TerminalNode *INEQUALITY();
+    antlr4::tree::TerminalNode *LOGICAL_AND();
+    antlr4::tree::TerminalNode *LOGICAL_OR();
+    antlr4::tree::TerminalNode *AS();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;

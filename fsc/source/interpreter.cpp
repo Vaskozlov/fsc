@@ -16,6 +16,6 @@ namespace fsc {
         auto visitor = fsc::Visitor{};
         visitor.visit(tree);
 
-        fsc::Visitor::callMain();
+        visitor.callMain();
     }
 }// namespace fsc
