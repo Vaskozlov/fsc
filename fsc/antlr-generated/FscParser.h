@@ -14,19 +14,20 @@ public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
-    T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, AS = 20, 
-    ADD = 21, SUB = 22, MUL = 23, DIV = 24, MOD = 25, EQUALITY = 26, INEQUALITY = 27, 
-    LOGICAL_AND = 28, LOGICAL_OR = 29, INT = 30, FLOAT = 31, NAME = 32, 
-    LAYOUT = 33
+    T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
+    T__20 = 21, T__21 = 22, T__22 = 23, AS = 24, ADD = 25, SUB = 26, MUL = 27, 
+    DIV = 28, MOD = 29, EQUALITY = 30, INEQUALITY = 31, LOGICAL_AND = 32, 
+    LOGICAL_OR = 33, INT = 34, FLOAT = 35, NAME = 36, LAYOUT = 37
   };
 
   enum {
-    RuleProgram = 0, RuleStmt = 1, RuleStmt_end = 2, RuleFunction = 3, RuleArgument_definition = 4, 
-    RuleArgument_passing_type = 5, RuleParameters = 6, RuleTyped_arguments_list = 7, 
-    RuleArgument = 8, RuleClass = 9, RuleFunction_call = 10, RuleFunction_parameter = 11, 
-    RuleFunction_typed_arguments_list = 12, RuleFunction_argument = 13, 
-    RuleVariable_definition = 14, RuleAuto_variable_definition = 15, RuleVariable_prefix = 16, 
-    RuleBody = 17, RuleExpr = 18
+    RuleProgram = 0, RuleStmt = 1, RuleStmt_end = 2, RuleFunction = 3, RuleVisibility = 4, 
+    RuleFunction_attibutes = 5, RuleArgument_definition = 6, RuleArgument_passing_type = 7, 
+    RuleParameters = 8, RuleTyped_arguments_list = 9, RuleArgument = 10, 
+    RuleClass = 11, RuleFunction_call = 12, RuleFunction_parameter = 13, 
+    RuleFunction_typed_arguments_list = 14, RuleFunction_argument = 15, 
+    RuleVariable_definition = 16, RuleAuto_variable_definition = 17, RuleVariable_prefix = 18, 
+    RuleBody = 19, RuleExpr = 20
   };
 
   explicit FscParser(antlr4::TokenStream *input);
@@ -50,6 +51,8 @@ public:
   class StmtContext;
   class Stmt_endContext;
   class FunctionContext;
+  class VisibilityContext;
+  class Function_attibutesContext;
   class Argument_definitionContext;
   class Argument_passing_typeContext;
   class ParametersContext;
@@ -112,6 +115,7 @@ public:
   public:
     FunctionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    Function_attibutesContext *function_attibutes();
     std::vector<antlr4::tree::TerminalNode *> NAME();
     antlr4::tree::TerminalNode* NAME(size_t i);
     ParametersContext *parameters();
@@ -123,6 +127,31 @@ public:
   };
 
   FunctionContext* function();
+
+  class  VisibilityContext : public antlr4::ParserRuleContext {
+  public:
+    VisibilityContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  VisibilityContext* visibility();
+
+  class  Function_attibutesContext : public antlr4::ParserRuleContext {
+  public:
+    Function_attibutesContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    VisibilityContext *visibility();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Function_attibutesContext* function_attibutes();
 
   class  Argument_definitionContext : public antlr4::ParserRuleContext {
   public:

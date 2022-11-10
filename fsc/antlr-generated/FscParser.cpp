@@ -43,96 +43,100 @@ void fscParserInitialize() {
   assert(fscParserStaticData == nullptr);
   auto staticData = std::make_unique<FscParserStaticData>(
     std::vector<std::string>{
-      "program", "stmt", "stmt_end", "function", "argument_definition", 
-      "argument_passing_type", "parameters", "typed_arguments_list", "argument", 
-      "class", "function_call", "function_parameter", "function_typed_arguments_list", 
+      "program", "stmt", "stmt_end", "function", "visibility", "function_attibutes", 
+      "argument_definition", "argument_passing_type", "parameters", "typed_arguments_list", 
+      "argument", "class", "function_call", "function_parameter", "function_typed_arguments_list", 
       "function_argument", "variable_definition", "auto_variable_definition", 
       "variable_prefix", "body", "expr"
     },
     std::vector<std::string>{
-      "", "'return'", "'\\n'", "'\\r'", "';'", "'func'", "'->'", "'in'", 
-      "'out'", "'inout'", "'('", "')'", "','", "'='", "'class'", "':'", 
-      "'let'", "'var'", "'{'", "'}'", "'as'", "", "", "", "", "", "'=='", 
-      "'!='", "'&&'", "'||'"
+      "", "'return'", "'\\n'", "'\\r'", "';'", "'func'", "'->'", "'public'", 
+      "'private'", "'protected'", "'fileprivae'", "'in'", "'out'", "'inout'", 
+      "'('", "')'", "','", "'='", "'class'", "':'", "'let'", "'var'", "'{'", 
+      "'}'", "'as'", "", "", "", "", "", "'=='", "'!='", "'&&'", "'||'"
     },
     std::vector<std::string>{
       "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
-      "", "", "", "AS", "ADD", "SUB", "MUL", "DIV", "MOD", "EQUALITY", "INEQUALITY", 
-      "LOGICAL_AND", "LOGICAL_OR", "INT", "FLOAT", "NAME", "LAYOUT"
+      "", "", "", "", "", "", "", "AS", "ADD", "SUB", "MUL", "DIV", "MOD", 
+      "EQUALITY", "INEQUALITY", "LOGICAL_AND", "LOGICAL_OR", "INT", "FLOAT", 
+      "NAME", "LAYOUT"
     }
   );
   static const int32_t serializedATNSegment[] = {
-  	4,1,33,216,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
+  	4,1,37,226,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
   	7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,
-  	14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,1,0,5,0,40,8,0,10,0,12,0,43,
-  	9,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,57,8,1,1,2,4,
-  	2,60,8,2,11,2,12,2,61,1,3,1,3,1,3,1,3,1,3,3,3,69,8,3,1,3,5,3,72,8,3,10,
-  	3,12,3,75,9,3,1,3,1,3,1,4,1,4,1,4,1,4,1,5,1,5,1,6,1,6,3,6,87,8,6,1,6,
-  	1,6,1,7,1,7,1,7,5,7,94,8,7,10,7,12,7,97,9,7,1,8,1,8,1,8,3,8,102,8,8,1,
-  	9,1,9,1,9,5,9,107,8,9,10,9,12,9,110,9,9,1,9,1,9,1,10,1,10,1,10,1,11,1,
-  	11,3,11,119,8,11,1,11,1,11,1,12,1,12,1,12,5,12,126,8,12,10,12,12,12,129,
-  	9,12,1,13,1,13,3,13,133,8,13,1,13,1,13,1,14,1,14,1,14,1,14,1,14,1,14,
-  	5,14,143,8,14,10,14,12,14,146,9,14,1,14,3,14,149,8,14,1,15,1,15,1,15,
-  	1,15,1,15,1,16,1,16,1,17,1,17,5,17,160,8,17,10,17,12,17,163,9,17,1,17,
-  	1,17,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,3,18,
-  	179,8,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,
-  	1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,
-  	1,18,1,18,1,18,1,18,5,18,211,8,18,10,18,12,18,214,9,18,1,18,0,1,36,19,
-  	0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,0,3,1,0,2,4,1,0,7,
-  	9,1,0,16,17,231,0,41,1,0,0,0,2,56,1,0,0,0,4,59,1,0,0,0,6,63,1,0,0,0,8,
-  	78,1,0,0,0,10,82,1,0,0,0,12,84,1,0,0,0,14,90,1,0,0,0,16,98,1,0,0,0,18,
-  	103,1,0,0,0,20,113,1,0,0,0,22,116,1,0,0,0,24,122,1,0,0,0,26,132,1,0,0,
-  	0,28,136,1,0,0,0,30,150,1,0,0,0,32,155,1,0,0,0,34,157,1,0,0,0,36,178,
-  	1,0,0,0,38,40,3,2,1,0,39,38,1,0,0,0,40,43,1,0,0,0,41,39,1,0,0,0,41,42,
-  	1,0,0,0,42,1,1,0,0,0,43,41,1,0,0,0,44,57,3,6,3,0,45,46,3,36,18,0,46,47,
-  	3,4,2,0,47,57,1,0,0,0,48,49,3,18,9,0,49,50,3,4,2,0,50,57,1,0,0,0,51,52,
-  	5,1,0,0,52,53,3,36,18,0,53,54,3,4,2,0,54,57,1,0,0,0,55,57,3,4,2,0,56,
-  	44,1,0,0,0,56,45,1,0,0,0,56,48,1,0,0,0,56,51,1,0,0,0,56,55,1,0,0,0,57,
-  	3,1,0,0,0,58,60,7,0,0,0,59,58,1,0,0,0,60,61,1,0,0,0,61,59,1,0,0,0,61,
-  	62,1,0,0,0,62,5,1,0,0,0,63,64,5,5,0,0,64,65,5,32,0,0,65,68,3,12,6,0,66,
-  	67,5,6,0,0,67,69,5,32,0,0,68,66,1,0,0,0,68,69,1,0,0,0,69,73,1,0,0,0,70,
-  	72,5,2,0,0,71,70,1,0,0,0,72,75,1,0,0,0,73,71,1,0,0,0,73,74,1,0,0,0,74,
-  	76,1,0,0,0,75,73,1,0,0,0,76,77,3,34,17,0,77,7,1,0,0,0,78,79,3,10,5,0,
-  	79,80,5,32,0,0,80,81,5,32,0,0,81,9,1,0,0,0,82,83,7,1,0,0,83,11,1,0,0,
-  	0,84,86,5,10,0,0,85,87,3,14,7,0,86,85,1,0,0,0,86,87,1,0,0,0,87,88,1,0,
-  	0,0,88,89,5,11,0,0,89,13,1,0,0,0,90,95,3,16,8,0,91,92,5,12,0,0,92,94,
-  	3,16,8,0,93,91,1,0,0,0,94,97,1,0,0,0,95,93,1,0,0,0,95,96,1,0,0,0,96,15,
-  	1,0,0,0,97,95,1,0,0,0,98,101,3,8,4,0,99,100,5,13,0,0,100,102,3,36,18,
-  	0,101,99,1,0,0,0,101,102,1,0,0,0,102,17,1,0,0,0,103,104,5,14,0,0,104,
-  	108,5,32,0,0,105,107,5,2,0,0,106,105,1,0,0,0,107,110,1,0,0,0,108,106,
-  	1,0,0,0,108,109,1,0,0,0,109,111,1,0,0,0,110,108,1,0,0,0,111,112,3,34,
-  	17,0,112,19,1,0,0,0,113,114,5,32,0,0,114,115,3,22,11,0,115,21,1,0,0,0,
-  	116,118,5,10,0,0,117,119,3,24,12,0,118,117,1,0,0,0,118,119,1,0,0,0,119,
-  	120,1,0,0,0,120,121,5,11,0,0,121,23,1,0,0,0,122,127,3,26,13,0,123,124,
-  	5,12,0,0,124,126,3,26,13,0,125,123,1,0,0,0,126,129,1,0,0,0,127,125,1,
-  	0,0,0,127,128,1,0,0,0,128,25,1,0,0,0,129,127,1,0,0,0,130,131,5,32,0,0,
-  	131,133,5,13,0,0,132,130,1,0,0,0,132,133,1,0,0,0,133,134,1,0,0,0,134,
-  	135,3,36,18,0,135,27,1,0,0,0,136,137,3,32,16,0,137,138,5,32,0,0,138,139,
-  	5,15,0,0,139,148,5,32,0,0,140,144,5,13,0,0,141,143,5,2,0,0,142,141,1,
-  	0,0,0,143,146,1,0,0,0,144,142,1,0,0,0,144,145,1,0,0,0,145,147,1,0,0,0,
-  	146,144,1,0,0,0,147,149,3,36,18,0,148,140,1,0,0,0,148,149,1,0,0,0,149,
-  	29,1,0,0,0,150,151,3,32,16,0,151,152,5,32,0,0,152,153,5,13,0,0,153,154,
-  	3,36,18,0,154,31,1,0,0,0,155,156,7,2,0,0,156,33,1,0,0,0,157,161,5,18,
-  	0,0,158,160,3,2,1,0,159,158,1,0,0,0,160,163,1,0,0,0,161,159,1,0,0,0,161,
-  	162,1,0,0,0,162,164,1,0,0,0,163,161,1,0,0,0,164,165,5,19,0,0,165,35,1,
-  	0,0,0,166,167,6,18,-1,0,167,179,3,20,10,0,168,179,3,28,14,0,169,179,3,
-  	30,15,0,170,171,5,10,0,0,171,172,3,36,18,0,172,173,5,11,0,0,173,179,1,
-  	0,0,0,174,179,3,34,17,0,175,179,5,30,0,0,176,179,5,31,0,0,177,179,5,32,
-  	0,0,178,166,1,0,0,0,178,168,1,0,0,0,178,169,1,0,0,0,178,170,1,0,0,0,178,
-  	174,1,0,0,0,178,175,1,0,0,0,178,176,1,0,0,0,178,177,1,0,0,0,179,212,1,
-  	0,0,0,180,181,10,17,0,0,181,182,5,23,0,0,182,211,3,36,18,18,183,184,10,
-  	16,0,0,184,185,5,24,0,0,185,211,3,36,18,17,186,187,10,15,0,0,187,188,
-  	5,25,0,0,188,211,3,36,18,16,189,190,10,14,0,0,190,191,5,21,0,0,191,211,
-  	3,36,18,15,192,193,10,13,0,0,193,194,5,22,0,0,194,211,3,36,18,14,195,
-  	196,10,12,0,0,196,197,5,26,0,0,197,211,3,36,18,13,198,199,10,11,0,0,199,
-  	200,5,27,0,0,200,211,3,36,18,12,201,202,10,10,0,0,202,203,5,28,0,0,203,
-  	211,3,36,18,11,204,205,10,9,0,0,205,206,5,29,0,0,206,211,3,36,18,10,207,
-  	208,10,18,0,0,208,209,5,20,0,0,209,211,5,32,0,0,210,180,1,0,0,0,210,183,
-  	1,0,0,0,210,186,1,0,0,0,210,189,1,0,0,0,210,192,1,0,0,0,210,195,1,0,0,
-  	0,210,198,1,0,0,0,210,201,1,0,0,0,210,204,1,0,0,0,210,207,1,0,0,0,211,
-  	214,1,0,0,0,212,210,1,0,0,0,212,213,1,0,0,0,213,37,1,0,0,0,214,212,1,
-  	0,0,0,18,41,56,61,68,73,86,95,101,108,118,127,132,144,148,161,178,210,
-  	212
+  	14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,1,0,5,
+  	0,44,8,0,10,0,12,0,47,9,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  	1,1,3,1,61,8,1,1,2,4,2,64,8,2,11,2,12,2,65,1,3,1,3,1,3,1,3,1,3,1,3,3,
+  	3,74,8,3,1,3,5,3,77,8,3,10,3,12,3,80,9,3,1,3,1,3,1,4,1,4,1,5,3,5,87,8,
+  	5,1,6,1,6,1,6,1,6,1,7,1,7,1,8,1,8,3,8,97,8,8,1,8,1,8,1,9,1,9,1,9,5,9,
+  	104,8,9,10,9,12,9,107,9,9,1,10,1,10,1,10,3,10,112,8,10,1,11,1,11,1,11,
+  	5,11,117,8,11,10,11,12,11,120,9,11,1,11,1,11,1,12,1,12,1,12,1,13,1,13,
+  	3,13,129,8,13,1,13,1,13,1,14,1,14,1,14,5,14,136,8,14,10,14,12,14,139,
+  	9,14,1,15,1,15,3,15,143,8,15,1,15,1,15,1,16,1,16,1,16,1,16,1,16,1,16,
+  	5,16,153,8,16,10,16,12,16,156,9,16,1,16,3,16,159,8,16,1,17,1,17,1,17,
+  	1,17,1,17,1,18,1,18,1,19,1,19,5,19,170,8,19,10,19,12,19,173,9,19,1,19,
+  	1,19,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,3,20,
+  	189,8,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,
+  	1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,1,20,
+  	1,20,1,20,1,20,1,20,5,20,221,8,20,10,20,12,20,224,9,20,1,20,0,1,40,21,
+  	0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,0,4,1,0,2,4,
+  	1,0,7,10,1,0,11,13,1,0,20,21,240,0,45,1,0,0,0,2,60,1,0,0,0,4,63,1,0,0,
+  	0,6,67,1,0,0,0,8,83,1,0,0,0,10,86,1,0,0,0,12,88,1,0,0,0,14,92,1,0,0,0,
+  	16,94,1,0,0,0,18,100,1,0,0,0,20,108,1,0,0,0,22,113,1,0,0,0,24,123,1,0,
+  	0,0,26,126,1,0,0,0,28,132,1,0,0,0,30,142,1,0,0,0,32,146,1,0,0,0,34,160,
+  	1,0,0,0,36,165,1,0,0,0,38,167,1,0,0,0,40,188,1,0,0,0,42,44,3,2,1,0,43,
+  	42,1,0,0,0,44,47,1,0,0,0,45,43,1,0,0,0,45,46,1,0,0,0,46,1,1,0,0,0,47,
+  	45,1,0,0,0,48,61,3,6,3,0,49,50,3,40,20,0,50,51,3,4,2,0,51,61,1,0,0,0,
+  	52,53,3,22,11,0,53,54,3,4,2,0,54,61,1,0,0,0,55,56,5,1,0,0,56,57,3,40,
+  	20,0,57,58,3,4,2,0,58,61,1,0,0,0,59,61,3,4,2,0,60,48,1,0,0,0,60,49,1,
+  	0,0,0,60,52,1,0,0,0,60,55,1,0,0,0,60,59,1,0,0,0,61,3,1,0,0,0,62,64,7,
+  	0,0,0,63,62,1,0,0,0,64,65,1,0,0,0,65,63,1,0,0,0,65,66,1,0,0,0,66,5,1,
+  	0,0,0,67,68,3,10,5,0,68,69,5,5,0,0,69,70,5,36,0,0,70,73,3,16,8,0,71,72,
+  	5,6,0,0,72,74,5,36,0,0,73,71,1,0,0,0,73,74,1,0,0,0,74,78,1,0,0,0,75,77,
+  	5,2,0,0,76,75,1,0,0,0,77,80,1,0,0,0,78,76,1,0,0,0,78,79,1,0,0,0,79,81,
+  	1,0,0,0,80,78,1,0,0,0,81,82,3,38,19,0,82,7,1,0,0,0,83,84,7,1,0,0,84,9,
+  	1,0,0,0,85,87,3,8,4,0,86,85,1,0,0,0,86,87,1,0,0,0,87,11,1,0,0,0,88,89,
+  	3,14,7,0,89,90,5,36,0,0,90,91,5,36,0,0,91,13,1,0,0,0,92,93,7,2,0,0,93,
+  	15,1,0,0,0,94,96,5,14,0,0,95,97,3,18,9,0,96,95,1,0,0,0,96,97,1,0,0,0,
+  	97,98,1,0,0,0,98,99,5,15,0,0,99,17,1,0,0,0,100,105,3,20,10,0,101,102,
+  	5,16,0,0,102,104,3,20,10,0,103,101,1,0,0,0,104,107,1,0,0,0,105,103,1,
+  	0,0,0,105,106,1,0,0,0,106,19,1,0,0,0,107,105,1,0,0,0,108,111,3,12,6,0,
+  	109,110,5,17,0,0,110,112,3,40,20,0,111,109,1,0,0,0,111,112,1,0,0,0,112,
+  	21,1,0,0,0,113,114,5,18,0,0,114,118,5,36,0,0,115,117,5,2,0,0,116,115,
+  	1,0,0,0,117,120,1,0,0,0,118,116,1,0,0,0,118,119,1,0,0,0,119,121,1,0,0,
+  	0,120,118,1,0,0,0,121,122,3,38,19,0,122,23,1,0,0,0,123,124,5,36,0,0,124,
+  	125,3,26,13,0,125,25,1,0,0,0,126,128,5,14,0,0,127,129,3,28,14,0,128,127,
+  	1,0,0,0,128,129,1,0,0,0,129,130,1,0,0,0,130,131,5,15,0,0,131,27,1,0,0,
+  	0,132,137,3,30,15,0,133,134,5,16,0,0,134,136,3,30,15,0,135,133,1,0,0,
+  	0,136,139,1,0,0,0,137,135,1,0,0,0,137,138,1,0,0,0,138,29,1,0,0,0,139,
+  	137,1,0,0,0,140,141,5,36,0,0,141,143,5,17,0,0,142,140,1,0,0,0,142,143,
+  	1,0,0,0,143,144,1,0,0,0,144,145,3,40,20,0,145,31,1,0,0,0,146,147,3,36,
+  	18,0,147,148,5,36,0,0,148,149,5,19,0,0,149,158,5,36,0,0,150,154,5,17,
+  	0,0,151,153,5,2,0,0,152,151,1,0,0,0,153,156,1,0,0,0,154,152,1,0,0,0,154,
+  	155,1,0,0,0,155,157,1,0,0,0,156,154,1,0,0,0,157,159,3,40,20,0,158,150,
+  	1,0,0,0,158,159,1,0,0,0,159,33,1,0,0,0,160,161,3,36,18,0,161,162,5,36,
+  	0,0,162,163,5,17,0,0,163,164,3,40,20,0,164,35,1,0,0,0,165,166,7,3,0,0,
+  	166,37,1,0,0,0,167,171,5,22,0,0,168,170,3,2,1,0,169,168,1,0,0,0,170,173,
+  	1,0,0,0,171,169,1,0,0,0,171,172,1,0,0,0,172,174,1,0,0,0,173,171,1,0,0,
+  	0,174,175,5,23,0,0,175,39,1,0,0,0,176,177,6,20,-1,0,177,189,3,24,12,0,
+  	178,189,3,32,16,0,179,189,3,34,17,0,180,181,5,14,0,0,181,182,3,40,20,
+  	0,182,183,5,15,0,0,183,189,1,0,0,0,184,189,3,38,19,0,185,189,5,34,0,0,
+  	186,189,5,35,0,0,187,189,5,36,0,0,188,176,1,0,0,0,188,178,1,0,0,0,188,
+  	179,1,0,0,0,188,180,1,0,0,0,188,184,1,0,0,0,188,185,1,0,0,0,188,186,1,
+  	0,0,0,188,187,1,0,0,0,189,222,1,0,0,0,190,191,10,17,0,0,191,192,5,27,
+  	0,0,192,221,3,40,20,18,193,194,10,16,0,0,194,195,5,28,0,0,195,221,3,40,
+  	20,17,196,197,10,15,0,0,197,198,5,29,0,0,198,221,3,40,20,16,199,200,10,
+  	14,0,0,200,201,5,25,0,0,201,221,3,40,20,15,202,203,10,13,0,0,203,204,
+  	5,26,0,0,204,221,3,40,20,14,205,206,10,12,0,0,206,207,5,30,0,0,207,221,
+  	3,40,20,13,208,209,10,11,0,0,209,210,5,31,0,0,210,221,3,40,20,12,211,
+  	212,10,10,0,0,212,213,5,32,0,0,213,221,3,40,20,11,214,215,10,9,0,0,215,
+  	216,5,33,0,0,216,221,3,40,20,10,217,218,10,18,0,0,218,219,5,24,0,0,219,
+  	221,5,36,0,0,220,190,1,0,0,0,220,193,1,0,0,0,220,196,1,0,0,0,220,199,
+  	1,0,0,0,220,202,1,0,0,0,220,205,1,0,0,0,220,208,1,0,0,0,220,211,1,0,0,
+  	0,220,214,1,0,0,0,220,217,1,0,0,0,221,224,1,0,0,0,222,220,1,0,0,0,222,
+  	223,1,0,0,0,223,41,1,0,0,0,224,222,1,0,0,0,19,45,60,65,73,78,86,96,105,
+  	111,118,128,137,142,154,158,171,188,220,222
   };
   staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
 
@@ -222,14 +226,14 @@ FscParser::ProgramContext* FscParser::program() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(41);
+    setState(45);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & 7516668990) != 0) {
-      setState(38);
+      ((1ULL << _la) & 120266704830) != 0) {
+      setState(42);
       stmt();
-      setState(43);
+      setState(47);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -291,47 +295,51 @@ FscParser::StmtContext* FscParser::stmt() {
     exitRule();
   });
   try {
-    setState(56);
+    setState(60);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
-      case FscParser::T__4: {
+      case FscParser::T__4:
+      case FscParser::T__6:
+      case FscParser::T__7:
+      case FscParser::T__8:
+      case FscParser::T__9: {
         enterOuterAlt(_localctx, 1);
-        setState(44);
+        setState(48);
         function();
         break;
       }
 
-      case FscParser::T__9:
-      case FscParser::T__15:
-      case FscParser::T__16:
-      case FscParser::T__17:
+      case FscParser::T__13:
+      case FscParser::T__19:
+      case FscParser::T__20:
+      case FscParser::T__21:
       case FscParser::INT:
       case FscParser::FLOAT:
       case FscParser::NAME: {
         enterOuterAlt(_localctx, 2);
-        setState(45);
+        setState(49);
         expr(0);
-        setState(46);
+        setState(50);
         stmt_end();
         break;
       }
 
-      case FscParser::T__13: {
+      case FscParser::T__17: {
         enterOuterAlt(_localctx, 3);
-        setState(48);
+        setState(52);
         class_();
-        setState(49);
+        setState(53);
         stmt_end();
         break;
       }
 
       case FscParser::T__0: {
         enterOuterAlt(_localctx, 4);
-        setState(51);
+        setState(55);
         match(FscParser::T__0);
-        setState(52);
+        setState(56);
         expr(0);
-        setState(53);
+        setState(57);
         stmt_end();
         break;
       }
@@ -340,7 +348,7 @@ FscParser::StmtContext* FscParser::stmt() {
       case FscParser::T__2:
       case FscParser::T__3: {
         enterOuterAlt(_localctx, 5);
-        setState(55);
+        setState(59);
         stmt_end();
         break;
       }
@@ -393,13 +401,13 @@ FscParser::Stmt_endContext* FscParser::stmt_end() {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(59); 
+    setState(63); 
     _errHandler->sync(this);
     alt = 1;
     do {
       switch (alt) {
         case 1: {
-              setState(58);
+              setState(62);
               _la = _input->LA(1);
               if (!(((_la & ~ 0x3fULL) == 0) &&
                 ((1ULL << _la) & 28) != 0)) {
@@ -415,7 +423,7 @@ FscParser::Stmt_endContext* FscParser::stmt_end() {
       default:
         throw NoViableAltException(this);
       }
-      setState(61); 
+      setState(65); 
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 2, _ctx);
     } while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER);
@@ -434,6 +442,10 @@ FscParser::Stmt_endContext* FscParser::stmt_end() {
 
 FscParser::FunctionContext::FunctionContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
+}
+
+FscParser::Function_attibutesContext* FscParser::FunctionContext::function_attibutes() {
+  return getRuleContext<FscParser::Function_attibutesContext>(0);
 }
 
 std::vector<tree::TerminalNode *> FscParser::FunctionContext::NAME() {
@@ -479,35 +491,148 @@ FscParser::FunctionContext* FscParser::function() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(63);
-    match(FscParser::T__4);
-    setState(64);
-    match(FscParser::NAME);
-    setState(65);
-    parameters();
+    setState(67);
+    function_attibutes();
     setState(68);
+    match(FscParser::T__4);
+    setState(69);
+    match(FscParser::NAME);
+    setState(70);
+    parameters();
+    setState(73);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == FscParser::T__5) {
-      setState(66);
+      setState(71);
       match(FscParser::T__5);
-      setState(67);
+      setState(72);
       match(FscParser::NAME);
     }
 
-    setState(73);
+    setState(78);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == FscParser::T__1) {
-      setState(70);
-      match(FscParser::T__1);
       setState(75);
+      match(FscParser::T__1);
+      setState(80);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(76);
+    setState(81);
     body();
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- VisibilityContext ------------------------------------------------------------------
+
+FscParser::VisibilityContext::VisibilityContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+
+size_t FscParser::VisibilityContext::getRuleIndex() const {
+  return FscParser::RuleVisibility;
+}
+
+
+std::any FscParser::VisibilityContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<FscVisitor*>(visitor))
+    return parserVisitor->visitVisibility(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+FscParser::VisibilityContext* FscParser::visibility() {
+  VisibilityContext *_localctx = _tracker.createInstance<VisibilityContext>(_ctx, getState());
+  enterRule(_localctx, 8, FscParser::RuleVisibility);
+  size_t _la = 0;
+
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
+  auto onExit = finally([=] {
+#endif
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(83);
+    _la = _input->LA(1);
+    if (!(((_la & ~ 0x3fULL) == 0) &&
+      ((1ULL << _la) & 1920) != 0)) {
+    _errHandler->recoverInline(this);
+    }
+    else {
+      _errHandler->reportMatch(this);
+      consume();
+    }
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- Function_attibutesContext ------------------------------------------------------------------
+
+FscParser::Function_attibutesContext::Function_attibutesContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+FscParser::VisibilityContext* FscParser::Function_attibutesContext::visibility() {
+  return getRuleContext<FscParser::VisibilityContext>(0);
+}
+
+
+size_t FscParser::Function_attibutesContext::getRuleIndex() const {
+  return FscParser::RuleFunction_attibutes;
+}
+
+
+std::any FscParser::Function_attibutesContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<FscVisitor*>(visitor))
+    return parserVisitor->visitFunction_attibutes(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+FscParser::Function_attibutesContext* FscParser::function_attibutes() {
+  Function_attibutesContext *_localctx = _tracker.createInstance<Function_attibutesContext>(_ctx, getState());
+  enterRule(_localctx, 10, FscParser::RuleFunction_attibutes);
+  size_t _la = 0;
+
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
+  auto onExit = finally([=] {
+#endif
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(86);
+    _errHandler->sync(this);
+
+    _la = _input->LA(1);
+    if (((_la & ~ 0x3fULL) == 0) &&
+      ((1ULL << _la) & 1920) != 0) {
+      setState(85);
+      visibility();
+    }
    
   }
   catch (RecognitionException &e) {
@@ -552,7 +677,7 @@ std::any FscParser::Argument_definitionContext::accept(tree::ParseTreeVisitor *v
 
 FscParser::Argument_definitionContext* FscParser::argument_definition() {
   Argument_definitionContext *_localctx = _tracker.createInstance<Argument_definitionContext>(_ctx, getState());
-  enterRule(_localctx, 8, FscParser::RuleArgument_definition);
+  enterRule(_localctx, 12, FscParser::RuleArgument_definition);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -563,11 +688,11 @@ FscParser::Argument_definitionContext* FscParser::argument_definition() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(78);
+    setState(88);
     argument_passing_type();
-    setState(79);
+    setState(89);
     match(FscParser::NAME);
-    setState(80);
+    setState(90);
     match(FscParser::NAME);
    
   }
@@ -601,7 +726,7 @@ std::any FscParser::Argument_passing_typeContext::accept(tree::ParseTreeVisitor 
 
 FscParser::Argument_passing_typeContext* FscParser::argument_passing_type() {
   Argument_passing_typeContext *_localctx = _tracker.createInstance<Argument_passing_typeContext>(_ctx, getState());
-  enterRule(_localctx, 10, FscParser::RuleArgument_passing_type);
+  enterRule(_localctx, 14, FscParser::RuleArgument_passing_type);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -613,10 +738,10 @@ FscParser::Argument_passing_typeContext* FscParser::argument_passing_type() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(82);
+    setState(92);
     _la = _input->LA(1);
     if (!(((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & 896) != 0)) {
+      ((1ULL << _la) & 14336) != 0)) {
     _errHandler->recoverInline(this);
     }
     else {
@@ -659,7 +784,7 @@ std::any FscParser::ParametersContext::accept(tree::ParseTreeVisitor *visitor) {
 
 FscParser::ParametersContext* FscParser::parameters() {
   ParametersContext *_localctx = _tracker.createInstance<ParametersContext>(_ctx, getState());
-  enterRule(_localctx, 12, FscParser::RuleParameters);
+  enterRule(_localctx, 16, FscParser::RuleParameters);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -671,19 +796,19 @@ FscParser::ParametersContext* FscParser::parameters() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(84);
-    match(FscParser::T__9);
-    setState(86);
+    setState(94);
+    match(FscParser::T__13);
+    setState(96);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & 896) != 0) {
-      setState(85);
+      ((1ULL << _la) & 14336) != 0) {
+      setState(95);
       typed_arguments_list();
     }
-    setState(88);
-    match(FscParser::T__10);
+    setState(98);
+    match(FscParser::T__14);
    
   }
   catch (RecognitionException &e) {
@@ -724,7 +849,7 @@ std::any FscParser::Typed_arguments_listContext::accept(tree::ParseTreeVisitor *
 
 FscParser::Typed_arguments_listContext* FscParser::typed_arguments_list() {
   Typed_arguments_listContext *_localctx = _tracker.createInstance<Typed_arguments_listContext>(_ctx, getState());
-  enterRule(_localctx, 14, FscParser::RuleTyped_arguments_list);
+  enterRule(_localctx, 18, FscParser::RuleTyped_arguments_list);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -736,17 +861,17 @@ FscParser::Typed_arguments_listContext* FscParser::typed_arguments_list() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(90);
+    setState(100);
     argument();
-    setState(95);
+    setState(105);
     _errHandler->sync(this);
     _la = _input->LA(1);
-    while (_la == FscParser::T__11) {
-      setState(91);
-      match(FscParser::T__11);
-      setState(92);
+    while (_la == FscParser::T__15) {
+      setState(101);
+      match(FscParser::T__15);
+      setState(102);
       argument();
-      setState(97);
+      setState(107);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -790,7 +915,7 @@ std::any FscParser::ArgumentContext::accept(tree::ParseTreeVisitor *visitor) {
 
 FscParser::ArgumentContext* FscParser::argument() {
   ArgumentContext *_localctx = _tracker.createInstance<ArgumentContext>(_ctx, getState());
-  enterRule(_localctx, 16, FscParser::RuleArgument);
+  enterRule(_localctx, 20, FscParser::RuleArgument);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -802,16 +927,16 @@ FscParser::ArgumentContext* FscParser::argument() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(98);
+    setState(108);
     argument_definition();
-    setState(101);
+    setState(111);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
-    if (_la == FscParser::T__12) {
-      setState(99);
-      match(FscParser::T__12);
-      setState(100);
+    if (_la == FscParser::T__16) {
+      setState(109);
+      match(FscParser::T__16);
+      setState(110);
       expr(0);
     }
    
@@ -854,7 +979,7 @@ std::any FscParser::ClassContext::accept(tree::ParseTreeVisitor *visitor) {
 
 FscParser::ClassContext* FscParser::class_() {
   ClassContext *_localctx = _tracker.createInstance<ClassContext>(_ctx, getState());
-  enterRule(_localctx, 18, FscParser::RuleClass);
+  enterRule(_localctx, 22, FscParser::RuleClass);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -866,21 +991,21 @@ FscParser::ClassContext* FscParser::class_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(103);
-    match(FscParser::T__13);
-    setState(104);
+    setState(113);
+    match(FscParser::T__17);
+    setState(114);
     match(FscParser::NAME);
-    setState(108);
+    setState(118);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == FscParser::T__1) {
-      setState(105);
+      setState(115);
       match(FscParser::T__1);
-      setState(110);
+      setState(120);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(111);
+    setState(121);
     body();
    
   }
@@ -922,7 +1047,7 @@ std::any FscParser::Function_callContext::accept(tree::ParseTreeVisitor *visitor
 
 FscParser::Function_callContext* FscParser::function_call() {
   Function_callContext *_localctx = _tracker.createInstance<Function_callContext>(_ctx, getState());
-  enterRule(_localctx, 20, FscParser::RuleFunction_call);
+  enterRule(_localctx, 24, FscParser::RuleFunction_call);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -933,9 +1058,9 @@ FscParser::Function_callContext* FscParser::function_call() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(113);
+    setState(123);
     match(FscParser::NAME);
-    setState(114);
+    setState(124);
     function_parameter();
    
   }
@@ -973,7 +1098,7 @@ std::any FscParser::Function_parameterContext::accept(tree::ParseTreeVisitor *vi
 
 FscParser::Function_parameterContext* FscParser::function_parameter() {
   Function_parameterContext *_localctx = _tracker.createInstance<Function_parameterContext>(_ctx, getState());
-  enterRule(_localctx, 22, FscParser::RuleFunction_parameter);
+  enterRule(_localctx, 26, FscParser::RuleFunction_parameter);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -985,19 +1110,19 @@ FscParser::Function_parameterContext* FscParser::function_parameter() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(116);
-    match(FscParser::T__9);
-    setState(118);
+    setState(126);
+    match(FscParser::T__13);
+    setState(128);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & 7516652544) != 0) {
-      setState(117);
+      ((1ULL << _la) & 120266440704) != 0) {
+      setState(127);
       function_typed_arguments_list();
     }
-    setState(120);
-    match(FscParser::T__10);
+    setState(130);
+    match(FscParser::T__14);
    
   }
   catch (RecognitionException &e) {
@@ -1038,7 +1163,7 @@ std::any FscParser::Function_typed_arguments_listContext::accept(tree::ParseTree
 
 FscParser::Function_typed_arguments_listContext* FscParser::function_typed_arguments_list() {
   Function_typed_arguments_listContext *_localctx = _tracker.createInstance<Function_typed_arguments_listContext>(_ctx, getState());
-  enterRule(_localctx, 24, FscParser::RuleFunction_typed_arguments_list);
+  enterRule(_localctx, 28, FscParser::RuleFunction_typed_arguments_list);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1050,17 +1175,17 @@ FscParser::Function_typed_arguments_listContext* FscParser::function_typed_argum
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(122);
+    setState(132);
     function_argument();
-    setState(127);
+    setState(137);
     _errHandler->sync(this);
     _la = _input->LA(1);
-    while (_la == FscParser::T__11) {
-      setState(123);
-      match(FscParser::T__11);
-      setState(124);
+    while (_la == FscParser::T__15) {
+      setState(133);
+      match(FscParser::T__15);
+      setState(134);
       function_argument();
-      setState(129);
+      setState(139);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -1104,7 +1229,7 @@ std::any FscParser::Function_argumentContext::accept(tree::ParseTreeVisitor *vis
 
 FscParser::Function_argumentContext* FscParser::function_argument() {
   Function_argumentContext *_localctx = _tracker.createInstance<Function_argumentContext>(_ctx, getState());
-  enterRule(_localctx, 26, FscParser::RuleFunction_argument);
+  enterRule(_localctx, 30, FscParser::RuleFunction_argument);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -1115,22 +1240,22 @@ FscParser::Function_argumentContext* FscParser::function_argument() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(132);
+    setState(142);
     _errHandler->sync(this);
 
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 11, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 12, _ctx)) {
     case 1: {
-      setState(130);
+      setState(140);
       match(FscParser::NAME);
-      setState(131);
-      match(FscParser::T__12);
+      setState(141);
+      match(FscParser::T__16);
       break;
     }
 
     default:
       break;
     }
-    setState(134);
+    setState(144);
     expr(0);
    
   }
@@ -1180,7 +1305,7 @@ std::any FscParser::Variable_definitionContext::accept(tree::ParseTreeVisitor *v
 
 FscParser::Variable_definitionContext* FscParser::variable_definition() {
   Variable_definitionContext *_localctx = _tracker.createInstance<Variable_definitionContext>(_ctx, getState());
-  enterRule(_localctx, 28, FscParser::RuleVariable_definition);
+  enterRule(_localctx, 32, FscParser::RuleVariable_definition);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1192,32 +1317,32 @@ FscParser::Variable_definitionContext* FscParser::variable_definition() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(136);
+    setState(146);
     variable_prefix();
-    setState(137);
-    match(FscParser::NAME);
-    setState(138);
-    match(FscParser::T__14);
-    setState(139);
+    setState(147);
     match(FscParser::NAME);
     setState(148);
+    match(FscParser::T__18);
+    setState(149);
+    match(FscParser::NAME);
+    setState(158);
     _errHandler->sync(this);
 
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 13, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 14, _ctx)) {
     case 1: {
-      setState(140);
-      match(FscParser::T__12);
-      setState(144);
+      setState(150);
+      match(FscParser::T__16);
+      setState(154);
       _errHandler->sync(this);
       _la = _input->LA(1);
       while (_la == FscParser::T__1) {
-        setState(141);
+        setState(151);
         match(FscParser::T__1);
-        setState(146);
+        setState(156);
         _errHandler->sync(this);
         _la = _input->LA(1);
       }
-      setState(147);
+      setState(157);
       expr(0);
       break;
     }
@@ -1269,7 +1394,7 @@ std::any FscParser::Auto_variable_definitionContext::accept(tree::ParseTreeVisit
 
 FscParser::Auto_variable_definitionContext* FscParser::auto_variable_definition() {
   Auto_variable_definitionContext *_localctx = _tracker.createInstance<Auto_variable_definitionContext>(_ctx, getState());
-  enterRule(_localctx, 30, FscParser::RuleAuto_variable_definition);
+  enterRule(_localctx, 34, FscParser::RuleAuto_variable_definition);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -1280,13 +1405,13 @@ FscParser::Auto_variable_definitionContext* FscParser::auto_variable_definition(
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(150);
+    setState(160);
     variable_prefix();
-    setState(151);
+    setState(161);
     match(FscParser::NAME);
-    setState(152);
-    match(FscParser::T__12);
-    setState(153);
+    setState(162);
+    match(FscParser::T__16);
+    setState(163);
     expr(0);
    
   }
@@ -1320,7 +1445,7 @@ std::any FscParser::Variable_prefixContext::accept(tree::ParseTreeVisitor *visit
 
 FscParser::Variable_prefixContext* FscParser::variable_prefix() {
   Variable_prefixContext *_localctx = _tracker.createInstance<Variable_prefixContext>(_ctx, getState());
-  enterRule(_localctx, 32, FscParser::RuleVariable_prefix);
+  enterRule(_localctx, 36, FscParser::RuleVariable_prefix);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1332,11 +1457,11 @@ FscParser::Variable_prefixContext* FscParser::variable_prefix() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(155);
+    setState(165);
     _la = _input->LA(1);
-    if (!(_la == FscParser::T__15
+    if (!(_la == FscParser::T__19
 
-    || _la == FscParser::T__16)) {
+    || _la == FscParser::T__20)) {
     _errHandler->recoverInline(this);
     }
     else {
@@ -1383,7 +1508,7 @@ std::any FscParser::BodyContext::accept(tree::ParseTreeVisitor *visitor) {
 
 FscParser::BodyContext* FscParser::body() {
   BodyContext *_localctx = _tracker.createInstance<BodyContext>(_ctx, getState());
-  enterRule(_localctx, 34, FscParser::RuleBody);
+  enterRule(_localctx, 38, FscParser::RuleBody);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -1395,21 +1520,21 @@ FscParser::BodyContext* FscParser::body() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(157);
-    match(FscParser::T__17);
-    setState(161);
+    setState(167);
+    match(FscParser::T__21);
+    setState(171);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & 7516668990) != 0) {
-      setState(158);
+      ((1ULL << _la) & 120266704830) != 0) {
+      setState(168);
       stmt();
-      setState(163);
+      setState(173);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(164);
-    match(FscParser::T__18);
+    setState(174);
+    match(FscParser::T__22);
    
   }
   catch (RecognitionException &e) {
@@ -1527,8 +1652,8 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
   FscParser::ExprContext *_localctx = _tracker.createInstance<ExprContext>(_ctx, parentState);
   FscParser::ExprContext *previousContext = _localctx;
   (void)previousContext; // Silence compiler, in case the context is not used by generated code.
-  size_t startState = 36;
-  enterRecursionRule(_localctx, 36, FscParser::RuleExpr, precedence);
+  size_t startState = 40;
+  enterRecursionRule(_localctx, 40, FscParser::RuleExpr, precedence);
 
     
 
@@ -1542,57 +1667,57 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(178);
+    setState(188);
     _errHandler->sync(this);
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 15, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 16, _ctx)) {
     case 1: {
-      setState(167);
+      setState(177);
       function_call();
       break;
     }
 
     case 2: {
-      setState(168);
+      setState(178);
       variable_definition();
       break;
     }
 
     case 3: {
-      setState(169);
+      setState(179);
       auto_variable_definition();
       break;
     }
 
     case 4: {
-      setState(170);
-      match(FscParser::T__9);
-      setState(171);
+      setState(180);
+      match(FscParser::T__13);
+      setState(181);
       expr(0);
-      setState(172);
-      match(FscParser::T__10);
+      setState(182);
+      match(FscParser::T__14);
       break;
     }
 
     case 5: {
-      setState(174);
+      setState(184);
       body();
       break;
     }
 
     case 6: {
-      setState(175);
+      setState(185);
       match(FscParser::INT);
       break;
     }
 
     case 7: {
-      setState(176);
+      setState(186);
       match(FscParser::FLOAT);
       break;
     }
 
     case 8: {
-      setState(177);
+      setState(187);
       match(FscParser::NAME);
       break;
     }
@@ -1601,26 +1726,26 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
       break;
     }
     _ctx->stop = _input->LT(-1);
-    setState(212);
+    setState(222);
     _errHandler->sync(this);
-    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 17, _ctx);
+    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 18, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
         if (!_parseListeners.empty())
           triggerExitRuleEvent();
         previousContext = _localctx;
-        setState(210);
+        setState(220);
         _errHandler->sync(this);
-        switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 16, _ctx)) {
+        switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 17, _ctx)) {
         case 1: {
           _localctx = _tracker.createInstance<ExprContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpr);
-          setState(180);
+          setState(190);
 
           if (!(precpred(_ctx, 17))) throw FailedPredicateException(this, "precpred(_ctx, 17)");
-          setState(181);
+          setState(191);
           match(FscParser::MUL);
-          setState(182);
+          setState(192);
           expr(18);
           break;
         }
@@ -1628,12 +1753,12 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
         case 2: {
           _localctx = _tracker.createInstance<ExprContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpr);
-          setState(183);
+          setState(193);
 
           if (!(precpred(_ctx, 16))) throw FailedPredicateException(this, "precpred(_ctx, 16)");
-          setState(184);
+          setState(194);
           match(FscParser::DIV);
-          setState(185);
+          setState(195);
           expr(17);
           break;
         }
@@ -1641,12 +1766,12 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
         case 3: {
           _localctx = _tracker.createInstance<ExprContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpr);
-          setState(186);
+          setState(196);
 
           if (!(precpred(_ctx, 15))) throw FailedPredicateException(this, "precpred(_ctx, 15)");
-          setState(187);
+          setState(197);
           match(FscParser::MOD);
-          setState(188);
+          setState(198);
           expr(16);
           break;
         }
@@ -1654,12 +1779,12 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
         case 4: {
           _localctx = _tracker.createInstance<ExprContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpr);
-          setState(189);
+          setState(199);
 
           if (!(precpred(_ctx, 14))) throw FailedPredicateException(this, "precpred(_ctx, 14)");
-          setState(190);
+          setState(200);
           match(FscParser::ADD);
-          setState(191);
+          setState(201);
           expr(15);
           break;
         }
@@ -1667,12 +1792,12 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
         case 5: {
           _localctx = _tracker.createInstance<ExprContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpr);
-          setState(192);
+          setState(202);
 
           if (!(precpred(_ctx, 13))) throw FailedPredicateException(this, "precpred(_ctx, 13)");
-          setState(193);
+          setState(203);
           match(FscParser::SUB);
-          setState(194);
+          setState(204);
           expr(14);
           break;
         }
@@ -1680,12 +1805,12 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
         case 6: {
           _localctx = _tracker.createInstance<ExprContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpr);
-          setState(195);
+          setState(205);
 
           if (!(precpred(_ctx, 12))) throw FailedPredicateException(this, "precpred(_ctx, 12)");
-          setState(196);
+          setState(206);
           match(FscParser::EQUALITY);
-          setState(197);
+          setState(207);
           expr(13);
           break;
         }
@@ -1693,12 +1818,12 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
         case 7: {
           _localctx = _tracker.createInstance<ExprContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpr);
-          setState(198);
+          setState(208);
 
           if (!(precpred(_ctx, 11))) throw FailedPredicateException(this, "precpred(_ctx, 11)");
-          setState(199);
+          setState(209);
           match(FscParser::INEQUALITY);
-          setState(200);
+          setState(210);
           expr(12);
           break;
         }
@@ -1706,12 +1831,12 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
         case 8: {
           _localctx = _tracker.createInstance<ExprContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpr);
-          setState(201);
+          setState(211);
 
           if (!(precpred(_ctx, 10))) throw FailedPredicateException(this, "precpred(_ctx, 10)");
-          setState(202);
+          setState(212);
           match(FscParser::LOGICAL_AND);
-          setState(203);
+          setState(213);
           expr(11);
           break;
         }
@@ -1719,12 +1844,12 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
         case 9: {
           _localctx = _tracker.createInstance<ExprContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpr);
-          setState(204);
+          setState(214);
 
           if (!(precpred(_ctx, 9))) throw FailedPredicateException(this, "precpred(_ctx, 9)");
-          setState(205);
+          setState(215);
           match(FscParser::LOGICAL_OR);
-          setState(206);
+          setState(216);
           expr(10);
           break;
         }
@@ -1732,12 +1857,12 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
         case 10: {
           _localctx = _tracker.createInstance<ExprContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpr);
-          setState(207);
+          setState(217);
 
           if (!(precpred(_ctx, 18))) throw FailedPredicateException(this, "precpred(_ctx, 18)");
-          setState(208);
+          setState(218);
           match(FscParser::AS);
-          setState(209);
+          setState(219);
           match(FscParser::NAME);
           break;
         }
@@ -1746,9 +1871,9 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
           break;
         } 
       }
-      setState(214);
+      setState(224);
       _errHandler->sync(this);
-      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 17, _ctx);
+      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 18, _ctx);
     }
   }
   catch (RecognitionException &e) {
@@ -1761,7 +1886,7 @@ FscParser::ExprContext* FscParser::expr(int precedence) {
 
 bool FscParser::sempred(RuleContext *context, size_t ruleIndex, size_t predicateIndex) {
   switch (ruleIndex) {
-    case 18: return exprSempred(antlrcpp::downCast<ExprContext *>(context), predicateIndex);
+    case 20: return exprSempred(antlrcpp::downCast<ExprContext *>(context), predicateIndex);
 
   default:
     break;

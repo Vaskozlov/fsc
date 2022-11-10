@@ -15,3 +15,5 @@ find_package(Clang REQUIRED CONFIG)
 
 add_definitions(${CLANG_DEFINITIONS})
 include_directories(${CLANG_INCLUDE_DIRS})
+
+find_package(ccl REQUIRED)

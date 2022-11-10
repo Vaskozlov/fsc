@@ -30,7 +30,13 @@ stmt:   function
 
 stmt_end: ('\n' | '\r' | ';')+;
 
-function: 'func' NAME parameters ('->' NAME) ? ('\n'*) body;
+function: function_attibutes 'func' NAME parameters ('->' NAME) ? ('\n'*) body;
+visibility: 'public'
+            | 'private'
+            | 'protected'
+            | 'fileprivae';
+
+function_attibutes: visibility?;
 
 argument_definition: argument_passing_type NAME NAME;
 argument_passing_type: 'in' | 'out' | 'inout';

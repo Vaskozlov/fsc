@@ -21,7 +21,7 @@ namespace fsc::ast {
         for (const auto &node : nodes) {
             output.newLine();
             node->codeGen(output);
-            output.add(';');
+            output.write(';');
         }
 
         output.popScope();
@@ -38,7 +38,7 @@ namespace fsc::ast {
     {
         fmt::print("{}Body\n", getPrintingPrefix(prefix, is_left));
 
-        for (auto &node : nodes | std::views::take(nodes.size() - 1)) {
+        for (auto &node : nodes | ccl::views::dropBack(nodes)) {
             node->print(expandPrefix(prefix, is_left), true);
         }
 
@@ -53,7 +53,7 @@ namespace fsc::ast {
         defaultBodyPrint(prefix, is_left);
     }
 
-    auto Body::addNode(std::shared_ptr<Node> node) -> void
+    auto Body::addNode(ccl::SharedPtr<Node> node) -> void
     {
         emplaceNode(std::move(node));
     }

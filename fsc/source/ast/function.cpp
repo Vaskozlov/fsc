@@ -15,13 +15,36 @@ namespace fsc::ast {
 
     auto Function::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output.add(FscType::getTypeName(function.getReturnType()));
-        output.add(' ');
-        output.add(function.getName());
+        if (function.isMember()) {
+            output.newLine();
 
-        output.add('(');
+            switch (function.getVisibility()) {
+                case Visibility::PUBLIC:
+                    output.write("public:"sv);
+                    break;
+
+                case Visibility::PROTECTED:
+                    output.write("protected:"sv);
+                    break;
+
+                case Visibility::EXPORT:
+                    throw std::logic_error("Export member function are not allowed");
+
+                default:
+                    output.write("private: "sv);
+                    break;
+            }
+
+            output.newLine();
+        }
+
+        output.write(FscType::getTypeName(function.getReturnType()));
+        output.write(' ');
+        output.write(function.getName());
+
+        output.write('(');
         genArguments(output);
-        output.add(')');
+        output.write(')');
 
         const auto &body = function.getBody();
         (body.value())->codeGen(output);
@@ -31,9 +54,9 @@ namespace fsc::ast {
     {
         const auto &arguments = function.getArguments();
 
-        for (const auto &arg : arguments | std::views::take(arguments.size() - 1)) {
+        for (const auto &arg : arguments | ccl::views::dropBack(arguments)) {
             argumentToString(output, arg);
-            output.add(", "sv);
+            output.write(", "sv);
         }
 
         if (!arguments.empty()) {
@@ -54,16 +77,16 @@ namespace fsc::ast {
 
         switch (category) {
             case func::ArgumentCategory::COPY:
-                output.add(fmt::format("{} {}", type_name, name));
+                output.write(fmt::format("{} {}", type_name, name));
                 break;
 
             case func::ArgumentCategory::IN:
-                output.add(fmt::format("const {} & {}", type_name, name));
+                output.write(fmt::format("const {} & {}", type_name, name));
                 break;
 
             case func::ArgumentCategory::OUT:
             case func::ArgumentCategory::INOUT:
-                output.add(fmt::format("{} & {}", type_name, name));
+                output.write(fmt::format("{} & {}", type_name, name));
                 break;
 
             default:
@@ -73,7 +96,7 @@ namespace fsc::ast {
         const auto &default_arguments = function.getDefaultArguments();
 
         if (default_arguments.contains(name)) {
-            output.add(" = "sv);
+            output.write(" = "sv);
             default_arguments.at(name)->codeGen(output);
         }
     }

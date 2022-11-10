@@ -5,11 +5,11 @@
 
 namespace fsc::ast {
     class Conversion : public Node {
-        std::shared_ptr<Node> value;
+        ccl::SharedPtr<Node> value;
         TypeId typeId;
 
     public:
-        explicit Conversion(std::shared_ptr<Node> value_, TypeId type_)
+        explicit Conversion(ccl::SharedPtr<Node> value_, TypeId type_)
             : Node(classof()), value(std::move(value_)), typeId(type_)
         {}
 
@@ -22,7 +22,7 @@ namespace fsc::ast {
             return value->getValueType();
         }
 
-        [[nodiscard]] static auto classof() noexcept -> NodeType
+        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
         {
             return NodeType::CONVERSION;
         }

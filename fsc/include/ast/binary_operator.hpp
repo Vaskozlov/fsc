@@ -6,20 +6,20 @@
 #include "function/functions_holder.hpp"
 
 namespace fsc::ast {
-    enum struct BinaryOperationType : size_t { ADD, SUB, MUL, DIV, MOD };
+    CCL_ENUM(BinaryOperationType, size_t, ADD, SUB, MUL, DIV, MOD);
 
     class BinaryOperation : public Node {
-        static const inline std::unordered_map<std::string, std::string> operatorToFunctionName = {
+        static const inline ccl::UnorderedMap<std::string, std::string> operatorToFunctionName = {
                 {"+", "__add__"}, {"-", "__sub__"}, {"*", "__mul__"},
                 {"/", "__div__"}, {"%", "__mod__"}, {"&&", "__logical_and__"}};
 
-        std::shared_ptr<Node> lhs;
-        std::shared_ptr<Node> rhs;
+        ccl::SharedPtr<Node> lhs;
+        ccl::SharedPtr<Node> rhs;
         std::string operationType;
 
     public:
-        BinaryOperation(const std::string &operation_type_, std::shared_ptr<Node> lhs_,
-                        std::shared_ptr<Node> rhs_)
+        BinaryOperation(const std::string &operation_type_, ccl::SharedPtr<Node> lhs_,
+                        ccl::SharedPtr<Node> rhs_)
             : Node(classof()), lhs(std::move(lhs_)), rhs(std::move(rhs_)),
               operationType(operation_type_)
         {}
@@ -29,7 +29,7 @@ namespace fsc::ast {
 
         auto print(const std::string &prefix, const bool is_left) const -> void final;
 
-        [[nodiscard]] static auto classof() noexcept -> NodeType
+        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
         {
             return NodeType::BINARY_OPERATOR;
         }

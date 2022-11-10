@@ -2,7 +2,7 @@ class Default
 {
     var x = 10
 
-    func test() -> i32
+    public func test() -> i32
     {
         return x
     }

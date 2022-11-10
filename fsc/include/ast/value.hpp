@@ -6,10 +6,10 @@
 
 namespace fsc::ast {
     class Value : public Node {
-        std::shared_ptr<FscType> value;
+        ccl::SharedPtr<FscType> value;
 
     public:
-        explicit Value(std::shared_ptr<FscType> value_) : Node(classof()), value(std::move(value_))
+        explicit Value(ccl::SharedPtr<FscType> value_) : Node(classof()), value(std::move(value_))
         {}
 
         auto print(const std::string &prefix, const bool is_left) const -> void final;
@@ -21,7 +21,7 @@ namespace fsc::ast {
             return value->getId();
         }
 
-        [[nodiscard]] static auto classof() noexcept -> NodeType
+        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
         {
             return NodeType::VALUE;
         }

@@ -6,23 +6,23 @@ using namespace std::string_view_literals;
 namespace fsc::ast {
     auto FunctionCall::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output.add(function.getName());
-        output.add('(');
+        output.write(function.getName());
+        output.write('(');
 
-        for (const auto &argument : arguments | std::views::take(arguments.size() - 1)) {
+        for (const auto &argument : arguments | ccl::views::dropBack(arguments)) {
             argument->codeGen(output);
-            output.add(", "sv);
+            output.write(", "sv);
         }
 
         arguments.back()->codeGen(output);
-        output.add(')');
+        output.write(')');
     }
 
     auto FunctionCall::print(const std::string &prefix, const bool is_left) const -> void
     {
         fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), function.getName());
 
-        for (auto &arg : arguments | std::views::take(arguments.size() - 1)) {
+        for (auto &arg : arguments | ccl::views::dropBack(arguments)) {
             arg->print(expandPrefix(prefix, false), true);
         }
 

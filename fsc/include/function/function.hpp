@@ -6,29 +6,35 @@
 #include "function/argument.hpp"
 #include "function/signature.hpp"
 #include "type/type.hpp"
+#include "visibility.hpp"
 #include "visitor.hpp"
-#include <optional>
 
 namespace fsc::func {
-    enum struct Visibility : size_t { EXPORT, FILE_PRIVATE, PRIVATE, PROTECTED, PUBLIC };
-    enum struct CallRequirements : size_t { IMPLICIT, EXPLICIT };
+    CCL_ENUM(CallRequirements, size_t, IMPLICIT, EXPLICIT);
 
     class Function {
-        using FscFunction = std::shared_ptr<ast::Node>;
+        using FscFunction = ccl::SharedPtr<ast::Node>;
 
-        std::map<std::string, std::shared_ptr<ast::Node>> defaultArguments;
+        ccl::Map<std::string, ccl::SharedPtr<ast::Node>> defaultArguments;
         Signature signature;
         std::optional<FscFunction> function;
         TypeId returnType{};
         Visibility visibility{Visibility::FILE_PRIVATE};
         CallRequirements callRequirements{};
+        TypeId classId{};
+        bool isMemberFunction{false};
 
     public:
         Function(const FscParser::FunctionContext *function_context, Visitor &visitor);
 
         Function(std::string name_, const TypeId return_type_,
-                 const std::initializer_list<Argument> &arguments_,
-                 CallRequirements call_requirements);
+                 ccl::InitializerList<Argument> arguments_, CallRequirements call_requirements);
+
+        [[nodiscard]] auto makeFunctionMember(TypeId type_id) noexcept -> void
+        {
+            isMemberFunction = true;
+            classId = type_id;
+        }
 
         [[nodiscard]] auto operator==(const Function &other) const noexcept -> bool
         {
@@ -40,12 +46,22 @@ namespace fsc::func {
             return signature == other;
         }
 
+        [[nodiscard]] auto isMember() const noexcept -> bool
+        {
+            return isMemberFunction;
+        }
+
+        [[nodiscard]] auto getParent() const noexcept -> TypeId
+        {
+            return classId;
+        }
+
         [[nodiscard]] auto getName() const noexcept -> const std::string &
         {
             return signature.name;
         }
 
-        [[nodiscard]] auto getArguments() const noexcept -> const std::vector<Argument> &
+        [[nodiscard]] auto getArguments() const noexcept -> const ccl::SmallVector<Argument, 4> &
         {
             return signature.arguments;
         }
@@ -66,7 +82,7 @@ namespace fsc::func {
         }
 
         [[nodiscard]] auto getDefaultArguments() const noexcept
-                -> const std::map<std::string, std::shared_ptr<ast::Node>> &
+                -> const ccl::Map<std::string, ccl::SharedPtr<ast::Node>> &
         {
             return defaultArguments;
         }
@@ -82,6 +98,7 @@ namespace fsc::func {
                 -> void;
         auto processArgument(const FscParser::ArgumentContext *argument_context, Visitor &visitor)
                 -> Argument;
+        auto processAttributes(FscParser::Function_attibutesContext *ctx) -> void;
         static auto defineArgument(const FscParser::Argument_definitionContext *argument_definition)
                 -> Argument;
     };

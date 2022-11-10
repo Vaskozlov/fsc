@@ -4,7 +4,7 @@
 #include <fmt/format.h>
 
 namespace fsc::func {
-    FunctionsHolder::FunctionsHolder(const std::initializer_list<Function> &functions_)
+    FunctionsHolder::FunctionsHolder(ccl::InitializerList<Function> functions_)
     {
         for (const auto &function : functions_) {
             registerFunction(function);

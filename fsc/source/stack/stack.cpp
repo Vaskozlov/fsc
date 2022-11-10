@@ -19,7 +19,7 @@ namespace fsc {
         }
 
         if (!classScopes.empty() && FscType::hasMemberVariables(classScopes.back(), name)) {
-            return {name, FscType::getMemberVariable(classScopes.back(), name)};
+            return *FscType::getMemberVariable(classScopes.back(), name);
         }
 
         return getGlobal(name);

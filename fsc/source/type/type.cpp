@@ -3,17 +3,17 @@
 #include <mutex>
 
 namespace fsc {
-    std::map<TypeId, std::string> FscType::typenameById{
+    ccl::Map<TypeId, std::string> FscType::typenameById{
             {Void::typeId, "void"},   {Int32::typeId, "i32"},  {Int64::typeId, "i64"},
             {UInt32::typeId, "u32"},  {UInt64::typeId, "u64"}, {Float32::typeId, "f32"},
             {Float64::typeId, "f64"}, {Bool::typeId, "bool"}};
 
-    std::map<std::string, TypeId> FscType::idByTypename{
+    ccl::Map<std::string, TypeId> FscType::idByTypename{
             {"void", Void::typeId},   {"i32", Int32::typeId},  {"i64", Int64::typeId},
             {"u32", UInt32::typeId},  {"u64", UInt64::typeId}, {"f32", Float32::typeId},
             {"f64", Float64::typeId}, {"bool", Bool::typeId}};
 
-    std::map<TypeId, TypeFlags> FscType::typeFlags{{Void::typeId, {.isTriviallyCopyable = false}},
+    ccl::Map<TypeId, TypeFlags> FscType::typeFlags{{Void::typeId, {.isTriviallyCopyable = false}},
                                                    {Int32::typeId, {.isTriviallyCopyable = true}},
                                                    {Int64::typeId, {.isTriviallyCopyable = true}},
                                                    {UInt32::typeId, {.isTriviallyCopyable = true}},
@@ -22,7 +22,8 @@ namespace fsc {
                                                    {Float64::typeId, {.isTriviallyCopyable = true}},
                                                    {Bool::typeId, {.isTriviallyCopyable = true}}};
 
-    std::map<TypeId, std::map<std::string, TypeId>> FscType::typeMemberVariables;
+    ccl::Map<TypeId, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>
+            FscType::typeMemberVariables;
 
     FscType::FscType(const TypeId type_id, ValueOptions value_options)
         : typeId(type_id), valueOptions(value_options)
@@ -42,7 +43,7 @@ namespace fsc {
         typeId = getTypeId(type_name);
     }
 
-    auto FscType::checkExistence(const std::string &type_name) -> void
+    auto FscType::checkTypeExistence(const std::string &type_name) -> void
     {
         if (exists(type_name)) {
             return;
@@ -67,10 +68,9 @@ namespace fsc {
         typeFlags.emplace(type_id, flags);
     }
 
-    auto FscType::addMemberVariable(TypeId type_id, const std::string &name, TypeId variable_id)
-            -> void
+    auto FscType::addMemberVariable(TypeId type_id, ccl::SharedPtr<ast::Variable> variable) -> void
     {
-        typeMemberVariables[type_id].emplace(name, variable_id);
+        typeMemberVariables[type_id].emplace(variable->getName(), variable);
     }
 
     auto FscType::hasMemberVariables(TypeId type_id, const std::string &name) -> bool
@@ -79,7 +79,8 @@ namespace fsc {
                typeMemberVariables.at(type_id).contains(name);
     }
 
-    auto FscType::getMemberVariable(TypeId type_id, const std::string &name) -> TypeId
+    auto FscType::getMemberVariable(TypeId type_id, const std::string &name)
+            -> ccl::SharedPtr<ast::Variable>
     {
         return typeMemberVariables.at(type_id).at(name);
     }

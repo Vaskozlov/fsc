@@ -5,7 +5,7 @@
 #include "type/builtin_types_impl.hpp"
 
 namespace fsc::converter {
-    auto toInt(const std::string &repr) -> std::shared_ptr<ast::Value>;
+    auto toInt(const std::string &repr) -> ccl::SharedPtr<ast::Value>;
 }
 
 #endif /* FSC_INT_HPP */

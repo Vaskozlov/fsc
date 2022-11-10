@@ -2,13 +2,12 @@
 #define FSC_SIGNATURE_HPP
 
 #include "function/argument.hpp"
-#include <vector>
 
 namespace fsc::func {
     class Signature {
     public:
         std::string name;
-        std::vector<Argument> arguments;
+        ccl::SmallVector<Argument, 4> arguments;
 
         auto operator<=>(const Signature &other) const noexcept -> std::weak_ordering = default;
     };

@@ -1,13 +1,14 @@
 #include "ast/conversion.hpp"
+#include "type/type.hpp"
 
 namespace fsc::ast {
     using namespace std::string_view_literals;
 
     auto Conversion::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output.add(fmt::format("{}(", FscType::getTypeName(typeId)));
+        output.write(fmt::format("{}(", FscType::getTypeName(typeId)));
         value->codeGen(output);
-        output.add(')');
+        output.write(')');
     }
 
     auto Conversion::print(const std::string &prefix, const bool is_left) const -> void

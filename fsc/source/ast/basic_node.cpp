@@ -9,6 +9,7 @@ namespace fsc::ast {
         auto ret = std::string{};
         ret.reserve(str.size() * repeat);
 
+        CCL_UNROLL_N(4)
         for (auto i = 0ZU; i != repeat; ++i) {
             ret += str;
         }
@@ -28,7 +29,7 @@ namespace fsc::ast {
     auto Node::expandPrefix(const std::string &prefix, const bool is_left,
                             const size_t extra_expansion) -> std::string
     {
-        constexpr auto default_printing_shift = "   "sv;
+        static constexpr auto default_printing_shift = "   "sv;
 
         auto result = prefix + (is_left ? "\u2502   " : "    ");
         result.append(default_printing_shift * extra_expansion);

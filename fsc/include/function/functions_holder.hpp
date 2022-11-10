@@ -6,18 +6,18 @@
 
 namespace fsc::func {
     class FunctionsHolder {
-        std::map<std::string, std::list<Function>, std::less<>> functions;
+        ccl::Map<std::string, std::list<Function>> functions;
 
     public:
         FunctionsHolder() = default;
-        FunctionsHolder(const std::initializer_list<Function> &functions_);
+        FunctionsHolder(ccl::InitializerList<Function> functions_);
 
         auto registerFunction(const Function &function) -> void;
 
         auto get(const Signature &signature, CallRequirements call_requirements)
                 -> const Function &;
 
-        auto get(const std::string &name, const std::vector<Argument> &arguments,
+        auto get(const std::string &name, const ccl::SmallVector<Argument, 4> &arguments,
                  CallRequirements call_requirements) -> const Function &
         {
             return get({name, arguments}, call_requirements);

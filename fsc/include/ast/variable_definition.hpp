@@ -1,45 +1,40 @@
 #ifndef FSC_VARIABLE_DEFINITION_HPP
 #define FSC_VARIABLE_DEFINITION_HPP
 
-#include "ast/basic_node.hpp"
+#include "ast/variable.hpp"
 
 namespace fsc::ast {
-    class VariableDefinition : public Node {
-        std::string name;
-        std::optional<std::shared_ptr<Node>> initializer{std::nullopt};
-        TypeId typeId;
+    class VariableDefinition : public Variable {
+        ccl::SharedPtr<Node> initializer{};
 
     public:
-        explicit VariableDefinition(std::string name_, const TypeId type_id_,
-                                    std::shared_ptr<Node> initializer_)
-            : Node(classof()), name(std::move(name_)), initializer(std::move(initializer_)),
-              typeId(type_id_)
+        explicit VariableDefinition(VariableFlags flags_, std::string name_, const TypeId type_id_,
+                                    ccl::SharedPtr<Node> initializer_)
+            : Variable(std::move(name_), type_id_, std::move(flags_), classof()),
+              initializer(std::move(initializer_))
         {}
 
-        explicit VariableDefinition(std::string name_, const TypeId type_id_)
-            : Node(classof()), name(std::move(name_)), typeId(type_id_)
+        explicit VariableDefinition(VariableFlags flags_, std::string name_, const TypeId type_id_)
+            : Variable(std::move(name_), type_id_, std::move(flags_), classof())
         {}
 
-        explicit VariableDefinition(std::string name_, std::shared_ptr<Node> initializer_)
-            : Node(classof()), name(std::move(name_)), initializer(std::move(initializer_)),
-              typeId((*initializer)->getValueType())
+        explicit VariableDefinition(VariableFlags flags_, std::string name_,
+                                    ccl::SharedPtr<Node> initializer_)
+            : Variable(std::move(name_), initializer_->getValueType(), std::move(flags_),
+                       classof()),
+              initializer(std::move(initializer_))
         {}
 
         auto print(const std::string &prefix, const bool is_left) const -> void final;
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
-        [[nodiscard]] auto getName() const -> const std::string &
+        [[nodiscard]] auto toVariable() const -> const Variable &
         {
-            return name;
+            return static_cast<const Variable &>(*this);
         }
 
-        [[nodiscard]] auto getValueType() const noexcept -> TypeId final
-        {
-            return typeId;
-        }
-
-        [[nodiscard]] static auto classof() noexcept -> NodeType
+        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
         {
             return NodeType::VARIABLE_DEFINITION;
         }

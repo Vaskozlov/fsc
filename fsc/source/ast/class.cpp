@@ -1,5 +1,5 @@
 #include "ast/class.hpp"
-#include "ast/body.hpp"
+#include "ast/function.hpp"
 #include "ast/variable_definition.hpp"
 #include "stack/stack.hpp"
 #include <ranges>
@@ -18,10 +18,10 @@ namespace fsc::ast {
 
     auto Class::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output.add("class "sv);
-        output.add(name);
+        output.write("class "sv);
+        output.write(name);
         defaultBodyCodegen(output);
-        output.add(';');
+        output.write(';');
     }
 
     auto Class::print(const std::string &prefix, const bool is_left) const -> void
@@ -30,13 +30,15 @@ namespace fsc::ast {
         defaultBodyPrint(expandPrefix(prefix, is_left), false);
     }
 
-    auto Class::addNode(std::shared_ptr<Node> node) -> void
+    auto Class::addNode(ccl::SharedPtr<Node> node) -> void
     {
         if (node->is(NodeType::VARIABLE_DEFINITION)) {
             const auto &variable = node->as<ast::VariableDefinition>();
-            FscType::addMemberVariable(FscType::getTypeId(name), variable.getName(),
-                                       variable.getValueType());
+            FscType::addMemberVariable(FscType::getTypeId(name),
+                                       ccl::makeShared<Variable>(variable.toVariable()));
         } else if (node->is(NodeType::FUNCTION)) {
+            auto &function = node->as<ast::Function>().getFunction();
+            function.makeFunctionMember(FscType::getTypeId(name));
         }
 
         emplaceNode(std::move(node));

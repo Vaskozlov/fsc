@@ -31,6 +31,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitVisibility(FscParser::VisibilityContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitFunction_attibutes(FscParser::Function_attibutesContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitArgument_definition(FscParser::Argument_definitionContext *ctx) override {
     return visitChildren(ctx);
   }

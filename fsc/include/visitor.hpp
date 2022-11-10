@@ -3,13 +3,14 @@
 
 #include "FscBaseVisitor.h"
 #include "ast/program.hpp"
+#include "function/argument.hpp"
 
 namespace fsc {
     class Visitor : public FscBaseVisitor {
     public:
-        auto callMain() -> void;
+        auto codeGen() -> void;
 
-        auto visitNode(auto *node) -> std::shared_ptr<ast::Node>
+        auto visitNode(auto *node) -> ccl::SharedPtr<ast::Node>
         {
             return castToNode(visit(node));
         }
@@ -28,36 +29,37 @@ namespace fsc {
         auto visitFunction_call(FscParser::Function_callContext *ctx) -> std::any override;
 
         auto constructVariableDefinition(FscParser::Variable_definitionContext *ctx)
+                -> ast::NodePtr;
 
-                -> std::shared_ptr<ast::Node>;
         auto constructAutoVariableDefinition(FscParser::Auto_variable_definitionContext *ctx)
-                -> std::shared_ptr<ast::Node>;
+                -> ast::NodePtr;
 
-        auto constructClass(FscParser::ClassContext *ctx) -> std::shared_ptr<ast::Node>;
+        auto constructClass(FscParser::ClassContext *ctx) -> ast::NodePtr;
 
-        auto constructConversion(FscParser::ExprContext *ctx) -> std::shared_ptr<ast::Node>;
+        auto constructConversion(FscParser::ExprContext *ctx) -> ast::NodePtr;
 
         template<typename BodyT, typename... Ts>
-        auto constructBody(FscParser::BodyContext *ctx, Ts &&...args) -> std::shared_ptr<ast::Node>;
+        auto constructBody(FscParser::BodyContext *ctx, Ts &&...args) -> ast::NodePtr;
 
-        auto constructReturn(FscParser::StmtContext *ctx) -> std::shared_ptr<ast::Node>;
+        auto constructReturn(FscParser::StmtContext *ctx) -> ast::NodePtr;
 
-        auto constructBinaryExpression(FscParser::ExprContext *ctx) -> std::shared_ptr<ast::Node>;
+        auto constructBinaryExpression(FscParser::ExprContext *ctx) -> ast::NodePtr;
 
         auto processFunctionArguments(FscParser::Function_parameterContext *ctx)
-                -> std::pair<std::vector<func::Argument>, std::vector<std::shared_ptr<ast::Node>>>;
+                -> ccl::Pair<ccl::SmallVector<func::Argument, 4>,
+                             ccl::SmallVector<ast::NodePtr, 4>>;
 
         auto constructFunctionArgument(FscParser::Function_argumentContext *argument_context)
-                -> std::pair<func::Argument, std::shared_ptr<ast::Node>>;
+                -> ccl::Pair<func::Argument, ast::NodePtr>;
 
-        static auto castToNode(std::any &to_cast) -> std::shared_ptr<ast::Node>
+        static auto castToNode(std::any &to_cast) -> ast::NodePtr
         {
-            return std::any_cast<std::shared_ptr<ast::Node>>(to_cast);
+            return std::any_cast<ast::NodePtr>(to_cast);
         }
 
-        static auto castToNode(std::any &&to_cast) -> std::shared_ptr<ast::Node>
+        static auto castToNode(std::any &&to_cast) -> ast::NodePtr
         {
-            return std::any_cast<std::shared_ptr<ast::Node>>(to_cast);
+            return std::any_cast<ast::NodePtr>(to_cast);
         }
 
         ast::Program program;

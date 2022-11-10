@@ -19,17 +19,17 @@ namespace fsc::gen {
             return std::back_inserter(generated);
         }
 
-        auto add(std::string &&str) -> void
+        auto write(std::string &&str) -> void
         {
             generated.append(std::move(str));
         }
 
-        auto add(const std::string_view &&str) -> void
+        auto write(const std::string_view &&str) -> void
         {
             generated.append(str);
         }
 
-        auto add(char chr) -> void
+        auto write(char chr) -> void
         {
             generated.push_back(chr);
         }
@@ -55,12 +55,12 @@ namespace fsc::gen {
 
         auto openCurly() -> void
         {
-            add('{');
+            write('{');
         }
 
         auto closeCurly() -> void
         {
-            add('}');
+            write('}');
         }
     };
 }// namespace fsc::gen

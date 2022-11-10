@@ -6,7 +6,7 @@ namespace fsc::ast {
 
     auto Return::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output.add("return "sv);
+        output.write("return "sv);
         value->codeGen(output);
     }
 

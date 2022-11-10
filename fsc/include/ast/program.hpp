@@ -12,7 +12,7 @@ namespace fsc::ast {
         auto codeGen(gen::CodeGenerator &output) const -> void final;
         auto print(const std::string &prefix, const bool is_left) const -> void final;
 
-        [[nodiscard]] static auto classof() noexcept -> NodeType
+        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
         {
             return NodeType::PROGRAM;
         }

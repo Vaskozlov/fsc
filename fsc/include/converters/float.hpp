@@ -4,7 +4,7 @@
 #include "converters/int.hpp"
 
 namespace fsc::converter {
-    auto toFloat(const std::string &repr) -> std::shared_ptr<ast::Value>;
+    auto toFloat(const std::string &repr) -> ccl::SharedPtr<ast::Value>;
 }
 
 #endif /* FSC_FLOAT_HPP */

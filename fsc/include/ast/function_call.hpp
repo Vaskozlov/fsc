@@ -6,12 +6,12 @@
 
 namespace fsc::ast {
     class FunctionCall : public Node {
-        std::vector<std::shared_ptr<Node>> arguments;
+        ccl::SmallVector<ccl::SharedPtr<Node>, 4> arguments;
         func::Function function;
 
     public:
         FunctionCall(const func::Function &function_,
-                     const std::vector<std::shared_ptr<Node>> &arguments_)
+                     const ccl::SmallVector<ccl::SharedPtr<Node>, 4> &arguments_)
             : Node(classof()), arguments(arguments_), function(function_)
         {}
 
@@ -19,7 +19,7 @@ namespace fsc::ast {
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
-        [[nodiscard]] static auto classof() noexcept -> NodeType
+        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
         {
             return NodeType::FUNCTION_CALL;
         }

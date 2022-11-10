@@ -13,14 +13,24 @@ namespace fsc::ast {
         explicit Function(const func::Function &function_) : Node(classof()), function(function_)
         {}
 
-        auto print(const std::string &prefix, const bool is_left) const -> void final;
+        [[nodiscard]] auto getFunction() -> func::Function &
+        {
+            return function;
+        }
 
-        auto codeGen(gen::CodeGenerator &output) const -> void final;
+        [[nodiscard]] auto getFunction() const -> const func::Function &
+        {
+            return function;
+        }
 
-        [[nodiscard]] static auto classof() noexcept -> NodeType
+        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
         {
             return NodeType::FUNCTION;
         }
+
+        auto print(const std::string &prefix, const bool is_left) const -> void final;
+
+        auto codeGen(gen::CodeGenerator &output) const -> void final;
 
     private:
         auto genArguments(gen::CodeGenerator &output) const -> void;

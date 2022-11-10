@@ -1,17 +1,13 @@
 #ifndef FSC_TYPE_HPP
 #define FSC_TYPE_HPP
 
+#include "ast/variable.hpp"
 #include "codegen.hpp"
-#include "fmt/format.h"
-#include "function/signature.hpp"
-#include <vector>
+#include "visibility.hpp"
+#include <ccl/ccl.hpp>
 
 namespace fsc {
     using TypeId = size_t;
-
-    namespace ast {
-        class Node;
-    };
 
     struct TypeFlags {
         bool isTriviallyCopyable : 1;
@@ -23,10 +19,11 @@ namespace fsc {
     };
 
     class FscType {
-        static std::map<TypeId, std::string> typenameById;
-        static std::map<std::string, TypeId> idByTypename;
-        static std::map<TypeId, TypeFlags> typeFlags;
-        static std::map<TypeId, std::map<std::string, TypeId>> typeMemberVariables;
+        static ccl::Map<TypeId, std::string> typenameById;
+        static ccl::Map<std::string, TypeId> idByTypename;
+        static ccl::Map<TypeId, TypeFlags> typeFlags;
+        static ccl::Map<TypeId, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>
+                typeMemberVariables;
 
         TypeId typeId;
         ValueOptions valueOptions;
@@ -87,7 +84,7 @@ namespace fsc {
             return idByTypename.contains(type_name);
         }
 
-        [[nodiscard]] static auto checkExistence(const std::string &type_name) -> void;
+        [[nodiscard]] static auto checkTypeExistence(const std::string &type_name) -> void;
 
         [[nodiscard]] static auto getTypeId(const std::string &type_name) -> TypeId
         {
@@ -100,10 +97,12 @@ namespace fsc {
         }
 
         static auto registerNewType(const std::string &name, const TypeFlags flags) -> void;
-        static auto addMemberVariable(TypeId type_id, const std::string &name, TypeId variable_id) -> void;
+        static auto addMemberVariable(TypeId type_id, ccl::SharedPtr<ast::Variable> variable)
+                -> void;
 
         static auto hasMemberVariables(TypeId type_id, const std::string &name) -> bool;
-        static auto getMemberVariable(TypeId type_id, const std::string &name) -> TypeId;
+        static auto getMemberVariable(TypeId type_id, const std::string &name)
+                -> ccl::SharedPtr<ast::Variable>;
     };
 }// namespace fsc
 

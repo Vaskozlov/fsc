@@ -4,8 +4,8 @@
 namespace fsc::ast {
     auto BinaryOperation::getValueType() const noexcept -> TypeId
     {
-        const auto left_argument_type = lhs->toArgument();
-        const auto right_argument_type = rhs->toArgument();
+        const auto left_argument_type = func::Argument(lhs.get());
+        const auto right_argument_type = func::Argument(rhs.get());
         const auto &function_name = operatorToFunctionName.at(operationType);
 
         return func::Functions
@@ -17,7 +17,7 @@ namespace fsc::ast {
     auto BinaryOperation::codeGen(gen::CodeGenerator &output) const -> void
     {
         lhs->codeGen(output);
-        output.add(fmt::format(" {} ", operationType));
+        output.write(fmt::format(" {} ", operationType));
         rhs->codeGen(output);
     }
 

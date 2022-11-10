@@ -7,10 +7,10 @@
 #include <map>
 
 namespace fsc {
-    enum struct ScopeType : bool { SOFT, HARD };
+    CCL_ENUM(ScopeType, bool, SOFT, HARD);
 
     class Stack {
-        using ScopeStorage = std::map<std::string, ast::Variable>;
+        using ScopeStorage = ccl::Map<std::string, ast::Variable>;
 
         class Scope {
             ScopeStorage storage;
@@ -42,7 +42,7 @@ namespace fsc {
         };
 
         static inline ScopeStorage globalStorage;
-        std::vector<TypeId> classScopes;
+        ccl::SmallVector<TypeId, 4> classScopes;
         std::deque<Scope> scopes;
 
     public:

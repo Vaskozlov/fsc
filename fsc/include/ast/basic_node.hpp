@@ -2,24 +2,15 @@
 #define FSC_BASIC_NODE_HPP
 
 #include "codegen.hpp"
-#include "type/type.hpp"
+#include <ccl/ccl.hpp>
+
+namespace fsc {
+    using TypeId = size_t;
+}
 
 namespace fsc::ast {
-    enum struct NodeType : size_t {
-        NONE,
-        ROOT,
-        VALUE,
-        VARIABLE,
-        RETURN,
-        FUNCTION,
-        FUNCTION_CALL,
-        BODY,
-        BINARY_OPERATOR,
-        PROGRAM,
-        CONVERSION,
-        VARIABLE_DEFINITION,
-        CLASS,
-    };
+    CCL_ENUM(NodeType, size_t, NONE, ROOT, VALUE, VARIABLE, RETURN, FUNCTION, FUNCTION_CALL, BODY,
+             BINARY_OPERATOR, PROGRAM, CONVERSION, VARIABLE_DEFINITION, CLASS);
 
     class Node {
         NodeType nodeType;
@@ -43,11 +34,6 @@ namespace fsc::ast {
 
         virtual auto print(const std::string &prefix = "", const bool is_left = false) const
                 -> void = 0;
-
-        [[nodiscard]] auto toArgument() const -> func::Argument
-        {
-            return {"", getValueType(), {}};
-        }
 
         virtual auto codeGen(gen::CodeGenerator &output) const -> void = 0;
 
@@ -86,11 +72,13 @@ namespace fsc::ast {
             return static_cast<const T &>(*this);
         };
 
-        [[nodiscard]] static auto classof() noexcept -> NodeType
+        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
         {
             return NodeType::NONE;
         }
     };
+
+    using NodePtr = ccl::SharedPtr<Node>;
 }// namespace fsc::ast
 
 #endif /* FSC_BASIC_NODE_HPP */
