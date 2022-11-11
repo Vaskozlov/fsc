@@ -25,16 +25,14 @@ namespace fsc {
     ccl::Map<TypeId, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>
             FscType::typeMemberVariables;
 
-    FscType::FscType(const TypeId type_id, ValueOptions value_options)
-        : typeId(type_id), valueOptions(value_options)
+    FscType::FscType(const TypeId type_id) : typeId{type_id}
     {
         if (!exists(typeId)) {
             throw std::invalid_argument("Type not found");
         }
     }
 
-    FscType::FscType(const std::string &type_name, ValueOptions value_options)
-        : valueOptions(value_options)
+    FscType::FscType(const std::string &type_name)
     {
         if (!exists(type_name)) {
             throw std::invalid_argument("Type not found");
@@ -61,7 +59,7 @@ namespace fsc {
         }
 
         auto type_id = TypeFactory();
-        auto scope_lock = std::scoped_lock(type_registration_mutex);
+        auto scope_lock = std::scoped_lock{type_registration_mutex};
 
         typenameById.emplace(type_id, name);
         idByTypename.emplace(name, type_id);

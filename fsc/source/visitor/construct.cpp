@@ -13,7 +13,7 @@ namespace fsc {
     auto Visitor::constructBody(FscParser::BodyContext *ctx, Ts &&...args) -> ast::NodePtr
     {
         static_assert(std::derived_from<BodyT, ast::Body>);
-        static constexpr auto new_line = [](const auto elem) {
+        static constexpr auto new_line = [](auto *elem) {
             return elem->getText() != "\n";
         };
 
@@ -70,17 +70,16 @@ namespace fsc {
     }
 
     auto Visitor::processFunctionArguments(FscParser::Function_parameterContext *ctx)
-            -> ccl::Pair<ccl::SmallVector<func::Argument, 4>, ccl::SmallVector<ast::NodePtr, 4>>
+            -> ccl::Pair<ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>
     {
-        static constexpr auto comma_filter = [](const auto elem) {
+        static constexpr auto comma_filter = [](auto *elem) {
             return elem->getText() != ",";
         };
 
         const auto &children = ctx->children;
         auto *argument_list =
                 dynamic_cast<FscParser::Function_typed_arguments_listContext *>(children[1]);
-        auto result =
-                ccl::Pair<ccl::SmallVector<func::Argument, 4>, ccl::SmallVector<ast::NodePtr, 4>>{};
+        auto result = ccl::Pair<ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>{};
         auto &[arguments, nodes] = result;
 
         if (argument_list != nullptr) {
@@ -96,7 +95,7 @@ namespace fsc {
     }
 
     auto Visitor::constructFunctionArgument(FscParser::Function_argumentContext *argument_context)
-            -> ccl::Pair<func::Argument, ast::NodePtr>
+            -> ccl::Pair<Argument, ast::NodePtr>
     {
         const auto &children = argument_context->children;
         auto argument_node = visitNode(children.back());

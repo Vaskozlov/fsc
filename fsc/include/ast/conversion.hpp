@@ -5,12 +5,12 @@
 
 namespace fsc::ast {
     class Conversion : public Node {
-        ccl::SharedPtr<Node> value;
+        NodePtr value;
         TypeId typeId;
 
     public:
-        explicit Conversion(ccl::SharedPtr<Node> value_, TypeId type_)
-            : Node(classof()), value(std::move(value_)), typeId(type_)
+        explicit Conversion(NodePtr value_, TypeId type_)
+            : Node{classof()}, value{std::move(value_)}, typeId{type_}
         {}
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;

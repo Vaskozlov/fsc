@@ -16,7 +16,7 @@ namespace fsc::ast {
 
         auto print(const std::string &prefix, const bool is_left) const -> void final;
 
-        auto addNode(ccl::SharedPtr<Node> node) -> void final;
+        auto addNode(NodePtr node) -> void final;
 
         [[nodiscard]] auto getName() const -> const std::string &
         {

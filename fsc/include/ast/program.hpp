@@ -6,7 +6,7 @@
 namespace fsc::ast {
     class Program : public Body {
     public:
-        Program() : Body(classof())
+        Program() : Body{classof()}
         {}
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;

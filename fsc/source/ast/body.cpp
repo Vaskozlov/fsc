@@ -53,7 +53,7 @@ namespace fsc::ast {
         defaultBodyPrint(prefix, is_left);
     }
 
-    auto Body::addNode(ccl::SharedPtr<Node> node) -> void
+    auto Body::addNode(NodePtr node) -> void
     {
         emplaceNode(std::move(node));
     }

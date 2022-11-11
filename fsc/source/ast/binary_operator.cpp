@@ -4,14 +4,14 @@
 namespace fsc::ast {
     auto BinaryOperation::getValueType() const noexcept -> TypeId
     {
-        const auto left_argument_type = func::Argument(lhs.get());
-        const auto right_argument_type = func::Argument(rhs.get());
-        const auto &function_name = operatorToFunctionName.at(operationType);
+        const auto left_argument_type = Argument(lhs.get());
+        const auto right_argument_type = Argument(rhs.get());
+        auto function_name = operatorToFunctionName.at(operationType);
 
         return func::Functions
-                .get(function_name, {left_argument_type, right_argument_type},
-                     func::CallRequirements::IMPLICIT)
-                .getReturnType();
+                .get(std::string{function_name}, {left_argument_type, right_argument_type},
+                     CallRequirements::IMPLICIT)
+                ->getReturnType();
     }
 
     auto BinaryOperation::codeGen(gen::CodeGenerator &output) const -> void

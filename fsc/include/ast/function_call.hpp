@@ -1,18 +1,18 @@
 #ifndef FSC_FUNCTION_CALL_HPP
 #define FSC_FUNCTION_CALL_HPP
 
-#include "ast/basic_node.hpp"
-#include "function/function.hpp"
+#include "ast/function.hpp"
+#include <ccl/core/types.hpp>
 
 namespace fsc::ast {
     class FunctionCall : public Node {
-        ccl::SmallVector<ccl::SharedPtr<Node>, 4> arguments;
-        func::Function function;
+        ccl::SmallVector<NodePtr> arguments;
+        ccl::SharedPtr<Function> function;
 
     public:
-        FunctionCall(const func::Function &function_,
-                     const ccl::SmallVector<ccl::SharedPtr<Node>, 4> &arguments_)
-            : Node(classof()), arguments(arguments_), function(function_)
+        FunctionCall(ccl::SharedPtr<Function> function_,
+                     const ccl::SmallVector<NodePtr> &arguments_)
+            : Node{classof()}, arguments{arguments_}, function{std::move(function_)}
         {}
 
         auto print(const std::string &prefix, const bool is_left) const -> void final;

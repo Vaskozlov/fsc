@@ -11,12 +11,10 @@ namespace fsc {
         T value;
 
     public:
-        explicit FscBuiltinType(const T &value_, ValueOptions value_options)
-            : FscType(T::typeId, value_options), value(value_)
+        explicit FscBuiltinType(const T &value_) : FscType(T::typeId), value(value_)
         {}
 
-        explicit FscBuiltinType(T &&value_, ValueOptions value_options)
-            : FscType(T::typeId, value_options), value(std::move(value_))
+        explicit FscBuiltinType(T &&value_) : FscType(T::typeId), value(std::move(value_))
         {}
 
         auto toString() const -> std::string final

@@ -5,10 +5,10 @@
 
 namespace fsc::ast {
     class Return : public Node {
-        ccl::SharedPtr<Node> value;
+        NodePtr value;
 
     public:
-        explicit Return(ccl::SharedPtr<Node> value_) : Node(classof()), value(std::move(value_))
+        explicit Return(NodePtr value_) : Node{classof()}, value{std::move(value_)}
         {}
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;

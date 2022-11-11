@@ -8,6 +8,7 @@
 #include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
 #include <ccl/ccl.hpp>
+#include <ccl/core/types.hpp>
 #include <ranges>
 
 using namespace std::string_view_literals;
@@ -56,9 +57,9 @@ namespace fsc {
 
     auto Visitor::visitFunction(FscParser::FunctionContext *const ctx) -> std::any
     {
-        auto function = func::Function(ctx, *this);
+        auto function = ccl::makeShared<ast::Function>(ctx, *this);
         func::Functions.registerFunction(function);
-        return ccl::makeShared<ast::Node, ast::Function>(function);
+        return ccl::SharedPtr<ast::Node>(function);
     }
 
     auto Visitor::visitVariable_definition(FscParser::Variable_definitionContext *const ctx)
@@ -140,7 +141,7 @@ namespace fsc {
                 dynamic_cast<FscParser::Function_parameterContext *>(args));
 
         const auto &function =
-                func::Functions.get({name, argument}, func::CallRequirements::EXPLICIT);
+                func::Functions.get({name, argument}, CallRequirements::EXPLICIT);
 
         return ccl::makeShared<ast::Node, ast::FunctionCall>(function, values);
     }

@@ -10,9 +10,6 @@ namespace fsc::converter {
 
     auto toInt(const std::string &repr) -> ccl::SharedPtr<ast::Value>
     {
-        constexpr static auto default_options =
-                ValueOptions{.constant = true, .compile_time_available = true};
-
         auto result = 0Z;
 
         if (repr.starts_with(BinaryBegin)) {
@@ -27,11 +24,11 @@ namespace fsc::converter {
 
         if (std::in_range<int32_t>(result)) {
             auto i32_value = Int32{static_cast<int32_t>(result)};
-            auto fsc_value = ccl::makeShared<FscBuiltinType<Int32>>(i32_value, default_options);
+            auto fsc_value = ccl::makeShared<FscBuiltinType<Int32>>(i32_value);
             return ccl::makeShared<ast::Value>(std::move(fsc_value));
         }
 
-        auto fsc_value = ccl::makeShared<FscBuiltinType<Int64>>(Int64{result}, default_options);
+        auto fsc_value = ccl::makeShared<FscBuiltinType<Int64>>(Int64{result});
         return ccl::makeShared<ast::Value>(std::move(fsc_value));
     }
 }// namespace fsc::converter

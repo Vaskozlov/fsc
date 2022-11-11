@@ -6,7 +6,7 @@ using namespace std::string_view_literals;
 namespace fsc::ast {
     auto FunctionCall::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output.write(function.getName());
+        output.write(function->getName());
         output.write('(');
 
         for (const auto &argument : arguments | ccl::views::dropBack(arguments)) {
@@ -20,7 +20,7 @@ namespace fsc::ast {
 
     auto FunctionCall::print(const std::string &prefix, const bool is_left) const -> void
     {
-        fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), function.getName());
+        fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), function->getName());
 
         for (auto &arg : arguments | ccl::views::dropBack(arguments)) {
             arg->print(expandPrefix(prefix, false), true);

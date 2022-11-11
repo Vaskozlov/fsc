@@ -46,11 +46,11 @@ namespace fsc {
         auto constructBinaryExpression(FscParser::ExprContext *ctx) -> ast::NodePtr;
 
         auto processFunctionArguments(FscParser::Function_parameterContext *ctx)
-                -> ccl::Pair<ccl::SmallVector<func::Argument, 4>,
-                             ccl::SmallVector<ast::NodePtr, 4>>;
+                -> ccl::Pair<ccl::SmallVector<Argument>,
+                             ccl::SmallVector<ast::NodePtr>>;
 
         auto constructFunctionArgument(FscParser::Function_argumentContext *argument_context)
-                -> ccl::Pair<func::Argument, ast::NodePtr>;
+                -> ccl::Pair<Argument, ast::NodePtr>;
 
         static auto castToNode(std::any &to_cast) -> ast::NodePtr
         {

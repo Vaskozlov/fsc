@@ -1,4 +1,4 @@
-#include "interpreter.hpp"
+#include "compiler.hpp"
 #include <fmt/format.h>
 
 auto main(int argc, char **argv) -> int
@@ -15,7 +15,7 @@ auto main(int argc, char **argv) -> int
         return 1;
     }
 
-    fsc::interpret(stream);
+    fsc::compile(stream);
 
     return 0;
 }

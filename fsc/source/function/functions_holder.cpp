@@ -1,78 +1,54 @@
 #include "function/functions_holder.hpp"
 #include "type/builtin_types.hpp"
 #include <algorithm>
+#include <ccl/core/types.hpp>
 #include <fmt/format.h>
 
 namespace fsc::func {
-    FunctionsHolder::FunctionsHolder(ccl::InitializerList<Function> functions_)
+    FunctionsHolder::FunctionsHolder(ccl::InitializerList<ast::Function> functions_)
     {
         for (const auto &function : functions_) {
-            registerFunction(function);
+            registerFunction(ccl::makeShared<ast::Function>(function));
         }
     }
 
-    void FunctionsHolder::registerFunction(const Function &function)
+    void FunctionsHolder::registerFunction(ccl::SharedPtr<ast::Function> function)
     {
-        auto &functions_with_similar_name = functions[function.getName()];
+        auto &functions_with_similar_class_id = functions[function->getClassId()];
+        auto &functions_with_similar_name = functions_with_similar_class_id[function->getName()];
 
         if (std::ranges::find(functions_with_similar_name, function) !=
             functions_with_similar_name.end()) {
             throw std::runtime_error(
-                    fmt::format("Function with name {} already exists", function.getName()));
+                    fmt::format("Function with name {} already exists", function->getName()));
         }
 
-        functions_with_similar_name.push_back(function);
+        functions_with_similar_name.push_back(std::move(function));
     }
 
     auto FunctionsHolder::get(const Signature &signature, CallRequirements call_requirements)
-            -> const Function &
+            -> ccl::SharedPtr<ast::Function>
     {
-        const auto &functions_with_similar_name = functions[signature.name];
-        auto function = std::find(functions_with_similar_name.begin(),
-                                  functions_with_similar_name.end(), signature);
+        const auto &functions_with_similar_class_id = functions.at(signature.classId);
+        const auto &functions_with_similar_name =
+                functions_with_similar_class_id.at(signature.name);
 
-        if (function == functions_with_similar_name.end()) {
+        const auto function_it = std::ranges::find_if(functions_with_similar_name,
+                                                      [&signature](const auto &function) {
+                                                          return *function == signature;
+                                                      });
+
+        if (function_it == functions_with_similar_name.end()) {
             throw std::runtime_error(
                     fmt::format("Function with name {} not found", signature.name));
         }
 
         if (call_requirements == CallRequirements::IMPLICIT &&
-            function->getCallRequirements() == CallRequirements::EXPLICIT) {
+            (*function_it)->getCallRequirements() == CallRequirements::EXPLICIT) {
             throw std::runtime_error(
                     fmt::format("Function {} has to be called explicitly", signature.name));
         }
 
-        return *function;
+        return *function_it;
     }
-
-    FunctionsHolder Functions{{"__add__",
-                               Int32::typeId,
-                               {Argument{"lhs", Int32::typeId, ArgumentCategory::IN},
-                                Argument{"lhs", Int32::typeId, ArgumentCategory::IN}},
-                               CallRequirements::IMPLICIT},
-                              {"__add__",
-                               Int64::typeId,
-                               {Argument{"lhs", Int64::typeId, ArgumentCategory::IN},
-                                Argument{"lhs", Int64::typeId, ArgumentCategory::IN}},
-                               CallRequirements::IMPLICIT},
-                              {"__add__",
-                               Float32::typeId,
-                               {Argument{"lhs", Float32::typeId, ArgumentCategory::IN},
-                                Argument{"lhs", Float32::typeId, ArgumentCategory::IN}},
-                               CallRequirements::IMPLICIT},
-                              {"__add__",
-                               Float64::typeId,
-                               {Argument{"lhs", Float64::typeId, ArgumentCategory::IN},
-                                Argument{"lhs", Float64::typeId, ArgumentCategory::IN}},
-                               CallRequirements::IMPLICIT},
-                              {"__logical_and__",
-                               Bool::typeId,
-                               {Argument{"lhs", Int32::typeId, ArgumentCategory::IN},
-                                Argument{"lhs", Int32::typeId, ArgumentCategory::IN}},
-                               CallRequirements::IMPLICIT},
-                              {"__logical_and__",
-                               Bool::typeId,
-                               {Argument{"lhs", Bool::typeId, ArgumentCategory::IN},
-                                Argument{"lhs", Bool::typeId, ArgumentCategory::IN}},
-                               CallRequirements::IMPLICIT}};
 }// namespace fsc::func

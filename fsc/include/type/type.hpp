@@ -13,11 +13,6 @@ namespace fsc {
         bool isTriviallyCopyable : 1;
     };
 
-    struct ValueOptions {
-        bool constant : 1;
-        bool compile_time_available : 1;
-    };
-
     class FscType {
         static ccl::Map<TypeId, std::string> typenameById;
         static ccl::Map<std::string, TypeId> idByTypename;
@@ -26,11 +21,10 @@ namespace fsc {
                 typeMemberVariables;
 
         TypeId typeId;
-        ValueOptions valueOptions;
 
     public:
-        explicit FscType(const TypeId type_id, ValueOptions value_options);
-        explicit FscType(const std::string &type_name, ValueOptions value_options);
+        explicit FscType(const TypeId type_id);
+        explicit FscType(const std::string &type_name);
 
         FscType(const FscType &other) = default;
         FscType(FscType &&other) noexcept = default;
@@ -46,11 +40,6 @@ namespace fsc {
         [[nodiscard]] static auto isTriviallyCopyable(const TypeId id) -> bool
         {
             return typeFlags[id].isTriviallyCopyable;
-        }
-
-        [[nodiscard]] auto getOptions() const noexcept -> ValueOptions
-        {
-            return valueOptions;
         }
 
         [[nodiscard]] auto is(const TypeId id) const noexcept -> bool

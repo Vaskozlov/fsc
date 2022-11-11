@@ -7,8 +7,15 @@ include(ExternalProject)
 ExternalProject_Add(ccl-project
         GIT_REPOSITORY    https://github.com/Vaskozlov/ccl-project
         GIT_TAG           experimental_brench
-        CMAKE_ARGS -DPRECOMPILED_HEADERS=ON
+        CMAKE_ARGS -DPRECOMPILED_HEADERS=OFF -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
         )
+
+find_package(ccl QUIET)
+
+if (NOT ccl_FOUND)
+    message(AUTHOR_WARNING "Build all external projects then reload cmake.")
+    return()
+endif()
 
 add_compile_definitions(CCL_DEBUG=1)
 

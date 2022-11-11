@@ -9,7 +9,7 @@ namespace fsc::ast {
         ccl::SharedPtr<FscType> value;
 
     public:
-        explicit Value(ccl::SharedPtr<FscType> value_) : Node(classof()), value(std::move(value_))
+        explicit Value(ccl::SharedPtr<FscType> value_) : Node{classof()}, value{std::move(value_)}
         {}
 
         auto print(const std::string &prefix, const bool is_left) const -> void final;

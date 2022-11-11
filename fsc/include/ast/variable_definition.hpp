@@ -5,24 +5,23 @@
 
 namespace fsc::ast {
     class VariableDefinition : public Variable {
-        ccl::SharedPtr<Node> initializer{};
+        NodePtr initializer{};
 
     public:
         explicit VariableDefinition(VariableFlags flags_, std::string name_, const TypeId type_id_,
-                                    ccl::SharedPtr<Node> initializer_)
-            : Variable(std::move(name_), type_id_, std::move(flags_), classof()),
-              initializer(std::move(initializer_))
+                                    NodePtr initializer_)
+            : Variable{std::move(name_), type_id_, std::move(flags_), classof()},
+              initializer{std::move(initializer_)}
         {}
 
         explicit VariableDefinition(VariableFlags flags_, std::string name_, const TypeId type_id_)
-            : Variable(std::move(name_), type_id_, std::move(flags_), classof())
+            : Variable{std::move(name_), type_id_, std::move(flags_), classof()}
         {}
 
-        explicit VariableDefinition(VariableFlags flags_, std::string name_,
-                                    ccl::SharedPtr<Node> initializer_)
-            : Variable(std::move(name_), initializer_->getValueType(), std::move(flags_),
-                       classof()),
-              initializer(std::move(initializer_))
+        explicit VariableDefinition(VariableFlags flags_, std::string name_, NodePtr initializer_)
+            : Variable{std::move(name_), initializer_->getValueType(), std::move(flags_),
+                       classof()},
+              initializer{std::move(initializer_)}
         {}
 
         auto print(const std::string &prefix, const bool is_left) const -> void final;

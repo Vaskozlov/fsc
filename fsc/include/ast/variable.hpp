@@ -20,10 +20,10 @@ namespace fsc::ast {
     public:
         Variable() = default;
 
-        Variable(std::string name_, TypeId type_id_, VariableFlags flags_,
-                 TypeId type_of_node_ = classof())
-            : Node(type_of_node_), name(std::move(name_)), typeId(type_id_),
-              flags(std::move(flags_))
+        CCL_PERFECT_FORWARDING(T, std::string)
+        Variable(T &&name_, TypeId type_id_, VariableFlags flags_, TypeId type_of_node_ = classof())
+            : Node{type_of_node_}, name{std::forward<T>(name_)}, typeId{type_id_},
+              flags{std::move(flags_)}
         {}
 
         auto print(const std::string &prefix, const bool is_left) const -> void override;

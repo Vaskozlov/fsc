@@ -19,49 +19,17 @@ namespace fsc::gen {
             return std::back_inserter(generated);
         }
 
-        auto write(std::string &&str) -> void
-        {
-            generated.append(std::move(str));
-        }
+        auto write(std::string_view str) -> void;
+        auto write(const std::string &str) -> void;
+        auto write(char chr) -> void;
 
-        auto write(const std::string_view &&str) -> void
-        {
-            generated.append(str);
-        }
+        auto newLine() -> void;
 
-        auto write(char chr) -> void
-        {
-            generated.push_back(chr);
-        }
+        auto pushScope() -> void;
+        auto popScope() -> void;
 
-        auto newLine() -> void
-        {
-            generated.push_back('\n');
-            generated.append(prefix);
-        }
-
-        auto pushScope() -> void
-        {
-            using namespace std::string_view_literals;
-            prefix.append("    "sv);
-        }
-
-        auto popScope() -> void
-        {
-            for (size_t i = 0; i != 4; ++i) {
-                prefix.pop_back();
-            }
-        }
-
-        auto openCurly() -> void
-        {
-            write('{');
-        }
-
-        auto closeCurly() -> void
-        {
-            write('}');
-        }
+        auto openCurly() -> void;
+        auto closeCurly() -> void;
     };
 }// namespace fsc::gen
 

@@ -42,7 +42,7 @@ namespace fsc {
         };
 
         static inline ScopeStorage globalStorage;
-        ccl::SmallVector<TypeId, 4> classScopes;
+        ccl::SmallVector<TypeId> classScopes;
         std::deque<Scope> scopes;
 
     public:

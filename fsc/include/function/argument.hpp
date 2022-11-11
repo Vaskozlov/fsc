@@ -12,9 +12,8 @@ namespace fsc {
     namespace ast {
         class Node;
     }
-}// namespace fsc
 
-namespace fsc::func {
+    CCL_ENUM(CallRequirements, size_t, IMPLICIT, EXPLICIT);
     CCL_ENUM(ArgumentCategory, size_t, IN, INOUT, OUT, COPY);
 
     constexpr inline ccl::StaticFlatmap<std::string_view, ArgumentCategory, 4> ArgumentCategories{
@@ -43,40 +42,18 @@ namespace fsc::func {
             return lhs.type == rhs.type;
         }
 
-        auto toVariable() const -> ast::Variable
-        {
-            auto flags = ast::VariableFlags{};
-            auto optimized_category = category;
-
-            if (category == func::ArgumentCategory::IN && FscType::isTriviallyCopyable(type)) {
-                optimized_category = func::ArgumentCategory::COPY;
-            }
-
-            switch (optimized_category) {
-                case func::ArgumentCategory::COPY:
-                    break;
-
-                case func::ArgumentCategory::IN:
-                    flags.constant = true;
-                    flags.reference = true;
-                    break;
-
-                case func::ArgumentCategory::OUT:
-                case func::ArgumentCategory::INOUT:
-                    flags.reference = true;
-                    break;
-
-                default:
-                    std::unreachable();
-            }
-
-            return ast::Variable{name, type, flags};
-        }
+        auto toVariable() const -> ast::Variable;
 
         std::string name;
         TypeId type;
         ArgumentCategory category;
     };
-}// namespace fsc::func
+
+    struct Signature {
+        std::string name;
+        ccl::SmallVector<Argument> arguments;
+        TypeId classId{};
+    };
+}// namespace fsc
 
 #endif /* FSC_ARGUMENT_HPP */

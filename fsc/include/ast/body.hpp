@@ -5,16 +5,16 @@
 
 namespace fsc::ast {
     class Body : public Node {
-        using iterator = ccl::Vector<ccl::SharedPtr<Node>>::iterator;
-        using const_iterator = ccl::Vector<ccl::SharedPtr<Node>>::const_iterator;
+        using iterator = ccl::Vector<NodePtr>::iterator;
+        using const_iterator = ccl::Vector<NodePtr>::const_iterator;
 
-        ccl::Vector<ccl::SharedPtr<Node>> nodes;
+        ccl::Vector<NodePtr> nodes;
 
     public:
-        Body() : Node(classof())
+        Body() : Node{classof()}
         {}
 
-        explicit Body(const NodeType type_) : Node(type_)
+        explicit Body(const NodeType type_) : Node{type_}
         {}
 
         [[nodiscard]] auto begin() const -> const_iterator
@@ -33,7 +33,7 @@ namespace fsc::ast {
 
         [[nodiscard]] auto getValueType() const noexcept -> TypeId;
 
-        virtual auto addNode(ccl::SharedPtr<Node> node) -> void;
+        virtual auto addNode(NodePtr node) -> void;
 
         [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
         {
@@ -41,7 +41,7 @@ namespace fsc::ast {
         }
 
     protected:
-        auto emplaceNode(ccl::SharedPtr<Node> node) -> void
+        auto emplaceNode(NodePtr node) -> void
         {
             nodes.emplace_back(std::move(node));
         }

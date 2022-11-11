@@ -21,7 +21,7 @@ namespace fsc::ast {
                                  const size_t extra_expansion = 0) -> std::string;
 
     public:
-        explicit Node(const NodeType node_type) : nodeType(node_type)
+        explicit Node(const NodeType node_type) : nodeType{node_type}
         {}
 
         Node(const Node &node) = default;
