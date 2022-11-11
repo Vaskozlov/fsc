@@ -4,7 +4,7 @@
 #include "ast/basic_node.hpp"
 #include "visibility.hpp"
 #include "visitor.hpp"
-#include <ccl/core/types.hpp>
+#include <ccl/ccl.hpp>
 #include <function/argument.hpp>
 
 namespace fsc::ast {

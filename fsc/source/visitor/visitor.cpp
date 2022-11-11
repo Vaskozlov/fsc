@@ -8,7 +8,6 @@
 #include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
 #include <ccl/ccl.hpp>
-#include <ccl/core/types.hpp>
 #include <ranges>
 
 using namespace std::string_view_literals;
