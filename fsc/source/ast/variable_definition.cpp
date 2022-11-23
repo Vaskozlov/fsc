@@ -25,7 +25,7 @@ namespace fsc::ast {
         if (initializer != nullptr) {
             initializer->codeGen(output);
         } else {
-            output.write(fmt::format("{}{{}}", type_name));
+            output.write(fmt::format("{}()", type_name));
         }
     }
 }// namespace fsc::ast

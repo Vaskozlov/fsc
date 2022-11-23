@@ -6,6 +6,7 @@ SUB         : [-];
 MUL         : [*];
 DIV         : [/];
 MOD         : [%];
+DOT         : [.];
 
 EQUALITY    : '==';
 INEQUALITY  : '!=';
@@ -59,7 +60,8 @@ variable_prefix: 'let' | 'var';
 
 body: '{' (stmt)* '}';
 
-expr:   expr AS NAME
+expr:   expr '.' NAME
+    |   expr AS NAME
     |   expr MUL expr
     |   expr DIV expr
     |   expr MOD expr

@@ -4,6 +4,7 @@
 #include "ast/function.hpp"
 #include <ccl/core/types.hpp>
 #include <list>
+#include <type/type.hpp>
 
 namespace fsc::func {
     class FunctionsHolder {
@@ -23,6 +24,9 @@ namespace fsc::func {
         {
             return get({name, arguments}, call_requirements);
         }
+
+    private:
+        auto appendFunction(ccl::SharedPtr<ast::Function> &function, TypeId class_id) -> void;
     };
 
     extern FunctionsHolder Functions;

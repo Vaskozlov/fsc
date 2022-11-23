@@ -47,12 +47,6 @@ namespace fsc {
             return id == getId();
         }
 
-        template<std::derived_from<FscType> T>
-        [[nodiscard]] auto as() -> T &
-        {
-            return static_cast<T &>(*this);
-        }
-
         [[nodiscard]] auto getId() const noexcept -> TypeId
         {
             return typeId;

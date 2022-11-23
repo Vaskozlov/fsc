@@ -14,7 +14,8 @@ namespace fsc {
     {
         static_assert(std::derived_from<BodyT, ast::Body>);
         static constexpr auto new_line = [](auto *elem) {
-            return elem->getText() != "\n";
+            const auto text = elem->getText();
+            return !text.empty() && text[0] != '\n';
         };
 
         const auto &children = ctx->children;
@@ -50,7 +51,7 @@ namespace fsc {
         const auto name = children[1]->getText();
         const auto type = children[3]->getText();
         const auto converted_type = FscType::getTypeId(type);
-        const auto *expr = dynamic_cast<const FscParser::ExprContext *>(children.back());
+        const auto *expr = ccl::as<const FscParser::ExprContext *>(children.back());
 
         if (expr != nullptr) {
             return ccl::makeShared<ast::VariableDefinition>(flags, name, converted_type,
@@ -78,14 +79,14 @@ namespace fsc {
 
         const auto &children = ctx->children;
         auto *argument_list =
-                dynamic_cast<FscParser::Function_typed_arguments_listContext *>(children[1]);
+                ccl::as<FscParser::Function_typed_arguments_listContext *>(children[1]);
         auto result = ccl::Pair<ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>{};
         auto &[arguments, nodes] = result;
 
         if (argument_list != nullptr) {
             for (auto *parameter : argument_list->children | std::views::filter(comma_filter)) {
                 auto [argument, node] = constructFunctionArgument(
-                        dynamic_cast<FscParser::Function_argumentContext *>(parameter));
+                        ccl::as<FscParser::Function_argumentContext *>(parameter));
                 arguments.push_back(argument);
                 nodes.push_back(std::move(node));
             }
@@ -107,8 +108,7 @@ namespace fsc {
     {
         const auto &children = ctx->children;
         const auto name = children[1]->getText();
-        return constructBody<ast::Class>(dynamic_cast<FscParser::BodyContext *>(children.back()),
-                                         name);
+        return constructBody<ast::Class>(ccl::as<FscParser::BodyContext *>(children.back()), name);
     }
 
     auto Visitor::constructConversion(FscParser::ExprContext *ctx) -> ast::NodePtr

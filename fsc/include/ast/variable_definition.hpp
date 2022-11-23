@@ -30,7 +30,7 @@ namespace fsc::ast {
 
         [[nodiscard]] auto toVariable() const -> const Variable &
         {
-            return static_cast<const Variable &>(*this);
+            return ccl::as<const Variable &>(*this);
         }
 
         [[nodiscard]] constexpr static auto classof() noexcept -> NodeType

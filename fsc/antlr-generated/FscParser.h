@@ -15,9 +15,10 @@ public:
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
-    T__20 = 21, T__21 = 22, T__22 = 23, AS = 24, ADD = 25, SUB = 26, MUL = 27, 
-    DIV = 28, MOD = 29, EQUALITY = 30, INEQUALITY = 31, LOGICAL_AND = 32, 
-    LOGICAL_OR = 33, INT = 34, FLOAT = 35, NAME = 36, LAYOUT = 37
+    T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, AS = 25, ADD = 26, SUB = 27, 
+    MUL = 28, DIV = 29, MOD = 30, DOT = 31, EQUALITY = 32, INEQUALITY = 33, 
+    LOGICAL_AND = 34, LOGICAL_OR = 35, INT = 36, FLOAT = 37, NAME = 38, 
+    LAYOUT = 39
   };
 
   enum {

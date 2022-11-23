@@ -1,6 +1,7 @@
 #include "function/functions_holder.hpp"
 #include "type/builtin_types.hpp"
 #include <algorithm>
+#include <ast/function.hpp>
 #include <ccl/ccl.hpp>
 #include <fmt/format.h>
 
@@ -14,7 +15,22 @@ namespace fsc::func {
 
     void FunctionsHolder::registerFunction(ccl::SharedPtr<ast::Function> function)
     {
-        auto &functions_with_similar_class_id = functions[function->getClassId()];
+        appendFunction(function, function->getClassId());
+
+        switch (function->getMagicType()) {
+            case ast::MagicFunctionType::INIT:
+                appendFunction(function, 0);
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    auto FunctionsHolder::appendFunction(ccl::SharedPtr<ast::Function> &function, TypeId class_id)
+            -> void
+    {
+        auto &functions_with_similar_class_id = functions[class_id];
         auto &functions_with_similar_name = functions_with_similar_class_id[function->getName()];
 
         if (std::ranges::find(functions_with_similar_name, function) !=
@@ -23,7 +39,7 @@ namespace fsc::func {
                     fmt::format("Function with name {} already exists", function->getName()));
         }
 
-        functions_with_similar_name.push_back(std::move(function));
+        functions_with_similar_name.push_back(function);
     }
 
     auto FunctionsHolder::get(const Signature &signature, CallRequirements call_requirements)

@@ -30,7 +30,7 @@ namespace fsc {
                 return storage.contains(name);
             }
 
-            [[nodiscard]] auto get(const std::string &name) -> const ast::Variable &
+            [[nodiscard]] auto get(const std::string &name) const -> const ast::Variable &
             {
                 return storage.at(name);
             }
@@ -56,7 +56,7 @@ namespace fsc {
             scopes.pop_front();
         }
 
-        auto pushClassScope(TypeId type_id)
+        auto pushClassScope(TypeId type_id) -> void
         {
             classScopes.push_back(type_id);
         }
@@ -66,17 +66,17 @@ namespace fsc {
             classScopes.pop_back();
         }
 
-        auto addVariable(const ast::Variable &value)
+        [[nodiscard]] auto getCurrentClassScope() const -> TypeId
         {
-            if (scopes.empty()) {
-                globalStorage.emplace(value.getName(), value);
-                return;
+            if (classScopes.empty()) {
+                return TypeId{};
             }
 
-            scopes.back().add(value);
+            return classScopes.back();
         }
 
-        [[nodiscard]] auto get(const std::string &name) -> ast::Variable;
+        auto addVariable(const ast::Variable &value) -> void;
+        [[nodiscard]] auto get(const std::string &name) const -> ast::Variable;
         [[nodiscard]] static auto getGlobal(const std::string &name) -> const ast::Variable &;
     };
 

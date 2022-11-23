@@ -14,7 +14,10 @@ namespace fsc::ast {
             output.write(", "sv);
         }
 
-        arguments.back()->codeGen(output);
+        if (!arguments.empty()) {
+            arguments.back()->codeGen(output);
+        }
+
         output.write(')');
     }
 

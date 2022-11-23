@@ -1,20 +1,24 @@
 #include "ast/function.hpp"
 #include "stack/stack.hpp"
+#include <function/argument.hpp>
 #include <ranges>
+#include <type/type.hpp>
 
 using namespace std::string_view_literals;
 
 namespace fsc::ast {
-    Function::Function(const FscParser::FunctionContext *function_context, Visitor &visitor)
-        : Node(classof()), name(function_context->children.at(2)->getText())
+    Function::Function(const FscParser::FunctionContext *function_context_, Visitor &visitor_,
+                       TypeId class_id_)
+        : Node{classof()}, name{function_context_->children.at(2)->getText()}, classId(class_id_)
     {
-        const auto &children = function_context->children;
+        const auto &children = function_context_->children;
         const auto &parameters = children.at(3);
 
-        processAttributes(dynamic_cast<FscParser::Function_attibutesContext *>(children.front()));
-
+        processAttributes(ccl::as<FscParser::Function_attibutesContext *>(children.front()));
         setReturnType(children);
-        readArguments(dynamic_cast<const FscParser::ParametersContext *>(parameters), visitor);
+        readArguments(ccl::as<const FscParser::ParametersContext *>(parameters), visitor_);
+
+        processMagicMethod();
 
         ProgramStack.pushScope(ScopeType::HARD);
 
@@ -22,7 +26,7 @@ namespace fsc::ast {
             ProgramStack.addVariable(arg.toVariable());
         }
 
-        function = visitor.visitNode(children.back());
+        function = visitor_.visitNode(children.back());
         ProgramStack.popScope();
     }
 
@@ -64,9 +68,15 @@ namespace fsc::ast {
             output.newLine();
         }
 
-        output.write(FscType::getTypeName(returnType));
-        output.write(' ');
-        output.write(name);
+        switch (magicType) {
+            case MagicFunctionType::INIT:
+                output.write(fmt::format("{}", name));
+                break;
+
+            default:
+                output.write(fmt::format("{} {}", FscType::getTypeName(returnType), name));
+                break;
+        }
 
         output.write('(');
         genArguments(output);
@@ -74,6 +84,25 @@ namespace fsc::ast {
 
         const auto *body = function.get();
         body->codeGen(output);
+    }
+
+    auto Function::processMagicMethod() -> void
+    {
+        if (name == "__init__" && classId != 0) {
+            processInitMethod();
+        }
+    }
+
+    auto Function::processInitMethod() -> void
+    {
+        magicType = MagicFunctionType::INIT;
+        name = FscType::getTypeName(classId);
+
+        if (returnType != 0) {
+            throw std::runtime_error("You are not allowed to set return type of __init__ method");
+        }
+
+        returnType = classId;
     }
 
     auto Function::genArguments(gen::CodeGenerator &output) const -> void
@@ -98,23 +127,12 @@ namespace fsc::ast {
             category = ArgumentCategory::COPY;
         }
 
-        switch (category) {
-            case ArgumentCategory::COPY:
-                output.write(fmt::format("{} {}", type_name, arg_name));
-                break;
+        const auto needs_to_be_constant = category == ArgumentCategory::IN;
+        const auto need_to_be_passed_by_reference =
+                ccl::lor(category == ArgumentCategory::OUT, category == ArgumentCategory::INOUT);
 
-            case ArgumentCategory::IN:
-                output.write(fmt::format("const {} & {}", type_name, arg_name));
-                break;
-
-            case ArgumentCategory::OUT:
-            case ArgumentCategory::INOUT:
-                output.write(fmt::format("{} & {}", type_name, arg_name));
-                break;
-
-            default:
-                std::unreachable();
-        }
+        output.write(fmt::format("{}{} {}{}", type_name, needs_to_be_constant ? "const " : "",
+                                 need_to_be_passed_by_reference ? "&" : "", arg_name));
 
         if (defaultArguments.contains(arg_name)) {
             output.write(" = "sv);
@@ -145,10 +163,10 @@ namespace fsc::ast {
         auto drop_first_and_last = std::views::drop(1) | ccl::views::dropBack(children, 2);
 
         for (auto &child : children | drop_first_and_last) {
-            auto *casted_child = dynamic_cast<FscParser::Typed_arguments_listContext *>(child);
+            auto *casted_child = ccl::as<FscParser::Typed_arguments_listContext *>(child);
 
             for (auto &arg : casted_child->children | std::views::filter(comma_filter)) {
-                auto *argument_context = dynamic_cast<FscParser::ArgumentContext *>(arg);
+                auto *argument_context = ccl::as<FscParser::ArgumentContext *>(arg);
                 auto argument = processArgument(argument_context, visitor);
                 arguments.push_back(std::move(argument));
             }
@@ -160,9 +178,9 @@ namespace fsc::ast {
     {
         const auto &children = argument_context->children;
         auto *argument_definition =
-                dynamic_cast<FscParser::Argument_definitionContext *>(children.front());
+                ccl::as<FscParser::Argument_definitionContext *>(children.front());
         auto argument = defineArgument(argument_definition);
-        auto *argument_initializer = dynamic_cast<FscParser::ExprContext *>(children.back());
+        auto *argument_initializer = ccl::as<FscParser::ExprContext *>(children.back());
 
         if (argument_initializer != nullptr) {
             defaultArguments.emplace(argument.name, visitor.visitNode(argument_initializer));

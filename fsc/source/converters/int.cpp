@@ -23,7 +23,7 @@ namespace fsc::converter {
         }
 
         if (std::in_range<int32_t>(result)) {
-            auto i32_value = Int32{static_cast<int32_t>(result)};
+            auto i32_value = Int32{ccl::as<int32_t>(result)};
             auto fsc_value = ccl::makeShared<FscBuiltinType<Int32>>(i32_value);
             return ccl::makeShared<ast::Value>(std::move(fsc_value));
         }

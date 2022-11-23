@@ -2,13 +2,23 @@
 #include <fmt/format.h>
 
 namespace fsc {
-    auto Stack::get(const std::string &name) -> ast::Variable
+    auto Stack::addVariable(const ast::Variable &value) -> void
+    {
+        if (scopes.empty()) {
+            globalStorage.emplace(value.getName(), value);
+            return;
+        }
+
+        scopes.back().add(value);
+    }
+
+    auto Stack::get(const std::string &name) const -> ast::Variable
     {
         if (scopes.empty()) {
             return getGlobal(name);
         }
 
-        for (auto &scope : scopes) {
+        for (const auto &scope : scopes) {
             if (scope.has(name)) {
                 return scope.get(name);
             }

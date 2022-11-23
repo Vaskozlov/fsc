@@ -19,6 +19,11 @@ namespace fsc::ast {
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
+        [[nodiscard]] auto getValueType() const noexcept -> TypeId final
+        {
+            return function->getReturnType();
+        }
+
         [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
         {
             return NodeType::FUNCTION_CALL;

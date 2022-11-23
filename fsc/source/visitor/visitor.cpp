@@ -56,7 +56,8 @@ namespace fsc {
 
     auto Visitor::visitFunction(FscParser::FunctionContext *const ctx) -> std::any
     {
-        auto function = ccl::makeShared<ast::Function>(ctx, *this);
+        auto function =
+                ccl::makeShared<ast::Function>(ctx, *this, ProgramStack.getCurrentClassScope());
         func::Functions.registerFunction(function);
         return ccl::SharedPtr<ast::Node>(function);
     }
@@ -87,6 +88,7 @@ namespace fsc {
     auto Visitor::visitExpr(FscParser::ExprContext *const ctx) -> std::any
     {
         auto node = ast::NodePtr{};
+        const auto &children = ctx->children;
 
         if (ctx->AS() != nullptr) {
             node = constructConversion(ctx);
@@ -98,6 +100,10 @@ namespace fsc {
 
         else if (ctx->FLOAT() != nullptr) {
             node = converter::toFloat(ctx->getText());
+        }
+
+        else if (children.size() == 3 && children.at(1)->getText() == ".") {
+            fmt::print("Member access \n");
         }
 
         else if (ctx->NAME() != nullptr) {
@@ -136,11 +142,10 @@ namespace fsc {
         const auto name = children[0]->getText();
         auto *args = children[1];
 
-        auto [argument, values] = processFunctionArguments(
-                dynamic_cast<FscParser::Function_parameterContext *>(args));
+        auto [argument, values] =
+                processFunctionArguments(ccl::as<FscParser::Function_parameterContext *>(args));
 
-        const auto &function =
-                func::Functions.get({name, argument}, CallRequirements::EXPLICIT);
+        const auto &function = func::Functions.get({name, argument}, CallRequirements::EXPLICIT);
 
         return ccl::makeShared<ast::Node, ast::FunctionCall>(function, values);
     }

@@ -13,7 +13,7 @@ namespace fsc {
         }
 
     private:
-        std::atomic<size_t> current_id{0};
+        std::atomic<size_t> current_id{1};
     };
 }// namespace fsc
 

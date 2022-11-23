@@ -6,9 +6,14 @@ class Default
     {
         return x
     }
+
+    public func __init__()
+    {
+        return 10
+    }
 }
 
-func f(in i32 lhs) -> i32
+func f(inout i32 lhs) -> i32
 {
     lhs + lhs
     return lhs * lhs / 2
@@ -16,6 +21,6 @@ func f(in i32 lhs) -> i32
 
 func main(in i32 lhs = 0) -> i32
 {
-    var x = 0
+    var x: Default ;
     return 10 + 2 * f(5 + 10 as i32)
 }

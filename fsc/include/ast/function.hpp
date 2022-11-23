@@ -8,6 +8,8 @@
 #include <function/argument.hpp>
 
 namespace fsc::ast {
+    CCL_ENUM(MagicFunctionType, ccl::u16, NONE, INIT);
+
     class Function : public Node {
         ccl::Map<std::string, ccl::SharedPtr<ast::Node>> defaultArguments;
         ccl::SmallVector<Argument> arguments;
@@ -17,9 +19,11 @@ namespace fsc::ast {
         CallRequirements callRequirements{CallRequirements::EXPLICIT};
         TypeId returnType{};
         TypeId classId{};
+        MagicFunctionType magicType{};
 
     public:
-        Function(const FscParser::FunctionContext *function_context, Visitor &visitor);
+        Function(const FscParser::FunctionContext *function_context_, Visitor &visitor_,
+                 TypeId class_id_);
 
         Function(std::string_view name_, const TypeId return_type_,
                  ccl::InitializerList<Argument> arguments_, CallRequirements call_requirements_);
@@ -38,14 +42,14 @@ namespace fsc::ast {
             classId = type_id;
         }
 
-        [[nodiscard]] auto operator==(const Function &other) const noexcept -> bool
+        template<typename T>
+        [[nodiscard]] auto operator==(const T &other) const noexcept -> bool
+            requires(std::is_same_v<T, Function> || std::is_same_v<T, Signature>)
         {
-            return classId == other.classId && name == other.name && arguments == other.arguments;
-        }
-
-        [[nodiscard]] auto operator==(const Signature &other) const noexcept -> bool
-        {
-            return classId == other.classId && name == other.name && arguments == other.arguments;
+            const auto is_constructor =
+                    (other.classId == 0 && getMagicType() == MagicFunctionType::INIT);
+            return ((classId == other.classId) || is_constructor) && name == other.name &&
+                   arguments == other.arguments;
         }
 
         [[nodiscard]] auto isMember() const noexcept -> bool
@@ -56,6 +60,11 @@ namespace fsc::ast {
         [[nodiscard]] auto getClassId() const noexcept -> TypeId
         {
             return classId;
+        }
+
+        [[nodiscard]] auto getMagicType() const noexcept -> MagicFunctionType
+        {
+            return magicType;
         }
 
         [[nodiscard]] auto getName() const noexcept -> const std::string &
@@ -96,6 +105,9 @@ namespace fsc::ast {
 
 
     private:
+        auto processMagicMethod() -> void;
+        auto processInitMethod() -> void;
+
         auto genArguments(gen::CodeGenerator &output) const -> void;
         auto argumentToString(gen::CodeGenerator &output, const Argument &arg) const -> void;
 
