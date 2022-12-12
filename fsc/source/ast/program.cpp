@@ -1,7 +1,13 @@
 #include "ast/program.hpp"
 #include <ranges>
 
-namespace fsc::ast {
+namespace fsc::ast
+{
+    Program::Program()
+    {
+        CCL_ASSERT(this->getNodeType() == NodeType::PROGRAM);
+    }
+
     auto Program::codeGen(gen::CodeGenerator &output) const -> void
     {
         for (const auto &node : *this) {
@@ -11,7 +17,7 @@ namespace fsc::ast {
         }
     }
 
-    auto Program::print(const std::string &prefix, const bool is_left) const -> void
+    auto Program::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}Class\n", getPrintingPrefix(prefix, is_left));
         defaultBodyPrint(expandPrefix(prefix, is_left), false);

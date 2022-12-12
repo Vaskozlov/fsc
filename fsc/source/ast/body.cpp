@@ -1,8 +1,14 @@
 #include "ast/body.hpp"
 #include <ranges>
 
-namespace fsc::ast {
-    auto Body::getValueType() const noexcept -> TypeId
+namespace fsc::ast
+{
+    Body::Body()
+    {
+        CCL_ASSERT(this->getNodeType() == NodeType::BODY);
+    }
+
+    auto Body::getValueType() const noexcept -> ccl::Id
     {
         for (const auto &node : nodes) {
             if (node->is(NodeType::RETURN)) {
@@ -34,7 +40,7 @@ namespace fsc::ast {
         defaultBodyCodegen(output);
     }
 
-    auto Body::defaultBodyPrint(const std::string &prefix, const bool is_left) const -> void
+    auto Body::defaultBodyPrint(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}Body\n", getPrintingPrefix(prefix, is_left));
 
@@ -48,7 +54,7 @@ namespace fsc::ast {
         }
     }
 
-    auto Body::print(const std::string &prefix, const bool is_left) const -> void
+    auto Body::print(const std::string &prefix, bool is_left) const -> void
     {
         defaultBodyPrint(prefix, is_left);
     }

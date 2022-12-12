@@ -3,19 +3,17 @@
 
 #include "ast/basic_node.hpp"
 
-namespace fsc::ast {
-    class Body : public Node {
+namespace fsc::ast
+{
+    class Body : public NodeWrapper<NodeType::BODY>
+    {
         using iterator = ccl::Vector<NodePtr>::iterator;
         using const_iterator = ccl::Vector<NodePtr>::const_iterator;
 
         ccl::Vector<NodePtr> nodes;
 
     public:
-        Body() : Node{classof()}
-        {}
-
-        explicit Body(const NodeType type_) : Node{type_}
-        {}
+        Body();
 
         [[nodiscard]] auto begin() const -> const_iterator
         {
@@ -29,16 +27,11 @@ namespace fsc::ast {
 
         auto codeGen(gen::CodeGenerator &output) const -> void override;
 
-        auto print(const std::string &prefix, const bool is_left) const -> void override;
+        auto print(const std::string &prefix, bool is_left) const -> void override;
 
-        [[nodiscard]] auto getValueType() const noexcept -> TypeId;
+        [[nodiscard]] auto getValueType() const noexcept -> ccl::Id;
 
         virtual auto addNode(NodePtr node) -> void;
-
-        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
-        {
-            return NodeType::BODY;
-        }
 
     protected:
         auto emplaceNode(NodePtr node) -> void
@@ -47,7 +40,7 @@ namespace fsc::ast {
         }
 
         auto defaultBodyCodegen(gen::CodeGenerator &output) const -> void;
-        auto defaultBodyPrint(const std::string &prefix, const bool is_left) const -> void;
+        auto defaultBodyPrint(const std::string &prefix, bool is_left) const -> void;
     };
 }// namespace fsc::ast
 

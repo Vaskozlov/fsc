@@ -1,7 +1,8 @@
 #include "converters/float.hpp"
 #include "ast/value.hpp"
 
-namespace fsc::converter {
+namespace fsc::converter
+{
     auto toFloat(const std::string &repr) -> ccl::SharedPtr<ast::Value>
     {
         if (repr.ends_with("F64")) {

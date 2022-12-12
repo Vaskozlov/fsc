@@ -7,37 +7,40 @@
 #include <ccl/ccl.hpp>
 #include <function/argument.hpp>
 
-namespace fsc::ast {
-    CCL_ENUM(MagicFunctionType, ccl::u16, NONE, INIT);
+namespace fsc::ast
+{
+    enum struct MagicFunctionType : ccl::u16
+    {
+        NONE,
+        INIT
+    };
 
-    class Function : public Node {
+    class Function : public NodeWrapper<NodeType::FUNCTION>
+    {
         ccl::Map<std::string, ccl::SharedPtr<ast::Node>> defaultArguments;
         ccl::SmallVector<Argument> arguments;
         NodePtr function;
         std::string name;
         Visibility visibility{Visibility::FILE_PRIVATE};
         CallRequirements callRequirements{CallRequirements::EXPLICIT};
-        TypeId returnType{};
-        TypeId classId{};
+        ccl::Id returnType{};
+        ccl::Id classId{};
         MagicFunctionType magicType{};
 
     public:
-        Function(const FscParser::FunctionContext *function_context_, Visitor &visitor_,
-                 TypeId class_id_);
+        Function(
+            const FscParser::FunctionContext *function_context, Visitor &visitor,
+            ccl::Id class_id);
 
-        Function(std::string_view name_, const TypeId return_type_,
-                 ccl::InitializerList<Argument> arguments_, CallRequirements call_requirements_);
+        Function(
+            std::string_view function_name, const ccl::Id return_type,
+            ccl::InitializerList<Argument> function_arguments, CallRequirements call_requirements);
 
-        auto print(const std::string &prefix, const bool is_left) const -> void final;
+        auto print(const std::string &prefix, bool is_left) const -> void final;
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
-        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
-        {
-            return NodeType::FUNCTION;
-        }
-
-        [[nodiscard]] auto makeFunctionMember(TypeId type_id) noexcept -> void
+        [[nodiscard]] auto makeFunctionMember(ccl::Id type_id) noexcept -> void
         {
             classId = type_id;
         }
@@ -47,7 +50,7 @@ namespace fsc::ast {
             requires(std::is_same_v<T, Function> || std::is_same_v<T, Signature>)
         {
             const auto is_constructor =
-                    (other.classId == 0 && getMagicType() == MagicFunctionType::INIT);
+                (other.classId == 0 && getMagicType() == MagicFunctionType::INIT);
             return ((classId == other.classId) || is_constructor) && name == other.name &&
                    arguments == other.arguments;
         }
@@ -57,7 +60,7 @@ namespace fsc::ast {
             return classId != 0;
         }
 
-        [[nodiscard]] auto getClassId() const noexcept -> TypeId
+        [[nodiscard]] auto getClassId() const noexcept -> ccl::Id
         {
             return classId;
         }
@@ -77,7 +80,7 @@ namespace fsc::ast {
             return arguments;
         }
 
-        [[nodiscard]] auto getReturnType() const noexcept -> TypeId
+        [[nodiscard]] auto getReturnType() const noexcept -> ccl::Id
         {
             return returnType;
         }
@@ -93,7 +96,7 @@ namespace fsc::ast {
         }
 
         [[nodiscard]] auto getDefaultArguments() const noexcept
-                -> const ccl::Map<std::string, ccl::SharedPtr<ast::Node>> &
+            -> const ccl::Map<std::string, ccl::SharedPtr<ast::Node>> &
         {
             return defaultArguments;
         }
@@ -102,7 +105,6 @@ namespace fsc::ast {
         {
             return callRequirements;
         }
-
 
     private:
         auto processMagicMethod() -> void;
@@ -113,12 +115,12 @@ namespace fsc::ast {
 
         auto setReturnType(const std::vector<antlr4::tree::ParseTree *> &nodes) -> void;
         auto readArguments(const FscParser::ParametersContext *parameters_context, Visitor &visitor)
-                -> void;
+            -> void;
         auto processArgument(const FscParser::ArgumentContext *argument_context, Visitor &visitor)
-                -> Argument;
+            -> Argument;
         auto processAttributes(FscParser::Function_attibutesContext *ctx) -> void;
         static auto defineArgument(const FscParser::Argument_definitionContext *argument_definition)
-                -> Argument;
+            -> Argument;
     };
 }// namespace fsc::ast
 

@@ -1,9 +1,10 @@
 #include "codegen.hpp"
 
-namespace fsc::gen {
+namespace fsc::gen
+{
     using namespace std::string_view_literals;
 
-    constexpr static auto ScopeStr = "    "sv;
+    constexpr inline auto ScopeStr = "    "sv;
 
     auto CodeGenerator::write(const std::string &str) -> void
     {

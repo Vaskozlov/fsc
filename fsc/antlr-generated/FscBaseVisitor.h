@@ -39,6 +39,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitVariable_attributes(FscParser::Variable_attributesContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitArgument_definition(FscParser::Argument_definitionContext *ctx) override {
     return visitChildren(ctx);
   }

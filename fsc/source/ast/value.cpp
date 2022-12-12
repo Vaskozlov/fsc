@@ -1,15 +1,22 @@
 #include "ast/value.hpp"
 #include <fmt/format.h>
 
-namespace fsc::ast {
+namespace fsc::ast
+{
     using namespace std::string_view_literals;
+
+    Value::Value(ccl::SharedPtr<FscType> t_value)
+      : value{std::move(t_value)}
+    {
+        CCL_ASSERT(this->getNodeType() == NodeType::VALUE);
+    }
 
     auto Value::codeGen(gen::CodeGenerator &output) const -> void
     {
         value->codeGen(output);
     }
 
-    auto Value::print(const std::string &prefix, const bool is_left) const -> void
+    auto Value::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}{}\n", getPrintingPrefix(prefix, is_left), value->toString());
     }

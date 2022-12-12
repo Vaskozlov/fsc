@@ -2,13 +2,18 @@
 #include "ast/function.hpp"
 #include "ast/variable_definition.hpp"
 #include "stack/stack.hpp"
+#include <ast/basic_node.hpp>
 #include <ranges>
 
-namespace fsc::ast {
+namespace fsc::ast
+{
     using namespace std::string_view_literals;
 
-    Class::Class(std::string name_) : Body{classof()}, name{std::move(name_)}
+    Class::Class(std::string name_)
+      : name{std::move(name_)}
     {
+        CCL_ASSERT(this->getNodeType() == NodeType::CLASS);
+
         if (FscType::exists(name)) {
             throw std::invalid_argument(fmt::format("{} already exists", name));
         }
@@ -24,7 +29,7 @@ namespace fsc::ast {
         output.write(';');
     }
 
-    auto Class::print(const std::string &prefix, const bool is_left) const -> void
+    auto Class::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}Class: {}\n", getPrintingPrefix(prefix, is_left), name);
         defaultBodyPrint(expandPrefix(prefix, is_left), false);
@@ -32,15 +37,31 @@ namespace fsc::ast {
 
     auto Class::addNode(NodePtr node) -> void
     {
-        if (node->is(NodeType::VARIABLE_DEFINITION)) {
-            const auto &variable = node->as<ast::VariableDefinition>();
-            FscType::addMemberVariable(FscType::getTypeId(name),
-                                       ccl::makeShared<Variable>(variable.toVariable()));
-        } else if (node->is(NodeType::FUNCTION)) {
-            auto &function = node->as<ast::Function>();
-            function.makeFunctionMember(FscType::getTypeId(name));
+        switch (node->getNodeType()) {
+        case NodeType::VARIABLE_DEFINITION:
+            addVariable(node->as<ast::VariableDefinition>());
+            break;
+
+        case NodeType::FUNCTION:
+            addFunction(node->as<ast::Function>());
+            break;
+
+        default:
+            break;
         }
 
         emplaceNode(std::move(node));
+    }
+
+    auto Class::addVariable(ast::VariableDefinition &variable_definition) -> void
+    {
+        variable_definition.convertToMember();
+        FscType::addMemberVariable(
+            FscType::getTypeId(name), ccl::makeShared<Variable>(variable_definition.toVariable()));
+    }
+
+    auto Class::addFunction(ast::Function &function_declaration) -> void
+    {
+        function_declaration.makeFunctionMember(FscType::getTypeId(name));
     }
 }// namespace fsc::ast

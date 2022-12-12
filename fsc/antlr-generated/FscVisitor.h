@@ -31,6 +31,8 @@ public:
 
     virtual std::any visitFunction_attibutes(FscParser::Function_attibutesContext *context) = 0;
 
+    virtual std::any visitVariable_attributes(FscParser::Variable_attributesContext *context) = 0;
+
     virtual std::any visitArgument_definition(FscParser::Argument_definitionContext *context) = 0;
 
     virtual std::any visitArgument_passing_type(FscParser::Argument_passing_typeContext *context) = 0;

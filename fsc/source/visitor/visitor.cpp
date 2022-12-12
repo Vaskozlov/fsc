@@ -2,19 +2,30 @@
 #include "ast/body.hpp"
 #include "ast/function.hpp"
 #include "ast/function_call.hpp"
+#include "ast/member_variable.hpp"
 #include "ast/variable.hpp"
 #include "converters/float.hpp"
 #include "converters/int.hpp"
 #include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
 #include <ccl/ccl.hpp>
+#include <function/argument.hpp>
 #include <ranges>
 
 using namespace std::string_view_literals;
 
-namespace fsc {
+namespace fsc
+{
     extern template auto Visitor::constructBody<ast::Body>(FscParser::BodyContext *ctx)
-            -> ast::NodePtr;
+        -> ast::NodePtr;
+
+    static auto isBinaryOperator(FscParser::ExprContext *const ctx) -> bool
+    {
+        return ctx->ADD() != nullptr || ctx->SUB() != nullptr || ctx->MUL() != nullptr ||
+               ctx->DIV() != nullptr || ctx->MUL() != nullptr || ctx->EQUALITY() != nullptr ||
+               ctx->INEQUALITY() != nullptr || ctx->LOGICAL_AND() != nullptr ||
+               ctx->LOGICAL_OR() != nullptr;
+    }
 
     auto Visitor::visitProgram(FscParser::ProgramContext *ctx) -> std::any
     {
@@ -39,16 +50,16 @@ namespace fsc {
             return constructReturn(ctx);
         }
 
-        if (ctx->function() != nullptr) {
-            return visitFunction(ctx->function());
+        if (auto *func = ctx->function(); func != nullptr) {
+            return visitFunction(func);
         }
 
-        if (ctx->class_() != nullptr) {
-            return visitClass(ctx->class_());
+        if (auto *class_ = ctx->class_(); class_ != nullptr) {
+            return visitClass(class_);
         }
 
-        if (ctx->expr() != nullptr) {
-            return visitExpr(ctx->expr());
+        if (auto *expr = ctx->expr(); expr != nullptr) {
+            return visitExpr(expr);
         }
 
         return visitChildren(ctx);
@@ -57,20 +68,19 @@ namespace fsc {
     auto Visitor::visitFunction(FscParser::FunctionContext *const ctx) -> std::any
     {
         auto function =
-                ccl::makeShared<ast::Function>(ctx, *this, ProgramStack.getCurrentClassScope());
+            ccl::makeShared<ast::Function>(ctx, *this, ProgramStack.getCurrentClassScope());
         func::Functions.registerFunction(function);
         return ccl::SharedPtr<ast::Node>(function);
     }
 
     auto Visitor::visitVariable_definition(FscParser::Variable_definitionContext *const ctx)
-            -> std::any
+        -> std::any
     {
         return visitChildren(ctx);
     }
 
-    auto
-    Visitor::visitAuto_variable_definition(FscParser::Auto_variable_definitionContext *const ctx)
-            -> std::any
+    auto Visitor::visitAuto_variable_definition(
+        FscParser::Auto_variable_definitionContext *const ctx) -> std::any
     {
         return visitChildren(ctx);
     }
@@ -103,21 +113,14 @@ namespace fsc {
         }
 
         else if (children.size() == 3 && children.at(1)->getText() == ".") {
-            fmt::print("Member access \n");
-        }
-
-        else if (ctx->NAME() != nullptr) {
-            node = ccl::makeShared<ast::Variable>(ProgramStack.get(ctx->getText()));
+            node = constructMemberVariableAccess(ctx);
         }
 
         else if (ctx->function_call() != nullptr) {
             node = visitNode(ctx->function_call());
         }
 
-        else if (ctx->ADD() != nullptr || ctx->SUB() != nullptr || ctx->MUL() != nullptr ||
-                 ctx->DIV() != nullptr || ctx->MUL() != nullptr || ctx->EQUALITY() != nullptr ||
-                 ctx->INEQUALITY() != nullptr || ctx->LOGICAL_AND() != nullptr ||
-                 ctx->LOGICAL_OR() != nullptr) {
+        else if (isBinaryOperator(ctx)) {
             node = constructBinaryExpression(ctx);
         }
 
@@ -127,6 +130,10 @@ namespace fsc {
 
         else if (ctx->auto_variable_definition()) {
             node = constructAutoVariableDefinition(ctx->auto_variable_definition());
+        }
+
+        else if (ctx->NAME() != nullptr) {
+            node = ccl::makeShared<ast::Variable>(ProgramStack.get(ctx->getText()));
         }
 
         else {
@@ -142,12 +149,11 @@ namespace fsc {
         const auto name = children[0]->getText();
         auto *args = children[1];
 
-        auto [argument, values] =
-                processFunctionArguments(ccl::as<FscParser::Function_parameterContext *>(args));
+        auto [arguments, values] =
+            processFunctionArguments(ccl::as<FscParser::Function_parameterContext *>(args));
 
-        const auto &function = func::Functions.get({name, argument}, CallRequirements::EXPLICIT);
-
-        return ccl::makeShared<ast::Node, ast::FunctionCall>(function, values);
+        return ccl::makeShared<ast::Node, ast::FunctionCall>(
+            func::Functions.get({name, arguments}, CallRequirements::EXPLICIT), values);
     }
 
     auto Visitor::codeGen() -> void

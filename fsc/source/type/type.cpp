@@ -2,30 +2,33 @@
 #include "type/builtin_types.hpp"
 #include <mutex>
 
-namespace fsc {
-    ccl::Map<TypeId, std::string> FscType::typenameById{
-            {Void::typeId, "void"},   {Int32::typeId, "i32"},  {Int64::typeId, "i64"},
-            {UInt32::typeId, "u32"},  {UInt64::typeId, "u64"}, {Float32::typeId, "f32"},
-            {Float64::typeId, "f64"}, {Bool::typeId, "bool"}};
+namespace fsc
+{
+    ccl::Map<ccl::Id, std::string> FscType::typenameById{
+        {Void::typeId, "void"},   {Int32::typeId, "i32"},  {Int64::typeId, "i64"},
+        {UInt32::typeId, "u32"},  {UInt64::typeId, "u64"}, {Float32::typeId, "f32"},
+        {Float64::typeId, "f64"}, {Bool::typeId, "bool"}};
 
-    ccl::Map<std::string, TypeId> FscType::idByTypename{
-            {"void", Void::typeId},   {"i32", Int32::typeId},  {"i64", Int64::typeId},
-            {"u32", UInt32::typeId},  {"u64", UInt64::typeId}, {"f32", Float32::typeId},
-            {"f64", Float64::typeId}, {"bool", Bool::typeId}};
+    ccl::Map<std::string, ccl::Id> FscType::idByTypename{
+        {"void", Void::typeId},   {"i32", Int32::typeId},  {"i64", Int64::typeId},
+        {"u32", UInt32::typeId},  {"u64", UInt64::typeId}, {"f32", Float32::typeId},
+        {"f64", Float64::typeId}, {"bool", Bool::typeId}};
 
-    ccl::Map<TypeId, TypeFlags> FscType::typeFlags{{Void::typeId, {.isTriviallyCopyable = false}},
-                                                   {Int32::typeId, {.isTriviallyCopyable = true}},
-                                                   {Int64::typeId, {.isTriviallyCopyable = true}},
-                                                   {UInt32::typeId, {.isTriviallyCopyable = true}},
-                                                   {UInt64::typeId, {.isTriviallyCopyable = true}},
-                                                   {Float32::typeId, {.isTriviallyCopyable = true}},
-                                                   {Float64::typeId, {.isTriviallyCopyable = true}},
-                                                   {Bool::typeId, {.isTriviallyCopyable = true}}};
+    ccl::Map<ccl::Id, TypeFlags> FscType::typeFlags{
+        {Void::typeId, {.isTriviallyCopyable = false}},
+        {Int32::typeId, {.isTriviallyCopyable = true}},
+        {Int64::typeId, {.isTriviallyCopyable = true}},
+        {UInt32::typeId, {.isTriviallyCopyable = true}},
+        {UInt64::typeId, {.isTriviallyCopyable = true}},
+        {Float32::typeId, {.isTriviallyCopyable = true}},
+        {Float64::typeId, {.isTriviallyCopyable = true}},
+        {Bool::typeId, {.isTriviallyCopyable = true}}};
 
-    ccl::Map<TypeId, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>
-            FscType::typeMemberVariables;
+    ccl::Map<ccl::Id, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>
+        FscType::typeMemberVariables;
 
-    FscType::FscType(const TypeId type_id) : typeId{type_id}
+    FscType::FscType(const ccl::Id type_id)
+      : typeId{type_id}
     {
         if (!exists(typeId)) {
             throw std::invalid_argument("Type not found");
@@ -66,19 +69,19 @@ namespace fsc {
         typeFlags.emplace(type_id, flags);
     }
 
-    auto FscType::addMemberVariable(TypeId type_id, ccl::SharedPtr<ast::Variable> variable) -> void
+    auto FscType::addMemberVariable(ccl::Id type_id, ccl::SharedPtr<ast::Variable> variable) -> void
     {
         typeMemberVariables[type_id].emplace(variable->getName(), variable);
     }
 
-    auto FscType::hasMemberVariables(TypeId type_id, const std::string &name) -> bool
+    auto FscType::hasMemberVariables(ccl::Id type_id, const std::string &name) -> bool
     {
         return typeMemberVariables.contains(type_id) &&
                typeMemberVariables.at(type_id).contains(name);
     }
 
-    auto FscType::getMemberVariable(TypeId type_id, const std::string &name)
-            -> ccl::SharedPtr<ast::Variable>
+    auto FscType::getMemberVariable(ccl::Id type_id, const std::string &name)
+        -> ccl::SharedPtr<ast::Variable>
     {
         return typeMemberVariables.at(type_id).at(name);
     }

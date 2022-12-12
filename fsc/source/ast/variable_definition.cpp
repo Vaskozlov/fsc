@@ -1,10 +1,47 @@
 #include "ast/variable_definition.hpp"
+#include "ast/variable.hpp"
 #include "type/type.hpp"
+#include "visibility.hpp"
+#include "visitor.hpp"
 
-namespace fsc::ast {
+namespace fsc::ast
+{
     using namespace std::string_view_literals;
 
-    auto VariableDefinition::print(const std::string &prefix, const bool is_left) const -> void
+    VariableDefinition::VariableDefinition(
+        std::string variable_name, VariableFlags variable_flags, ccl::Id type_id,
+        NodePtr variable_initializer)
+      : NodeWrapper{std::move(variable_name), type_id, variable_flags}
+      , initializer{std::move(variable_initializer)}
+    {
+        CCL_ASSERT(this->getNodeType() == NodeType::VARIABLE_DEFINITION);
+    }
+
+    VariableDefinition::VariableDefinition(
+        std::string variable_name, VariableFlags variable_flags, NodePtr variable_initializer)
+      : VariableDefinition{
+            std::move(variable_name), variable_flags, variable_initializer->getValueType(),
+            std::move(variable_initializer)}
+    {
+        CCL_ASSERT(this->getNodeType() == NodeType::VARIABLE_DEFINITION);
+    }
+
+    VariableDefinition::VariableDefinition(
+        Visitor &visitor, FscParser::Variable_definitionContext *ctx)
+      : VariableDefinition{
+            readName(ctx), readFlags(ctx), readType(ctx), readInitializer(visitor, ctx)}
+    {
+        static_assert(classof() == NodeType::VARIABLE_DEFINITION);
+    }
+
+    VariableDefinition::VariableDefinition(
+        Visitor &visitor, FscParser::Auto_variable_definitionContext *ctx)
+      : VariableDefinition{readName(ctx), readFlags(ctx), readInitializer(visitor, ctx)}
+    {
+        static_assert(classof() == NodeType::VARIABLE_DEFINITION);
+    }
+
+    auto VariableDefinition::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}Definition of {}\n", getPrintingPrefix(prefix, is_left), getName());
 
@@ -17,6 +54,10 @@ namespace fsc::ast {
     {
         const auto &type_name = FscType::getTypeName(getValueType());
 
+        if (isMemberOfClass()) {
+            genVisibility(getVisibility(), output);
+        }
+
         output.write(type_name);
         output.write(' ');
         output.write(getName());
@@ -27,5 +68,42 @@ namespace fsc::ast {
         } else {
             output.write(fmt::format("{}()", type_name));
         }
+    }
+
+    auto VariableDefinition::readType(FscParser::Variable_definitionContext *ctx) -> ccl::Id
+    {
+        const auto type_name = ctx->children.at(5)->getText();
+        return FscType::getTypeId(type_name);
+    }
+
+    auto VariableDefinition::readName(auto *ctx) -> std::string
+    {
+        return ctx->children.at(2)->getText();
+    }
+
+    auto VariableDefinition::readFlags(auto *ctx) -> VariableFlags
+    {
+        auto flags = VariableFlags{};
+        auto attributes = ccl::as<FscParser::Variable_attributesContext *>(ctx->children.at(0));
+        auto declaration_type = ctx->children.at(1)->getText();
+
+        if (declaration_type == "let"sv) {
+            flags.constant = true;
+        }
+
+        if (auto visibility = attributes->visibility(); visibility != nullptr) {
+            flags.visibility = VisibilityByStr.at(visibility->getText());
+        }
+
+        return VariableFlags{};
+    }
+
+    auto VariableDefinition::readInitializer(Visitor &visitor, auto *ctx) -> NodePtr
+    {
+        if (auto *expr = ccl::as<FscParser::ExprContext *>(ctx->children.back()); expr != nullptr) {
+            return visitor.visitNode(ctx->children.back());
+        }
+
+        return nullptr;
     }
 }// namespace fsc::ast

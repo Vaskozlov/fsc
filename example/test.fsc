@@ -1,6 +1,6 @@
 class Default
 {
-    var x = 10
+    public var x = 10
 
     public func test() -> i32
     {
@@ -21,6 +21,7 @@ func f(inout i32 lhs) -> i32
 
 func main(in i32 lhs = 0) -> i32
 {
-    var x: Default ;
+    var x = Default()
+    x.x
     return 10 + 2 * f(5 + 10 as i32)
 }

@@ -3,28 +3,23 @@
 
 #include "ast/basic_node.hpp"
 
-namespace fsc::ast {
-    class Conversion : public Node {
+namespace fsc::ast
+{
+    class Conversion : public NodeWrapper<NodeType::CONVERSION>
+    {
         NodePtr value;
-        TypeId typeId;
+        ccl::Id typeId;
 
     public:
-        explicit Conversion(NodePtr value_, TypeId type_)
-            : Node{classof()}, value{std::move(value_)}, typeId{type_}
-        {}
+        explicit Conversion(NodePtr value_to_convert, ccl::Id type_id);
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
-        auto print(const std::string &prefix, const bool is_left) const -> void final;
+        auto print(const std::string &prefix, bool is_left) const -> void final;
 
-        [[nodiscard]] auto getValueType() const noexcept -> TypeId final
+        [[nodiscard]] auto getValueType() const noexcept -> ccl::Id final
         {
             return value->getValueType();
-        }
-
-        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
-        {
-            return NodeType::CONVERSION;
         }
     };
 }// namespace fsc::ast

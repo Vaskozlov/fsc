@@ -38,6 +38,7 @@ visibility: 'public'
             | 'fileprivae';
 
 function_attibutes: visibility?;
+variable_attributes: visibility?;
 
 argument_definition: argument_passing_type NAME NAME;
 argument_passing_type: 'in' | 'out' | 'inout';
@@ -53,8 +54,8 @@ function_parameter: '(' (function_typed_arguments_list)? ')';
 function_typed_arguments_list: function_argument ( ',' function_argument)*;
 function_argument : (NAME '=') ? expr;
 
-variable_definition: variable_prefix NAME ':' NAME (('=' '\n'*) expr)?;
-auto_variable_definition: variable_prefix NAME '=' expr;
+variable_definition: variable_attributes variable_prefix NAME ':' NAME (('=' '\n'*) expr)?;
+auto_variable_definition: variable_attributes variable_prefix NAME '=' expr;
 
 variable_prefix: 'let' | 'var';
 

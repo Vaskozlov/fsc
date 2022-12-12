@@ -2,29 +2,29 @@
 #define FSC_VARIABLE_DEFINITION_HPP
 
 #include "ast/variable.hpp"
+#include "visibility.hpp"
+#include "visitor.hpp"
+#include <ast/basic_node.hpp>
 
-namespace fsc::ast {
-    class VariableDefinition : public Variable {
+namespace fsc::ast
+{
+    class VariableDefinition : public NodeWrapper<NodeType::VARIABLE_DEFINITION, Variable>
+    {
         NodePtr initializer{};
 
     public:
-        explicit VariableDefinition(VariableFlags flags_, std::string name_, const TypeId type_id_,
-                                    NodePtr initializer_)
-            : Variable{std::move(name_), type_id_, std::move(flags_), classof()},
-              initializer{std::move(initializer_)}
-        {}
+        VariableDefinition(
+            std::string variable_name, VariableFlags variable_flags, ccl::Id type_id,
+            NodePtr variable_initializer);
 
-        explicit VariableDefinition(VariableFlags flags_, std::string name_, const TypeId type_id_)
-            : Variable{std::move(name_), type_id_, std::move(flags_), classof()}
-        {}
+        VariableDefinition(
+            std::string variable_name, VariableFlags variable_flags, NodePtr variable_initializer);
 
-        explicit VariableDefinition(VariableFlags flags_, std::string name_, NodePtr initializer_)
-            : Variable{std::move(name_), initializer_->getValueType(), std::move(flags_),
-                       classof()},
-              initializer{std::move(initializer_)}
-        {}
+        VariableDefinition(Visitor &visitor, FscParser::Variable_definitionContext *ctx);
 
-        auto print(const std::string &prefix, const bool is_left) const -> void final;
+        VariableDefinition(Visitor &visitor, FscParser::Auto_variable_definitionContext *ctx);
+
+        auto print(const std::string &prefix, bool is_left) const -> void final;
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
@@ -33,10 +33,11 @@ namespace fsc::ast {
             return ccl::as<const Variable &>(*this);
         }
 
-        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
-        {
-            return NodeType::VARIABLE_DEFINITION;
-        }
+    private:
+        static auto readType(FscParser::Variable_definitionContext *ctx) -> ccl::Id;
+        static auto readName(auto *ctx) -> std::string;
+        static auto readFlags(auto *ctx) -> VariableFlags;
+        static auto readInitializer(Visitor &visitor, auto *ctx) -> NodePtr;
     };
 }// namespace fsc::ast
 

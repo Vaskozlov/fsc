@@ -5,16 +5,18 @@
 #include "type/type.hpp"
 #include <fmt/format.h>
 
-namespace fsc {
+namespace fsc
+{
     template<typename T>
-    class FscBuiltinType : public FscType {
+    class FscBuiltinType : public FscType
+    {
         T value;
 
     public:
-        explicit FscBuiltinType(const T &value_) : FscType(T::typeId), value(value_)
-        {}
-
-        explicit FscBuiltinType(T &&value_) : FscType(T::typeId), value(std::move(value_))
+        CCL_PERFECT_FORWARDING(U, T)
+        explicit FscBuiltinType(U &&value_)
+          : FscType{T::typeId}
+          , value{std::forward<U>(value_)}
         {}
 
         auto toString() const -> std::string final

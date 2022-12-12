@@ -1,7 +1,8 @@
 #include "stack/stack.hpp"
 #include <fmt/format.h>
 
-namespace fsc {
+namespace fsc
+{
     auto Stack::addVariable(const ast::Variable &value) -> void
     {
         if (scopes.empty()) {
@@ -28,7 +29,7 @@ namespace fsc {
             }
         }
 
-        if (!classScopes.empty() && FscType::hasMemberVariables(classScopes.back(), name)) {
+        if (isMemberVariable(name)) {
             return *FscType::getMemberVariable(classScopes.back(), name);
         }
 
@@ -42,6 +43,11 @@ namespace fsc {
         }
 
         throw std::runtime_error(fmt::format("Variable {} does not exist", name));
+    }
+
+    CCL_INLINE auto Stack::isMemberVariable(const std::string &name) const -> bool
+    {
+        return !classScopes.empty() && FscType::hasMemberVariables(classScopes.back(), name);
     }
 
     thread_local Stack ProgramStack{};

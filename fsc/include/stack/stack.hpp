@@ -6,23 +6,31 @@
 #include <deque>
 #include <map>
 
-namespace fsc {
-    CCL_ENUM(ScopeType, bool, SOFT, HARD);
+namespace fsc
+{
+    enum struct ScopeType : bool
+    {
+        SOFT,
+        HARD
+    };
 
-    class Stack {
+    class Stack
+    {
         using ScopeStorage = ccl::Map<std::string, ast::Variable>;
 
-        class Scope {
+        class Scope
+        {
             ScopeStorage storage;
             ScopeType scopeType;
 
         public:
-            explicit Scope(const ScopeType scope_type_) : scopeType(scope_type_)
+            explicit Scope(const ScopeType scope_type_)
+              : scopeType{scope_type_}
             {}
 
             [[nodiscard]] auto isHard() const noexcept -> bool
             {
-                return scopeType == ScopeType::HARD;
+                return ScopeType::HARD == scopeType;
             }
 
             [[nodiscard]] auto has(const std::string &name) const -> bool
@@ -42,7 +50,7 @@ namespace fsc {
         };
 
         static inline ScopeStorage globalStorage;
-        ccl::SmallVector<TypeId> classScopes;
+        ccl::SmallVector<ccl::Id> classScopes;
         std::deque<Scope> scopes;
 
     public:
@@ -56,7 +64,7 @@ namespace fsc {
             scopes.pop_front();
         }
 
-        auto pushClassScope(TypeId type_id) -> void
+        auto pushClassScope(ccl::Id type_id) -> void
         {
             classScopes.push_back(type_id);
         }
@@ -66,10 +74,10 @@ namespace fsc {
             classScopes.pop_back();
         }
 
-        [[nodiscard]] auto getCurrentClassScope() const -> TypeId
+        [[nodiscard]] auto getCurrentClassScope() const -> ccl::Id
         {
             if (classScopes.empty()) {
-                return TypeId{};
+                return ccl::Id{};
             }
 
             return classScopes.back();
@@ -78,6 +86,9 @@ namespace fsc {
         auto addVariable(const ast::Variable &value) -> void;
         [[nodiscard]] auto get(const std::string &name) const -> ast::Variable;
         [[nodiscard]] static auto getGlobal(const std::string &name) -> const ast::Variable &;
+
+    private:
+        [[nodiscard]] auto isMemberVariable(const std::string &name) const -> bool;
     };
 
     extern thread_local Stack ProgramStack;

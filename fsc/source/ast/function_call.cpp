@@ -3,7 +3,18 @@
 
 using namespace std::string_view_literals;
 
-namespace fsc::ast {
+namespace fsc::ast
+{
+    FunctionCall::FunctionCall(
+        ccl::SharedPtr<Function>
+            function_to_call,
+        const ccl::SmallVector<NodePtr> &function_arguments)
+      : arguments{function_arguments}
+      , function{std::move(function_to_call)}
+    {
+        CCL_ASSERT(this->getNodeType() == NodeType::FUNCTION_CALL);
+    }
+
     auto FunctionCall::codeGen(gen::CodeGenerator &output) const -> void
     {
         output.write(function->getName());
@@ -21,7 +32,7 @@ namespace fsc::ast {
         output.write(')');
     }
 
-    auto FunctionCall::print(const std::string &prefix, const bool is_left) const -> void
+    auto FunctionCall::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), function->getName());
 

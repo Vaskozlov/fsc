@@ -1,6 +1,7 @@
 #include "type/builtin_types_impl.hpp"
 
-namespace fsc {
+namespace fsc
+{
     template class FscBuiltinType<Int32>;
     template class FscBuiltinType<Int64>;
 

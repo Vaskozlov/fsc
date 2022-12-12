@@ -4,16 +4,18 @@
 #include <atomic>
 #include <cinttypes>
 
-namespace fsc {
-    class UuidFactory {
+namespace fsc
+{
+    class UuidFactory
+    {
     public:
-        auto operator()() -> size_t
+        auto operator()() -> ccl::Id
         {
             return std::atomic_fetch_add_explicit(&current_id, 1U, std::memory_order_relaxed);
         }
 
     private:
-        std::atomic<size_t> current_id{1};
+        std::atomic<ccl::Id> current_id{1};
     };
 }// namespace fsc
 

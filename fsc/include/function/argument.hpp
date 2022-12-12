@@ -6,53 +6,74 @@
 #include <ccl/ccl.hpp>
 #include <ccl/flatmap.hpp>
 
-namespace fsc {
-    using TypeId = size_t;
-
-    namespace ast {
+namespace fsc
+{
+    namespace ast
+    {
         class Node;
     }
 
-    CCL_ENUM(CallRequirements, size_t, IMPLICIT, EXPLICIT);
-    CCL_ENUM(ArgumentCategory, size_t, IN, INOUT, OUT, COPY);
+    enum struct CallRequirements :  ccl::Id{ IMPLICIT, EXPLICIT};
+    enum struct ArgumentCategory : ccl::Id{ IN, INOUT, OUT, COPY};
 
     constexpr inline ccl::StaticFlatmap<std::string_view, ArgumentCategory, 4> ArgumentCategories{
-            {"in", ArgumentCategory::IN},
-            {"inout", ArgumentCategory::INOUT},
-            {"out", ArgumentCategory::OUT},
-            {"copy", ArgumentCategory::COPY}};
+        {"in", ArgumentCategory::IN},
+        {"inout", ArgumentCategory::INOUT},
+        {"out", ArgumentCategory::OUT},
+        {"copy", ArgumentCategory::COPY}};
 
-    class Argument {
+    class Argument
+    {
+    private:
+        std::string name{};
+        ccl::Id type{};
+        ArgumentCategory category{};
+
     public:
-        Argument(std::string name_, TypeId type_,
-                 ArgumentCategory category_ = ArgumentCategory::COPY)
-            : name(std::move(name_)), type(type_), category(category_)
+        Argument(
+            std::string name_, ccl::Id type_, ArgumentCategory category_ = ArgumentCategory::COPY)
+          : name{std::move(name_)}
+          , type{type_}
+          , category{category_}
         {}
 
-        Argument(const ast::Node *node) : name(), type(node->getValueType()), category()
+        explicit Argument(const ast::Node *node)
+          : type{node->getValueType()}
         {}
 
-        friend auto operator==(const Argument &lhs, const TypeId rhs) noexcept -> bool
+        [[nodiscard]] auto operator==(ccl::Id other) const noexcept -> bool
         {
-            return lhs.type == rhs;
+            return type == other;
         }
 
-        friend auto operator==(const Argument &lhs, const Argument &rhs) noexcept -> bool
+        [[nodiscard]] auto operator==(const Argument &other) const noexcept -> bool
         {
-            return lhs.type == rhs.type;
+            return type == other.type;
+        }
+
+        [[nodiscard]] auto getType() const noexcept -> ccl::Id
+        {
+            return type;
+        }
+
+        [[nodiscard]] auto getName() const noexcept -> const std::string &
+        {
+            return name;
+        }
+
+        [[nodiscard]] auto getCategory() const noexcept -> ArgumentCategory
+        {
+            return category;
         }
 
         auto toVariable() const -> ast::Variable;
-
-        std::string name;
-        TypeId type;
-        ArgumentCategory category;
     };
 
-    struct Signature {
+    struct Signature
+    {
         std::string name;
         ccl::SmallVector<Argument> arguments;
-        TypeId classId{};
+        ccl::Id classId{};
     };
 }// namespace fsc
 

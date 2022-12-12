@@ -4,45 +4,55 @@
 #include "ast/basic_node.hpp"
 #include "visibility.hpp"
 
-namespace fsc::ast {
-    struct VariableFlags {
-        bool constant : 1 = false;
-        bool reference : 1 = false;
+namespace fsc::ast
+{
+    struct VariableFlags
+    {
+        Visibility visibility = Visibility::FILE_PRIVATE;
+        bool constant = false;
+        bool reference = false;
         bool memberVariable = false;
-        bool compileTimeAvailable : 1 = false;
+        bool compileTimeAvailable = false;
     };
 
-    class Variable : public Node {
-        std::string name;
-        TypeId typeId;
-        VariableFlags flags;
+    class Variable : public NodeWrapper<NodeType::VARIABLE>
+    {
+        std::string name{};
+        ccl::Id typeId{};
+        VariableFlags flags{};
 
     public:
         Variable() = default;
 
-        CCL_PERFECT_FORWARDING(T, std::string)
-        Variable(T &&name_, TypeId type_id_, VariableFlags flags_, TypeId type_of_node_ = classof())
-            : Node{type_of_node_}, name{std::forward<T>(name_)}, typeId{type_id_},
-              flags{std::move(flags_)}
-        {}
+        Variable(std::string variable_name, ccl::Id type_id, VariableFlags variable_flags);
 
-        auto print(const std::string &prefix, const bool is_left) const -> void override;
+        auto print(const std::string &prefix, bool is_left) const -> void override;
 
         auto codeGen(gen::CodeGenerator &output) const -> void override;
 
-        [[nodiscard]] auto getName() const -> const std::string &
+        auto convertToMember() noexcept -> void
+        {
+            flags.memberVariable = true;
+        }
+
+        [[nodiscard]] auto getName() const noexcept -> const std::string &
         {
             return name;
         }
 
-        [[nodiscard]] auto getValueType() const noexcept -> TypeId final
+        [[nodiscard]] auto getValueType() const noexcept -> ccl::Id final
         {
             return typeId;
         }
 
-        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
+        [[nodiscard]] auto isMemberOfClass() const noexcept -> bool
         {
-            return NodeType::VARIABLE;
+            return flags.memberVariable;
+        }
+
+        [[nodiscard]] auto getVisibility() const noexcept -> Visibility
+        {
+            return flags.visibility;
         }
     };
 }// namespace fsc::ast

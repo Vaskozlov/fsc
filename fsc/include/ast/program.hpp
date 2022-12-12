@@ -2,20 +2,17 @@
 #define FSC_PROGRAM_HPP
 
 #include "ast/body.hpp"
+#include <ast/basic_node.hpp>
 
-namespace fsc::ast {
-    class Program : public Body {
+namespace fsc::ast
+{
+    class Program : public NodeWrapper<NodeType::PROGRAM, Body>
+    {
     public:
-        Program() : Body{classof()}
-        {}
+        Program();
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
-        auto print(const std::string &prefix, const bool is_left) const -> void final;
-
-        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
-        {
-            return NodeType::PROGRAM;
-        }
+        auto print(const std::string &prefix, bool is_left) const -> void final;
     };
 }// namespace fsc::ast
 

@@ -3,26 +3,22 @@
 
 #include "ast/basic_node.hpp"
 
-namespace fsc::ast {
-    class Return : public Node {
+namespace fsc::ast
+{
+    class Return : public NodeWrapper<NodeType::RETURN>
+    {
         NodePtr value;
 
     public:
-        explicit Return(NodePtr value_) : Node{classof()}, value{std::move(value_)}
-        {}
+        explicit Return(NodePtr value_to_return);
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
-        auto print(const std::string &prefix, const bool is_left) const -> void final;
+        auto print(const std::string &prefix, bool is_left) const -> void final;
 
-        [[nodiscard]] auto getValueType() const noexcept -> TypeId final
+        [[nodiscard]] auto getValueType() const noexcept -> ccl::Id final
         {
             return value->getValueType();
-        }
-
-        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
-        {
-            return NodeType::RETURN;
         }
     };
 }// namespace fsc::ast

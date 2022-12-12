@@ -6,9 +6,12 @@
 #include <list>
 #include <type/type.hpp>
 
-namespace fsc::func {
-    class FunctionsHolder {
-        ccl::Map<TypeId, ccl::Map<std::string, std::list<ccl::SharedPtr<ast::Function>>>> functions;
+namespace fsc::func
+{
+    class FunctionsHolder
+    {
+        ccl::Map<ccl::Id, ccl::Map<std::string, std::list<ccl::SharedPtr<ast::Function>>>>
+            functions;
 
     public:
         FunctionsHolder() = default;
@@ -16,17 +19,21 @@ namespace fsc::func {
 
         auto registerFunction(ccl::SharedPtr<ast::Function> function) -> void;
 
-        auto get(const Signature &signature, CallRequirements call_requirements)
+        auto
+            get(const Signature &signature,
+                CallRequirements call_requirements = CallRequirements::EXPLICIT)
                 -> ccl::SharedPtr<ast::Function>;
 
-        auto get(const std::string &name, const ccl::SmallVector<Argument> &arguments,
-                 CallRequirements call_requirements) -> ccl::SharedPtr<ast::Function>
+        auto
+            get(const std::string &name,
+                const ccl::SmallVector<Argument> &arguments,
+                CallRequirements call_requirements) -> ccl::SharedPtr<ast::Function>
         {
             return get({name, arguments}, call_requirements);
         }
 
     private:
-        auto appendFunction(ccl::SharedPtr<ast::Function> &function, TypeId class_id) -> void;
+        auto appendFunction(ccl::SharedPtr<ast::Function> &function, ccl::Id class_id) -> void;
     };
 
     extern FunctionsHolder Functions;

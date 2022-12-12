@@ -3,8 +3,10 @@
 
 #include <string>
 
-namespace fsc::gen {
-    class CodeGenerator {
+namespace fsc::gen
+{
+    class CodeGenerator
+    {
         std::string generated;
         std::string prefix;
 

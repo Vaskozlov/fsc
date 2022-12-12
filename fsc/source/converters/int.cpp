@@ -3,7 +3,8 @@
 
 using namespace std::string_view_literals;
 
-namespace fsc::converter {
+namespace fsc::converter
+{
     constexpr static auto BinaryBegin = "0b"sv;
     constexpr static auto OctalBegin = "0o"sv;
     constexpr static auto HexadecimalBegin = "0x"sv;

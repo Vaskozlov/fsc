@@ -2,31 +2,29 @@
 #define FSC_FUNCTION_CALL_HPP
 
 #include "ast/function.hpp"
+#include <ast/basic_node.hpp>
 #include <ccl/core/types.hpp>
 
-namespace fsc::ast {
-    class FunctionCall : public Node {
+namespace fsc::ast
+{
+    class FunctionCall : public NodeWrapper<NodeType::FUNCTION_CALL>
+    {
         ccl::SmallVector<NodePtr> arguments;
         ccl::SharedPtr<Function> function;
 
     public:
-        FunctionCall(ccl::SharedPtr<Function> function_,
-                     const ccl::SmallVector<NodePtr> &arguments_)
-            : Node{classof()}, arguments{arguments_}, function{std::move(function_)}
-        {}
+        FunctionCall(
+            ccl::SharedPtr<Function>
+                function_to_call,
+            const ccl::SmallVector<NodePtr> &function_arguments);
 
-        auto print(const std::string &prefix, const bool is_left) const -> void final;
+        auto print(const std::string &prefix, bool is_left) const -> void final;
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
-        [[nodiscard]] auto getValueType() const noexcept -> TypeId final
+        [[nodiscard]] auto getValueType() const noexcept -> ccl::Id final
         {
             return function->getReturnType();
-        }
-
-        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
-        {
-            return NodeType::FUNCTION_CALL;
         }
     };
 }// namespace fsc::ast

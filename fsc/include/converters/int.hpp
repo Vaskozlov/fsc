@@ -4,7 +4,8 @@
 #include "ast/value.hpp"
 #include "type/builtin_types_impl.hpp"
 
-namespace fsc::converter {
+namespace fsc::converter
+{
     auto toInt(const std::string &repr) -> ccl::SharedPtr<ast::Value>;
 }
 

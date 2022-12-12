@@ -3,7 +3,8 @@
 
 #include <fstream>
 
-namespace fsc {
+namespace fsc
+{
     auto compile(std::ifstream &stream) -> void;
 }
 

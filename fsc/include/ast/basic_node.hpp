@@ -3,26 +3,44 @@
 
 #include "codegen.hpp"
 #include <ccl/ccl.hpp>
+#include <concepts>
+#include <functional>
+#include <stdexcept>
+#include <typeinfo>
 
-namespace fsc {
-    using TypeId = size_t;
-}
+namespace fsc::ast
+{
+    enum struct NodeType : ccl::Id
+    {
+        NONE,
+        VALUE,
+        VARIABLE,
+        RETURN,
+        FUNCTION,
+        FUNCTION_CALL,
+        BODY,
+        BINARY_OPERATOR,
+        PROGRAM,
+        CONVERSION,
+        VARIABLE_DEFINITION,
+        CLASS,
+        MEMBER_VARIABLE
+    };
 
-namespace fsc::ast {
-    CCL_ENUM(NodeType, size_t, NONE, ROOT, VALUE, VARIABLE, RETURN, FUNCTION, FUNCTION_CALL, BODY,
-             BINARY_OPERATOR, PROGRAM, CONVERSION, VARIABLE_DEFINITION, CLASS);
-
-    class Node {
+    class Node
+    {
         NodeType nodeType;
 
     protected:
-        static auto getPrintingPrefix(const std::string &prefix, const bool is_left) -> std::string;
-        static auto expandPrefix(const std::string &prefix, const bool is_left,
-                                 const size_t extra_expansion = 0) -> std::string;
+        auto setNodeType(NodeType node_type) noexcept -> void;
+
+        static auto getPrintingPrefix(const std::string &prefix, bool is_left) -> std::string;
+        static auto
+            expandPrefix(const std::string &prefix, bool is_left, const size_t extra_expansion = 0)
+                -> std::string;
 
     public:
-        explicit Node(const NodeType node_type) : nodeType{node_type}
-        {}
+        explicit Node(NodeType node_type) noexcept;
 
         Node(const Node &node) = default;
         Node(Node &&) noexcept = default;
@@ -32,15 +50,11 @@ namespace fsc::ast {
         auto operator=(const Node &node) -> Node & = default;
         auto operator=(Node &&) noexcept -> Node & = default;
 
-        virtual auto print(const std::string &prefix = "", const bool is_left = false) const
-                -> void = 0;
+        virtual auto print(const std::string &prefix = "", bool is_left = false) const -> void = 0;
 
         virtual auto codeGen(gen::CodeGenerator &output) const -> void = 0;
 
-        [[nodiscard]] virtual auto getValueType() const noexcept -> TypeId
-        {
-            throw std::runtime_error("getValueType() is not implemented");
-        }
+        [[nodiscard]] virtual auto getValueType() const -> ccl::Id;
 
         [[nodiscard]] auto getNodeType() const noexcept -> NodeType
         {
@@ -53,28 +67,56 @@ namespace fsc::ast {
         }
 
         template<std::derived_from<Node> T>
-        [[nodiscard]] auto as() noexcept -> T &
+        [[nodiscard]] auto as() -> T &
         {
             if (T::classof() != getNodeType()) {
-                throw std::invalid_argument("Unable to convert AstNode");
+                throw std::bad_cast{};
             }
 
             return static_cast<T &>(*this);
         };
 
         template<std::derived_from<Node> T>
-        [[nodiscard]] auto as() const noexcept -> const T &
+        [[nodiscard]] auto as() const -> const T &
         {
             if (T::classof() != getNodeType()) {
-                throw std::invalid_argument("Unable to convert AstNode");
+                throw std::bad_cast{};
             }
 
             return static_cast<const T &>(*this);
         };
 
-        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
+        CCL_DECL static auto classof() noexcept -> NodeType
         {
             return NodeType::NONE;
+        }
+    };
+
+    template<NodeType TypeOfNode, std::derived_from<Node> Base = Node>
+    class NodeWrapper : public Base
+    {
+    public:
+        NodeWrapper() noexcept(std::is_nothrow_constructible_v<Base, NodeType>)
+            requires(std::is_same_v<Base, Node>)
+          : Base{classof()}
+        {}
+
+        NodeWrapper() noexcept(std::is_nothrow_constructible_v<Base>)
+            requires(!std::is_same_v<Base, Node>)
+        {
+            this->setNodeType(classof());
+        }
+
+        template<typename... Ts>
+        explicit NodeWrapper(Ts &&...args) noexcept(std::is_nothrow_constructible_v<Base, Ts...>)
+          : Base{std::forward<Ts>(args)...}
+        {
+            this->setNodeType(classof());
+        }
+
+        CCL_DECL static auto classof() noexcept -> NodeType
+        {
+            return TypeOfNode;
         }
     };
 

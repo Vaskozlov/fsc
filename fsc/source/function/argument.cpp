@@ -1,9 +1,10 @@
 #include "function/argument.hpp"
-#include <ast/variable.hpp>
+#include "ast/variable.hpp"
 
 using namespace fsc::ast;
 
-namespace fsc {
+namespace fsc
+{
     auto Argument::toVariable() const -> ast::Variable
     {
         auto optimized_category = category;
@@ -12,9 +13,11 @@ namespace fsc {
             optimized_category = ArgumentCategory::COPY;
         }
 
-        return {name, type,
-                VariableFlags{.constant = optimized_category == ArgumentCategory::IN,
-                              .reference = optimized_category == ArgumentCategory::IN ||
-                                           optimized_category == ArgumentCategory::INOUT}};
+        return {
+            name, type,
+            VariableFlags{
+                .constant = optimized_category == ArgumentCategory::IN,
+                .reference = optimized_category == ArgumentCategory::IN ||
+                             optimized_category == ArgumentCategory::INOUT}};
     }
 }// namespace fsc

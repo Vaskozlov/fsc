@@ -1,9 +1,10 @@
+#include "compiler.hpp"
 #include "FscLexer.h"
 #include "FscParser.h"
-#include "compiler.hpp"
 #include "visitor.hpp"
 
-namespace fsc {
+namespace fsc
+{
     auto compile(std::ifstream &stream) -> void
     {
         auto input = antlr4::ANTLRInputStream{stream};

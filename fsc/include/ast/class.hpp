@@ -1,20 +1,24 @@
 #ifndef FSC_CLASS_HPP
 #define FSC_CLASS_HPP
 
-#include "ast/basic_node.hpp"
 #include "ast/body.hpp"
+#include "ast/variable_definition.hpp"
+#include <ast/basic_node.hpp>
+#include <ast/function.hpp>
 
-namespace fsc::ast {
-    class Class : public Body {
-        ccl::Map<std::string, TypeId> constructionMemberVariables;
+namespace fsc::ast
+{
+    class Class : public NodeWrapper<NodeType::CLASS, Body>
+    {
+        ccl::Map<std::string, ccl::Id> constructionMemberVariables;
         std::string name;
 
     public:
-        Class(std::string name_);
+        explicit Class(std::string name_);
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
-        auto print(const std::string &prefix, const bool is_left) const -> void final;
+        auto print(const std::string &prefix, bool is_left) const -> void final;
 
         auto addNode(NodePtr node) -> void final;
 
@@ -23,10 +27,9 @@ namespace fsc::ast {
             return name;
         }
 
-        [[nodiscard]] constexpr static auto classof() noexcept -> NodeType
-        {
-            return NodeType::CLASS;
-        }
+    private:
+        auto addVariable(ast::VariableDefinition &variable_definition) -> void;
+        auto addFunction(ast::Function &function_declaration) -> void;
     };
 }// namespace fsc::ast
 
