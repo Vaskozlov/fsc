@@ -53,7 +53,7 @@ namespace fsc
         throw std::invalid_argument(fmt::format("Type {} not found", type_name));
     }
 
-    auto FscType::registerNewType(const std::string &name, const TypeFlags flags) -> void
+    auto FscType::registerNewType(const std::string &name, const TypeFlags flags) noexcept(false) -> void
     {
         static std::mutex type_registration_mutex;
 

@@ -1,61 +1,61 @@
 #ifndef FSC_BUILTIN_TYPES_HPP
 #define FSC_BUILTIN_TYPES_HPP
 
-#include "ccl/core/types.hpp"
 #include "uuid_factory.hpp"
+#include <ccl/ccl.hpp>
+#include <utility>
+
+#define FSC_WRAP_TYPE(TypeName, StoredType)                                                        \
+    class TypeName : public FscTypeWrapper<StoredType>                                             \
+    {                                                                                              \
+    public:                                                                                        \
+        CCL_PERFECT_FORWARDING(FSC_T, StoredType)                                                  \
+        TypeName(FSC_T &&initial_value)                                                            \
+          : FscTypeWrapper{std::forward<FSC_T>(initial_value)}                                     \
+        {}                                                                                         \
+    }
+
 
 namespace fsc
 {
-    using float32 = ccl::f32;
-    using float64 = ccl::f64;
-    inline UuidFactory TypeFactory;
+    inline UuidFactory TypeFactory{1};
 
-    struct Void
+    template<typename T>
+    struct FscTypeWrapper;
+
+    template<>
+    struct FscTypeWrapper<void>
     {
         inline const static ccl::Id typeId = TypeFactory();
     };
 
-    struct Int32
+    template<typename T>
+    class FscTypeWrapper
     {
+    public:
         inline const static ccl::Id typeId = TypeFactory();
-        int32_t value;
+
+        T value;
+
+        FscTypeWrapper() = default;
+
+        CCL_PERFECT_FORWARDING(U, T)
+        explicit FscTypeWrapper(U &&initial_value)
+          : value{std::forward<U>(initial_value)}
+        {}
     };
 
-    struct UInt64
+    struct Void : FscTypeWrapper<void>
     {
-        inline const static ccl::Id typeId = TypeFactory();
-        uint64_t value;
     };
 
-    struct UInt32
-    {
-        inline const static ccl::Id typeId = TypeFactory();
-        uint32_t value;
-    };
-
-    struct Int64
-    {
-        inline const static ccl::Id typeId = TypeFactory();
-        int64_t value;
-    };
-
-    struct Float32
-    {
-        inline const static ccl::Id typeId = TypeFactory();
-        float32 value;
-    };
-
-    struct Float64
-    {
-        inline const static ccl::Id typeId = TypeFactory();
-        float64 value;
-    };
-
-    struct Bool
-    {
-        inline const static ccl::Id typeId = TypeFactory();
-        bool value;
-    };
+    FSC_WRAP_TYPE(Bool, bool);
+    FSC_WRAP_TYPE(Int32, ccl::i32);
+    FSC_WRAP_TYPE(UInt32, ccl::u32);
+    FSC_WRAP_TYPE(Int64, ccl::i64);
+    FSC_WRAP_TYPE(UInt64, ccl::u64);
+    FSC_WRAP_TYPE(Float32, ccl::f32);
+    FSC_WRAP_TYPE(Float64, ccl::f64);
 }// namespace fsc
 
 #endif /* FSC_BUILTIN_TYPES_HPP */

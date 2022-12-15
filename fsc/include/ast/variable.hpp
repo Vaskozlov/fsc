@@ -22,15 +22,13 @@ namespace fsc::ast
         VariableFlags flags{};
 
     public:
-        Variable() = default;
-
         Variable(std::string variable_name, ccl::Id type_id, VariableFlags variable_flags);
 
         auto print(const std::string &prefix, bool is_left) const -> void override;
 
         auto codeGen(gen::CodeGenerator &output) const -> void override;
 
-        auto convertToMember() noexcept -> void
+        auto memberizeVariable() noexcept -> void
         {
             flags.memberVariable = true;
         }

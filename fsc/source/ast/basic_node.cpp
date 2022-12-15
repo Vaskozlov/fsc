@@ -5,17 +5,17 @@ using namespace std::string_view_literals;
 
 namespace fsc::ast
 {
-    static auto operator*(const std::string_view &str, const std::size_t repeat) -> std::string
+    static auto operator*(std::string_view str, std::size_t repeat) -> std::string
     {
-        auto ret = std::string{};
-        ret.reserve(str.size() * repeat);
+        auto result = std::string{};
+        result.reserve(str.size() * repeat);
 
         CCL_UNROLL_N(4)
-        for (auto i = 0ZU; i != repeat; ++i) {
-            ret += str;
+        for (auto i = ccl::as<size_t>(0); i != repeat; ++i) {
+            result.append(str);
         }
 
-        return ret;
+        return result;
     }
 
     Node::Node(NodeType node_type) noexcept
@@ -47,7 +47,7 @@ namespace fsc::ast
         return result;
     }
 
-    auto Node::getValueType() const -> ccl::Id
+    auto Node::getValueType() const noexcept(false) -> ccl::Id
     {
         throw std::runtime_error{"getValueType() is not implemented"};
     }

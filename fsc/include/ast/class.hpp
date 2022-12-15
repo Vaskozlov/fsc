@@ -3,8 +3,7 @@
 
 #include "ast/body.hpp"
 #include "ast/variable_definition.hpp"
-#include <ast/basic_node.hpp>
-#include <ast/function.hpp>
+#include "ast/function.hpp"
 
 namespace fsc::ast
 {

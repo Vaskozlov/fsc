@@ -4,7 +4,6 @@
 #include "ast/variable.hpp"
 #include "visibility.hpp"
 #include "visitor.hpp"
-#include <ast/basic_node.hpp>
 
 namespace fsc::ast
 {

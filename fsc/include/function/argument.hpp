@@ -13,8 +13,19 @@ namespace fsc
         class Node;
     }
 
-    enum struct CallRequirements :  ccl::Id{ IMPLICIT, EXPLICIT};
-    enum struct ArgumentCategory : ccl::Id{ IN, INOUT, OUT, COPY};
+    enum struct CallRequirements : ccl::Id
+    {
+        IMPLICIT,
+        EXPLICIT
+    };
+
+    enum struct ArgumentCategory : ccl::Id
+    {
+        IN,
+        INOUT,
+        OUT,
+        COPY
+    };
 
     constexpr inline ccl::StaticFlatmap<std::string_view, ArgumentCategory, 4> ArgumentCategories{
         {"in", ArgumentCategory::IN},
@@ -30,16 +41,11 @@ namespace fsc
         ArgumentCategory category{};
 
     public:
-        Argument(
-            std::string name_, ccl::Id type_, ArgumentCategory category_ = ArgumentCategory::COPY)
-          : name{std::move(name_)}
-          , type{type_}
-          , category{category_}
-        {}
+        explicit Argument(const ast::Node *node);
 
-        explicit Argument(const ast::Node *node)
-          : type{node->getValueType()}
-        {}
+        Argument(
+            std::string arg_name, ccl::Id type_id,
+            ArgumentCategory argument_category = ArgumentCategory::COPY);
 
         [[nodiscard]] auto operator==(ccl::Id other) const noexcept -> bool
         {
@@ -71,8 +77,8 @@ namespace fsc
 
     struct Signature
     {
-        std::string name;
-        ccl::SmallVector<Argument> arguments;
+        std::string name{};
+        ccl::SmallVector<Argument> arguments{};
         ccl::Id classId{};
     };
 }// namespace fsc

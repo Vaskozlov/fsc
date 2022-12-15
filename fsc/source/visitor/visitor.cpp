@@ -4,6 +4,7 @@
 #include "ast/function_call.hpp"
 #include "ast/member_variable.hpp"
 #include "ast/variable.hpp"
+#include "ccl/core/types.hpp"
 #include "converters/float.hpp"
 #include "converters/int.hpp"
 #include "function/functions_holder.hpp"
@@ -58,11 +59,20 @@ namespace fsc
             return visitClass(class_);
         }
 
+        if (auto *if_stmt = ctx->if_stmt(); if_stmt != nullptr) {
+            return visitIf_stmt(if_stmt);
+        }
+
         if (auto *expr = ctx->expr(); expr != nullptr) {
             return visitExpr(expr);
         }
 
         return visitChildren(ctx);
+    }
+
+    auto Visitor::visitIf_stmt(FscParser::If_stmtContext *ctx) -> std::any
+    {
+
     }
 
     auto Visitor::visitFunction(FscParser::FunctionContext *const ctx) -> std::any
@@ -117,7 +127,7 @@ namespace fsc
         }
 
         else if (ctx->function_call() != nullptr) {
-            node = visitNode(ctx->function_call());
+            node = visitAsNode(ctx->function_call());
         }
 
         else if (isBinaryOperator(ctx)) {

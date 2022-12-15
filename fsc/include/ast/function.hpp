@@ -29,8 +29,7 @@ namespace fsc::ast
 
     public:
         Function(
-            const FscParser::FunctionContext *function_context, Visitor &visitor,
-            ccl::Id class_id);
+            const FscParser::FunctionContext *function_context, Visitor &visitor, ccl::Id class_id);
 
         Function(
             std::string_view function_name, const ccl::Id return_type,
@@ -40,7 +39,7 @@ namespace fsc::ast
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
-        [[nodiscard]] auto makeFunctionMember(ccl::Id type_id) noexcept -> void
+        [[nodiscard]] auto memberizeFunction(ccl::Id type_id) noexcept -> void
         {
             classId = type_id;
         }
@@ -108,19 +107,21 @@ namespace fsc::ast
 
     private:
         auto processMagicMethod() -> void;
-        auto processInitMethod() -> void;
+        auto processInitMethod() noexcept(false) -> void;
+
+        auto processAttributes(FscParser::Function_attibutesContext *ctx) -> void;
 
         auto genArguments(gen::CodeGenerator &output) const -> void;
         auto argumentToString(gen::CodeGenerator &output, const Argument &arg) const -> void;
-
-        auto setReturnType(const std::vector<antlr4::tree::ParseTree *> &nodes) -> void;
         auto readArguments(const FscParser::ParametersContext *parameters_context, Visitor &visitor)
             -> void;
+
         auto processArgument(const FscParser::ArgumentContext *argument_context, Visitor &visitor)
             -> Argument;
-        auto processAttributes(FscParser::Function_attibutesContext *ctx) -> void;
         static auto defineArgument(const FscParser::Argument_definitionContext *argument_definition)
             -> Argument;
+
+        auto setReturnType(const std::vector<antlr4::tree::ParseTree *> &nodes) -> void;
     };
 }// namespace fsc::ast
 

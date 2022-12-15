@@ -23,6 +23,14 @@ public:
 
     virtual std::any visitStmt(FscParser::StmtContext *context) = 0;
 
+    virtual std::any visitIf_stmt(FscParser::If_stmtContext *context) = 0;
+
+    virtual std::any visitIf(FscParser::IfContext *context) = 0;
+
+    virtual std::any visitElif(FscParser::ElifContext *context) = 0;
+
+    virtual std::any visitElse(FscParser::ElseContext *context) = 0;
+
     virtual std::any visitStmt_end(FscParser::Stmt_endContext *context) = 0;
 
     virtual std::any visitFunction(FscParser::FunctionContext *context) = 0;

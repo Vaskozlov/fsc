@@ -1,7 +1,6 @@
 #include "function/functions_holder.hpp"
-#include "type/builtin_types.hpp"
+#include "ast/function.hpp"
 #include <algorithm>
-#include <ast/function.hpp>
 #include <ccl/ccl.hpp>
 #include <fmt/format.h>
 
@@ -14,7 +13,7 @@ namespace fsc::func
         }
     }
 
-    void FunctionsHolder::registerFunction(ccl::SharedPtr<ast::Function> function)
+    auto FunctionsHolder::registerFunction(ccl::SharedPtr<ast::Function> function) -> void
     {
         appendFunction(function, function->getClassId());
 
@@ -28,8 +27,9 @@ namespace fsc::func
         }
     }
 
-    auto FunctionsHolder::appendFunction(ccl::SharedPtr<ast::Function> &function, ccl::Id class_id)
-        -> void
+    auto FunctionsHolder::appendFunction(
+        ccl::SharedPtr<ast::Function> &function,
+        ccl::Id class_id) noexcept(false) -> void
     {
         auto &functions_with_similar_class_id = functions[class_id];
         auto &functions_with_similar_name = functions_with_similar_class_id[function->getName()];
@@ -43,8 +43,24 @@ namespace fsc::func
         functions_with_similar_name.push_back(function);
     }
 
-    auto FunctionsHolder::get(const Signature &signature, CallRequirements call_requirements)
+    auto FunctionsHolder::get(const Signature &signature, CallRequirements call_requirements) const
         -> ccl::SharedPtr<ast::Function>
+    {
+        return *findFunction(signature, call_requirements);
+    }
+
+    auto FunctionsHolder::get(
+        const std::string &name,
+        const ccl::SmallVector<Argument> &arguments,
+        CallRequirements call_requirements) const -> ccl::SharedPtr<ast::Function>
+    {
+        return get({name, arguments}, call_requirements);
+    }
+
+    auto FunctionsHolder::findFunction(
+        const Signature &signature,
+        CallRequirements call_requirements) const noexcept(false) ->
+        typename FunctionsList::const_iterator
     {
         const auto &functions_with_similar_class_id = functions.at(signature.classId);
         const auto &functions_with_similar_name =
@@ -66,6 +82,6 @@ namespace fsc::func
                 fmt::format("Function {} has to be called explicitly", signature.name));
         }
 
-        return *function_it;
+        return function_it;
     }
 }// namespace fsc::func

@@ -2,7 +2,6 @@
 #define FSC_FUNCTION_CALL_HPP
 
 #include "ast/function.hpp"
-#include <ast/basic_node.hpp>
 #include <ccl/core/types.hpp>
 
 namespace fsc::ast
@@ -22,10 +21,7 @@ namespace fsc::ast
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
-        [[nodiscard]] auto getValueType() const noexcept -> ccl::Id final
-        {
-            return function->getReturnType();
-        }
+        [[nodiscard]] auto getValueType() const noexcept -> ccl::Id final;
     };
 }// namespace fsc::ast
 

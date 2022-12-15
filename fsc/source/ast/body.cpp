@@ -5,10 +5,10 @@ namespace fsc::ast
 {
     Body::Body()
     {
-        CCL_ASSERT(this->getNodeType() == NodeType::BODY);
+        CCL_ASSERT(getNodeType() == NodeType::BODY);
     }
 
-    auto Body::getValueType() const noexcept -> ccl::Id
+    auto Body::getValueType() const -> ccl::Id
     {
         for (const auto &node : nodes) {
             if (node->is(NodeType::RETURN)) {
@@ -42,15 +42,16 @@ namespace fsc::ast
 
     auto Body::defaultBodyPrint(const std::string &prefix, bool is_left) const -> void
     {
+        const auto expanded_prefix = expandPrefix(prefix, is_left);
         fmt::print("{}Body\n", getPrintingPrefix(prefix, is_left));
 
-        for (auto &node : nodes | ccl::views::dropBack(nodes)) {
-            node->print(expandPrefix(prefix, is_left), true);
+        for (auto &node : nodes | ccl::views::dropBack(nodes, 1)) {
+            node->print(expanded_prefix, true);
         }
 
         if (!nodes.empty()) {
             auto &node = nodes.back();
-            node->print(expandPrefix(prefix, is_left), false);
+            node->print(expanded_prefix, false);
         }
     }
 

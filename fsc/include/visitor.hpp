@@ -5,7 +5,6 @@
 #include "FscBaseVisitor.h"
 #include "function/argument.hpp"
 #include <FscParser.h>
-#include <ast/basic_node.hpp>
 
 namespace fsc
 {
@@ -17,33 +16,38 @@ namespace fsc
     public:
         auto codeGen() -> void;
 
-        auto visitNode(auto *node) -> ccl::SharedPtr<ast::Node>
+        auto visitAsNode(auto *node) -> ccl::SharedPtr<ast::Node>
         {
             return castToNode(visit(node));
         }
 
     private:
-        static auto castToNode(std::any &to_cast) -> ast::NodePtr
+        CCL_PERFECT_FORWARDING(T, std::any)
+        static auto castToNode(T &&to_cast) -> ast::NodePtr
         {
             return std::any_cast<ast::NodePtr>(to_cast);
         }
 
-        static auto castToNode(std::any &&to_cast) -> ast::NodePtr
-        {
-            return std::any_cast<ast::NodePtr>(to_cast);
-        }
+        auto visitProgram(FscParser::ProgramContext *ctx) -> std::any final;
 
-        auto visitProgram(FscParser::ProgramContext *ctx) -> std::any override;
-        auto visitStmt(FscParser::StmtContext *ctx) -> std::any override;
-        auto visitFunction(FscParser::FunctionContext *ctx) -> std::any override;
-        auto visitVariable_definition(FscParser::Variable_definitionContext *ctx)
-            -> std::any override;
+        auto visitStmt(FscParser::StmtContext *ctx) -> std::any final;
+
+        auto visitIf_stmt(FscParser::If_stmtContext *ctx) -> std::any final;
+
+        auto visitFunction(FscParser::FunctionContext *ctx) -> std::any final;
+
+        auto visitVariable_definition(FscParser::Variable_definitionContext *ctx) -> std::any final;
+
         auto visitAuto_variable_definition(FscParser::Auto_variable_definitionContext *ctx)
-            -> std::any override;
-        auto visitClass(FscParser::ClassContext *ctx) -> std::any override;
-        auto visitBody(FscParser::BodyContext *ctx) -> std::any override;
-        auto visitExpr(FscParser::ExprContext *ctx) -> std::any override;
-        auto visitFunction_call(FscParser::Function_callContext *ctx) -> std::any override;
+            -> std::any final;
+
+        auto visitClass(FscParser::ClassContext *ctx) -> std::any final;
+
+        auto visitBody(FscParser::BodyContext *ctx) -> std::any final;
+
+        auto visitExpr(FscParser::ExprContext *ctx) -> std::any final;
+
+        auto visitFunction_call(FscParser::Function_callContext *ctx) -> std::any final;
 
         auto constructVariableDefinition(FscParser::Variable_definitionContext *ctx)
             -> ast::NodePtr;

@@ -15,6 +15,11 @@ namespace fsc::ast
         CCL_ASSERT(this->getNodeType() == NodeType::FUNCTION_CALL);
     }
 
+    auto FunctionCall::getValueType() const noexcept -> ccl::Id
+    {
+        return function->getReturnType();
+    }
+
     auto FunctionCall::codeGen(gen::CodeGenerator &output) const -> void
     {
         output.write(function->getName());
@@ -34,15 +39,16 @@ namespace fsc::ast
 
     auto FunctionCall::print(const std::string &prefix, bool is_left) const -> void
     {
+        const auto expanded_prefix = expandPrefix(prefix, false);
         fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), function->getName());
 
         for (auto &arg : arguments | ccl::views::dropBack(arguments)) {
-            arg->print(expandPrefix(prefix, false), true);
+            arg->print(expanded_prefix, true);
         }
 
         if (!arguments.empty()) {
             auto &node = arguments.back();
-            node->print(expandPrefix(prefix, false), false);
+            node->print(expanded_prefix, false);
         }
     }
 }// namespace fsc::ast

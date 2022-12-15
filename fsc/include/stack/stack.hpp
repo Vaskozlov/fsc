@@ -16,7 +16,7 @@ namespace fsc
 
     class Stack
     {
-        using ScopeStorage = ccl::Map<std::string, ast::Variable>;
+        using ScopeStorage = ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>;
 
         class Scope
         {
@@ -33,19 +33,19 @@ namespace fsc
                 return ScopeType::HARD == scopeType;
             }
 
-            [[nodiscard]] auto has(const std::string &name) const -> bool
+            [[nodiscard]] auto has(const std::string &name) const noexcept -> bool
             {
                 return storage.contains(name);
             }
 
-            [[nodiscard]] auto get(const std::string &name) const -> const ast::Variable &
+            [[nodiscard]] auto get(const std::string &name) const -> ccl::SharedPtr<ast::Variable>
             {
                 return storage.at(name);
             }
 
-            [[nodiscard]] auto add(const ast::Variable &value) -> void
+            [[nodiscard]] auto add(ccl::SharedPtr<ast::Variable> value) -> void
             {
-                storage.insert({value.getName(), value});
+                storage.emplace(value->getName(), std::move(value));
             }
         };
 
@@ -83,9 +83,11 @@ namespace fsc
             return classScopes.back();
         }
 
-        auto addVariable(const ast::Variable &value) -> void;
+        auto addVariable(ccl::SharedPtr<ast::Variable> value) -> void;
+
         [[nodiscard]] auto get(const std::string &name) const -> ast::Variable;
-        [[nodiscard]] static auto getGlobal(const std::string &name) -> const ast::Variable &;
+        [[nodiscard]] static auto getGlobal(const std::string &name) noexcept(false)
+            -> ccl::SharedPtr<ast::Variable>;
 
     private:
         [[nodiscard]] auto isMemberVariable(const std::string &name) const -> bool;

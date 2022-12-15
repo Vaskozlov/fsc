@@ -1,12 +1,13 @@
 #include "stack/stack.hpp"
+#include <ast/variable.hpp>
 #include <fmt/format.h>
 
 namespace fsc
 {
-    auto Stack::addVariable(const ast::Variable &value) -> void
+    auto Stack::addVariable(ccl::SharedPtr<ast::Variable> value) -> void
     {
         if (scopes.empty()) {
-            globalStorage.emplace(value.getName(), value);
+            globalStorage.emplace(value->getName(), std::move(value));
             return;
         }
 
@@ -15,13 +16,9 @@ namespace fsc
 
     auto Stack::get(const std::string &name) const -> ast::Variable
     {
-        if (scopes.empty()) {
-            return getGlobal(name);
-        }
-
         for (const auto &scope : scopes) {
             if (scope.has(name)) {
-                return scope.get(name);
+                return *scope.get(name);
             }
 
             if (scope.isHard()) {
@@ -33,10 +30,10 @@ namespace fsc
             return *FscType::getMemberVariable(classScopes.back(), name);
         }
 
-        return getGlobal(name);
+        return *getGlobal(name);
     }
 
-    auto Stack::getGlobal(const std::string &name) -> const ast::Variable &
+    auto Stack::getGlobal(const std::string &name) noexcept(false) -> ccl::SharedPtr<ast::Variable>
     {
         if (globalStorage.contains(name)) {
             return globalStorage.at(name);

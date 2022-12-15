@@ -11,12 +11,12 @@ namespace fsc::gen
         std::string prefix;
 
     public:
-        [[nodiscard]] auto getGenerated() const -> const std::string &
+        [[nodiscard]] auto getGenerated() const noexcept -> const std::string &
         {
             return generated;
         }
 
-        [[nodiscard]] auto getBackInserter() -> std::back_insert_iterator<std::string>
+        [[nodiscard]] auto getBackInserter() noexcept -> std::back_insert_iterator<std::string>
         {
             return std::back_inserter(generated);
         }

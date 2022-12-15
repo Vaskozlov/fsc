@@ -17,6 +17,11 @@ namespace fsc::ast
         value->codeGen(output);
     }
 
+    auto Return::getValueType() const -> ccl::Id
+    {
+        return value->getValueType();
+    }
+
     auto Return::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}return \n", getPrintingPrefix(prefix, is_left));

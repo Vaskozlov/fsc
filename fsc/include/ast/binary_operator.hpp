@@ -19,15 +19,9 @@ namespace fsc::ast
         std::string operationType;
 
     public:
-        BinaryOperation(const std::string &operation_type_, NodePtr lhs_, NodePtr rhs_)
-          : lhs{std::move(lhs_)}
-          , rhs{std::move(rhs_)}
-          , operationType{operation_type_}
-        {
-            CCL_ASSERT(this->getNodeType() == NodeType::BINARY_OPERATOR);
-        }
+        BinaryOperation(std::string operation_type, NodePtr left_node, NodePtr right_node);
 
-        [[nodiscard]] auto getValueType() const noexcept -> ccl::Id final;
+        [[nodiscard]] auto getValueType() const -> ccl::Id final;
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 

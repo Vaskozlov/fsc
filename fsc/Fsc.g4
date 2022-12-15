@@ -26,8 +26,14 @@ stmt:   function
     |   expr stmt_end
     |   class stmt_end
     |   'return' expr stmt_end
+    |   if_stmt stmt_end
     |   stmt_end
     ;
+
+if_stmt: if elif* else?;
+if: 'if' expr ('\n'*) body ('\n'*);
+elif: 'elif' expr ('\n'*) body ('\n'*);
+else: 'else' body;
 
 stmt_end: ('\n' | '\r' | ';')+;
 

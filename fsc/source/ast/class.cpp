@@ -2,7 +2,6 @@
 #include "ast/function.hpp"
 #include "ast/variable_definition.hpp"
 #include "stack/stack.hpp"
-#include <ast/basic_node.hpp>
 #include <ranges>
 
 namespace fsc::ast
@@ -55,13 +54,13 @@ namespace fsc::ast
 
     auto Class::addVariable(ast::VariableDefinition &variable_definition) -> void
     {
-        variable_definition.convertToMember();
+        variable_definition.memberizeVariable();
         FscType::addMemberVariable(
             FscType::getTypeId(name), ccl::makeShared<Variable>(variable_definition.toVariable()));
     }
 
     auto Class::addFunction(ast::Function &function_declaration) -> void
     {
-        function_declaration.makeFunctionMember(FscType::getTypeId(name));
+        function_declaration.memberizeFunction(FscType::getTypeId(name));
     }
 }// namespace fsc::ast

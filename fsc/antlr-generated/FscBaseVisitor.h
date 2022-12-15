@@ -23,6 +23,22 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitIf_stmt(FscParser::If_stmtContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitIf(FscParser::IfContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitElif(FscParser::ElifContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitElse(FscParser::ElseContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitStmt_end(FscParser::Stmt_endContext *ctx) override {
     return visitChildren(ctx);
   }

@@ -17,10 +17,7 @@ namespace fsc::ast
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
-        [[nodiscard]] auto getValueType() const noexcept -> ccl::Id final
-        {
-            return value->getId();
-        }
+        [[nodiscard]] auto getValueType() const noexcept -> ccl::Id final;
     };
 }// namespace fsc::ast
 

@@ -17,10 +17,7 @@ namespace fsc::ast
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
-        [[nodiscard]] auto getValueType() const noexcept -> ccl::Id final
-        {
-            return value->getValueType();
-        }
+        [[nodiscard]] auto getValueType() const -> ccl::Id final;
     };
 }// namespace fsc::ast
 

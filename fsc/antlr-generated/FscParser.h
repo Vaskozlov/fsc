@@ -15,20 +15,21 @@ public:
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
-    T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, AS = 25, ADD = 26, SUB = 27, 
-    MUL = 28, DIV = 29, MOD = 30, DOT = 31, EQUALITY = 32, INEQUALITY = 33, 
-    LOGICAL_AND = 34, LOGICAL_OR = 35, INT = 36, FLOAT = 37, NAME = 38, 
-    LAYOUT = 39
+    T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
+    T__26 = 27, AS = 28, ADD = 29, SUB = 30, MUL = 31, DIV = 32, MOD = 33, 
+    DOT = 34, EQUALITY = 35, INEQUALITY = 36, LOGICAL_AND = 37, LOGICAL_OR = 38, 
+    INT = 39, FLOAT = 40, NAME = 41, LAYOUT = 42
   };
 
   enum {
-    RuleProgram = 0, RuleStmt = 1, RuleStmt_end = 2, RuleFunction = 3, RuleVisibility = 4, 
-    RuleFunction_attibutes = 5, RuleVariable_attributes = 6, RuleArgument_definition = 7, 
-    RuleArgument_passing_type = 8, RuleParameters = 9, RuleTyped_arguments_list = 10, 
-    RuleArgument = 11, RuleClass = 12, RuleFunction_call = 13, RuleFunction_parameter = 14, 
-    RuleFunction_typed_arguments_list = 15, RuleFunction_argument = 16, 
-    RuleVariable_definition = 17, RuleAuto_variable_definition = 18, RuleVariable_prefix = 19, 
-    RuleBody = 20, RuleExpr = 21
+    RuleProgram = 0, RuleStmt = 1, RuleIf_stmt = 2, RuleIf = 3, RuleElif = 4, 
+    RuleElse = 5, RuleStmt_end = 6, RuleFunction = 7, RuleVisibility = 8, 
+    RuleFunction_attibutes = 9, RuleVariable_attributes = 10, RuleArgument_definition = 11, 
+    RuleArgument_passing_type = 12, RuleParameters = 13, RuleTyped_arguments_list = 14, 
+    RuleArgument = 15, RuleClass = 16, RuleFunction_call = 17, RuleFunction_parameter = 18, 
+    RuleFunction_typed_arguments_list = 19, RuleFunction_argument = 20, 
+    RuleVariable_definition = 21, RuleAuto_variable_definition = 22, RuleVariable_prefix = 23, 
+    RuleBody = 24, RuleExpr = 25
   };
 
   explicit FscParser(antlr4::TokenStream *input);
@@ -50,6 +51,10 @@ public:
 
   class ProgramContext;
   class StmtContext;
+  class If_stmtContext;
+  class IfContext;
+  class ElifContext;
+  class ElseContext;
   class Stmt_endContext;
   class FunctionContext;
   class VisibilityContext;
@@ -93,6 +98,7 @@ public:
     ExprContext *expr();
     Stmt_endContext *stmt_end();
     ClassContext *class_();
+    If_stmtContext *if_stmt();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -100,6 +106,63 @@ public:
   };
 
   StmtContext* stmt();
+
+  class  If_stmtContext : public antlr4::ParserRuleContext {
+  public:
+    If_stmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    IfContext *if_();
+    std::vector<ElifContext *> elif();
+    ElifContext* elif(size_t i);
+    ElseContext *else_();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  If_stmtContext* if_stmt();
+
+  class  IfContext : public antlr4::ParserRuleContext {
+  public:
+    IfContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ExprContext *expr();
+    BodyContext *body();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  IfContext* if_();
+
+  class  ElifContext : public antlr4::ParserRuleContext {
+  public:
+    ElifContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ExprContext *expr();
+    BodyContext *body();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ElifContext* elif();
+
+  class  ElseContext : public antlr4::ParserRuleContext {
+  public:
+    ElseContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    BodyContext *body();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ElseContext* else_();
 
   class  Stmt_endContext : public antlr4::ParserRuleContext {
   public:

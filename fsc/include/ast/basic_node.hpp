@@ -3,8 +3,6 @@
 
 #include "codegen.hpp"
 #include <ccl/ccl.hpp>
-#include <concepts>
-#include <functional>
 #include <stdexcept>
 #include <typeinfo>
 
@@ -24,7 +22,8 @@ namespace fsc::ast
         CONVERSION,
         VARIABLE_DEFINITION,
         CLASS,
-        MEMBER_VARIABLE
+        MEMBER_VARIABLE,
+        IF_STATEMENT
     };
 
     class Node
@@ -54,7 +53,7 @@ namespace fsc::ast
 
         virtual auto codeGen(gen::CodeGenerator &output) const -> void = 0;
 
-        [[nodiscard]] virtual auto getValueType() const -> ccl::Id;
+        [[nodiscard]] virtual auto getValueType() const noexcept(false) -> ccl::Id;
 
         [[nodiscard]] auto getNodeType() const noexcept -> NodeType
         {
@@ -67,7 +66,7 @@ namespace fsc::ast
         }
 
         template<std::derived_from<Node> T>
-        [[nodiscard]] auto as() -> T &
+        [[nodiscard]] auto as() noexcept(false) -> T &
         {
             if (T::classof() != getNodeType()) {
                 throw std::bad_cast{};
@@ -77,7 +76,7 @@ namespace fsc::ast
         };
 
         template<std::derived_from<Node> T>
-        [[nodiscard]] auto as() const -> const T &
+        [[nodiscard]] auto as() const noexcept(false) -> const T &
         {
             if (T::classof() != getNodeType()) {
                 throw std::bad_cast{};

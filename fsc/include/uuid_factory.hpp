@@ -8,14 +8,18 @@ namespace fsc
 {
     class UuidFactory
     {
-    public:
-        auto operator()() -> ccl::Id
-        {
-            return std::atomic_fetch_add_explicit(&current_id, 1U, std::memory_order_relaxed);
-        }
-
     private:
-        std::atomic<ccl::Id> current_id{1};
+        std::atomic<ccl::Id> counter{1};
+
+    public:
+        explicit UuidFactory(ccl::Id counter_begin)
+          : counter{counter_begin}
+        {}
+
+        CCL_INLINE auto operator()() -> ccl::Id
+        {
+            return std::atomic_fetch_add_explicit(&counter, 1U, std::memory_order_relaxed);
+        }
     };
 }// namespace fsc
 

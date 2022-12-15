@@ -34,7 +34,7 @@ namespace fsc::gen
 
     auto CodeGenerator::popScope() -> void
     {
-        for (auto i = 0ZU; i != ScopeStr.size(); ++i) {
+        for (auto i = ccl::as<size_t>(0); i != ScopeStr.size(); ++i) {
             prefix.pop_back();
         }
     }

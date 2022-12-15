@@ -19,6 +19,11 @@ namespace fsc::ast
         output.write(')');
     }
 
+    auto Conversion::getValueType() const -> ccl::Id
+    {
+        return value->getValueType();
+    }
+
     auto Conversion::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print(

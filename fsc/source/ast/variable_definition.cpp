@@ -30,16 +30,12 @@ namespace fsc::ast
         Visitor &visitor, FscParser::Variable_definitionContext *ctx)
       : VariableDefinition{
             readName(ctx), readFlags(ctx), readType(ctx), readInitializer(visitor, ctx)}
-    {
-        static_assert(classof() == NodeType::VARIABLE_DEFINITION);
-    }
+    {}
 
     VariableDefinition::VariableDefinition(
         Visitor &visitor, FscParser::Auto_variable_definitionContext *ctx)
       : VariableDefinition{readName(ctx), readFlags(ctx), readInitializer(visitor, ctx)}
-    {
-        static_assert(classof() == NodeType::VARIABLE_DEFINITION);
-    }
+    {}
 
     auto VariableDefinition::print(const std::string &prefix, bool is_left) const -> void
     {
@@ -95,13 +91,13 @@ namespace fsc::ast
             flags.visibility = VisibilityByStr.at(visibility->getText());
         }
 
-        return VariableFlags{};
+        return flags;
     }
 
     auto VariableDefinition::readInitializer(Visitor &visitor, auto *ctx) -> NodePtr
     {
         if (auto *expr = ccl::as<FscParser::ExprContext *>(ctx->children.back()); expr != nullptr) {
-            return visitor.visitNode(ctx->children.back());
+            return visitor.visitAsNode(ctx->children.back());
         }
 
         return nullptr;

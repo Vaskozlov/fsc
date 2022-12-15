@@ -1,5 +1,7 @@
 #include "ast/function.hpp"
+#include "ccl/core/types.hpp"
 #include "stack/stack.hpp"
+#include <ast/variable.hpp>
 #include <function/argument.hpp>
 #include <ranges>
 #include <type/type.hpp>
@@ -27,11 +29,11 @@ namespace fsc::ast
 
         ProgramStack.pushScope(ScopeType::HARD);
 
-        for (auto &&arg : arguments) {
-            ProgramStack.addVariable(arg.toVariable());
+        for (const auto &arg : arguments) {
+            ProgramStack.addVariable(ccl::makeShared<ast::Variable>(arg.toVariable()));
         }
 
-        function = visitor.visitNode(children.back());
+        function = visitor.visitAsNode(children.back());
         ProgramStack.popScope();
     }
 
@@ -83,7 +85,7 @@ namespace fsc::ast
         }
     }
 
-    auto Function::processInitMethod() -> void
+    auto Function::processInitMethod() noexcept(false) -> void
     {
         magicType = MagicFunctionType::INIT;
         name = FscType::getTypeName(classId);
@@ -119,7 +121,7 @@ namespace fsc::ast
 
         const auto needs_to_be_constant = category == ArgumentCategory::IN;
         const auto need_to_be_passed_by_reference =
-            ccl::lor(category == ArgumentCategory::OUT, category == ArgumentCategory::INOUT);
+            category == ArgumentCategory::OUT || category == ArgumentCategory::INOUT;
 
         output.write(fmt::format(
             "{}{} {}{}", type_name, needs_to_be_constant ? "const " : "",
@@ -174,7 +176,7 @@ namespace fsc::ast
         auto *argument_initializer = ccl::as<FscParser::ExprContext *>(children.back());
 
         if (argument_initializer != nullptr) {
-            defaultArguments.emplace(argument.getName(), visitor.visitNode(argument_initializer));
+            defaultArguments.emplace(argument.getName(), visitor.visitAsNode(argument_initializer));
         }
 
         return argument;
