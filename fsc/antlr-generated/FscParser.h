@@ -23,13 +23,14 @@ public:
 
   enum {
     RuleProgram = 0, RuleStmt = 1, RuleIf_stmt = 2, RuleIf = 3, RuleElif = 4, 
-    RuleElse = 5, RuleStmt_end = 6, RuleFunction = 7, RuleVisibility = 8, 
-    RuleFunction_attibutes = 9, RuleVariable_attributes = 10, RuleArgument_definition = 11, 
-    RuleArgument_passing_type = 12, RuleParameters = 13, RuleTyped_arguments_list = 14, 
-    RuleArgument = 15, RuleClass = 16, RuleFunction_call = 17, RuleFunction_parameter = 18, 
-    RuleFunction_typed_arguments_list = 19, RuleFunction_argument = 20, 
-    RuleVariable_definition = 21, RuleAuto_variable_definition = 22, RuleVariable_prefix = 23, 
-    RuleBody = 24, RuleExpr = 25
+    RuleElse = 5, RuleElif_def = 6, RuleElse_def = 7, RuleStmt_end = 8, 
+    RuleFunction = 9, RuleVisibility = 10, RuleFunction_attibutes = 11, 
+    RuleVariable_attributes = 12, RuleArgument_definition = 13, RuleArgument_passing_type = 14, 
+    RuleParameters = 15, RuleTyped_arguments_list = 16, RuleArgument = 17, 
+    RuleClass = 18, RuleFunction_call = 19, RuleFunction_parameter = 20, 
+    RuleFunction_typed_arguments_list = 21, RuleFunction_argument = 22, 
+    RuleVariable_definition = 23, RuleAuto_variable_definition = 24, RuleVariable_prefix = 25, 
+    RuleBody = 26, RuleExpr = 27
   };
 
   explicit FscParser(antlr4::TokenStream *input);
@@ -55,6 +56,8 @@ public:
   class IfContext;
   class ElifContext;
   class ElseContext;
+  class Elif_defContext;
+  class Else_defContext;
   class Stmt_endContext;
   class FunctionContext;
   class VisibilityContext;
@@ -112,8 +115,7 @@ public:
     If_stmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IfContext *if_();
-    std::vector<ElifContext *> elif();
-    ElifContext* elif(size_t i);
+    ElifContext *elif();
     ElseContext *else_();
 
 
@@ -141,8 +143,8 @@ public:
   public:
     ElifContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    ExprContext *expr();
-    BodyContext *body();
+    std::vector<Elif_defContext *> elif_def();
+    Elif_defContext* elif_def(size_t i);
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -155,7 +157,7 @@ public:
   public:
     ElseContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    BodyContext *body();
+    Else_defContext *else_def();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -163,6 +165,33 @@ public:
   };
 
   ElseContext* else_();
+
+  class  Elif_defContext : public antlr4::ParserRuleContext {
+  public:
+    Elif_defContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ExprContext *expr();
+    BodyContext *body();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Elif_defContext* elif_def();
+
+  class  Else_defContext : public antlr4::ParserRuleContext {
+  public:
+    Else_defContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    BodyContext *body();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Else_defContext* else_def();
 
   class  Stmt_endContext : public antlr4::ParserRuleContext {
   public:

@@ -22,19 +22,17 @@ namespace fsc::ast
 
     auto FunctionCall::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output.write(function->getName());
-        output.write('(');
+        output << function->getName() << '(';
 
         for (const auto &argument : arguments | ccl::views::dropBack(arguments)) {
-            argument->codeGen(output);
-            output.write(", "sv);
+            output << *argument << ", "sv;
         }
 
         if (!arguments.empty()) {
-            arguments.back()->codeGen(output);
+            output << *arguments.back();
         }
 
-        output.write(')');
+        output << ')';
     }
 
     auto FunctionCall::print(const std::string &prefix, bool is_left) const -> void

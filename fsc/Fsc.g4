@@ -30,10 +30,13 @@ stmt:   function
     |   stmt_end
     ;
 
-if_stmt: if elif* else?;
+if_stmt: if elif else;
 if: 'if' expr ('\n'*) body ('\n'*);
-elif: 'elif' expr ('\n'*) body ('\n'*);
-else: 'else' body;
+elif: elif_def*;
+else: else_def?;
+
+elif_def: 'elif' expr ('\n'*) body ('\n'*);
+else_def: 'else' body;
 
 stmt_end: ('\n' | '\r' | ';')+;
 

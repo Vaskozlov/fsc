@@ -14,9 +14,7 @@ namespace fsc::ast
 
     auto Conversion::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output.write(fmt::format("{}(", FscType::getTypeName(typeId)));
-        value->codeGen(output);
-        output.write(')');
+        output << '(' << FscType::getTypeName(typeId) << *value << ')';
     }
 
     auto Conversion::getValueType() const -> ccl::Id

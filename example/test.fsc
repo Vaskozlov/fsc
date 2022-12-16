@@ -1,27 +1,11 @@
-class Default
-{
-    public var x = 10
-
-    public func test() -> i32
-    {
-        return x
-    }
-
-    public func __init__()
-    {
-        return 10
-    }
-}
-
-func f(inout i32 lhs) -> i32
-{
-    lhs + lhs
-    return lhs * lhs / 2
-}
-
 func main(in i32 lhs = 0) -> i32
 {
-    var x = Default()
-    x.x
-    return 10 + 2 * f(5 + 10 as i32)
+    if 1 == 0
+    {
+
+    }
+    elif 0 == 1
+    {
+
+    }
 }

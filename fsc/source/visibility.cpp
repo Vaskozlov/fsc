@@ -7,25 +7,25 @@ namespace fsc
 
     auto genVisibility(Visibility visibility, gen::CodeGenerator &output) -> void
     {
-        output.newLine();
+        output << gen::endl;
 
         switch (visibility) {
         case Visibility::PUBLIC:
-            output.write("public:"sv);
+            output << "public:"sv;
             break;
 
         case Visibility::PROTECTED:
-            output.write("protected:"sv);
+            output << "protected:"sv;
             break;
 
         case Visibility::EXPORT:
             throw std::logic_error("Export visibility is not available at the moment");
 
         default:
-            output.write("private: "sv);
+            output << "private: "sv;
             break;
         }
 
-        output.newLine();
+        output << gen::endl;
     }
 }// namespace fsc

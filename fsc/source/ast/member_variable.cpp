@@ -4,6 +4,8 @@
 
 namespace fsc::ast
 {
+    using namespace std::string_view_literals;
+
     MemberVariable::MemberVariable(NodePtr node_to_access, std::string variable_name)
       : node{std::move(node_to_access)}
       , name{std::move(variable_name)}
@@ -17,11 +19,7 @@ namespace fsc::ast
 
     auto MemberVariable::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output.write('(');
-        node->codeGen(output);
-        output.write(')');
-        output.write('.');
-        output.write(name);
+        output << '(' << *node << ")."sv << name;
     }
 
     auto MemberVariable::print(const std::string &prefix, bool is_left) const -> void

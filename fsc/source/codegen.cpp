@@ -1,4 +1,7 @@
 #include "codegen.hpp"
+#include "ast/basic_node.hpp"
+#include "type/type.hpp"
+#include <ranges>
 
 namespace fsc::gen
 {
@@ -6,19 +9,60 @@ namespace fsc::gen
 
     constexpr inline auto ScopeStr = "    "sv;
 
-    auto CodeGenerator::write(const std::string &str) -> void
+    auto CodeGenerator::operator<<(char chr) -> CodeGenerator &
     {
-        generated.append(str);
+        if (chr == '\n') {
+            newLine();
+        } else {
+            generated.push_back(chr);
+        }
+
+        return *this;
     }
 
-    auto CodeGenerator::write(std::string_view str) -> void
+    auto CodeGenerator::operator<<(std::string_view str) -> CodeGenerator &
     {
-        generated.append(str);
+        bool need_to_add_new_line = false;
+
+        for (const auto word : std::views::split(str, '\n')) {
+            if (need_to_add_new_line) {
+                newLine();
+            }
+
+            need_to_add_new_line = true;
+            generated.append(std::string_view{word});
+        }
+
+        return *this;
     }
 
-    auto CodeGenerator::write(char chr) -> void
+    auto CodeGenerator::operator<<(const std::string &str) -> CodeGenerator &
     {
-        generated.push_back(chr);
+        return *this << std::string_view{str};
+    }
+
+    auto CodeGenerator::operator<<(const ast::Node &node) -> CodeGenerator &
+    {
+        node.codeGen(*this);
+        return *this;
+    }
+
+    auto CodeGenerator::operator<<(const FscType &fsc_type) -> CodeGenerator &
+    {
+        fsc_type.codeGen(*this);
+        return *this;
+    }
+
+    auto CodeGenerator::operator<<(PushScope /* unused */) -> CodeGenerator &
+    {
+        pushScope();
+        return *this;
+    }
+
+    auto CodeGenerator::operator<<(PopScope /* unused */) -> CodeGenerator &
+    {
+        popScope();
+        return *this;
     }
 
     auto CodeGenerator::newLine() -> void
@@ -37,15 +81,5 @@ namespace fsc::gen
         for (auto i = ccl::as<size_t>(0); i != ScopeStr.size(); ++i) {
             prefix.pop_back();
         }
-    }
-
-    auto CodeGenerator::openCurly() -> void
-    {
-        write('{');
-    }
-
-    auto CodeGenerator::closeCurly() -> void
-    {
-        write('}');
     }
 }// namespace fsc::gen

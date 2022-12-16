@@ -6,6 +6,8 @@
 
 namespace fsc::ast
 {
+    using namespace std::string_view_literals;
+
     BinaryOperation::BinaryOperation(
         std::string operation_type,
         NodePtr left_node,
@@ -33,9 +35,7 @@ namespace fsc::ast
 
     auto BinaryOperation::codeGen(gen::CodeGenerator &output) const -> void
     {
-        lhs->codeGen(output);
-        output.write(fmt::format(" {} ", operationType));
-        rhs->codeGen(output);
+        output << *lhs << " "sv << operationType << " "sv << *rhs;
     }
 
     auto BinaryOperation::print(const std::string &prefix, bool is_left) const -> void

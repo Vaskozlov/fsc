@@ -62,20 +62,20 @@ namespace fsc::ast
 
         switch (magicType) {
         case MagicFunctionType::INIT:
-            output.write(fmt::format("{}", name));
+            output << fmt::format("{}", name);
             break;
 
         default:
-            output.write(fmt::format("{} {}", FscType::getTypeName(returnType), name));
+            output << fmt::format("{} {}", FscType::getTypeName(returnType), name);
             break;
         }
 
-        output.write('(');
+        output << '(';
         genArguments(output);
-        output.write(')');
+        output << ')';
 
         const auto *body = function.get();
-        body->codeGen(output);
+        output << *body;
     }
 
     auto Function::processMagicMethod() -> void
@@ -101,7 +101,7 @@ namespace fsc::ast
     {
         for (const auto &arg : arguments | ccl::views::dropBack(arguments)) {
             argumentToString(output, arg);
-            output.write(", "sv);
+            output << ", "sv;
         }
 
         if (!arguments.empty()) {
@@ -123,13 +123,12 @@ namespace fsc::ast
         const auto need_to_be_passed_by_reference =
             category == ArgumentCategory::OUT || category == ArgumentCategory::INOUT;
 
-        output.write(fmt::format(
+        output << fmt::format(
             "{}{} {}{}", type_name, needs_to_be_constant ? "const " : "",
-            need_to_be_passed_by_reference ? "&" : "", arg_name));
+            need_to_be_passed_by_reference ? "&" : "", arg_name);
 
         if (defaultArguments.contains(arg_name)) {
-            output.write(" = "sv);
-            defaultArguments.at(arg_name)->codeGen(output);
+            output << " = "sv << *defaultArguments.at(arg_name);
         }
     }
 

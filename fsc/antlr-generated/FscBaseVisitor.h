@@ -39,6 +39,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitElif_def(FscParser::Elif_defContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitElse_def(FscParser::Else_defContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitStmt_end(FscParser::Stmt_endContext *ctx) override {
     return visitChildren(ctx);
   }

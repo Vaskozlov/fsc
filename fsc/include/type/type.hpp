@@ -10,7 +10,7 @@ namespace fsc
 {
     struct TypeFlags
     {
-        bool isTriviallyCopyable : 1;
+        bool isTriviallyCopyable = false;
     };
 
     class FscType

@@ -13,7 +13,7 @@ namespace fsc::ast
 
     auto Variable::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output.write(name);
+        output << name;
     }
 
     auto Variable::print(const std::string &prefix, bool is_left) const -> void

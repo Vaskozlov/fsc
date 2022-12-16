@@ -54,15 +54,12 @@ namespace fsc::ast
             genVisibility(getVisibility(), output);
         }
 
-        output.write(type_name);
-        output.write(' ');
-        output.write(getName());
-        output.write(" = "sv);
+        output << type_name << ' ' << getName() << " = "sv;
 
         if (initializer != nullptr) {
-            initializer->codeGen(output);
+            output << *initializer;
         } else {
-            output.write(fmt::format("{}()", type_name));
+            output << fmt::format("{}()", type_name);
         }
     }
 

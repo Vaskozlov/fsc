@@ -23,7 +23,9 @@ namespace fsc::ast
         VARIABLE_DEFINITION,
         CLASS,
         MEMBER_VARIABLE,
-        IF_STATEMENT
+        IF,
+        IF_STMT,
+        PARENTHESIZED,
     };
 
     class Node

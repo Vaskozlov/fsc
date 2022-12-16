@@ -6,9 +6,7 @@ namespace fsc::ast
     auto Program::codeGen(gen::CodeGenerator &output) const -> void
     {
         for (const auto &node : *this) {
-            node->codeGen(output);
-            output.newLine();
-            output.newLine();
+            output << *node << gen::endl << gen::endl;
         }
     }
 

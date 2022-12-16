@@ -13,8 +13,7 @@ namespace fsc::ast
 
     auto Return::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output.write("return "sv);
-        value->codeGen(output);
+        output << "return "sv << *value;
     }
 
     auto Return::getValueType() const -> ccl::Id

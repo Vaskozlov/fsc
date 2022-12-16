@@ -1,12 +1,34 @@
 #ifndef FSC_CODEGEN_HPP
 #define FSC_CODEGEN_HPP
 
+#include <ostream>
 #include <string>
+#include <type_traits>
+
+namespace fsc
+{
+    class FscType;
+}
+
+namespace fsc::ast
+{
+    class Node;
+}
 
 namespace fsc::gen
 {
     class CodeGenerator
     {
+    public:
+        struct PushScope : std::true_type
+        {
+        };
+
+        struct PopScope : std::false_type
+        {
+        };
+
+    private:
         std::string generated;
         std::string prefix;
 
@@ -21,18 +43,25 @@ namespace fsc::gen
             return std::back_inserter(generated);
         }
 
-        auto write(std::string_view str) -> void;
-        auto write(const std::string &str) -> void;
-        auto write(char chr) -> void;
+        auto operator<<(char chr) -> CodeGenerator &;
+        auto operator<<(const ast::Node &node) -> CodeGenerator &;
+        auto operator<<(const FscType &fsc_type) -> CodeGenerator &;
+        auto operator<<(std::string_view str) -> CodeGenerator &;
+        auto operator<<(const std::string &str) -> CodeGenerator &;
+        auto operator<<(PushScope /* unused */) -> CodeGenerator &;
+        auto operator<<(PopScope /* unused */) -> CodeGenerator &;
 
         auto newLine() -> void;
 
         auto pushScope() -> void;
         auto popScope() -> void;
-
-        auto openCurly() -> void;
-        auto closeCurly() -> void;
     };
+
+    constexpr inline auto endl = '\n';
+    constexpr inline auto curly_opening = '{';
+    constexpr inline auto curly_closing = '}';
+    constexpr inline auto push_scope = CodeGenerator::PushScope{};
+    constexpr inline auto pop_scope = CodeGenerator::PopScope{};
 }// namespace fsc::gen
 
 #endif /* FSC_CODEGEN_HPP */

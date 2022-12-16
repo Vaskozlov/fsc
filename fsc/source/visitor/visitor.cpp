@@ -2,15 +2,15 @@
 #include "ast/body.hpp"
 #include "ast/function.hpp"
 #include "ast/function_call.hpp"
+#include "ast/if_stmt.hpp"
 #include "ast/member_variable.hpp"
+#include "ast/parenthesized.hpp"
 #include "ast/variable.hpp"
-#include "ccl/core/types.hpp"
 #include "converters/float.hpp"
 #include "converters/int.hpp"
+#include "function/argument.hpp"
 #include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
-#include <ccl/ccl.hpp>
-#include <function/argument.hpp>
 #include <ranges>
 
 using namespace std::string_view_literals;
@@ -72,7 +72,7 @@ namespace fsc
 
     auto Visitor::visitIf_stmt(FscParser::If_stmtContext *ctx) -> std::any
     {
-
+        return ccl::makeShared<ast::Node, ast::IfStmt>(*this, ctx);
     }
 
     auto Visitor::visitFunction(FscParser::FunctionContext *const ctx) -> std::any
@@ -120,6 +120,10 @@ namespace fsc
 
         else if (ctx->FLOAT() != nullptr) {
             node = converter::toFloat(ctx->getText());
+        }
+
+        else if (children.size() == 3 && children.at(0)->getText() == "("sv) {
+            node = ccl::makeShared<ast::Node, ast::Parenthesized>(visitAsNode(children.at(1)));
         }
 
         else if (children.size() == 3 && children.at(1)->getText() == ".") {
@@ -170,7 +174,7 @@ namespace fsc
     {
         program.print("", false);
         gen::CodeGenerator generator;
-        program.codeGen(generator);
+        generator << program;
         fmt::print("{}\n", generator.getGenerated());
     }
 }// namespace fsc

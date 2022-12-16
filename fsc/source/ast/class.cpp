@@ -22,10 +22,9 @@ namespace fsc::ast
 
     auto Class::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output.write("class "sv);
-        output.write(name);
+        output << "class "sv << name;
         defaultBodyCodegen(output);
-        output.write(';');
+        output << ';';
     }
 
     auto Class::print(const std::string &prefix, bool is_left) const -> void

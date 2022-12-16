@@ -13,7 +13,7 @@ namespace fsc::ast
 
     auto Value::codeGen(gen::CodeGenerator &output) const -> void
     {
-        value->codeGen(output);
+        output << *value;
     }
 
     auto Value::getValueType() const noexcept -> ccl::Id

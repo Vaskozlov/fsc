@@ -1,4 +1,5 @@
 #include "ast/body.hpp"
+#include <codegen.hpp>
 #include <ranges>
 
 namespace fsc::ast
@@ -21,18 +22,13 @@ namespace fsc::ast
 
     auto Body::defaultBodyCodegen(gen::CodeGenerator &output) const -> void
     {
-        output.openCurly();
-        output.pushScope();
+        output << gen::curly_opening << gen::push_scope;
 
         for (const auto &node : nodes) {
-            output.newLine();
-            node->codeGen(output);
-            output.write(';');
+            output << gen::endl << *node << ';';
         }
 
-        output.popScope();
-        output.newLine();
-        output.closeCurly();
+        output << gen::pop_scope << gen::endl << gen::curly_closing;
     }
 
     auto Body::codeGen(gen::CodeGenerator &output) const -> void
