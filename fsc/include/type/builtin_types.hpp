@@ -56,6 +56,7 @@ namespace fsc
     FSC_WRAP_TYPE(UInt64, ccl::u64);
     FSC_WRAP_TYPE(Float32, ccl::f32);
     FSC_WRAP_TYPE(Float64, ccl::f64);
+    FSC_WRAP_TYPE(Char, char);
     FSC_WRAP_TYPE(String, std::string);
 }// namespace fsc
 

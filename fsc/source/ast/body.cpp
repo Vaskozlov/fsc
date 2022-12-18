@@ -24,9 +24,10 @@ namespace fsc::ast
     auto Body::defaultBodyCodegen(gen::CodeGenerator &output) const -> void
     {
         output << gen::curly_opening << gen::push_scope;
+        bool first_node_passed = false;
 
         for (const auto &node : nodes) {
-            if (node->semicolonRequired() == SemicolonNeed::DO_NOT_NEED) {
+            if (node->semicolonRequired() == SemicolonNeed::DO_NOT_NEED && !first_node_passed) {
                 output << gen::endl;
             }
 
@@ -35,6 +36,8 @@ namespace fsc::ast
             if (node->semicolonRequired() == SemicolonNeed::NEED) {
                 output << ';';
             }
+
+            first_node_passed = true;
         }
 
         output << gen::pop_scope << gen::endl << gen::curly_closing;

@@ -12,7 +12,8 @@ namespace fsc::ast
     enum struct MagicFunctionType : ccl::u16
     {
         NONE,
-        INIT
+        INIT,
+        DEL
     };
 
     class Function : public NodeWrapper<NodeType::FUNCTION, SemicolonNeed::DO_NOT_NEED>
@@ -129,6 +130,7 @@ namespace fsc::ast
     private:
         auto processMagicMethod() -> void;
         auto processInitMethod() noexcept(false) -> void;
+        auto processDelMethod() noexcept(false) -> void;
 
         auto processAttributes(FscParser::Function_attibutesContext *ctx) -> void;
 

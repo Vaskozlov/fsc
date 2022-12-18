@@ -53,7 +53,7 @@ void fscParserInitialize() {
     },
     std::vector<std::string>{
       "", "'return'", "'if'", "'elif'", "'else'", "'\\n'", "'\\r'", "';'", 
-      "'func'", "'->'", "'public'", "'private'", "'protected'", "'fileprivae'", 
+      "'def'", "'->'", "'public'", "'private'", "'protected'", "'fileprivae'", 
       "'in'", "'out'", "'inout'", "'('", "')'", "','", "'='", "'class'", 
       "':'", "'let'", "'var'", "'{'", "'}'", "'.'", "'as'", "", "", "", 
       "", "", "", "'=='", "'!='", "'&&'", "'||'"

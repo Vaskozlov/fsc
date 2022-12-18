@@ -70,6 +70,8 @@ namespace fsc
 
         auto code = CodeSupport + visitor.codeGen();
 
+        fmt::print("{}\n", code);
+
         writeToFile(".fsc-tmp.cpp", code);
         compileUsingSystemCommand(".fsc-tmp.cpp", "fsc-compiled", true);
         std::filesystem::remove(".fsc-tmp.cpp");

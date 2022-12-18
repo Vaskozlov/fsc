@@ -13,12 +13,11 @@ INEQUALITY  : '!=';
 LOGICAL_AND : '&&';
 LOGICAL_OR  : '||';
 
-INT     :  [0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
-FLOAT   :  [0-9]*[.][0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
-CHAR: '\'' (~["\\\r\n] | '\\' (. | EOF)) '\'';
-STRING: '"' (~["\\\r\n] | '\\' (. | EOF))* '"';
-
-NAME      : [a-zA-Z_][a-zA-Z0-9_]*;
+INT         :   [0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
+FLOAT       :   [0-9]*[.][0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
+CHAR        :   '\'' (~["\\\r\n] | '\\' (. | EOF)) '\'';
+STRING      :   '"' (~["\\\r\n] | '\\' (. | EOF))* '"';
+IDENTIFIER  :   [a-zA-Z_][a-zA-Z0-9_]*;
 
 LAYOUT  : [ \t] -> skip;
 
@@ -32,6 +31,9 @@ stmt:   function
     |   stmt_end
     ;
 
+body: '{' (stmt)* '}';
+class: 'class' IDENTIFIER new_line body;
+
 if_stmt: if elif else;
 if: 'if' expr new_line body new_line;
 elif: elif_def*;
@@ -40,10 +42,7 @@ else: else_def?;
 elif_def: 'elif' expr new_line body new_line;
 else_def: 'else' body;
 
-new_line: ('\n'*);
-stmt_end: ('\n' | '\r' | ';')+;
-
-function: function_attibutes 'func' NAME parameters ('->' NAME) ? new_line body;
+function: function_attibutes 'def' IDENTIFIER parameters ('->' IDENTIFIER) ? new_line body;
 visibility: 'public'
             | 'private'
             | 'protected'
@@ -52,29 +51,25 @@ visibility: 'public'
 function_attibutes: visibility?;
 variable_attributes: visibility?;
 
-argument_definition: argument_passing_type NAME NAME;
 argument_passing_type: 'in' | 'out' | 'inout';
+argument_definition: argument_passing_type IDENTIFIER IDENTIFIER;
+
 parameters: '(' (typed_arguments_list)? ')';
 typed_arguments_list: argument ( ',' argument )*;
 argument: argument_definition ('=' expr)?;
 
-class: 'class' NAME new_line body;
-
-function_call: NAME function_parameter;
+function_call: IDENTIFIER function_parameter;
 
 function_parameter: '(' (function_typed_arguments_list)? ')';
 function_typed_arguments_list: function_argument ( ',' function_argument)*;
-function_argument : (NAME '=') ? expr;
-
-variable_definition: variable_attributes variable_prefix NAME ':' NAME (('=' '\n'*) expr)?;
-auto_variable_definition: variable_attributes variable_prefix NAME '=' expr;
+function_argument : (IDENTIFIER '=') ? expr;
 
 variable_prefix: 'let' | 'var';
+auto_variable_definition: variable_attributes variable_prefix IDENTIFIER '=' expr;
+variable_definition: variable_attributes variable_prefix IDENTIFIER ':' IDENTIFIER (('=' '\n'*) expr)?;
 
-body: '{' (stmt)* '}';
-
-expr:   expr '.' NAME
-    |   expr AS NAME
+expr:   expr '.' IDENTIFIER
+    |   expr AS IDENTIFIER
     |   expr MUL expr
     |   expr DIV expr
     |   expr MOD expr
@@ -91,7 +86,10 @@ expr:   expr '.' NAME
     |   body
     |   INT
     |   FLOAT
-    |   NAME
+    |   IDENTIFIER
     |   STRING
     |   CHAR
     ;
+
+new_line: ('\n'*);
+stmt_end: ('\n' | '\r' | ';')+;

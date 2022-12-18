@@ -1,15 +1,19 @@
 class S
 {
-    public func __init__(in i32 some_value)
+    public def __init__()
     {
-        if (some_value == 0)
-        {
-            print("S{{{}}}\n", some_value);
-        }
+        print("S has been constructed\n");
+    }
+
+    public def __del__()
+    {
+        print("S has been deleted")
     }
 }
 
-func main() -> i32
+
+def main() -> i32
 {
-    var a = S(0);
+    var a : S = S();
+    return 0;
 }

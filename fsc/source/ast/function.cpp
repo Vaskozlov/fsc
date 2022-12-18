@@ -64,6 +64,7 @@ namespace fsc::ast
         }
 
         switch (magicType) {
+        case MagicFunctionType::DEL:
         case MagicFunctionType::INIT:
             output << fmt::format("{}", name);
             break;
@@ -85,6 +86,8 @@ namespace fsc::ast
     {
         if (name == "__init__" && classId != 0) {
             processInitMethod();
+        } else if (name == "__del__" && classId != 0) {
+            processDelMethod();
         }
     }
 
@@ -98,6 +101,21 @@ namespace fsc::ast
         }
 
         returnType = classId;
+    }
+
+    auto Function::processDelMethod() noexcept(false) -> void
+    {
+        magicType = MagicFunctionType::DEL;
+        name = fmt::format("~{}", FscType::getTypeName(classId));
+
+        if (!arguments.empty()) {
+            throw std::runtime_error(
+                "You are not allowed to set pass any arguments to __del__ method");
+        }
+
+        if (returnType != 0) {
+            throw std::runtime_error("You are not allowed to set return type of __del__ method");
+        }
     }
 
     auto Function::genArguments(gen::CodeGenerator &output) const -> void

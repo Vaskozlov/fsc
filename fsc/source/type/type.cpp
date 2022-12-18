@@ -7,12 +7,14 @@ namespace fsc
     ccl::Map<ccl::Id, std::string> FscType::typenameById{
         {Void::typeId, "void"},   {Int32::typeId, "i32"},  {Int64::typeId, "i64"},
         {UInt32::typeId, "u32"},  {UInt64::typeId, "u64"}, {Float32::typeId, "f32"},
-        {Float64::typeId, "f64"}, {Bool::typeId, "bool"},  {String::typeId, "string"}};
+        {Float64::typeId, "f64"}, {Bool::typeId, "bool"},  {String::typeId, "string"},
+        {Char::typeId, "char"}};
 
     ccl::Map<std::string, ccl::Id> FscType::idByTypename{
         {"void", Void::typeId},   {"i32", Int32::typeId},  {"i64", Int64::typeId},
         {"u32", UInt32::typeId},  {"u64", UInt64::typeId}, {"f32", Float32::typeId},
-        {"f64", Float64::typeId}, {"bool", Bool::typeId},  {"string", String::typeId}};
+        {"f64", Float64::typeId}, {"bool", Bool::typeId},  {"string", String::typeId},
+        {"char", Char::typeId}};
 
     ccl::Map<ccl::Id, TypeFlags> FscType::typeFlags{
         {Void::typeId, {.isTriviallyCopyable = false}},
@@ -23,7 +25,8 @@ namespace fsc
         {Float32::typeId, {.isTriviallyCopyable = true}},
         {Float64::typeId, {.isTriviallyCopyable = true}},
         {Bool::typeId, {.isTriviallyCopyable = true}},
-        {String::typeId, {.isTriviallyCopyable = false}}};
+        {String::typeId, {.isTriviallyCopyable = false}},
+        {Char::typeId, {.isTriviallyCopyable = true}}};
 
     ccl::Map<ccl::Id, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>
         FscType::typeMemberVariables;
