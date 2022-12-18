@@ -18,19 +18,19 @@ public:
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
     T__26 = 27, AS = 28, ADD = 29, SUB = 30, MUL = 31, DIV = 32, MOD = 33, 
     DOT = 34, EQUALITY = 35, INEQUALITY = 36, LOGICAL_AND = 37, LOGICAL_OR = 38, 
-    INT = 39, FLOAT = 40, NAME = 41, LAYOUT = 42
+    INT = 39, FLOAT = 40, CHAR = 41, STRING = 42, NAME = 43, LAYOUT = 44
   };
 
   enum {
     RuleProgram = 0, RuleStmt = 1, RuleIf_stmt = 2, RuleIf = 3, RuleElif = 4, 
-    RuleElse = 5, RuleElif_def = 6, RuleElse_def = 7, RuleStmt_end = 8, 
-    RuleFunction = 9, RuleVisibility = 10, RuleFunction_attibutes = 11, 
-    RuleVariable_attributes = 12, RuleArgument_definition = 13, RuleArgument_passing_type = 14, 
-    RuleParameters = 15, RuleTyped_arguments_list = 16, RuleArgument = 17, 
-    RuleClass = 18, RuleFunction_call = 19, RuleFunction_parameter = 20, 
-    RuleFunction_typed_arguments_list = 21, RuleFunction_argument = 22, 
-    RuleVariable_definition = 23, RuleAuto_variable_definition = 24, RuleVariable_prefix = 25, 
-    RuleBody = 26, RuleExpr = 27
+    RuleElse = 5, RuleElif_def = 6, RuleElse_def = 7, RuleNew_line = 8, 
+    RuleStmt_end = 9, RuleFunction = 10, RuleVisibility = 11, RuleFunction_attibutes = 12, 
+    RuleVariable_attributes = 13, RuleArgument_definition = 14, RuleArgument_passing_type = 15, 
+    RuleParameters = 16, RuleTyped_arguments_list = 17, RuleArgument = 18, 
+    RuleClass = 19, RuleFunction_call = 20, RuleFunction_parameter = 21, 
+    RuleFunction_typed_arguments_list = 22, RuleFunction_argument = 23, 
+    RuleVariable_definition = 24, RuleAuto_variable_definition = 25, RuleVariable_prefix = 26, 
+    RuleBody = 27, RuleExpr = 28
   };
 
   explicit FscParser(antlr4::TokenStream *input);
@@ -58,6 +58,7 @@ public:
   class ElseContext;
   class Elif_defContext;
   class Else_defContext;
+  class New_lineContext;
   class Stmt_endContext;
   class FunctionContext;
   class VisibilityContext;
@@ -130,6 +131,8 @@ public:
     IfContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     ExprContext *expr();
+    std::vector<New_lineContext *> new_line();
+    New_lineContext* new_line(size_t i);
     BodyContext *body();
 
 
@@ -171,6 +174,8 @@ public:
     Elif_defContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     ExprContext *expr();
+    std::vector<New_lineContext *> new_line();
+    New_lineContext* new_line(size_t i);
     BodyContext *body();
 
 
@@ -193,6 +198,18 @@ public:
 
   Else_defContext* else_def();
 
+  class  New_lineContext : public antlr4::ParserRuleContext {
+  public:
+    New_lineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  New_lineContext* new_line();
+
   class  Stmt_endContext : public antlr4::ParserRuleContext {
   public:
     Stmt_endContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -213,6 +230,7 @@ public:
     std::vector<antlr4::tree::TerminalNode *> NAME();
     antlr4::tree::TerminalNode* NAME(size_t i);
     ParametersContext *parameters();
+    New_lineContext *new_line();
     BodyContext *body();
 
 
@@ -333,6 +351,7 @@ public:
     ClassContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *NAME();
+    New_lineContext *new_line();
     BodyContext *body();
 
 
@@ -469,6 +488,8 @@ public:
     antlr4::tree::TerminalNode *INT();
     antlr4::tree::TerminalNode *FLOAT();
     antlr4::tree::TerminalNode *NAME();
+    antlr4::tree::TerminalNode *STRING();
+    antlr4::tree::TerminalNode *CHAR();
     antlr4::tree::TerminalNode *MUL();
     antlr4::tree::TerminalNode *DIV();
     antlr4::tree::TerminalNode *MOD();

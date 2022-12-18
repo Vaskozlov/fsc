@@ -1,5 +1,6 @@
 #include "ast/conversion.hpp"
 #include "type/type.hpp"
+#include <ast/basic_node.hpp>
 
 namespace fsc::ast
 {

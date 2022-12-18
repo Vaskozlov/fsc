@@ -1,6 +1,7 @@
 #include "ast/function.hpp"
 #include "ccl/core/types.hpp"
 #include "stack/stack.hpp"
+#include <ast/basic_node.hpp>
 #include <ast/variable.hpp>
 #include <function/argument.hpp>
 #include <ranges>
@@ -39,11 +40,13 @@ namespace fsc::ast
 
     Function::Function(
         std::string_view function_name, ccl::Id return_type,
-        ccl::InitializerList<Argument> function_arguments, CallRequirements call_requirements)
+        ccl::InitializerList<Argument> function_arguments, CallRequirements call_requirements,
+        bool ends_with_parameter_pack)
       : arguments{function_arguments}
       , name{function_name}
       , callRequirements{call_requirements}
       , returnType{return_type}
+      , endsWithParameterPack{ends_with_parameter_pack}
     {
         CCL_ASSERT(this->getNodeType() == NodeType::FUNCTION);
     }

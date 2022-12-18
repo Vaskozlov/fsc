@@ -5,7 +5,7 @@
 
 namespace fsc::ast
 {
-    class Parenthesized : public NodeWrapper<NodeType::PARENTHESIZED>
+    class Parenthesized : public NodeWrapper<NodeType::PARENTHESIZED, SemicolonNeed::NEED>
     {
         NodePtr node;
 

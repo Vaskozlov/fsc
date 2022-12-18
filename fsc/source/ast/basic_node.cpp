@@ -18,13 +18,19 @@ namespace fsc::ast
         return result;
     }
 
-    Node::Node(NodeType node_type) noexcept
+    Node::Node(NodeType node_type, SemicolonNeed need_semicolon) noexcept
       : nodeType{node_type}
+      , needSemicolon{need_semicolon}
     {}
 
     auto Node::setNodeType(NodeType node_type) noexcept -> void
     {
         nodeType = node_type;
+    }
+
+    auto Node::setSemicolonNeed(SemicolonNeed need_semicolon) noexcept -> void
+    {
+        needSemicolon = need_semicolon;
     }
 
     auto Node::getPrintingPrefix(const std::string &prefix, bool is_left) -> std::string

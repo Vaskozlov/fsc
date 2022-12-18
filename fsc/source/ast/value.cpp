@@ -1,4 +1,5 @@
 #include "ast/value.hpp"
+#include <ast/basic_node.hpp>
 #include <fmt/format.h>
 
 namespace fsc::ast
@@ -6,7 +7,7 @@ namespace fsc::ast
     using namespace std::string_view_literals;
 
     Value::Value(ccl::SharedPtr<FscType> t_value)
-      : value{std::move(t_value)}
+      :value{std::move(t_value)}
     {
         CCL_ASSERT(this->getNodeType() == NodeType::VALUE);
     }

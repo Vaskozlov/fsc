@@ -65,7 +65,7 @@ namespace fsc::ast
 
     auto VariableDefinition::readType(FscParser::Variable_definitionContext *ctx) -> ccl::Id
     {
-        const auto type_name = ctx->children.at(5)->getText();
+        const auto type_name = ctx->children.at(4)->getText();
         return FscType::getTypeId(type_name);
     }
 

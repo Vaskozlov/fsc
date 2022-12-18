@@ -8,6 +8,7 @@
 #include "ast/variable.hpp"
 #include "converters/float.hpp"
 #include "converters/int.hpp"
+#include "converters/string.hpp"
 #include "function/argument.hpp"
 #include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
@@ -122,6 +123,10 @@ namespace fsc
             node = converter::toFloat(ctx->getText());
         }
 
+        else if (ctx->STRING() != nullptr) {
+            node = converter::toString(ctx->getText());
+        }
+
         else if (children.size() == 3 && children.at(0)->getText() == "("sv) {
             node = ccl::makeShared<ast::Node, ast::Parenthesized>(visitAsNode(children.at(1)));
         }
@@ -170,11 +175,11 @@ namespace fsc
             func::Functions.get({name, arguments}, CallRequirements::EXPLICIT), values);
     }
 
-    auto Visitor::codeGen() -> void
+    auto Visitor::codeGen() -> std::string
     {
         program.print("", false);
         gen::CodeGenerator generator;
         generator << program;
-        fmt::print("{}\n", generator.getGenerated());
+        return generator.getGenerated();
     }
 }// namespace fsc

@@ -15,7 +15,7 @@ namespace fsc::ast
         INIT
     };
 
-    class Function : public NodeWrapper<NodeType::FUNCTION>
+    class Function : public NodeWrapper<NodeType::FUNCTION, SemicolonNeed::DO_NOT_NEED>
     {
         ccl::Map<std::string, ccl::SharedPtr<ast::Node>> defaultArguments;
         ccl::SmallVector<Argument> arguments;
@@ -26,6 +26,7 @@ namespace fsc::ast
         ccl::Id returnType{};
         ccl::Id classId{};
         MagicFunctionType magicType{};
+        bool endsWithParameterPack{};
 
     public:
         Function(
@@ -33,7 +34,8 @@ namespace fsc::ast
 
         Function(
             std::string_view function_name, const ccl::Id return_type,
-            ccl::InitializerList<Argument> function_arguments, CallRequirements call_requirements);
+            ccl::InitializerList<Argument> function_arguments, CallRequirements call_requirements,
+            bool ends_with_parameter_pack = false);
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
@@ -50,8 +52,27 @@ namespace fsc::ast
         {
             const auto is_constructor =
                 (other.classId == 0 && getMagicType() == MagicFunctionType::INIT);
-            return ((classId == other.classId) || is_constructor) && name == other.name &&
-                   arguments == other.arguments;
+
+            if (arguments.size() > std::size(other.arguments)) {
+                return false;
+            }
+
+            const auto first_arguments_equal = std::ranges::equal(
+                arguments.cbegin(), arguments.cend(), other.arguments.cbegin(),
+                other.arguments.cbegin() + arguments.size());
+
+            if (!first_arguments_equal) {
+                return false;
+            }
+
+            auto arguments_equal = first_arguments_equal;
+
+            if (std::size(other.arguments) > arguments.size()) {
+                arguments_equal = endsWithParameterPack;
+            }
+
+            return (arguments_equal && ((classId == other.classId) || is_constructor)) &&
+                   name == other.name;
         }
 
         [[nodiscard]] auto isMember() const noexcept -> bool

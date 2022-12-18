@@ -2,7 +2,7 @@
 #define FSC_UUID_FACTORY_HPP
 
 #include <atomic>
-#include <cinttypes>
+#include <ccl/ccl.hpp>
 
 namespace fsc
 {

@@ -1,4 +1,5 @@
 #include "ast/parenthesized.hpp"
+#include <ast/basic_node.hpp>
 
 namespace fsc::ast
 {
@@ -13,7 +14,11 @@ namespace fsc::ast
 
     auto Parenthesized::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output << '(' << *node << ')';
+        if (node->is(NodeType::PARENTHESIZED)) {
+            output << *node;
+        } else {
+            output << '(' << *node << ')';
+        }
     }
 
     auto Parenthesized::print(const std::string &prefix, bool is_left) const -> void

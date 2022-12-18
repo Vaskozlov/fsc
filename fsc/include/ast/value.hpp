@@ -6,7 +6,7 @@
 
 namespace fsc::ast
 {
-    class Value : public NodeWrapper<NodeType::VALUE>
+    class Value : public NodeWrapper<NodeType::VALUE, SemicolonNeed::NEED>
     {
         ccl::SharedPtr<FscType> value;
 

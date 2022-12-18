@@ -19,7 +19,7 @@ namespace fsc::ast
         {IfType::ELSE, "else"},
     };
 
-    class If : public NodeWrapper<NodeType::IF>
+    class If : public NodeWrapper<NodeType::IF, SemicolonNeed::DO_NOT_NEED>
     {
     private:
         NodePtr condition;

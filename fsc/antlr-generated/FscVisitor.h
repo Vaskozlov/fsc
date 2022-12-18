@@ -35,6 +35,8 @@ public:
 
     virtual std::any visitElse_def(FscParser::Else_defContext *context) = 0;
 
+    virtual std::any visitNew_line(FscParser::New_lineContext *context) = 0;
+
     virtual std::any visitStmt_end(FscParser::Stmt_endContext *context) = 0;
 
     virtual std::any visitFunction(FscParser::FunctionContext *context) = 0;

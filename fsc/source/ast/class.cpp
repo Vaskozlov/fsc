@@ -2,6 +2,7 @@
 #include "ast/function.hpp"
 #include "ast/variable_definition.hpp"
 #include "stack/stack.hpp"
+#include <ast/basic_node.hpp>
 #include <ranges>
 
 namespace fsc::ast

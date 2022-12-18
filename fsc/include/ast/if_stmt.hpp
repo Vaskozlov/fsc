@@ -6,7 +6,7 @@
 
 namespace fsc::ast
 {
-    class IfStmt : public NodeWrapper<NodeType::IF_STMT>
+    class IfStmt : public NodeWrapper<NodeType::IF_STMT, SemicolonNeed::DO_NOT_NEED>
     {
     private:
         ccl::Vector<NodePtr> elifNodes;

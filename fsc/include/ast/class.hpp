@@ -2,12 +2,12 @@
 #define FSC_CLASS_HPP
 
 #include "ast/body.hpp"
-#include "ast/variable_definition.hpp"
 #include "ast/function.hpp"
+#include "ast/variable_definition.hpp"
 
 namespace fsc::ast
 {
-    class Class : public NodeWrapper<NodeType::CLASS, Body>
+    class Class : public NodeWrapper<NodeType::CLASS, SemicolonNeed::DO_NOT_NEED, Body>
     {
         ccl::Map<std::string, ccl::Id> constructionMemberVariables;
         std::string name;

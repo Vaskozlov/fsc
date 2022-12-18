@@ -3,6 +3,11 @@
 
 namespace fsc::ast
 {
+    Program::Program()
+    {
+        CCL_ASSERT(getNodeType() == NodeType::PROGRAM);
+    }
+
     auto Program::codeGen(gen::CodeGenerator &output) const -> void
     {
         for (const auto &node : *this) {
@@ -12,7 +17,7 @@ namespace fsc::ast
 
     auto Program::print(const std::string &prefix, bool is_left) const -> void
     {
-        fmt::print("{}Class\n", getPrintingPrefix(prefix, is_left));
+        fmt::print("{}Program\n", getPrintingPrefix(prefix, is_left));
         defaultBodyPrint(expandPrefix(prefix, is_left), false);
     }
 }// namespace fsc::ast

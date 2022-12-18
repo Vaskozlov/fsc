@@ -1,4 +1,5 @@
 #include "ast/binary_operator.hpp"
+#include <ast/basic_node.hpp>
 #include <function/argument.hpp>
 #include <function/functions_holder.hpp>
 #include <ranges>
@@ -17,6 +18,7 @@ namespace fsc::ast
       , operationType{std::move(operation_type)}
     {
         CCL_ASSERT(this->getNodeType() == NodeType::BINARY_OPERATOR);
+        getValueType();
     }
 
     auto BinaryOperation::getValueType() const -> ccl::Id

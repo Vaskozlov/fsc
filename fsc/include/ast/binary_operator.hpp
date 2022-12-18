@@ -7,12 +7,13 @@
 
 namespace fsc::ast
 {
-    class BinaryOperation : public NodeWrapper<NodeType::BINARY_OPERATOR>
+    class BinaryOperation : public NodeWrapper<NodeType::BINARY_OPERATOR, SemicolonNeed::NEED>
     {
-        constexpr static ccl::StaticFlatmap<std::string_view, std::string_view, 6>
-            operatorToFunctionName = {{"+", "__add__"}, {"-", "__sub__"},
-                                      {"*", "__mul__"}, {"/", "__div__"},
-                                      {"%", "__mod__"}, {"&&", "__logical_and__"}};
+        constexpr static ccl::StaticFlatmap<std::string_view, std::string_view, 8>
+            operatorToFunctionName = {{"+", "__add__"},    {"-", "__sub__"},
+                                      {"*", "__mul__"},    {"/", "__div__"},
+                                      {"%", "__mod__"},    {"&&", "__logical_and__"},
+                                      {"==", "__equal__"}, {"!=", "__not_equal__"}};
 
         NodePtr lhs;
         NodePtr rhs;

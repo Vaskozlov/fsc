@@ -1,4 +1,5 @@
 #include "ast/variable.hpp"
+#include <ast/basic_node.hpp>
 #include <fmt/format.h>
 
 namespace fsc::ast

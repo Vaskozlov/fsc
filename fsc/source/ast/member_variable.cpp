@@ -1,6 +1,7 @@
 #include "ast/member_variable.hpp"
 #include "ccl/core/types.hpp"
 #include "type/type.hpp"
+#include <ast/basic_node.hpp>
 
 namespace fsc::ast
 {

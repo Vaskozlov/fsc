@@ -15,6 +15,8 @@ LOGICAL_OR  : '||';
 
 INT     :  [0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
 FLOAT   :  [0-9]*[.][0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
+CHAR: '\'' (~["\\\r\n] | '\\' (. | EOF)) '\'';
+STRING: '"' (~["\\\r\n] | '\\' (. | EOF))* '"';
 
 NAME      : [a-zA-Z_][a-zA-Z0-9_]*;
 
@@ -31,16 +33,17 @@ stmt:   function
     ;
 
 if_stmt: if elif else;
-if: 'if' expr ('\n'*) body ('\n'*);
+if: 'if' expr new_line body new_line;
 elif: elif_def*;
 else: else_def?;
 
-elif_def: 'elif' expr ('\n'*) body ('\n'*);
+elif_def: 'elif' expr new_line body new_line;
 else_def: 'else' body;
 
+new_line: ('\n'*);
 stmt_end: ('\n' | '\r' | ';')+;
 
-function: function_attibutes 'func' NAME parameters ('->' NAME) ? ('\n'*) body;
+function: function_attibutes 'func' NAME parameters ('->' NAME) ? new_line body;
 visibility: 'public'
             | 'private'
             | 'protected'
@@ -55,7 +58,7 @@ parameters: '(' (typed_arguments_list)? ')';
 typed_arguments_list: argument ( ',' argument )*;
 argument: argument_definition ('=' expr)?;
 
-class: 'class' NAME ('\n')* body;
+class: 'class' NAME new_line body;
 
 function_call: NAME function_parameter;
 
@@ -89,4 +92,6 @@ expr:   expr '.' NAME
     |   INT
     |   FLOAT
     |   NAME
+    |   STRING
+    |   CHAR
     ;

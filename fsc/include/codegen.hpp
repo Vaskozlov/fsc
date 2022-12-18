@@ -51,8 +51,8 @@ namespace fsc::gen
         auto operator<<(PushScope /* unused */) -> CodeGenerator &;
         auto operator<<(PopScope /* unused */) -> CodeGenerator &;
 
+    private:
         auto newLine() -> void;
-
         auto pushScope() -> void;
         auto popScope() -> void;
     };

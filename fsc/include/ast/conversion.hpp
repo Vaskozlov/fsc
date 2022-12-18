@@ -5,7 +5,7 @@
 
 namespace fsc::ast
 {
-    class Conversion : public NodeWrapper<NodeType::CONVERSION>
+    class Conversion : public NodeWrapper<NodeType::CONVERSION, SemicolonNeed::NEED>
     {
         NodePtr value;
         ccl::Id typeId;

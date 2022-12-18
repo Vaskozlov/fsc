@@ -47,6 +47,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitNew_line(FscParser::New_lineContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitStmt_end(FscParser::Stmt_endContext *ctx) override {
     return visitChildren(ctx);
   }

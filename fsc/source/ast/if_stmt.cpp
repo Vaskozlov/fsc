@@ -1,5 +1,6 @@
 #include "ast/if_stmt.hpp"
-#include <ccl/core/ranges.hpp>
+#include "ast/parenthesized.hpp"
+#include <ccl/ccl.hpp>
 
 namespace fsc::ast
 {
@@ -55,7 +56,7 @@ namespace fsc::ast
         auto expr = visitor.visitAsNode(children.at(1));
         auto body = visitor.visitAsNode(children.at(3));
 
-        ifNode = ccl::makeShared<If>(IfType::IF, expr, body);
+        ifNode = ccl::makeShared<If>(IfType::IF, ccl::makeShared<Parenthesized>(expr), body);
     }
 
     auto IfStmt::parseElifStmt(Visitor &visitor, FscParser::ElifContext *ctx) -> void
@@ -65,7 +66,8 @@ namespace fsc::ast
             auto expr = visitor.visitAsNode(children.at(1));
             auto body = visitor.visitAsNode(children.at(3));
 
-            elifNodes.emplace_back(ccl::makeShared<If>(IfType::ELIF, expr, body));
+            elifNodes.emplace_back(
+                ccl::makeShared<If>(IfType::ELIF, ccl::makeShared<Parenthesized>(expr), body));
         }
     }
 
@@ -78,6 +80,6 @@ namespace fsc::ast
         }
 
         auto body = visitor.visitAsNode(children.at(1));
-        elseNode = ccl::makeShared<If>(IfType::ELSE, nullptr, body);
+        elseNode = ccl::makeShared<Parenthesized>(ccl::makeShared<If>(IfType::ELSE, nullptr, body));
     }
 }// namespace fsc::ast

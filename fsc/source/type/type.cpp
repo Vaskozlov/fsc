@@ -7,12 +7,12 @@ namespace fsc
     ccl::Map<ccl::Id, std::string> FscType::typenameById{
         {Void::typeId, "void"},   {Int32::typeId, "i32"},  {Int64::typeId, "i64"},
         {UInt32::typeId, "u32"},  {UInt64::typeId, "u64"}, {Float32::typeId, "f32"},
-        {Float64::typeId, "f64"}, {Bool::typeId, "bool"}};
+        {Float64::typeId, "f64"}, {Bool::typeId, "bool"},  {String::typeId, "string"}};
 
     ccl::Map<std::string, ccl::Id> FscType::idByTypename{
         {"void", Void::typeId},   {"i32", Int32::typeId},  {"i64", Int64::typeId},
         {"u32", UInt32::typeId},  {"u64", UInt64::typeId}, {"f32", Float32::typeId},
-        {"f64", Float64::typeId}, {"bool", Bool::typeId}};
+        {"f64", Float64::typeId}, {"bool", Bool::typeId},  {"string", String::typeId}};
 
     ccl::Map<ccl::Id, TypeFlags> FscType::typeFlags{
         {Void::typeId, {.isTriviallyCopyable = false}},
@@ -22,7 +22,8 @@ namespace fsc
         {UInt64::typeId, {.isTriviallyCopyable = true}},
         {Float32::typeId, {.isTriviallyCopyable = true}},
         {Float64::typeId, {.isTriviallyCopyable = true}},
-        {Bool::typeId, {.isTriviallyCopyable = true}}};
+        {Bool::typeId, {.isTriviallyCopyable = true}},
+        {String::typeId, {.isTriviallyCopyable = false}}};
 
     ccl::Map<ccl::Id, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>
         FscType::typeMemberVariables;
@@ -53,7 +54,8 @@ namespace fsc
         throw std::invalid_argument(fmt::format("Type {} not found", type_name));
     }
 
-    auto FscType::registerNewType(const std::string &name, const TypeFlags flags) noexcept(false) -> void
+    auto FscType::registerNewType(const std::string &name, const TypeFlags flags) noexcept(false)
+        -> void
     {
         static std::mutex type_registration_mutex;
 

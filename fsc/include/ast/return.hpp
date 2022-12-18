@@ -5,7 +5,7 @@
 
 namespace fsc::ast
 {
-    class Return : public NodeWrapper<NodeType::RETURN>
+    class Return : public NodeWrapper<NodeType::RETURN, SemicolonNeed::NEED>
     {
         NodePtr value;
 

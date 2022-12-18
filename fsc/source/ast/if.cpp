@@ -1,4 +1,5 @@
 #include "ast/if.hpp"
+#include <ast/basic_node.hpp>
 
 namespace fsc::ast
 {
@@ -12,7 +13,7 @@ namespace fsc::ast
 
     auto If::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output << IfTypeToStr.at(getIfType()) << " ("sv << *condition << ')';
+        output << IfTypeToStr.at(getIfType()) << *condition;
         output << gen::endl << *body;
     }
 

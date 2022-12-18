@@ -15,7 +15,7 @@ namespace fsc::ast
         bool compileTimeAvailable = false;
     };
 
-    class Variable : public NodeWrapper<NodeType::VARIABLE>
+    class Variable : public NodeWrapper<NodeType::VARIABLE, SemicolonNeed::NEED>
     {
         std::string name{};
         ccl::Id typeId{};

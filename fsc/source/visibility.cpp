@@ -7,8 +7,6 @@ namespace fsc
 
     auto genVisibility(Visibility visibility, gen::CodeGenerator &output) -> void
     {
-        output << gen::endl;
-
         switch (visibility) {
         case Visibility::PUBLIC:
             output << "public:"sv;

@@ -6,7 +6,7 @@
 
 namespace fsc::ast
 {
-    class FunctionCall : public NodeWrapper<NodeType::FUNCTION_CALL>
+    class FunctionCall : public NodeWrapper<NodeType::FUNCTION_CALL, SemicolonNeed::NEED>
     {
         ccl::SmallVector<NodePtr> arguments;
         ccl::SharedPtr<Function> function;

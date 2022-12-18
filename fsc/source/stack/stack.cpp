@@ -1,6 +1,7 @@
 #include "stack/stack.hpp"
 #include <ast/variable.hpp>
 #include <fmt/format.h>
+#include <ranges>
 
 namespace fsc
 {
@@ -16,7 +17,7 @@ namespace fsc
 
     auto Stack::get(const std::string &name) const -> ast::Variable
     {
-        for (const auto &scope : scopes) {
+        for (const auto &scope : scopes | std::views::reverse) {
             if (scope.has(name)) {
                 return *scope.get(name);
             }

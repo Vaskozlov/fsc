@@ -5,7 +5,7 @@
 
 namespace fsc::ast
 {
-    class Body : public NodeWrapper<NodeType::BODY>
+    class Body : public NodeWrapper<NodeType::BODY, SemicolonNeed::DO_NOT_NEED>
     {
         using iterator = ccl::Vector<NodePtr>::iterator;
         using const_iterator = ccl::Vector<NodePtr>::const_iterator;

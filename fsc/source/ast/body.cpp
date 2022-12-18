@@ -1,4 +1,5 @@
 #include "ast/body.hpp"
+#include <ast/basic_node.hpp>
 #include <codegen.hpp>
 #include <ranges>
 
@@ -25,7 +26,15 @@ namespace fsc::ast
         output << gen::curly_opening << gen::push_scope;
 
         for (const auto &node : nodes) {
-            output << gen::endl << *node << ';';
+            if (node->semicolonRequired() == SemicolonNeed::DO_NOT_NEED) {
+                output << gen::endl;
+            }
+
+            output << gen::endl << *node;
+
+            if (node->semicolonRequired() == SemicolonNeed::NEED) {
+                output << ';';
+            }
         }
 
         output << gen::pop_scope << gen::endl << gen::curly_closing;

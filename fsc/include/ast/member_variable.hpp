@@ -5,7 +5,7 @@
 
 namespace fsc::ast
 {
-    class MemberVariable : public NodeWrapper<NodeType::MEMBER_VARIABLE>
+    class MemberVariable : public NodeWrapper<NodeType::MEMBER_VARIABLE, SemicolonNeed::NEED>
     {
     private:
         NodePtr node;

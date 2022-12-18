@@ -14,7 +14,7 @@ namespace fsc
         ast::Program program;
 
     public:
-        auto codeGen() -> void;
+        auto codeGen() -> std::string;
 
         auto visitAsNode(auto *node) -> ccl::SharedPtr<ast::Node>
         {

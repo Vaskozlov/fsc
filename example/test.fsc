@@ -1,11 +1,15 @@
-func main(in i32 lhs = 0) -> i32
+class S
 {
-    if 1 == 0
+    public func __init__(in i32 some_value)
     {
-
+        if (some_value == 0)
+        {
+            print("S{{{}}}\n", some_value);
+        }
     }
-    elif 0 == 1
-    {
+}
 
-    }
+func main() -> i32
+{
+    var a = S(0);
 }

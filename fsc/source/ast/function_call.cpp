@@ -1,4 +1,5 @@
 #include "ast/function_call.hpp"
+#include <ast/basic_node.hpp>
 #include <ranges>
 
 using namespace std::string_view_literals;
