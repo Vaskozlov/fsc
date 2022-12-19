@@ -17,7 +17,7 @@ namespace fsc::ast
         output << *value;
     }
 
-    auto Value::getValueType() const noexcept -> ccl::Id
+    auto Value::getValueType() const -> ccl::Id
     {
         return value->getId();
     }

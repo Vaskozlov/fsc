@@ -23,6 +23,9 @@ LAYOUT  : [ \t] -> skip;
 
 program: (stmt)*;
 
+type:   IDENTIFIER
+    |   IDENTIFIER '<' IDENTIFIER '>';
+
 stmt:   function
     |   expr stmt_end
     |   class stmt_end
@@ -68,7 +71,11 @@ variable_prefix: 'let' | 'var';
 auto_variable_definition: variable_attributes variable_prefix IDENTIFIER '=' expr;
 variable_definition: variable_attributes variable_prefix IDENTIFIER ':' IDENTIFIER (('=' '\n'*) expr)?;
 
-expr:   expr '.' IDENTIFIER
+member_variable_access:  '.' IDENTIFIER;
+method_call:  '.' function_call;
+
+expr:   expr member_variable_access
+    |   expr method_call
     |   expr AS IDENTIFIER
     |   expr MUL expr
     |   expr DIV expr

@@ -18,7 +18,7 @@ namespace fsc::ast
       , operationType{std::move(operation_type)}
     {
         CCL_ASSERT(this->getNodeType() == NodeType::BINARY_OPERATOR);
-        getValueType();
+        [[maybe_unused]] auto &&_ = getValueType();
     }
 
     auto BinaryOperation::getValueType() const -> ccl::Id

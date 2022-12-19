@@ -16,12 +16,23 @@ namespace fsc::ast
         CCL_ASSERT(this->getNodeType() == NodeType::FUNCTION_CALL);
     }
 
-    auto FunctionCall::getValueType() const noexcept -> ccl::Id
+    auto FunctionCall::defaultFunctionCallPrint(const std::string &prefix, bool is_left) const
+        -> void
     {
-        return function->getReturnType();
+        const auto expanded_prefix = expandPrefix(prefix, false);
+        fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), function->getName());
+
+        for (auto &arg : arguments | ccl::views::dropBack(arguments)) {
+            arg->print(expanded_prefix, true);
+        }
+
+        if (!arguments.empty()) {
+            auto &node = arguments.back();
+            node->print(expanded_prefix, false);
+        }
     }
 
-    auto FunctionCall::codeGen(gen::CodeGenerator &output) const -> void
+    auto FunctionCall::defaultFunctionCallCodeGen(gen::CodeGenerator &output) const -> void
     {
         output << function->getName() << '(';
 
@@ -36,18 +47,18 @@ namespace fsc::ast
         output << ')';
     }
 
+    auto FunctionCall::getValueType() const -> ccl::Id
+    {
+        return function->getReturnType();
+    }
+
+    auto FunctionCall::codeGen(gen::CodeGenerator &output) const -> void
+    {
+        defaultFunctionCallCodeGen(output);
+    }
+
     auto FunctionCall::print(const std::string &prefix, bool is_left) const -> void
     {
-        const auto expanded_prefix = expandPrefix(prefix, false);
-        fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), function->getName());
-
-        for (auto &arg : arguments | ccl::views::dropBack(arguments)) {
-            arg->print(expanded_prefix, true);
-        }
-
-        if (!arguments.empty()) {
-            auto &node = arguments.back();
-            node->print(expanded_prefix, false);
-        }
+        defaultFunctionCallPrint(prefix, is_left);
     }
 }// namespace fsc::ast

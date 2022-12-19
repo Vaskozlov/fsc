@@ -17,11 +17,15 @@ namespace fsc::ast
                 function_to_call,
             const ccl::SmallVector<NodePtr> &function_arguments);
 
-        auto print(const std::string &prefix, bool is_left) const -> void final;
+        auto print(const std::string &prefix, bool is_left) const -> void override;
 
-        auto codeGen(gen::CodeGenerator &output) const -> void final;
+        auto codeGen(gen::CodeGenerator &output) const -> void override;
 
-        [[nodiscard]] auto getValueType() const noexcept -> ccl::Id final;
+        [[nodiscard]] auto getValueType() const -> ccl::Id final;
+
+    protected:
+        auto defaultFunctionCallPrint(const std::string &prefix, bool is_left) const -> void;
+        auto defaultFunctionCallCodeGen(gen::CodeGenerator &output) const -> void;
     };
 }// namespace fsc::ast
 

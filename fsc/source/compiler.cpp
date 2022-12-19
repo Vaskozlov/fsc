@@ -74,6 +74,6 @@ namespace fsc
 
         writeToFile(".fsc-tmp.cpp", code);
         compileUsingSystemCommand(".fsc-tmp.cpp", "fsc-compiled", true);
-        std::filesystem::remove(".fsc-tmp.cpp");
+        deleteFile(".fsc-tmp.cpp");
     }
 }// namespace fsc

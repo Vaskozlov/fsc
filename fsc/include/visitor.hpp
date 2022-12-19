@@ -4,7 +4,9 @@
 #include "ast/program.hpp"
 #include "FscBaseVisitor.h"
 #include "function/argument.hpp"
+#include <codegen.hpp>
 #include <FscParser.h>
+#include <tuple>
 
 namespace fsc
 {
@@ -52,10 +54,14 @@ namespace fsc
         auto constructVariableDefinition(FscParser::Variable_definitionContext *ctx)
             -> ast::NodePtr;
 
+        auto constructMethodCall(FscParser::ExprContext *ctx) -> ast::NodePtr;
+
         auto constructMemberVariableAccess(FscParser::ExprContext *ctx) -> ast::NodePtr;
 
         auto constructAutoVariableDefinition(FscParser::Auto_variable_definitionContext *ctx)
             -> ast::NodePtr;
+
+        auto constructProgram(FscParser::ProgramContext *ctx) -> void;
 
         auto constructClass(FscParser::ClassContext *ctx) -> ast::NodePtr;
 
@@ -66,13 +72,26 @@ namespace fsc
 
         auto constructReturn(FscParser::StmtContext *ctx) -> ast::NodePtr;
 
+        auto constructIf(FscParser::If_stmtContext *ctx) -> ast::NodePtr;
+
+        auto constructStatement(FscParser::StmtContext *ctx) -> std::any;
+
+        auto constructParenthesized(FscParser::ExprContext *expr_context) -> ast::NodePtr;
+
         auto constructBinaryExpression(FscParser::ExprContext *ctx) -> ast::NodePtr;
+
+        auto constructFunctionCall(FscParser::Function_callContext *ctx) -> ast::NodePtr;
+
+        auto constructFunction(FscParser::FunctionContext * ctx) -> ast::NodePtr;
 
         auto processFunctionArguments(FscParser::Function_parameterContext *ctx)
             -> ccl::Pair<ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>;
 
         auto constructFunctionArgument(FscParser::Function_argumentContext *argument_context)
             -> ccl::Pair<Argument, ast::NodePtr>;
+
+        auto parseFunction(FscParser::Function_callContext *ctx)
+            -> std::tuple<std::string, ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>;
     };
 }// namespace fsc
 

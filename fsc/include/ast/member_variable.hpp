@@ -18,6 +18,8 @@ namespace fsc::ast
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
+        [[nodiscard]] auto getValueType() const -> ccl::Id final;
+
     private:
         auto canAccessMember() const noexcept -> bool;
         auto getTypeOfNode() const noexcept -> ccl::Optional<ccl::Id>;

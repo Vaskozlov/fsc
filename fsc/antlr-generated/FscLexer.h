@@ -16,9 +16,10 @@ public:
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
-    T__26 = 27, AS = 28, ADD = 29, SUB = 30, MUL = 31, DIV = 32, MOD = 33, 
-    DOT = 34, EQUALITY = 35, INEQUALITY = 36, LOGICAL_AND = 37, LOGICAL_OR = 38, 
-    INT = 39, FLOAT = 40, CHAR = 41, STRING = 42, NAME = 43, LAYOUT = 44
+    T__26 = 27, T__27 = 28, T__28 = 29, AS = 30, ADD = 31, SUB = 32, MUL = 33, 
+    DIV = 34, MOD = 35, DOT = 36, EQUALITY = 37, INEQUALITY = 38, LOGICAL_AND = 39, 
+    LOGICAL_OR = 40, INT = 41, FLOAT = 42, CHAR = 43, STRING = 44, IDENTIFIER = 45, 
+    LAYOUT = 46
   };
 
   explicit FscLexer(antlr4::CharStream *input);

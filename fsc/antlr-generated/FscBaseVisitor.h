@@ -19,7 +19,19 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitType(FscParser::TypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitStmt(FscParser::StmtContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitBody(FscParser::BodyContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitClass(FscParser::ClassContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -47,14 +59,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitNew_line(FscParser::New_lineContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitStmt_end(FscParser::Stmt_endContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitFunction(FscParser::FunctionContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -71,11 +75,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitArgument_definition(FscParser::Argument_definitionContext *ctx) override {
+  virtual std::any visitArgument_passing_type(FscParser::Argument_passing_typeContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitArgument_passing_type(FscParser::Argument_passing_typeContext *ctx) override {
+  virtual std::any visitArgument_definition(FscParser::Argument_definitionContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -88,10 +92,6 @@ public:
   }
 
   virtual std::any visitArgument(FscParser::ArgumentContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitClass(FscParser::ClassContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -111,7 +111,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitVariable_definition(FscParser::Variable_definitionContext *ctx) override {
+  virtual std::any visitVariable_prefix(FscParser::Variable_prefixContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -119,15 +119,27 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitVariable_prefix(FscParser::Variable_prefixContext *ctx) override {
+  virtual std::any visitVariable_definition(FscParser::Variable_definitionContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitBody(FscParser::BodyContext *ctx) override {
+  virtual std::any visitMember_variable_access(FscParser::Member_variable_accessContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMethod_call(FscParser::Method_callContext *ctx) override {
     return visitChildren(ctx);
   }
 
   virtual std::any visitExpr(FscParser::ExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitNew_line(FscParser::New_lineContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitStmt_end(FscParser::Stmt_endContext *ctx) override {
     return visitChildren(ctx);
   }
 

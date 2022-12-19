@@ -22,6 +22,7 @@ namespace fsc::ast
         VARIABLE,
         RETURN,
         FUNCTION,
+        METHOD_CALL,
         FUNCTION_CALL,
         BODY,
         BINARY_OPERATOR,

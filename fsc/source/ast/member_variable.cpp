@@ -29,6 +29,11 @@ namespace fsc::ast
         fmt::print("{}{}\n", expandPrefix(prefix, is_left), name);
     }
 
+    auto MemberVariable::getValueType() const -> ccl::Id
+    {
+        return FscType::getMemberVariable(node->getValueType(), name)->getValueType();
+    }
+
     auto MemberVariable::canAccessMember() const noexcept -> bool
     {
         auto id = getTypeOfNode();

@@ -82,9 +82,12 @@ namespace fsc
 
         static auto registerNewType(const std::string &name, const TypeFlags flags) noexcept(false)
             -> void;
+
         static auto addMemberVariable(ccl::Id type_id, ccl::SharedPtr<ast::Variable> variable)
             -> void;
+
         static auto hasMemberVariables(ccl::Id type_id, const std::string &name) -> bool;
+
         static auto getMemberVariable(ccl::Id type_id, const std::string &name)
             -> ccl::SharedPtr<ast::Variable>;
     };
