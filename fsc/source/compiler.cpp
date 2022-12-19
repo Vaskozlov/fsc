@@ -29,7 +29,7 @@ auto print(const std::string &fmt, auto&&... args) -> void
 
 )cpp"s;
 
-auto ClangArguments = R"(-std=c++2b -stdlib=libc++ -DFMT_HEADER_ONLY=1)";
+auto ClangArguments = R"(-std=c++2b -DFMT_HEADER_ONLY=1)";
 
 namespace fsc
 {
