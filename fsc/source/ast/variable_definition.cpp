@@ -54,7 +54,7 @@ namespace fsc::ast
             genVisibility(getVisibility(), output);
         }
 
-        output << type_name << ' ' << getName() << " = "sv;
+        output << type_name << ' ' << getName() << " = ";
 
         if (initializer != nullptr) {
             output << *initializer;
@@ -80,7 +80,7 @@ namespace fsc::ast
         auto attributes = ccl::as<FscParser::Variable_attributesContext *>(ctx->children.at(0));
         auto declaration_type = ctx->children.at(1)->getText();
 
-        if (declaration_type == "let"sv) {
+        if (declaration_type == "let") {
             flags.constant = true;
         }
 

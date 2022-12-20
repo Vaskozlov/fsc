@@ -37,7 +37,7 @@ namespace fsc::ast
 
     auto BinaryOperation::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output << *lhs << " "sv << operationType << " "sv << *rhs;
+        output << *lhs << " " << operationType << " " << *rhs;
     }
 
     auto BinaryOperation::print(const std::string &prefix, bool is_left) const -> void

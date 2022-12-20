@@ -1,8 +1,7 @@
 #include "ast/method_call.hpp"
-#include <ast/basic_node.hpp>
-#include <ast/function_call.hpp>
+#include "ast/function_call.hpp"
+#include "type/type.hpp"
 #include <cmath>
-#include <type/type.hpp>
 
 namespace fsc::ast
 {
@@ -25,7 +24,21 @@ namespace fsc::ast
 
     auto MethodCall::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output << '(' << *expression << ")."sv;
+        switch (expression->getNodeType()) {
+        case NodeType::VALUE:
+        case NodeType::VARIABLE:
+        case NodeType::MEMBER_VARIABLE:
+        case NodeType::METHOD_CALL:
+        case NodeType::FUNCTION_CALL:
+        case NodeType::VARIABLE_DEFINITION:
+            output << *expression << '.';
+            break;
+
+        default:
+            output << '(' << *expression << ").";
+            break;
+        }
+
         defaultFunctionCallCodeGen(output);
     }
 };// namespace fsc::ast

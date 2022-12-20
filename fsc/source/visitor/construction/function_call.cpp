@@ -2,7 +2,7 @@
 #include "ast/method_call.hpp"
 #include "function/functions_holder.hpp"
 #include "visitor.hpp"
-#include <FscParser.h>
+#include "FscParser.h"
 
 namespace fsc
 {

@@ -23,7 +23,7 @@ namespace fsc::ast
 
     auto Class::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output << "class "sv << name;
+        output << "class " << name;
         defaultBodyCodegen(output);
         output << ';';
     }

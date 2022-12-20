@@ -6,6 +6,7 @@
 #include "converters/string.hpp"
 #include "stack/stack.hpp"
 #include "visitor.hpp"
+#include <ccl/flatmap.hpp>
 
 namespace fsc
 {
@@ -13,10 +14,12 @@ namespace fsc
 
     static auto isBinaryOperator(FscParser::ExprContext *const ctx) -> bool
     {
-        return ctx->ADD() != nullptr || ctx->SUB() != nullptr || ctx->MUL() != nullptr ||
-               ctx->DIV() != nullptr || ctx->MUL() != nullptr || ctx->EQUALITY() != nullptr ||
-               ctx->INEQUALITY() != nullptr || ctx->LOGICAL_AND() != nullptr ||
-               ctx->LOGICAL_OR() != nullptr;
+        static constexpr auto binary_expressions = ccl::StaticFlatmap<std::string_view, bool, 9>{
+            {"+", true},  {"-", true},  {"*", true},  {"/", true},  {"%", true},
+            {"==", true}, {"!=", true}, {"||", true}, {"&&", true},
+        };
+
+        return binary_expressions.contains(ctx->getText());
     }
 
     auto Visitor::constructParenthesized(FscParser::ExprContext *expr_context) -> ast::NodePtr

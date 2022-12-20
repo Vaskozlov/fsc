@@ -1,6 +1,7 @@
 #ifndef FSC_CODEGEN_HPP
 #define FSC_CODEGEN_HPP
 
+#include <ccl/string_view.hpp>
 #include <ostream>
 #include <string>
 #include <type_traits>
@@ -50,6 +51,12 @@ namespace fsc::gen
         auto operator<<(const std::string &str) -> CodeGenerator &;
         auto operator<<(PushScope /* unused */) -> CodeGenerator &;
         auto operator<<(PopScope /* unused */) -> CodeGenerator &;
+
+        template<size_t N>
+        auto operator<<(const char (&character_array)[N]) -> CodeGenerator &
+        {
+            return *this << std::string_view{character_array};
+        }
 
     private:
         auto newLine() -> void;

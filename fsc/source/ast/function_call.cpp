@@ -37,7 +37,7 @@ namespace fsc::ast
         output << function->getName() << '(';
 
         for (const auto &argument : arguments | ccl::views::dropBack(arguments)) {
-            output << *argument << ", "sv;
+            output << *argument << ", ";
         }
 
         if (!arguments.empty()) {

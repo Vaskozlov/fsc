@@ -1,7 +1,6 @@
 #include "ast/member_variable.hpp"
-#include "ccl/core/types.hpp"
+#include <ccl/core/types.hpp>
 #include "type/type.hpp"
-#include <ast/basic_node.hpp>
 
 namespace fsc::ast
 {
@@ -20,7 +19,20 @@ namespace fsc::ast
 
     auto MemberVariable::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output << '(' << *node << ")."sv << name;
+        switch (node->getNodeType()) {
+        case NodeType::VALUE:
+        case NodeType::VARIABLE:
+        case NodeType::MEMBER_VARIABLE:
+        case NodeType::METHOD_CALL:
+        case NodeType::FUNCTION_CALL:
+        case NodeType::VARIABLE_DEFINITION:
+            output << *node << '.' << name;
+            break;
+
+        default:
+            output << '(' << *node << ")." << name;
+            break;
+        }
     }
 
     auto MemberVariable::print(const std::string &prefix, bool is_left) const -> void

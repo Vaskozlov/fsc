@@ -122,7 +122,7 @@ namespace fsc::ast
     {
         for (const auto &arg : arguments | ccl::views::dropBack(arguments)) {
             argumentToString(output, arg);
-            output << ", "sv;
+            output << ", ";
         }
 
         if (!arguments.empty()) {
@@ -149,7 +149,7 @@ namespace fsc::ast
             need_to_be_passed_by_reference ? "&" : "", arg_name);
 
         if (defaultArguments.contains(arg_name)) {
-            output << " = "sv << *defaultArguments.at(arg_name);
+            output << " = " << *defaultArguments.at(arg_name);
         }
     }
 
@@ -157,7 +157,7 @@ namespace fsc::ast
     {
         auto length = nodes.size();
 
-        if (nodes.at(length - 4)->getText() == "->"sv) {
+        if (nodes.at(length - 4)->getText() == "->") {
             const auto type_name = nodes[length - 3]->getText();
 
             FscType::checkTypeExistence(type_name);

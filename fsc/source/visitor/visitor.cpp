@@ -1,7 +1,5 @@
 #include "visitor.hpp"
 #include "ast/body.hpp"
-#include "ast/function.hpp"
-#include "stack/stack.hpp"
 #include <ranges>
 
 using namespace std::string_view_literals;

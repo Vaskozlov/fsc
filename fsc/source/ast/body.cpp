@@ -1,6 +1,5 @@
 #include "ast/body.hpp"
-#include <ast/basic_node.hpp>
-#include <codegen.hpp>
+#include "codegen.hpp"
 #include <ranges>
 
 namespace fsc::ast

@@ -1,5 +1,4 @@
 #include "ast/return.hpp"
-#include <ast/basic_node.hpp>
 #include <fmt/format.h>
 
 namespace fsc::ast
@@ -14,7 +13,7 @@ namespace fsc::ast
 
     auto Return::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output << "return "sv << *value;
+        output << "return " << *value;
     }
 
     auto Return::getValueType() const -> ccl::Id

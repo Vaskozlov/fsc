@@ -1,7 +1,6 @@
+#include "function/argument.hpp"
 #include "function/functions_holder.hpp"
-#include "type/builtin_types_impl.hpp"
-#include <function/argument.hpp>
-#include <type/builtin_types.hpp>
+#include "type/builtin_types.hpp"
 
 #define BUILTIN_BINARY_FUNCTION(NAME, RESULT, LHS, RHS)                                            \
     {                                                                                              \
