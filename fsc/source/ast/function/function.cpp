@@ -1,12 +1,12 @@
-#include "ast/function.hpp"
-#include "ccl/core/types.hpp"
+#include "ast/function/function.hpp"
+#include "ast/value/variable.hpp"
+#include "function/argument.hpp"
 #include "stack/stack.hpp"
-#include <ast/basic_node.hpp>
-#include <ast/variable.hpp>
-#include <function/argument.hpp>
+#include "type/builtin_types.hpp"
+#include "visibility.hpp"
+#include <ccl/ccl.hpp>
 #include <ranges>
 #include <type/type.hpp>
-#include <visibility.hpp>
 
 using namespace std::string_view_literals;
 
@@ -28,14 +28,18 @@ namespace fsc::ast
 
         processMagicMethod();
 
-        ProgramStack.pushScope(ScopeType::HARD);
+        auto function_scope = FunctionScope{getReturnType(), visitor};
+        auto stack_scope = StackScope{ScopeType::HARD, ProgramStack};
 
         for (const auto &arg : arguments) {
             ProgramStack.addVariable(ccl::makeShared<ast::Variable>(arg.toVariable()));
         }
 
         function = visitor.visitAsNode(children.back());
-        ProgramStack.popScope();
+
+        if (returnType == Auto::typeId) {
+            returnType = visitor.getCurrentFunctionReturnType();
+        }
     }
 
     Function::Function(
@@ -96,7 +100,7 @@ namespace fsc::ast
         magicType = MagicFunctionType::INIT;
         name = FscType::getTypeName(classId);
 
-        if (returnType != 0) {
+        if (returnType != Auto::typeId) {
             throw std::runtime_error("You are not allowed to set return type of __init__ method");
         }
 
@@ -113,9 +117,11 @@ namespace fsc::ast
                 "You are not allowed to set pass any arguments to __del__ method");
         }
 
-        if (returnType != 0) {
+        if (returnType != Auto::typeId) {
             throw std::runtime_error("You are not allowed to set return type of __del__ method");
         }
+
+        returnType = 0;
     }
 
     auto Function::genArguments(gen::CodeGenerator &output) const -> void
@@ -162,6 +168,8 @@ namespace fsc::ast
 
             FscType::checkTypeExistence(type_name);
             returnType = FscType::getTypeId(type_name);
+        } else {
+            returnType = Auto::typeId;
         }
     }
 

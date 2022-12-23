@@ -1,4 +1,4 @@
-#include "ast/class.hpp"
+#include "ast/container/class.hpp"
 #include "stack/stack.hpp"
 
 namespace fsc
@@ -18,22 +18,18 @@ namespace fsc
 
         const auto &children = ctx->children;
         auto body = ccl::makeShared<BodyT>(std::forward<Ts>(args)...);
+        auto id_for_class_scope = ccl::as<size_t>(0);
 
         if constexpr (BodyT::classof() == ast::NodeType::CLASS) {
-            ProgramStack.pushClassScope(FscType::getTypeId(body->getName()));
+            id_for_class_scope = FscType::getTypeId(body->getName());
         }
 
-        ProgramStack.pushScope(ScopeType::SOFT);
+        auto class_scope = ClassScope{id_for_class_scope, ProgramStack};
+        auto stack_scope = StackScope{ScopeType::SOFT, ProgramStack};
 
         for (auto *child : children | std::views::drop(1) | ccl::views::dropBack(ctx->children, 2) |
                                std::views::filter(NewLineFilter)) {
             body->addNode(visitAsNode(child));
-        }
-
-        ProgramStack.popScope();
-
-        if constexpr (BodyT::classof() == ast::NodeType::CLASS) {
-            ProgramStack.popClassScope();
         }
 
         return body;
@@ -44,10 +40,9 @@ namespace fsc
         const auto &children = ctx->children;
         const auto name = children[1]->getText();
 
-        ProgramStack.pushScope(ScopeType::HARD);
+        auto scope = StackScope{ScopeType::HARD, ProgramStack};
         auto body =
             constructBody<ast::Class>(ccl::as<FscParser::BodyContext *>(children.back()), name);
-        ProgramStack.popScope();
 
         return body;
     }

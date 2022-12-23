@@ -1,8 +1,7 @@
 #ifndef FSC_PROGRAM_HPP
 #define FSC_PROGRAM_HPP
 
-#include "ast/body.hpp"
-#include <ast/basic_node.hpp>
+#include "ast/container/body.hpp"
 
 namespace fsc::ast
 {

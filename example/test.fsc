@@ -12,14 +12,13 @@ class S
         print("S has been deleted")
     }
 
-    public def test() -> i32
+    public def test()
     {
         return 42
     }
 }
 
-
-def main() -> i32
+def main()
 {
     var a : S = S()
     var s = a.signature

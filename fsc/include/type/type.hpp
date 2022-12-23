@@ -1,7 +1,7 @@
 #ifndef FSC_TYPE_HPP
 #define FSC_TYPE_HPP
 
-#include "ast/variable.hpp"
+#include "ast/value/variable.hpp"
 #include "codegen.hpp"
 #include "visibility.hpp"
 #include <ccl/ccl.hpp>

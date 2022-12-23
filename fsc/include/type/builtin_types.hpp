@@ -49,6 +49,11 @@ namespace fsc
     {
     };
 
+    struct Auto
+    {
+        inline const static ccl::Id typeId = TypeFactory();
+    };
+
     FSC_WRAP_TYPE(Bool, bool);
     FSC_WRAP_TYPE(Int32, ccl::i32);
     FSC_WRAP_TYPE(UInt32, ccl::u32);

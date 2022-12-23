@@ -1,7 +1,7 @@
 #ifndef FSC_ARGUMENT_HPP
 #define FSC_ARGUMENT_HPP
 
-#include "ast/variable.hpp"
+#include "ast/value/variable.hpp"
 #include "type/type.hpp"
 #include <ccl/ccl.hpp>
 #include <ccl/flatmap.hpp>

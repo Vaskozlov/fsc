@@ -1,8 +1,8 @@
-#include "ast/function_call.hpp"
-#include "ast/method_call.hpp"
+#include "ast/function/function_call.hpp"
+#include "ast/function/method_call.hpp"
+#include "FscParser.h"
 #include "function/functions_holder.hpp"
 #include "visitor.hpp"
-#include "FscParser.h"
 
 namespace fsc
 {

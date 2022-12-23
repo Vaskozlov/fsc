@@ -1,5 +1,5 @@
 #include "visitor.hpp"
-#include "ast/body.hpp"
+#include "ast/container/body.hpp"
 #include <ranges>
 
 using namespace std::string_view_literals;
@@ -8,7 +8,6 @@ namespace fsc
 {
     extern template auto Visitor::constructBody<ast::Body>(FscParser::BodyContext *ctx)
         -> ast::NodePtr;
-
 
     auto Visitor::visitProgram(FscParser::ProgramContext *ctx) -> std::any
     {
@@ -64,5 +63,15 @@ namespace fsc
         gen::CodeGenerator generator;
         generator << program;
         return generator.getGenerated();
+    }
+
+    auto FunctionScope::updateReturnType(ccl::Id new_type) -> void
+    {
+        if (scopeSize != visitor.functionReturnStack.size()) {
+            throw std::logic_error{"You are not allowed to modify non-top function scope"};
+        }
+
+        returnType = new_type;
+        visitor.updateFunctionReturnType(new_type);
     }
 }// namespace fsc

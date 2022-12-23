@@ -1,9 +1,9 @@
 #ifndef FSC_CLASS_HPP
 #define FSC_CLASS_HPP
 
-#include "ast/body.hpp"
-#include "ast/function.hpp"
-#include "ast/variable_definition.hpp"
+#include "ast/container/body.hpp"
+#include "ast/function/function.hpp"
+#include "ast/value/variable_definition.hpp"
 
 namespace fsc::ast
 {

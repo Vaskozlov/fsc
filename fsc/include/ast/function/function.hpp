@@ -2,10 +2,10 @@
 #define FSC_AST_FUNCTION_HPP
 
 #include "ast/basic_node.hpp"
+#include "function/argument.hpp"
 #include "visibility.hpp"
 #include "visitor.hpp"
 #include <ccl/ccl.hpp>
-#include <function/argument.hpp>
 
 namespace fsc::ast
 {

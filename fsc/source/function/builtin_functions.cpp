@@ -47,5 +47,10 @@ namespace fsc::func
          Void::typeId,
          {Argument{"fmt", String::typeId, ArgumentCategory::IN}},
          CallRequirements::EXPLICIT,
+         true},
+        {"format",
+         Void::typeId,
+         {Argument{"fmt", String::typeId, ArgumentCategory::IN}},
+         CallRequirements::EXPLICIT,
          true}};
 }

@@ -1,8 +1,7 @@
-#include "ast/class.hpp"
-#include "ast/function.hpp"
-#include "ast/variable_definition.hpp"
+#include "ast/container/class.hpp"
+#include "ast/function/function.hpp"
+#include "ast/value/variable_definition.hpp"
 #include "stack/stack.hpp"
-#include <ast/basic_node.hpp>
 #include <ranges>
 
 namespace fsc::ast

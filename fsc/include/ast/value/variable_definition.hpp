@@ -1,7 +1,7 @@
 #ifndef FSC_VARIABLE_DEFINITION_HPP
 #define FSC_VARIABLE_DEFINITION_HPP
 
-#include "ast/variable.hpp"
+#include "ast/value/variable.hpp"
 #include "visibility.hpp"
 #include "visitor.hpp"
 

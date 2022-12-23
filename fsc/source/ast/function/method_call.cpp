@@ -1,5 +1,5 @@
-#include "ast/method_call.hpp"
-#include "ast/function_call.hpp"
+#include "ast/function/method_call.hpp"
+#include "ast/function/function_call.hpp"
 #include "type/type.hpp"
 #include <cmath>
 

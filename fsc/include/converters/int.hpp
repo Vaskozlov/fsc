@@ -1,7 +1,7 @@
 #ifndef FSC_INT_HPP
 #define FSC_INT_HPP
 
-#include "ast/value.hpp"
+#include "ast/value/value.hpp"
 #include "type/builtin_types_impl.hpp"
 
 namespace fsc::converter

@@ -1,11 +1,12 @@
 #ifndef FSC_VISITOR_HPP
 #define FSC_VISITOR_HPP
 
-#include "ast/program.hpp"
+#include "ast/container/program.hpp"
 #include "FscBaseVisitor.h"
 #include "function/argument.hpp"
 #include <codegen.hpp>
 #include <FscParser.h>
+#include <stdexcept>
 #include <tuple>
 
 namespace fsc
@@ -13,12 +14,25 @@ namespace fsc
     class Visitor : public FscBaseVisitor
     {
     private:
+        friend class FunctionScope;
+
         ast::Program program;
+        ccl::Vector<ccl::Id> functionReturnStack;
 
     public:
         auto codeGen() -> std::string;
 
-        auto visitAsNode(auto *node) -> ccl::SharedPtr<ast::Node>
+        [[nodiscard]] auto getCurrentFunctionReturnType() const -> ccl::Id
+        {
+            return functionReturnStack.back();
+        }
+
+        auto updateFunctionReturnType(ccl::Id new_type) -> void
+        {
+            functionReturnStack.back() = new_type;
+        }
+
+        [[nodiscard]] auto visitAsNode(auto *node) -> ccl::SharedPtr<ast::Node>
         {
             return castToNode(visit(node));
         }
@@ -28,6 +42,16 @@ namespace fsc
         static auto castToNode(T &&to_cast) -> ast::NodePtr
         {
             return std::any_cast<ast::NodePtr>(to_cast);
+        }
+
+        auto pushFunctionScope(ccl::Id return_type) -> void
+        {
+            functionReturnStack.emplace_back(return_type);
+        }
+
+        auto popFunctionScope() -> void
+        {
+            functionReturnStack.pop_back();
         }
 
         auto visitProgram(FscParser::ProgramContext *ctx) -> std::any final;
@@ -82,7 +106,7 @@ namespace fsc
 
         auto constructFunctionCall(FscParser::Function_callContext *ctx) -> ast::NodePtr;
 
-        auto constructFunction(FscParser::FunctionContext * ctx) -> ast::NodePtr;
+        auto constructFunction(FscParser::FunctionContext *ctx) -> ast::NodePtr;
 
         auto processFunctionArguments(FscParser::Function_parameterContext *ctx)
             -> ccl::Pair<ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>;
@@ -93,6 +117,36 @@ namespace fsc
         auto parseFunction(FscParser::Function_callContext *ctx)
             -> std::tuple<std::string, ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>;
     };
+
+    class FunctionScope
+    {
+    private:
+        Visitor &visitor;
+        ccl::Id scopeSize{};
+        ccl::Id returnType{};
+
+    public:
+        explicit FunctionScope(ccl::Id return_type, Visitor &t_visitor)
+          : visitor{t_visitor}
+          , scopeSize{visitor.functionReturnStack.size() + 1}
+          , returnType{return_type}
+        {
+            visitor.pushFunctionScope(return_type);
+        }
+
+        ~FunctionScope()
+        {
+            visitor.popFunctionScope();
+        }
+
+        [[nodiscard]] auto getReturnType() const noexcept -> ccl::Id
+        {
+            return returnType;
+        }
+
+        auto updateReturnType(ccl::Id new_type) -> void;
+    };
+
 }// namespace fsc
 
 #endif /* FSC_VISITOR_HPP */

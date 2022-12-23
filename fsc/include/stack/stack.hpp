@@ -1,7 +1,7 @@
 #ifndef FSC_STACK_HPP
 #define FSC_STACK_HPP
 
-#include "ast/variable.hpp"
+#include "ast/value/variable.hpp"
 #include "type/type.hpp"
 #include <deque>
 #include <map>
@@ -16,6 +16,10 @@ namespace fsc
 
     class Stack
     {
+    private:
+        friend class StackScope;
+        friend class ClassScope;
+
         using ScopeStorage = ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>;
 
         class Scope
@@ -53,7 +57,6 @@ namespace fsc
         ccl::SmallVector<ccl::Id> classScopes;
         std::deque<Scope> scopes;
 
-    public:
         auto pushScope(ScopeType scope_type) -> void
         {
             scopes.push_front(Scope{scope_type});
@@ -74,6 +77,7 @@ namespace fsc
             classScopes.pop_back();
         }
 
+    public:
         [[nodiscard]] auto getCurrentClassScope() const -> ccl::Id
         {
             if (classScopes.empty()) {
@@ -91,6 +95,48 @@ namespace fsc
 
     private:
         [[nodiscard]] auto isMemberVariable(const std::string &name) const -> bool;
+    };
+
+    class StackScope
+    {
+    private:
+        Stack &scope;
+
+    public:
+        StackScope(ScopeType scope_type, Stack &stack_scope)
+          : scope{stack_scope}
+        {
+            scope.pushScope(scope_type);
+        }
+
+        ~StackScope()
+        {
+            scope.popScope();
+        }
+    };
+
+    class ClassScope
+    {
+    private:
+        Stack &scope;
+        ccl::Id classId;
+
+    public:
+        ClassScope(ccl::Id class_id, Stack &stack_scope)
+          : scope{stack_scope}
+          , classId{class_id}
+        {
+            if (classId != 0) {
+                scope.pushClassScope(class_id);
+            }
+        }
+
+        ~ClassScope()
+        {
+            if (classId != 0) {
+                scope.popClassScope();
+            }
+        }
     };
 
     extern thread_local Stack ProgramStack;

@@ -27,6 +27,11 @@ auto print(const std::string &fmt, auto&&... args) -> void
     fmt::print(fmt::runtime(fmt), std::forward<decltype(args)>(args)...);
 }
 
+auto format(const std::string &fmt, auto&&... args) -> string
+{
+    return fmt::format(fmt::runtime(fmt), std::forward<decltype(args)>(args)...);
+}
+
 )cpp"s;
 
 auto ClangArguments = R"(-std=c++2b -DFMT_HEADER_ONLY=1)";

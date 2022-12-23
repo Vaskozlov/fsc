@@ -1,5 +1,5 @@
 #include "ast/if_stmt.hpp"
-#include "ast/parenthesized.hpp"
+#include "ast/expression/parenthesized.hpp"
 #include <ccl/ccl.hpp>
 
 namespace fsc::ast

@@ -1,7 +1,6 @@
-#include "ast/binary_operator.hpp"
-#include <ast/basic_node.hpp>
-#include <function/argument.hpp>
-#include <function/functions_holder.hpp>
+#include "ast/expression/binary_operator.hpp"
+#include "function/argument.hpp"
+#include "function/functions_holder.hpp"
 #include <ranges>
 #include <utility>
 

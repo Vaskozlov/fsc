@@ -38,7 +38,7 @@ namespace fsc::ast
             return name;
         }
 
-        [[nodiscard]] auto getValueType() const  -> ccl::Id final
+        [[nodiscard]] auto getValueType() const -> ccl::Id final
         {
             return typeId;
         }

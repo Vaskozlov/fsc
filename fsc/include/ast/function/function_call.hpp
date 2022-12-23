@@ -1,8 +1,8 @@
 #ifndef FSC_FUNCTION_CALL_HPP
 #define FSC_FUNCTION_CALL_HPP
 
-#include "ast/function.hpp"
-#include <ccl/core/types.hpp>
+#include "ast/function/function.hpp"
+#include <ccl/ccl.hpp>
 
 namespace fsc::ast
 {

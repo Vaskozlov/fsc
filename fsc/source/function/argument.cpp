@@ -1,5 +1,5 @@
 #include "function/argument.hpp"
-#include "ast/variable.hpp"
+#include "ast/value/variable.hpp"
 
 using namespace fsc::ast;
 

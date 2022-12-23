@@ -2,6 +2,7 @@
 #define FSC_RETURN_HPP
 
 #include "ast/basic_node.hpp"
+#include "visitor.hpp"
 
 namespace fsc::ast
 {
@@ -10,7 +11,7 @@ namespace fsc::ast
         NodePtr value;
 
     public:
-        explicit Return(NodePtr value_to_return);
+        explicit Return(Visitor &visitor, NodePtr value_to_return);
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 

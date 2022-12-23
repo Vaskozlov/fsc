@@ -2,12 +2,13 @@
 #define FSC_METHOD_CALL_HPP
 
 #include "ast/basic_node.hpp"
-#include "ccl/core/types.hpp"
-#include "function_call.hpp"
+#include "ast/function/function_call.hpp"
+#include <ccl/ccl.hpp>
 
 namespace fsc::ast
 {
-    class MethodCall final : public NodeWrapper<NodeType::METHOD_CALL, SemicolonNeed::NEED, FunctionCall>
+    class MethodCall final
+      : public NodeWrapper<NodeType::METHOD_CALL, SemicolonNeed::NEED, FunctionCall>
     {
     private:
         NodePtr expression;

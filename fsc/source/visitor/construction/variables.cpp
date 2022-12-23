@@ -1,5 +1,5 @@
-#include "ast/member_variable.hpp"
-#include "ast/variable_definition.hpp"
+#include "ast/value/member_variable.hpp"
+#include "ast/value/variable_definition.hpp"
 #include "stack/stack.hpp"
 #include "visitor.hpp"
 

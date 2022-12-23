@@ -1,5 +1,4 @@
-#include "ast/variable_definition.hpp"
-#include "ast/variable.hpp"
+#include "ast/value/variable_definition.hpp"
 #include "type/type.hpp"
 #include "visibility.hpp"
 #include "visitor.hpp"

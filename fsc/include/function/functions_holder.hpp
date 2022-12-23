@@ -1,7 +1,7 @@
 #ifndef FSC_FUNCTIONS_HPP
 #define FSC_FUNCTIONS_HPP
 
-#include "ast/function.hpp"
+#include "ast/function/function.hpp"
 #include <ccl/core/types.hpp>
 #include <function/argument.hpp>
 #include <list>
