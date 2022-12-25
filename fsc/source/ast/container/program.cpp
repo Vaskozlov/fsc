@@ -1,4 +1,5 @@
 #include "ast/container/program.hpp"
+#include <ast/basic_node.hpp>
 #include <ranges>
 
 namespace fsc::ast
@@ -11,7 +12,13 @@ namespace fsc::ast
     auto Program::codeGen(gen::CodeGenerator &output) const -> void
     {
         for (const auto &node : *this) {
-            output << *node << gen::endl << gen::endl;
+            output << *node;
+
+            if (node->semicolonRequired() == SemicolonNeed::NEED) {
+                output << ';';
+            }
+
+            output << gen::endl << gen::endl;
         }
     }
 

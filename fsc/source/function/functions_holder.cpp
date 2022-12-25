@@ -1,15 +1,19 @@
 #include "function/functions_holder.hpp"
 #include "ast/function/function.hpp"
+#include "function/argument.hpp"
 #include <algorithm>
 #include <ccl/ccl.hpp>
 #include <fmt/format.h>
+#include <ranges>
 
 namespace fsc::func
 {
-    FunctionsHolder::FunctionsHolder(ccl::InitializerList<ast::Function> functions_)
+    FunctionsHolder::FunctionsHolder(ccl::InitializerList<ccl::Vector<ast::Function>> functions_)
     {
-        for (const auto &function : functions_) {
-            registerFunction(ccl::makeShared<ast::Function>(function));
+        for (const auto &list : functions_) {
+            for (const auto &function : list) {
+                registerFunction(ccl::makeShared<ast::Function>(function));
+            }
         }
     }
 
@@ -63,6 +67,11 @@ namespace fsc::func
         typename FunctionsList::const_iterator
     {
         const auto &functions_with_similar_class_id = functions.at(signature.classId);
+
+        if (!functions_with_similar_class_id.contains(signature.name)) {
+            throwUnableToFindFunction(signature);
+        }
+
         const auto &functions_with_similar_name =
             functions_with_similar_class_id.at(signature.name);
 
@@ -72,8 +81,19 @@ namespace fsc::func
             });
 
         if (function_it == functions_with_similar_name.end()) {
-            throw std::runtime_error(
-                fmt::format("Function with name {} not found", signature.name));
+            if (signature.classId == 0 && signature.name.substr(0, 2) == "__") {
+                ccl::SmallVector<Argument> arguments;
+
+                for (const auto &argument : signature.arguments | std::views::drop(1)) {
+                    arguments.push_back(argument);
+                }
+
+                return findFunction(
+                    Signature{signature.name, arguments, arguments.front().getType()},
+                    call_requirements);
+            }
+
+            throwUnableToFindFunction(signature);
         }
 
         if (call_requirements == CallRequirements::IMPLICIT &&
@@ -83,5 +103,11 @@ namespace fsc::func
         }
 
         return function_it;
+    }
+
+    auto FunctionsHolder::throwUnableToFindFunction(const Signature &signature) noexcept(false)
+        -> void
+    {
+        throw std::runtime_error(fmt::format("Function with name {} not found", signature.name));
     }
 }// namespace fsc::func

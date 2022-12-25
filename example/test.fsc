@@ -1,29 +1,28 @@
 class S
 {
-    public var signature = 0
+    public var someVariable : i32
 
-    public def __init__()
+    public func __init__()
     {
-        print("S has been constructed\n");
+        someVariable = 42
     }
 
-    public def __del__()
+    public func __add__(in S other)
     {
-        print("S has been deleted")
-    }
-
-    public def test()
-    {
-        return 42
+        var tmp = this
+        tmp.someVariable = tmp.someVariable + other.someVariable
+        return tmp
     }
 }
 
-def main()
-{
-    var a : S = S()
-    var s = a.signature
-    var t = a.test()
+var foo = S().someVariable
+let pi = 3.141592653589793F64
 
-    print("{} {}\n", s, t);
+func main()
+{
+    var x = true
+    var s = S()
+
+    print("{}\n", "1013".toI32())
     return 0
 }

@@ -28,8 +28,8 @@ namespace fsc::ast
 
         processMagicMethod();
 
-        auto function_scope = FunctionScope{getReturnType(), visitor};
-        auto stack_scope = StackScope{ScopeType::HARD, ProgramStack};
+        auto function_scope = visitor.acquireFunctionScope(getReturnType());
+        auto stack_scope = ProgramStack.acquireStackScope(ScopeType::HARD);
 
         for (const auto &arg : arguments) {
             ProgramStack.addVariable(ccl::makeShared<ast::Variable>(arg.toVariable()));
@@ -43,13 +43,14 @@ namespace fsc::ast
     }
 
     Function::Function(
-        std::string_view function_name, ccl::Id return_type,
+        ccl::Id class_id, std::string_view function_name, ccl::Id return_type,
         ccl::InitializerList<Argument> function_arguments, CallRequirements call_requirements,
         bool ends_with_parameter_pack)
       : arguments{function_arguments}
       , name{function_name}
       , callRequirements{call_requirements}
       , returnType{return_type}
+      , classId{class_id}
       , endsWithParameterPack{ends_with_parameter_pack}
     {
         CCL_ASSERT(this->getNodeType() == NodeType::FUNCTION);
@@ -73,6 +74,15 @@ namespace fsc::ast
             output << fmt::format("{}", name);
             break;
 
+        case MagicFunctionType::ADD:
+        case MagicFunctionType::SUB:
+        case MagicFunctionType::MUL:
+        case MagicFunctionType::DIV:
+        case MagicFunctionType::MOD:
+            output << fmt::format(
+                "{} operator{}", FscType::getTypeName(returnType), magicToRepr.at(magicType));
+            break;
+
         default:
             output << fmt::format("{} {}", FscType::getTypeName(returnType), name);
             break;
@@ -88,10 +98,20 @@ namespace fsc::ast
 
     auto Function::processMagicMethod() -> void
     {
-        if (name == "__init__" && classId != 0) {
-            processInitMethod();
-        } else if (name == "__del__" && classId != 0) {
-            processDelMethod();
+        if (classId != 0) {
+            if (name == "__init__") {
+                processInitMethod();
+            } else if (name == "__del__") {
+                processDelMethod();
+            } else if (name == "__add__") {
+                processBinaryOperatorMethod(MagicFunctionType::ADD);
+            } else if (name == "__sub__") {
+                processBinaryOperatorMethod(MagicFunctionType::SUB);
+            } else if (name == "__mul__") {
+                processBinaryOperatorMethod(MagicFunctionType::MUL);
+            } else if (name == "__div__") {
+                processBinaryOperatorMethod(MagicFunctionType::DIV);
+            }
         }
     }
 
@@ -124,6 +144,20 @@ namespace fsc::ast
         returnType = 0;
     }
 
+    auto Function::processBinaryOperatorMethod(MagicFunctionType binary_operator) noexcept(false)
+        -> void
+    {
+        magicType = binary_operator;
+        callRequirements = CallRequirements::IMPLICIT;
+        name = magicToFscName.at(binary_operator);
+
+        if (arguments.size() != 1) {
+            throw std::runtime_error("You are allowed to pass one argument to binary magic method");
+        }
+
+        returnType = classId;
+    }
+
     auto Function::genArguments(gen::CodeGenerator &output) const -> void
     {
         for (const auto &arg : arguments | ccl::views::dropBack(arguments)) {
@@ -141,17 +175,15 @@ namespace fsc::ast
         const auto &arg_name = arg.getName();
         auto category = arg.getCategory();
         const auto &type_name = FscType::getTypeName(arg.getType());
-
-        if (category == ArgumentCategory::IN && FscType::isTriviallyCopyable(arg.getType())) {
-            category = ArgumentCategory::COPY;
-        }
+        const auto trivially_copiable = FscType::isTriviallyCopyable(arg.getType());
 
         const auto needs_to_be_constant = category == ArgumentCategory::IN;
         const auto need_to_be_passed_by_reference =
+            (category == ArgumentCategory::IN && !trivially_copiable) ||
             category == ArgumentCategory::OUT || category == ArgumentCategory::INOUT;
 
         output << fmt::format(
-            "{}{} {}{}", type_name, needs_to_be_constant ? "const " : "",
+            "{}{} {}{}", needs_to_be_constant ? "const " : "", type_name,
             need_to_be_passed_by_reference ? "&" : "", arg_name);
 
         if (defaultArguments.contains(arg_name)) {

@@ -19,7 +19,7 @@ namespace fsc
           , value{std::forward<U>(value_)}
         {}
 
-        auto toString() const -> std::string final
+        [[nodiscard]] auto toString() const -> std::string final
         {
             return fmt::format("{}: {}", getTypeName(), value.value);
         }
@@ -28,6 +28,8 @@ namespace fsc
         {
             if constexpr (std::is_same_v<Float32, T>) {
                 fmt::format_to(output.getBackInserter(), "{}F", value.value);
+            } else if constexpr (std::is_same_v<String, T>) {
+                fmt::format_to(output.getBackInserter(), "string{{{}}}", value.value);
             } else {
                 fmt::format_to(output.getBackInserter(), "{}", value.value);
             }
@@ -44,6 +46,8 @@ namespace fsc
     extern template class FscBuiltinType<Float64>;
 
     extern template class FscBuiltinType<Bool>;
+
+    extern template class FscBuiltinType<String>;
 }// namespace fsc
 
 #endif /* FSC_BUILTIN_TYPES_IMPL_HPP */

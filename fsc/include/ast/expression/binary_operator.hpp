@@ -9,17 +9,17 @@ namespace fsc::ast
 {
     class BinaryOperation : public NodeWrapper<NodeType::BINARY_OPERATOR, SemicolonNeed::NEED>
     {
-        constexpr static ccl::StaticFlatmap<std::string_view, std::string_view, 8>
-            operatorToFunctionName = {{"+", "__add__"},    {"-", "__sub__"},
-                                      {"*", "__mul__"},    {"/", "__div__"},
-                                      {"%", "__mod__"},    {"&&", "__logical_and__"},
-                                      {"==", "__equal__"}, {"!=", "__not_equal__"}};
-
         NodePtr lhs;
         NodePtr rhs;
         std::string operationType;
 
     public:
+        constexpr static ccl::StaticFlatmap<std::string_view, std::string_view, 9>
+            operatorToFunctionName = {
+                {"+", "__add__"},    {"-", "__sub__"},        {"*", "__mul__"},
+                {"/", "__div__"},    {"%", "__mod__"},        {"&&", "__logical_and__"},
+                {"==", "__equal__"}, {"!=", "__not_equal__"}, {"=", "__copy__"}};
+
         BinaryOperation(std::string operation_type, NodePtr left_node, NodePtr right_node);
 
         [[nodiscard]] auto getValueType() const -> ccl::Id final;

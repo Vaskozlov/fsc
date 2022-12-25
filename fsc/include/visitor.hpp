@@ -2,11 +2,12 @@
 #define FSC_VISITOR_HPP
 
 #include "ast/container/program.hpp"
+#include "codegen.hpp"
 #include "FscBaseVisitor.h"
 #include "function/argument.hpp"
-#include <codegen.hpp>
+#include <ANTLRInputStream.h>
+#include <ccl/raii.hpp>
 #include <FscParser.h>
-#include <stdexcept>
 #include <tuple>
 
 namespace fsc
@@ -18,13 +19,28 @@ namespace fsc
 
         ast::Program program;
         ccl::Vector<ccl::Id> functionReturnStack;
+        antlr4::ANTLRInputStream &inputStream;
+        FscParser &parser;
 
     public:
+        explicit Visitor(antlr4::ANTLRInputStream &input, FscParser &fsc_parser)
+          : inputStream{input}
+          , parser{fsc_parser}
+        {}
+
         auto codeGen() -> std::string;
 
         [[nodiscard]] auto getCurrentFunctionReturnType() const -> ccl::Id
         {
             return functionReturnStack.back();
+        }
+
+        [[nodiscard]] auto acquireFunctionScope(ccl::Id return_type) -> auto
+        {
+            return ccl::Raii{
+                [this, return_type]() { functionReturnStack.push_back(return_type); },
+                [this]() { functionReturnStack.pop_back(); },
+            };
         }
 
         auto updateFunctionReturnType(ccl::Id new_type) -> void
@@ -44,19 +60,11 @@ namespace fsc
             return std::any_cast<ast::NodePtr>(to_cast);
         }
 
-        auto pushFunctionScope(ccl::Id return_type) -> void
-        {
-            functionReturnStack.emplace_back(return_type);
-        }
-
-        auto popFunctionScope() -> void
-        {
-            functionReturnStack.pop_back();
-        }
-
         auto visitProgram(FscParser::ProgramContext *ctx) -> std::any final;
 
         auto visitStmt(FscParser::StmtContext *ctx) -> std::any final;
+
+        auto visitWhile_loop(FscParser::While_loopContext *ctx) -> std::any final;
 
         auto visitIf_stmt(FscParser::If_stmtContext *ctx) -> std::any final;
 
@@ -98,6 +106,8 @@ namespace fsc
 
         auto constructIf(FscParser::If_stmtContext *ctx) -> ast::NodePtr;
 
+        auto constructWhile(FscParser::While_loopContext *ctx) -> ast::NodePtr;
+
         auto constructStatement(FscParser::StmtContext *ctx) -> std::any;
 
         auto constructParenthesized(FscParser::ExprContext *expr_context) -> ast::NodePtr;
@@ -117,36 +127,6 @@ namespace fsc
         auto parseFunction(FscParser::Function_callContext *ctx)
             -> std::tuple<std::string, ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>;
     };
-
-    class FunctionScope
-    {
-    private:
-        Visitor &visitor;
-        ccl::Id scopeSize{};
-        ccl::Id returnType{};
-
-    public:
-        explicit FunctionScope(ccl::Id return_type, Visitor &t_visitor)
-          : visitor{t_visitor}
-          , scopeSize{visitor.functionReturnStack.size() + 1}
-          , returnType{return_type}
-        {
-            visitor.pushFunctionScope(return_type);
-        }
-
-        ~FunctionScope()
-        {
-            visitor.popFunctionScope();
-        }
-
-        [[nodiscard]] auto getReturnType() const noexcept -> ccl::Id
-        {
-            return returnType;
-        }
-
-        auto updateReturnType(ccl::Id new_type) -> void;
-    };
-
 }// namespace fsc
 
 #endif /* FSC_VISITOR_HPP */

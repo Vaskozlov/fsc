@@ -1,6 +1,7 @@
 #include "ast/expression/binary_operator.hpp"
 #include "ast/expression/conversion.hpp"
 #include "ast/expression/parenthesized.hpp"
+#include "converters/bool.hpp"
 #include "converters/float.hpp"
 #include "converters/int.hpp"
 #include "converters/string.hpp"
@@ -14,12 +15,13 @@ namespace fsc
 
     static auto isBinaryOperator(FscParser::ExprContext *const ctx) -> bool
     {
-        static constexpr auto binary_expressions = ccl::StaticFlatmap<std::string_view, bool, 9>{
+        static constexpr auto binary_expressions = ccl::StaticFlatmap<std::string_view, bool, 10>{
             {"+", true},  {"-", true},  {"*", true},  {"/", true},  {"%", true},
-            {"==", true}, {"!=", true}, {"||", true}, {"&&", true},
+            {"==", true}, {"!=", true}, {"||", true}, {"&&", true}, {"=", true},
         };
 
-        return binary_expressions.contains(ctx->getText());
+        return ctx->children.size() == 3 &&
+               binary_expressions.contains(ctx->children.at(1)->getText());
     }
 
     auto Visitor::constructParenthesized(FscParser::ExprContext *expr_context) -> ast::NodePtr
@@ -44,6 +46,10 @@ namespace fsc
 
         else if (ctx->FLOAT() != nullptr) {
             node = converter::toFloat(ctx->getText());
+        }
+
+        else if (ctx->TRUE() != nullptr) {
+            node = converter::toBoolean(ctx->getText());
         }
 
         else if (ctx->STRING() != nullptr) {

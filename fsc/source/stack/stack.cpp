@@ -45,6 +45,10 @@ namespace fsc
 
     CCL_INLINE auto Stack::isMemberVariable(const std::string &name) const -> bool
     {
+        if (!classScopes.empty() && name == "this") {
+            return true;
+        }
+
         return !classScopes.empty() && FscType::hasMemberVariables(classScopes.back(), name);
     }
 

@@ -20,7 +20,7 @@ namespace fsc::func
 
     public:
         FunctionsHolder() = default;
-        FunctionsHolder(ccl::InitializerList<ast::Function> functions_);
+        FunctionsHolder(ccl::InitializerList<ccl::Vector<ast::Function>> functions_);
 
         auto registerFunction(ccl::SharedPtr<ast::Function> function) -> void;
 
@@ -49,6 +49,9 @@ namespace fsc::func
         [[nodiscard]] auto
             findFunction(const Signature &signature, CallRequirements call_requirements) const
             noexcept(false) -> typename FunctionsList::const_iterator;
+
+        [[noreturn]] static auto
+            throwUnableToFindFunction(const Signature &signature) noexcept(false) -> void;
     };
 
     extern FunctionsHolder Functions;

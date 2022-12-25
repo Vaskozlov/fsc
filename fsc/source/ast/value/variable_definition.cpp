@@ -53,6 +53,10 @@ namespace fsc::ast
             genVisibility(getVisibility(), output);
         }
 
+        if (isConstant()) {
+            output << "const ";
+        }
+
         output << type_name << ' ' << getName() << " = ";
 
         if (initializer != nullptr) {

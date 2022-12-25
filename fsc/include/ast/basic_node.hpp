@@ -33,7 +33,14 @@ namespace fsc::ast
         MEMBER_VARIABLE,
         IF,
         IF_STMT,
+        WHILE,
         PARENTHESIZED,
+    };
+
+    enum struct OptimizationLevel : ccl::Id
+    {
+        NONE,
+        FAST
     };
 
     template<NodeType TypeOfNode, SemicolonNeed NeedSemicolon, typename Base>
@@ -72,6 +79,9 @@ namespace fsc::ast
         virtual auto print(const std::string &prefix = "", bool is_left = false) const -> void = 0;
 
         virtual auto codeGen(gen::CodeGenerator &output) const -> void = 0;
+
+        virtual auto optimize(OptimizationLevel /* unused */) -> void
+        {}
 
         [[nodiscard]] virtual auto getValueType() const noexcept(false) -> ccl::Id;
 

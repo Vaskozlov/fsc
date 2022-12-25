@@ -1,5 +1,7 @@
 #include "type/type.hpp"
+#include "ccl/core/types.hpp"
 #include "type/builtin_types.hpp"
+#include <ast/value/variable.hpp>
 #include <mutex>
 
 namespace fsc
@@ -88,6 +90,11 @@ namespace fsc
     auto FscType::getMemberVariable(ccl::Id type_id, const std::string &name)
         -> ccl::SharedPtr<ast::Variable>
     {
+        if (name == "this") {
+            return ccl::makeShared<ast::Variable>(
+                "*this", type_id, ast::VariableFlags{.reference = true});
+        }
+
         return typeMemberVariables.at(type_id).at(name);
     }
 }// namespace fsc

@@ -13,11 +13,40 @@ namespace fsc::ast
     {
         NONE,
         INIT,
-        DEL
+        DEL,
+        ADD,
+        SUB,
+        MUL,
+        DIV,
+        MOD,
+        EQUAL,
+        NOT_EQUAL,
+        ASSIGN
     };
 
     class Function : public NodeWrapper<NodeType::FUNCTION, SemicolonNeed::DO_NOT_NEED>
     {
+    private:
+        constexpr static ccl::StaticFlatmap<MagicFunctionType, std::string_view, 8> magicToFscName =
+            {{MagicFunctionType::ADD, "__add__"},
+             {MagicFunctionType::SUB, "__sub__"},
+             {MagicFunctionType::MUL, "__mul__"},
+             {MagicFunctionType::DIV, "__div__"},
+             {MagicFunctionType::MOD, "__mod__"},
+             {MagicFunctionType::EQUAL, "__equal__"},
+             {MagicFunctionType::NOT_EQUAL, "__not_equal__"},
+             {MagicFunctionType::ASSIGN, "__copy__"}};
+
+        constexpr static ccl::StaticFlatmap<MagicFunctionType, std::string_view, 8> magicToRepr = {
+            {MagicFunctionType::ADD, "+"},
+            {MagicFunctionType::SUB, "-"},
+            {MagicFunctionType::MUL, "*"},
+            {MagicFunctionType::DIV, "/"},
+            {MagicFunctionType::MOD, "%"},
+            {MagicFunctionType::EQUAL, "__equal__"},
+            {MagicFunctionType::NOT_EQUAL, "__not_equal__"},
+            {MagicFunctionType::ASSIGN, "__copy__"}};
+
         ccl::Map<std::string, ccl::SharedPtr<ast::Node>> defaultArguments;
         ccl::SmallVector<Argument> arguments;
         NodePtr function;
@@ -34,7 +63,7 @@ namespace fsc::ast
             const FscParser::FunctionContext *function_context, Visitor &visitor, ccl::Id class_id);
 
         Function(
-            std::string_view function_name, const ccl::Id return_type,
+            ccl::Id class_id, std::string_view function_name, ccl::Id return_type,
             ccl::InitializerList<Argument> function_arguments, CallRequirements call_requirements,
             bool ends_with_parameter_pack = false);
 
@@ -129,8 +158,10 @@ namespace fsc::ast
 
     private:
         auto processMagicMethod() -> void;
+
         auto processInitMethod() noexcept(false) -> void;
         auto processDelMethod() noexcept(false) -> void;
+        auto processBinaryOperatorMethod(MagicFunctionType binary_operator) noexcept(false) -> void;
 
         auto processAttributes(FscParser::Function_attibutesContext *ctx) -> void;
 

@@ -18,7 +18,7 @@ namespace fsc::ast
             visitor.updateFunctionReturnType(value->getValueType());
         } else if (return_type != value->getValueType()) {
             throw std::runtime_error{
-                "Return type of function does not math with function return type"};
+                "Return type of the function does not math with function return type"};
         }
     }
 

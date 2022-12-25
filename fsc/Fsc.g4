@@ -8,11 +8,14 @@ DIV         : [/];
 MOD         : [%];
 DOT         : [.];
 
+ASSIGN      : '=';
 EQUALITY    : '==';
 INEQUALITY  : '!=';
 LOGICAL_AND : '&&';
 LOGICAL_OR  : '||';
 
+TRUE        :   'true';
+FALSE       :   'false';
 INT         :   [0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
 FLOAT       :   [0-9]*[.][0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
 CHAR        :   '\'' (~["\\\r\n] | '\\' (. | EOF)) '\'';
@@ -31,11 +34,14 @@ stmt:   function
     |   class stmt_end
     |   'return' expr stmt_end
     |   if_stmt stmt_end
+    |   while_loop stmt_end
     |   stmt_end
     ;
 
 body: '{' (stmt)* '}';
 class: 'class' IDENTIFIER new_line body;
+
+while_loop: 'while' new_line expr new_line body;
 
 if_stmt: if elif else;
 if: 'if' expr new_line body new_line;
@@ -45,7 +51,7 @@ else: else_def?;
 elif_def: 'elif' expr new_line body new_line;
 else_def: 'else' body;
 
-function: function_attibutes 'def' IDENTIFIER parameters ('->' IDENTIFIER) ? new_line body;
+function: function_attibutes 'func' IDENTIFIER parameters ('->' IDENTIFIER) ? new_line body;
 visibility: 'public'
             | 'private'
             | 'protected'
@@ -86,6 +92,7 @@ expr:   expr member_variable_access
     |   expr INEQUALITY expr
     |   expr LOGICAL_AND expr
     |   expr LOGICAL_OR expr
+    |   expr ASSIGN expr
     |   function_call
     |   variable_definition
     |   auto_variable_definition
@@ -96,6 +103,8 @@ expr:   expr member_variable_access
     |   IDENTIFIER
     |   STRING
     |   CHAR
+    |   TRUE
+    |   FALSE
     ;
 
 new_line: ('\n'*);

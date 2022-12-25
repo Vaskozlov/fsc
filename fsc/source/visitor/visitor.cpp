@@ -1,5 +1,6 @@
 #include "visitor.hpp"
 #include "ast/container/body.hpp"
+#include <exception>
 #include <ranges>
 
 using namespace std::string_view_literals;
@@ -18,6 +19,11 @@ namespace fsc
     auto Visitor::visitStmt(FscParser::StmtContext *const ctx) -> std::any
     {
         return constructStatement(ctx);
+    }
+
+    auto Visitor::visitWhile_loop(FscParser::While_loopContext *ctx) -> std::any
+    {
+        return constructWhile(ctx);
     }
 
     auto Visitor::visitIf_stmt(FscParser::If_stmtContext *ctx) -> std::any
@@ -54,7 +60,12 @@ namespace fsc
 
     auto Visitor::visitFunction_call(FscParser::Function_callContext *ctx) -> std::any
     {
-        return constructFunctionCall(ctx);
+        try {
+            return constructFunctionCall(ctx);
+        } catch (const std::exception &e) {
+            parser.notifyErrorListeners(ctx->getStart(), e.what(), std::make_exception_ptr(e));
+            exit(0);
+        }
     }
 
     auto Visitor::codeGen() -> std::string
@@ -63,15 +74,5 @@ namespace fsc
         gen::CodeGenerator generator;
         generator << program;
         return generator.getGenerated();
-    }
-
-    auto FunctionScope::updateReturnType(ccl::Id new_type) -> void
-    {
-        if (scopeSize != visitor.functionReturnStack.size()) {
-            throw std::logic_error{"You are not allowed to modify non-top function scope"};
-        }
-
-        returnType = new_type;
-        visitor.updateFunctionReturnType(new_type);
     }
 }// namespace fsc

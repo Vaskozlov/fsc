@@ -1,5 +1,6 @@
 #include "ast/container/class.hpp"
 #include "stack/stack.hpp"
+#include <ccl/raii.hpp>
 
 namespace fsc
 {
@@ -24,8 +25,8 @@ namespace fsc
             id_for_class_scope = FscType::getTypeId(body->getName());
         }
 
-        auto class_scope = ClassScope{id_for_class_scope, ProgramStack};
-        auto stack_scope = StackScope{ScopeType::SOFT, ProgramStack};
+        auto class_scope = ProgramStack.acquireClassScope(id_for_class_scope);
+        auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
 
         for (auto *child : children | std::views::drop(1) | ccl::views::dropBack(ctx->children, 2) |
                                std::views::filter(NewLineFilter)) {
@@ -40,7 +41,8 @@ namespace fsc
         const auto &children = ctx->children;
         const auto name = children[1]->getText();
 
-        auto scope = StackScope{ScopeType::HARD, ProgramStack};
+        auto scope = ProgramStack.acquireStackScope(ScopeType::HARD);
+
         auto body =
             constructBody<ast::Class>(ccl::as<FscParser::BodyContext *>(children.back()), name);
 

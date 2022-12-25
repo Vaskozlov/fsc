@@ -3,6 +3,7 @@
 #include "FscParser.h"
 #include "function/functions_holder.hpp"
 #include "visitor.hpp"
+#include <ast/value/variable.hpp>
 
 namespace fsc
 {

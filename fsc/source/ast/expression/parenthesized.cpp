@@ -1,4 +1,5 @@
 #include "ast/expression/parenthesized.hpp"
+#include <ast/basic_node.hpp>
 
 namespace fsc::ast
 {
@@ -11,13 +12,18 @@ namespace fsc::ast
         return node->getValueType();
     }
 
-    auto Parenthesized::codeGen(gen::CodeGenerator &output) const -> void
+    auto Parenthesized::optimize(OptimizationLevel optimization_level) -> void
     {
         if (node->is(NodeType::PARENTHESIZED)) {
-            output << *node;
-        } else {
-            output << '(' << *node << ')';
+            node = std::move(node->as<Parenthesized>().node);
         }
+
+        node->optimize(optimization_level);
+    }
+
+    auto Parenthesized::codeGen(gen::CodeGenerator &output) const -> void
+    {
+        output << '(' << *node << ')';
     }
 
     auto Parenthesized::print(const std::string &prefix, bool is_left) const -> void

@@ -48,6 +48,11 @@ namespace fsc::ast
             return flags.memberVariable;
         }
 
+        [[nodiscard]] auto isConstant() const noexcept -> bool
+        {
+            return flags.constant;
+        }
+
         [[nodiscard]] auto getVisibility() const noexcept -> Visibility
         {
             return flags.visibility;

@@ -1,5 +1,7 @@
-#include "ast/if_stmt.hpp"
 #include "ast/return.hpp"
+#include "ast/statement/if_stmt.hpp"
+#include "ast/statement/while.hpp"
+#include "ccl/core/types.hpp"
 #include "visitor.hpp"
 
 namespace fsc
@@ -16,6 +18,15 @@ namespace fsc
     auto Visitor::constructIf(FscParser::If_stmtContext *ctx) -> ast::NodePtr
     {
         return ccl::makeShared<ast::IfStmt>(*this, ctx);
+    }
+
+    auto Visitor::constructWhile(FscParser::While_loopContext *ctx) -> ast::NodePtr
+    {
+        const auto &children = ctx->children;
+        auto condition = visitAsNode(children.at(2));
+        auto body = visitAsNode(children.at(4));
+
+        return ccl::makeShared<ast::While>(std::move(condition), std::move(body));
     }
 
     auto Visitor::constructStatement(FscParser::StmtContext *ctx) -> std::any
@@ -40,6 +51,10 @@ namespace fsc
 
         if (auto *expr = ctx->expr(); expr != nullptr) {
             return visitExpr(expr);
+        }
+
+        if (auto *while_loop = ctx->while_loop(); while_loop != nullptr) {
+            return visitWhile_loop(while_loop);
         }
 
         return visitChildren(ctx);

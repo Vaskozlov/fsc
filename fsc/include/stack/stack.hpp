@@ -2,6 +2,7 @@
 #define FSC_STACK_HPP
 
 #include "ast/value/variable.hpp"
+#include "ccl/raii.hpp"
 #include "type/type.hpp"
 #include <deque>
 #include <map>
@@ -17,9 +18,6 @@ namespace fsc
     class Stack
     {
     private:
-        friend class StackScope;
-        friend class ClassScope;
-
         using ScopeStorage = ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>;
 
         class Scope
@@ -57,27 +55,29 @@ namespace fsc
         ccl::SmallVector<ccl::Id> classScopes;
         std::deque<Scope> scopes;
 
-        auto pushScope(ScopeType scope_type) -> void
-        {
-            scopes.push_front(Scope{scope_type});
-        }
-
-        auto popScope() -> void
-        {
-            scopes.pop_front();
-        }
-
-        auto pushClassScope(ccl::Id type_id) -> void
-        {
-            classScopes.push_back(type_id);
-        }
-
-        auto popClassScope() -> void
-        {
-            classScopes.pop_back();
-        }
-
     public:
+        [[nodiscard]] auto acquireStackScope(ScopeType scope_type) -> auto
+        {
+            return ccl::Raii{
+                [this, scope_type]() { scopes.push_front(Scope{scope_type}); },
+                [this]() { scopes.pop_front(); }};
+        }
+
+        [[nodiscard]] auto acquireClassScope(ccl::Id type_id) -> auto
+        {
+            return ccl::Raii{
+                [this, type_id]() {
+                    if (type_id != 0) {
+                        classScopes.push_back(type_id);
+                    }
+                },
+                [this, type_id]() {
+                    if (type_id != 0) {
+                        classScopes.pop_back();
+                    }
+                }};
+        }
+
         [[nodiscard]] auto getCurrentClassScope() const -> ccl::Id
         {
             if (classScopes.empty()) {
@@ -95,48 +95,6 @@ namespace fsc
 
     private:
         [[nodiscard]] auto isMemberVariable(const std::string &name) const -> bool;
-    };
-
-    class StackScope
-    {
-    private:
-        Stack &scope;
-
-    public:
-        StackScope(ScopeType scope_type, Stack &stack_scope)
-          : scope{stack_scope}
-        {
-            scope.pushScope(scope_type);
-        }
-
-        ~StackScope()
-        {
-            scope.popScope();
-        }
-    };
-
-    class ClassScope
-    {
-    private:
-        Stack &scope;
-        ccl::Id classId;
-
-    public:
-        ClassScope(ccl::Id class_id, Stack &stack_scope)
-          : scope{stack_scope}
-          , classId{class_id}
-        {
-            if (classId != 0) {
-                scope.pushClassScope(class_id);
-            }
-        }
-
-        ~ClassScope()
-        {
-            if (classId != 0) {
-                scope.popClassScope();
-            }
-        }
     };
 
     extern thread_local Stack ProgramStack;

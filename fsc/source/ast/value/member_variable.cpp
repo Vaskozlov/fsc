@@ -19,26 +19,13 @@ namespace fsc::ast
 
     auto MemberVariable::codeGen(gen::CodeGenerator &output) const -> void
     {
-        switch (node->getNodeType()) {
-        case NodeType::VALUE:
-        case NodeType::VARIABLE:
-        case NodeType::MEMBER_VARIABLE:
-        case NodeType::METHOD_CALL:
-        case NodeType::FUNCTION_CALL:
-        case NodeType::VARIABLE_DEFINITION:
-            output << *node << '.' << name;
-            break;
-
-        default:
-            output << '(' << *node << ")." << name;
-            break;
-        }
+        output << *node << '.' << name;
     }
 
     auto MemberVariable::print(const std::string &prefix, bool is_left) const -> void
     {
         node->print(prefix, is_left);
-        fmt::print("{}{}\n", expandPrefix(prefix, is_left), name);
+        fmt::print("{}.{}\n", expandPrefix(prefix, is_left), name);
     }
 
     auto MemberVariable::getValueType() const -> ccl::Id

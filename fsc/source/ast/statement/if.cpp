@@ -1,4 +1,4 @@
-#include "ast/if.hpp"
+#include "ast/statement/if.hpp"
 
 namespace fsc::ast
 {

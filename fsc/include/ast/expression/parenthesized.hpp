@@ -5,7 +5,7 @@
 
 namespace fsc::ast
 {
-    class Parenthesized : public NodeWrapper<NodeType::PARENTHESIZED, SemicolonNeed::NEED>
+    class Parenthesized final : public NodeWrapper<NodeType::PARENTHESIZED, SemicolonNeed::NEED>
     {
         NodePtr node;
 
@@ -13,6 +13,8 @@ namespace fsc::ast
         explicit Parenthesized(NodePtr node_to_parenthesize);
 
         [[nodiscard]] auto getValueType() const -> ccl::Id final;
+
+        auto optimize(OptimizationLevel optimization) -> void final;
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 

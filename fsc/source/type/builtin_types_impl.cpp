@@ -12,4 +12,6 @@ namespace fsc
     template class FscBuiltinType<Float64>;
 
     template class FscBuiltinType<Bool>;
+
+    template class FscBuiltinType<String>;
 }// namespace fsc

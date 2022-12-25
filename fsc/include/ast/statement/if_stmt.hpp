@@ -1,7 +1,7 @@
 #ifndef FSC_IF_STMT_HPP
 #define FSC_IF_STMT_HPP
 
-#include "ast/if.hpp"
+#include "ast/statement/if.hpp"
 #include "visitor.hpp"
 
 namespace fsc::ast
