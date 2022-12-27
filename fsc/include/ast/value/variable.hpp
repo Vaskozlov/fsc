@@ -28,7 +28,7 @@ namespace fsc::ast
 
         auto codeGen(gen::CodeGenerator &output) const -> void override;
 
-        auto memberizeVariable() noexcept -> void
+        auto memberize() noexcept -> void
         {
             flags.memberVariable = true;
         }

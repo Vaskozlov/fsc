@@ -30,7 +30,7 @@ namespace fsc
         auto [name, arguments, values] = parseFunction(ctx);
 
         return ccl::makeShared<ast::Node, ast::FunctionCall>(
-            func::Functions.get({name, arguments}, CallRequirements::EXPLICIT), values);
+            func::Functions.get({name, arguments}), values);
     }
 
     auto Visitor::constructMethodCall(FscParser::ExprContext *ctx) -> ast::NodePtr
@@ -42,10 +42,7 @@ namespace fsc
         auto [name, arguments, values] = parseFunction(function_call_context);
 
         return ccl::makeShared<ast::Node, ast::MethodCall>(
-            expression,
-            func::Functions.get(
-                {name, arguments, expression->getValueType()}, CallRequirements::EXPLICIT),
-            values);
+            expression, func::Functions.get({name, arguments, expression->getValueType()}), values);
     }
 
 

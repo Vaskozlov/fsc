@@ -1,12 +1,21 @@
 #include "ast/expression/binary_operator.hpp"
 #include "function/argument.hpp"
 #include "function/functions_holder.hpp"
+#include <ccl/flatmap.hpp>
 #include <ranges>
 #include <utility>
 
 namespace fsc::ast
 {
     using namespace std::string_view_literals;
+
+    constexpr static ccl::StaticFlatmap<std::string_view, std::string_view, 13>
+        OperatorToFunctionName = {
+            {"+", "__add__"},          {"-", "__sub__"},         {"*", "__mul__"},
+            {"/", "__div__"},          {"%", "__mod__"},         {"<", "__less__"},
+            {">", "__greater__"},      {"<=", "__less_equal__"}, {">", "__greater_equal__"},
+            {"&&", "__logical_and__"}, {"==", "__equal__"},      {"!=", "__not_equal__"},
+            {"=", "__copy__"}};
 
     BinaryOperation::BinaryOperation(
         std::string operation_type,
@@ -17,21 +26,18 @@ namespace fsc::ast
       , operationType{std::move(operation_type)}
     {
         CCL_ASSERT(this->getNodeType() == NodeType::BINARY_OPERATOR);
-        [[maybe_unused]] auto &&_ = getValueType();
     }
 
     auto BinaryOperation::getValueType() const -> ccl::Id
     {
         const auto left_argument_type = Argument{lhs.get()};
         const auto right_argument_type = Argument{rhs.get()};
-        const auto function_name = operatorToFunctionName.at(operationType);
+        const auto function_name = OperatorToFunctionName.at(operationType);
         const auto signature =
             Signature{std::string{function_name}, {left_argument_type, right_argument_type}};
 
         return func::Functions.visitFunction(
-            signature,
-            [](const Function *function) { return function->getReturnType(); },
-            CallRequirements::IMPLICIT);
+            signature, [](const Function *function) { return function->getReturnType(); });
     }
 
     auto BinaryOperation::codeGen(gen::CodeGenerator &output) const -> void

@@ -73,13 +73,13 @@ namespace fsc::ast
 
     auto IfStmt::parseElseStmt(Visitor &visitor, FscParser::ElseContext *ctx) -> void
     {
-        const auto &children = ctx->children;
-
-        if (children.empty()) {
+        if (ctx->children.empty()) {
             return;
         }
 
+        const auto &children = ctx->children.at(0)->children;
         auto body = visitor.visitAsNode(children.at(1));
-        elseNode = ccl::makeShared<Parenthesized>(ccl::makeShared<If>(IfType::ELSE, nullptr, body));
+
+        elseNode = ccl::makeShared<If>(IfType::ELSE, nullptr, body);
     }
 }// namespace fsc::ast

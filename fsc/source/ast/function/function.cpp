@@ -3,15 +3,24 @@
 #include "function/argument.hpp"
 #include "stack/stack.hpp"
 #include "type/builtin_types.hpp"
+#include "type/type.hpp"
 #include "visibility.hpp"
 #include <ccl/ccl.hpp>
+#include <ccl/flatmap.hpp>
 #include <ranges>
-#include <type/type.hpp>
 
 using namespace std::string_view_literals;
 
 namespace fsc::ast
 {
+    constexpr static auto SpecialFunctionsMagic =
+        ccl::StaticFlatmap<std::string_view, MagicFunctionType, 5>{
+            {"__add__", MagicFunctionType::ADD},
+            {"__sub__", MagicFunctionType::SUB},
+            {"__mul__", MagicFunctionType::MUL},
+            {"__div__", MagicFunctionType::DIV},
+            {"__mod__", MagicFunctionType::MOD}};
+
     Function::Function(
         const FscParser::FunctionContext *function_context, Visitor &visitor, ccl::Id class_id)
       : name{function_context->children.at(2)->getText()}
@@ -44,16 +53,41 @@ namespace fsc::ast
 
     Function::Function(
         ccl::Id class_id, std::string_view function_name, ccl::Id return_type,
-        ccl::InitializerList<Argument> function_arguments, CallRequirements call_requirements,
-        bool ends_with_parameter_pack)
+        ccl::InitializerList<Argument> function_arguments, bool ends_with_parameter_pack)
       : arguments{function_arguments}
       , name{function_name}
-      , callRequirements{call_requirements}
       , returnType{return_type}
       , classId{class_id}
       , endsWithParameterPack{ends_with_parameter_pack}
     {
         CCL_ASSERT(this->getNodeType() == NodeType::FUNCTION);
+    }
+
+    auto Function::operator==(const Signature &other) const noexcept -> bool
+    {
+        const auto is_constructor =
+            (other.classId == 0 && getMagicType() == MagicFunctionType::INIT);
+
+        if (arguments.size() > std::size(other.arguments)) {
+            return false;
+        }
+
+        const auto first_arguments_equal = std::ranges::equal(
+            arguments.cbegin(), arguments.cend(), other.arguments.cbegin(),
+            other.arguments.cbegin() + ccl::as<std::ptrdiff_t>(arguments.size()));
+
+        if (!first_arguments_equal) {
+            return false;
+        }
+
+        auto arguments_equal = first_arguments_equal;
+
+        if (std::size(other.arguments) > arguments.size()) {
+            arguments_equal = endsWithParameterPack;
+        }
+
+        return (arguments_equal && ((classId == other.classId) || is_constructor)) &&
+               name == other.name;
     }
 
     auto Function::print(const std::string &prefix, bool is_left) const -> void
@@ -103,15 +137,11 @@ namespace fsc::ast
                 processInitMethod();
             } else if (name == "__del__") {
                 processDelMethod();
-            } else if (name == "__add__") {
-                processBinaryOperatorMethod(MagicFunctionType::ADD);
-            } else if (name == "__sub__") {
-                processBinaryOperatorMethod(MagicFunctionType::SUB);
-            } else if (name == "__mul__") {
-                processBinaryOperatorMethod(MagicFunctionType::MUL);
-            } else if (name == "__div__") {
-                processBinaryOperatorMethod(MagicFunctionType::DIV);
             }
+        }
+
+        if (SpecialFunctionsMagic.contains(name)) {
+            processBinaryOperatorMethod(SpecialFunctionsMagic[name]);
         }
     }
 
@@ -148,14 +178,15 @@ namespace fsc::ast
         -> void
     {
         magicType = binary_operator;
-        callRequirements = CallRequirements::IMPLICIT;
         name = magicToFscName.at(binary_operator);
 
-        if (arguments.size() != 1) {
+        if (classId != 0 && arguments.size() != 1) {
             throw std::runtime_error("You are allowed to pass one argument to binary magic method");
         }
 
-        returnType = classId;
+        if (classId == 0 && arguments.size() != 2) {
+            throw std::runtime_error("You are allowed to pass two arguments to binary operator");
+        }
     }
 
     auto Function::genArguments(gen::CodeGenerator &output) const -> void

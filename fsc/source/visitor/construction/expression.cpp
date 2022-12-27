@@ -15,9 +15,10 @@ namespace fsc
 
     static auto isBinaryOperator(FscParser::ExprContext *const ctx) -> bool
     {
-        static constexpr auto binary_expressions = ccl::StaticFlatmap<std::string_view, bool, 10>{
-            {"+", true},  {"-", true},  {"*", true},  {"/", true},  {"%", true},
-            {"==", true}, {"!=", true}, {"||", true}, {"&&", true}, {"=", true},
+        static constexpr auto binary_expressions = ccl::StaticFlatmap<std::string_view, bool, 14>{
+            {"+", true},  {"-", true},  {"*", true},  {"/", true}, {"%", true},
+            {"==", true}, {"!=", true}, {"<", true},  {">", true}, {"<=", true},
+            {">=", true}, {"||", true}, {"&&", true}, {"=", true},
         };
 
         return ctx->children.size() == 3 &&

@@ -13,12 +13,6 @@ namespace fsc
         class Node;
     }
 
-    enum struct CallRequirements : ccl::Id
-    {
-        IMPLICIT,
-        EXPLICIT
-    };
-
     enum struct ArgumentCategory : ccl::Id
     {
         IN,

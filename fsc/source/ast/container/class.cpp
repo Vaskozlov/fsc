@@ -53,13 +53,13 @@ namespace fsc::ast
 
     auto Class::addVariable(ast::VariableDefinition &variable_definition) -> void
     {
-        variable_definition.memberizeVariable();
+        variable_definition.memberize();
         FscType::addMemberVariable(
             FscType::getTypeId(name), ccl::makeShared<Variable>(variable_definition.toVariable()));
     }
 
     auto Class::addFunction(ast::Function &function_declaration) -> void
     {
-        function_declaration.memberizeFunction(FscType::getTypeId(name));
+        function_declaration.memberize(FscType::getTypeId(name));
     }
 }// namespace fsc::ast

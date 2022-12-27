@@ -16,10 +16,11 @@ public:
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
-    T__26 = 27, T__27 = 28, T__28 = 29, AS = 30, ADD = 31, SUB = 32, MUL = 33, 
-    DIV = 34, MOD = 35, DOT = 36, ASSIGN = 37, EQUALITY = 38, INEQUALITY = 39, 
-    LOGICAL_AND = 40, LOGICAL_OR = 41, TRUE = 42, FALSE = 43, INT = 44, 
-    FLOAT = 45, CHAR = 46, STRING = 47, IDENTIFIER = 48, LAYOUT = 49
+    T__26 = 27, AS = 28, ADD = 29, SUB = 30, MUL = 31, DIV = 32, MOD = 33, 
+    DOT = 34, ASSIGN = 35, LESS = 36, GREATER = 37, LESS_EQ = 38, GREATER_EQ = 39, 
+    EQUALITY = 40, INEQUALITY = 41, LOGICAL_AND = 42, LOGICAL_OR = 43, TRUE = 44, 
+    FALSE = 45, INT = 46, FLOAT = 47, CHAR = 48, STRING = 49, IDENTIFIER = 50, 
+    LAYOUT = 51
   };
 
   enum {
@@ -106,6 +107,8 @@ public:
     virtual size_t getRuleIndex() const override;
     std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
     antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
+    antlr4::tree::TerminalNode *LESS();
+    antlr4::tree::TerminalNode *GREATER();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -540,6 +543,10 @@ public:
     antlr4::tree::TerminalNode *MOD();
     antlr4::tree::TerminalNode *ADD();
     antlr4::tree::TerminalNode *SUB();
+    antlr4::tree::TerminalNode *LESS();
+    antlr4::tree::TerminalNode *GREATER();
+    antlr4::tree::TerminalNode *LESS_EQ();
+    antlr4::tree::TerminalNode *GREATER_EQ();
     antlr4::tree::TerminalNode *EQUALITY();
     antlr4::tree::TerminalNode *INEQUALITY();
     antlr4::tree::TerminalNode *LOGICAL_AND();

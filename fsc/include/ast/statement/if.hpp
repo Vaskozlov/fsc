@@ -14,9 +14,9 @@ namespace fsc::ast
     };
 
     constexpr inline ccl::StaticFlatmap<IfType, std::string_view, 3> IfTypeToStr{
-        {IfType::IF, "if"},
-        {IfType::ELIF, "else if"},
-        {IfType::ELSE, "else"},
+        {IfType::IF, "if "},
+        {IfType::ELIF, "else if "},
+        {IfType::ELSE, "else "},
     };
 
     class If : public NodeWrapper<NodeType::IF, SemicolonNeed::DO_NOT_NEED>

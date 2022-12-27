@@ -47,23 +47,21 @@ namespace fsc::func
         functions_with_similar_name.push_back(function);
     }
 
-    auto FunctionsHolder::get(const Signature &signature, CallRequirements call_requirements) const
+    auto FunctionsHolder::get(const Signature &signature) const
         -> ccl::SharedPtr<ast::Function>
     {
-        return *findFunction(signature, call_requirements);
+        return *findFunction(signature);
     }
 
     auto FunctionsHolder::get(
         const std::string &name,
-        const ccl::SmallVector<Argument> &arguments,
-        CallRequirements call_requirements) const -> ccl::SharedPtr<ast::Function>
+        const ccl::SmallVector<Argument> &arguments) const -> ccl::SharedPtr<ast::Function>
     {
-        return get({name, arguments}, call_requirements);
+        return get({name, arguments});
     }
 
     auto FunctionsHolder::findFunction(
-        const Signature &signature,
-        CallRequirements call_requirements) const noexcept(false) ->
+        const Signature &signature) const noexcept(false) ->
         typename FunctionsList::const_iterator
     {
         const auto &functions_with_similar_class_id = functions.at(signature.classId);
@@ -89,17 +87,10 @@ namespace fsc::func
                 }
 
                 return findFunction(
-                    Signature{signature.name, arguments, arguments.front().getType()},
-                    call_requirements);
+                    Signature{signature.name, arguments, arguments.front().getType()});
             }
 
             throwUnableToFindFunction(signature);
-        }
-
-        if (call_requirements == CallRequirements::IMPLICIT &&
-            (*function_it)->getCallRequirements() == CallRequirements::EXPLICIT) {
-            throw std::runtime_error(
-                fmt::format("Function {} has to be called explicitly", signature.name));
         }
 
         return function_it;

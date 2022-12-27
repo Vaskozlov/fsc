@@ -24,31 +24,24 @@ namespace fsc::func
 
         auto registerFunction(ccl::SharedPtr<ast::Function> function) -> void;
 
-        [[nodiscard]] auto visitFunction(
-            const Signature &signature,
-            auto &&function,
-            CallRequirements call_requirements = CallRequirements::EXPLICIT) const -> decltype(auto)
+        [[nodiscard]] auto visitFunction(const Signature &signature, auto &&function) const
+            -> decltype(auto)
         {
-            return function(findFunction(signature, call_requirements)->get());
+            return function(findFunction(signature)->get());
         }
 
-        [[nodiscard]] auto
-            get(const Signature &signature,
-                CallRequirements call_requirements = CallRequirements::EXPLICIT) const
-            -> ccl::SharedPtr<ast::Function>;
+        [[nodiscard]] auto get(const Signature &signature) const -> ccl::SharedPtr<ast::Function>;
 
         [[nodiscard]] auto
-            get(const std::string &name,
-                const ccl::SmallVector<Argument> &arguments,
-                CallRequirements call_requirements) const -> ccl::SharedPtr<ast::Function>;
+            get(const std::string &name, const ccl::SmallVector<Argument> &arguments) const
+            -> ccl::SharedPtr<ast::Function>;
 
     private:
         auto appendFunction(ccl::SharedPtr<ast::Function> &function, ccl::Id class_id) noexcept(
             false) -> void;
 
-        [[nodiscard]] auto
-            findFunction(const Signature &signature, CallRequirements call_requirements) const
-            noexcept(false) -> typename FunctionsList::const_iterator;
+        [[nodiscard]] auto findFunction(const Signature &signature) const noexcept(false) ->
+            typename FunctionsList::const_iterator;
 
         [[noreturn]] static auto
             throwUnableToFindFunction(const Signature &signature) noexcept(false) -> void;

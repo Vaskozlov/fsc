@@ -9,6 +9,10 @@ MOD         : [%];
 DOT         : [.];
 
 ASSIGN      : '=';
+LESS        : '<';
+GREATER     : '>';
+LESS_EQ     : '<=';
+GREATER_EQ  : '>=';
 EQUALITY    : '==';
 INEQUALITY  : '!=';
 LOGICAL_AND : '&&';
@@ -88,6 +92,10 @@ expr:   expr member_variable_access
     |   expr MOD expr
     |   expr ADD expr
     |   expr SUB expr
+    |   expr LESS expr
+    |   expr GREATER expr
+    |   expr LESS_EQ expr
+    |   expr GREATER_EQ expr
     |   expr EQUALITY expr
     |   expr INEQUALITY expr
     |   expr LOGICAL_AND expr

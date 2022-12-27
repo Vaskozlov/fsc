@@ -24,21 +24,7 @@ namespace fsc::ast
 
     auto MethodCall::codeGen(gen::CodeGenerator &output) const -> void
     {
-        switch (expression->getNodeType()) {
-        case NodeType::VALUE:
-        case NodeType::VARIABLE:
-        case NodeType::MEMBER_VARIABLE:
-        case NodeType::METHOD_CALL:
-        case NodeType::FUNCTION_CALL:
-        case NodeType::VARIABLE_DEFINITION:
-            output << *expression << '.';
-            break;
-
-        default:
-            output << '(' << *expression << ").";
-            break;
-        }
-
+        output << *expression << '.';
         defaultFunctionCallCodeGen(output);
     }
 };// namespace fsc::ast

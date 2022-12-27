@@ -14,12 +14,12 @@ namespace fsc::ast
 
     auto Conversion::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output << '(' << FscType::getTypeName(typeId) << *value << ')';
+        output << fmt::format("{}{{", FscType::getTypeName(typeId)) << *value << '}';
     }
 
     auto Conversion::getValueType() const -> ccl::Id
     {
-        return value->getValueType();
+        return typeId;
     }
 
     auto Conversion::print(const std::string &prefix, bool is_left) const -> void

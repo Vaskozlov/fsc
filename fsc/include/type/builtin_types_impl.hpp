@@ -27,7 +27,9 @@ namespace fsc
         auto codeGen(gen::CodeGenerator &output) const -> void final
         {
             if constexpr (std::is_same_v<Float32, T>) {
-                fmt::format_to(output.getBackInserter(), "{}F", value.value);
+                fmt::format_to(output.getBackInserter(), "{:f}F", value.value);
+            } else if constexpr (std::is_same_v<Float64, T>) {
+                fmt::format_to(output.getBackInserter(), "{:f}", value.value);
             } else if constexpr (std::is_same_v<String, T>) {
                 fmt::format_to(output.getBackInserter(), "string{{{}}}", value.value);
             } else {

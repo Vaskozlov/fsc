@@ -22,6 +22,8 @@ namespace fsc
             fmt::format("clang++ {} {} -o {}", ClangCompilerFlags, source_file, output_binary);
 
         system(compiler_command.c_str());
+
+        fmt::print("Running program...\n");
         system(fmt::format("./{}", output_binary).c_str());
     }
 

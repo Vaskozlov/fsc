@@ -58,8 +58,13 @@ public:
     }
 };
 
-auto input() -> string
+auto input(string str = {}) -> string
 {
+    if (!str.empty())
+    {
+        fmt::print("{}\n", str);
+    }
+
     string result;
     std::getline(std::cin, result);
     return result;

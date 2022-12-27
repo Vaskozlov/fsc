@@ -12,7 +12,12 @@ namespace fsc::ast
 
     auto If::codeGen(gen::CodeGenerator &output) const -> void
     {
-        output << IfTypeToStr.at(getIfType()) << *condition;
+        output << IfTypeToStr.at(getIfType());
+
+        if (getIfType() != IfType::ELSE) {
+            output << *condition;
+        }
+
         output << gen::endl << *body;
     }
 
@@ -22,7 +27,10 @@ namespace fsc::ast
 
         fmt::print("{}{}\n", getPrintingPrefix(prefix, is_left), IfTypeToStr.at(getIfType()));
 
-        condition->print(expanded_prefix, true);
+        if (getIfType() != IfType::ELSE) {
+            condition->print(expanded_prefix, true);
+        }
+
         body->print(expanded_prefix, false);
     }
 }// namespace fsc::ast
