@@ -1,6 +1,7 @@
 #include "ast/function/function.hpp"
 #include "ast/value/variable.hpp"
 #include "function/argument.hpp"
+#include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
 #include "type/builtin_types.hpp"
 #include "type/type.hpp"
@@ -36,6 +37,7 @@ namespace fsc::ast
         readArguments(ccl::as<const FscParser::ParametersContext *>(parameters), visitor);
 
         processMagicMethod();
+        auto ptr = func::Functions.registerFunction(*this);
 
         auto function_scope = visitor.acquireFunctionScope(getReturnType());
         auto stack_scope = ProgramStack.acquireStackScope(ScopeType::HARD);
@@ -49,6 +51,8 @@ namespace fsc::ast
         if (returnType == Auto::typeId) {
             returnType = visitor.getCurrentFunctionReturnType();
         }
+
+        *ptr = *this;
     }
 
     Function::Function(

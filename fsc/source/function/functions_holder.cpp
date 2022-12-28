@@ -1,5 +1,6 @@
 #include "function/functions_holder.hpp"
 #include "ast/function/function.hpp"
+#include "ccl/core/types.hpp"
 #include "function/argument.hpp"
 #include <algorithm>
 #include <ccl/ccl.hpp>
@@ -12,23 +13,26 @@ namespace fsc::func
     {
         for (const auto &list : functions_) {
             for (const auto &function : list) {
-                registerFunction(ccl::makeShared<ast::Function>(function));
+                registerFunction(function);
             }
         }
     }
 
-    auto FunctionsHolder::registerFunction(ccl::SharedPtr<ast::Function> function) -> void
+    auto FunctionsHolder::registerFunction(const ast::Function &function) -> ccl::SharedPtr<ast::Function>
     {
-        appendFunction(function, function->getClassId());
+        auto function_ptr = ccl::makeShared<ast::Function>(function);
+        appendFunction(function_ptr, function_ptr->getClassId());
 
-        switch (function->getMagicType()) {
+        switch (function_ptr->getMagicType()) {
         case ast::MagicFunctionType::INIT:
-            appendFunction(function, 0);
+            appendFunction(function_ptr, 0);
             break;
 
         default:
             break;
         }
+
+        return function_ptr;
     }
 
     auto FunctionsHolder::appendFunction(

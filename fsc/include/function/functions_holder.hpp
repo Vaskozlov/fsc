@@ -22,7 +22,7 @@ namespace fsc::func
         FunctionsHolder() = default;
         FunctionsHolder(ccl::InitializerList<ccl::Vector<ast::Function>> functions_);
 
-        auto registerFunction(ccl::SharedPtr<ast::Function> function) -> void;
+        auto registerFunction(const ast::Function &function) -> ccl::SharedPtr<ast::Function>;
 
         [[nodiscard]] auto visitFunction(const Signature &signature, auto &&function) const
             -> decltype(auto)

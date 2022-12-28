@@ -24,7 +24,8 @@ namespace fsc::ast
         ASSIGN
     };
 
-    class Function : public NodeWrapper<NodeType::FUNCTION, SemicolonNeed::DO_NOT_NEED>
+    class Function
+      : public NodeWrapper<NodeType::FUNCTION, SemicolonNeed::DO_NOT_NEED>
     {
     private:
         constexpr static ccl::StaticFlatmap<MagicFunctionType, std::string_view, 8> magicToFscName =

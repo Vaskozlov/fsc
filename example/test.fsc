@@ -18,11 +18,21 @@ class S
 var foo = S().someVariable
 let pi = 3.141592653589793F64
 
+func f(in i32 i) -> i32
+{
+    if i > 2
+    {
+        return i
+    }
+
+    return i + f(i + 1)
+}
+
 func main()
 {
     var x = true
     var s = S()
 
-    print("{}\n", "1013".toI32())
+    print("{} {}\n", f(0), "1013".toI32())
     return 0
 }

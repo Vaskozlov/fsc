@@ -2,14 +2,14 @@
 #include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
 #include "visitor.hpp"
+#include <function/argument.hpp>
 
 namespace fsc
 {
     auto Visitor::constructFunction(FscParser::FunctionContext *ctx) -> ast::NodePtr
     {
-        auto function =
-            ccl::makeShared<ast::Function>(ctx, *this, ProgramStack.getCurrentClassScope());
-        func::Functions.registerFunction(function);
-        return function;
+        auto function = ast::Function{ctx, *this, ProgramStack.getCurrentClassScope()};
+        return func::Functions.get(
+            Signature{function.getName(), function.getArguments(), function.getClassId()});
     }
 }// namespace fsc
