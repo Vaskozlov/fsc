@@ -10,6 +10,7 @@ namespace fsc::ast
     class VariableDefinition
       : public NodeWrapper<NodeType::VARIABLE_DEFINITION, SemicolonNeed::NEED, Variable>
     {
+    private:
         NodePtr initializer{};
 
     public:

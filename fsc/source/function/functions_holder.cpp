@@ -8,6 +8,8 @@
 
 namespace fsc::func
 {
+    FunctionsHolder::FunctionsHolder() = default;
+
     FunctionsHolder::FunctionsHolder(ccl::InitializerList<ccl::Vector<ast::Function>> functions_)
     {
         for (const auto &list : functions_) {
@@ -47,21 +49,18 @@ namespace fsc::func
         functions_with_similar_name.push_back(function);
     }
 
-    auto FunctionsHolder::get(const Signature &signature) const
-        -> ccl::SharedPtr<ast::Function>
+    auto FunctionsHolder::get(SignatureView signature) const -> ccl::SharedPtr<ast::Function>
     {
         return *findFunction(signature);
     }
 
-    auto FunctionsHolder::get(
-        const std::string &name,
-        const ccl::SmallVector<Argument> &arguments) const -> ccl::SharedPtr<ast::Function>
+    auto FunctionsHolder::get(const std::string &name, const ccl::SmallVector<Argument> &arguments)
+        const -> ccl::SharedPtr<ast::Function>
     {
         return get({name, arguments});
     }
 
-    auto FunctionsHolder::findFunction(
-        const Signature &signature) const noexcept(false) ->
+    auto FunctionsHolder::findFunction(SignatureView signature) const noexcept(false) ->
         typename FunctionsList::const_iterator
     {
         const auto &functions_with_similar_class_id = functions.at(signature.classId);
@@ -86,8 +85,7 @@ namespace fsc::func
                     arguments.push_back(argument);
                 }
 
-                return findFunction(
-                    Signature{signature.name, arguments, arguments.front().getType()});
+                return findFunction({signature.name, arguments, arguments.front().getType()});
             }
 
             throwUnableToFindFunction(signature);
@@ -96,8 +94,7 @@ namespace fsc::func
         return function_it;
     }
 
-    auto FunctionsHolder::throwUnableToFindFunction(const Signature &signature) noexcept(false)
-        -> void
+    auto FunctionsHolder::throwUnableToFindFunction(SignatureView signature) noexcept(false) -> void
     {
         throw std::runtime_error(fmt::format("Function with name {} not found", signature.name));
     }

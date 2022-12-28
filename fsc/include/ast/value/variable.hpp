@@ -8,15 +8,16 @@ namespace fsc::ast
 {
     struct VariableFlags
     {
-        Visibility visibility = Visibility::FILE_PRIVATE;
-        bool constant = false;
-        bool reference = false;
-        bool memberVariable = false;
-        bool compileTimeAvailable = false;
+        Visibility visibility{Visibility::FILE_PRIVATE};
+        bool constant{false};
+        bool reference{false};
+        bool memberVariable{false};
+        bool compileTimeAvailable{false};
     };
 
     class Variable : public NodeWrapper<NodeType::VARIABLE, SemicolonNeed::NEED>
     {
+    private:
         std::string name{};
         ccl::Id typeId{};
         VariableFlags flags{};

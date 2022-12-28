@@ -69,8 +69,20 @@ namespace fsc
         auto toVariable() const -> ast::Variable;
     };
 
+    struct SignatureView
+    {
+        const std::string &name;
+        const ccl::SmallVector<Argument> &arguments;
+        ccl::Id classId{};
+    };
+
     struct Signature
     {
+        operator SignatureView() const // NOLINT
+        {
+            return {name, arguments, classId};
+        }
+
         std::string name{};
         ccl::SmallVector<Argument> arguments{};
         ccl::Id classId{};

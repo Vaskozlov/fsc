@@ -15,12 +15,12 @@ namespace fsc::ast
     public:
         Body();
 
-        [[nodiscard]] auto begin() const -> const_iterator
+        [[nodiscard]] auto begin() const noexcept -> const_iterator
         {
             return nodes.begin();
         }
 
-        [[nodiscard]] auto end() const -> const_iterator
+        [[nodiscard]] auto end() const noexcept -> const_iterator
         {
             return nodes.end();
         }

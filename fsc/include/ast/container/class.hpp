@@ -21,7 +21,7 @@ namespace fsc::ast
 
         auto addNode(NodePtr node) -> void final;
 
-        [[nodiscard]] auto getName() const -> const std::string &
+        [[nodiscard]] auto getName() const noexcept -> const std::string &
         {
             return name;
         }

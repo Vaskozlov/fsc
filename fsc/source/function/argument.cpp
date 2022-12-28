@@ -25,8 +25,7 @@ namespace fsc
 
         const auto variable_flags = VariableFlags{
             .constant = optimized_category == ArgumentCategory::IN,
-            .reference = optimized_category == ArgumentCategory::IN ||
-                         optimized_category == ArgumentCategory::INOUT};
+            .reference = optimized_category != ArgumentCategory::COPY};
 
         return {name, type, variable_flags};
     }

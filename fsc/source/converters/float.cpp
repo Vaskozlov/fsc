@@ -7,12 +7,12 @@ namespace fsc::converter
     {
         if (repr.ends_with("F64")) {
             auto result = std::stod(repr);
-            auto fsc_value = ccl::makeUnique<FscBuiltinType<Float64>>(Float64{result});
+            auto fsc_value = ccl::makeUnique<FscBuiltinType<Float64>>(result);
             return ccl::makeShared<ast::Value>(std::move(fsc_value));
         }
 
         auto result = std::stof(repr);
-        auto fsc_value = ccl::makeUnique<FscBuiltinType<Float32>>(Float32{result});
+        auto fsc_value = ccl::makeUnique<FscBuiltinType<Float32>>(result);
 
         return ccl::makeShared<ast::Value>(std::move(fsc_value));
     }

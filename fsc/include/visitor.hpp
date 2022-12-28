@@ -15,8 +15,6 @@ namespace fsc
     class Visitor : public FscBaseVisitor
     {
     private:
-        friend class FunctionScope;
-
         ast::Program program;
         ccl::Vector<ccl::Id> functionReturnStack;
         antlr4::ANTLRInputStream &inputStream;

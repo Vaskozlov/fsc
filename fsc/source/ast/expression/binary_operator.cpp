@@ -33,11 +33,10 @@ namespace fsc::ast
         const auto left_argument_type = Argument{lhs.get()};
         const auto right_argument_type = Argument{rhs.get()};
         const auto function_name = OperatorToFunctionName.at(operationType);
-        const auto signature =
-            Signature{std::string{function_name}, {left_argument_type, right_argument_type}};
 
         return func::Functions.visitFunction(
-            signature, [](const Function *function) { return function->getReturnType(); });
+            {std::string{function_name}, {left_argument_type, right_argument_type}},
+            std::mem_fn(&Function::getReturnType));
     }
 
     auto BinaryOperation::codeGen(gen::CodeGenerator &output) const -> void

@@ -27,9 +27,10 @@ namespace fsc
 
         auto class_scope = ProgramStack.acquireClassScope(id_for_class_scope);
         auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
+        auto modifiers = std::views::drop(1) | ccl::views::dropBack(ctx->children, 2) |
+                         std::views::filter(NewLineFilter);
 
-        for (auto *child : children | std::views::drop(1) | ccl::views::dropBack(ctx->children, 2) |
-                               std::views::filter(NewLineFilter)) {
+        for (auto *child : children | modifiers) {
             body->addNode(visitAsNode(child));
         }
 

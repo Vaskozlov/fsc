@@ -8,7 +8,7 @@ namespace fsc::ast
     using namespace std::string_view_literals;
 
     MethodCall::MethodCall(
-        NodePtr expression_for_call, ccl::SharedPtr<Function> function_to_call,
+        NodePtr expression_for_call, ccl::WeakPtr<Function> function_to_call,
         const ccl::SmallVector<NodePtr> &function_arguments)
       : NodeWrapper{std::move(function_to_call), function_arguments}
       , expression{std::move(expression_for_call)}

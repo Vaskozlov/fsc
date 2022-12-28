@@ -1,41 +1,55 @@
 #include "ast/function/function.hpp"
+#include "ast/function/magic_methods_table.hpp"
 #include "ast/value/variable.hpp"
 #include "function/argument.hpp"
+#include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
 #include "type/builtin_types.hpp"
 #include "type/type.hpp"
 #include "visibility.hpp"
-#include <ccl/ccl.hpp>
-#include <ccl/flatmap.hpp>
+#include <Parser.h>
 #include <ranges>
 
+using namespace fsc::ast::magic;
 using namespace std::string_view_literals;
 
 namespace fsc::ast
 {
-    constexpr static auto SpecialFunctionsMagic =
-        ccl::StaticFlatmap<std::string_view, MagicFunctionType, 5>{
-            {"__add__", MagicFunctionType::ADD},
-            {"__sub__", MagicFunctionType::SUB},
-            {"__mul__", MagicFunctionType::MUL},
-            {"__div__", MagicFunctionType::DIV},
-            {"__mod__", MagicFunctionType::MOD}};
+    static constexpr auto CommaFilter(antlr4::tree::ParseTree *elem)
+    {
+        return elem->getText() != ",";
+    }
+
+    Function::Function() = default;
 
     Function::Function(
-        const FscParser::FunctionContext *function_context, Visitor &visitor, ccl::Id class_id)
-      : name{function_context->children.at(2)->getText()}
+        ccl::Id class_id, std::string_view function_name, ccl::Id return_type,
+        ccl::InitializerList<Argument> function_arguments, bool ends_with_parameter_pack)
+      : arguments{function_arguments}
+      , name{function_name}
+      , returnType{return_type}
       , classId{class_id}
+      , endsWithParameterPack{ends_with_parameter_pack}
     {
         CCL_ASSERT(this->getNodeType() == NodeType::FUNCTION);
+    }
 
+    auto Function::finishConstruction(
+        const FscParser::FunctionContext *function_context, Visitor &visitor, ccl::Id class_id)
+        -> void
+    {
         const auto &children = function_context->children;
         const auto &parameters = children.at(3);
+
+        classId = class_id;
+        name = children.at(2)->getText();
 
         processAttributes(ccl::as<FscParser::Function_attibutesContext *>(children.front()));
         setReturnType(children);
         readArguments(ccl::as<const FscParser::ParametersContext *>(parameters), visitor);
 
         processMagicMethod();
+        func::Functions.registerFunction(shared_from_this());
 
         auto function_scope = visitor.acquireFunctionScope(getReturnType());
         auto stack_scope = ProgramStack.acquireStackScope(ScopeType::HARD);
@@ -51,19 +65,7 @@ namespace fsc::ast
         }
     }
 
-    Function::Function(
-        ccl::Id class_id, std::string_view function_name, ccl::Id return_type,
-        ccl::InitializerList<Argument> function_arguments, bool ends_with_parameter_pack)
-      : arguments{function_arguments}
-      , name{function_name}
-      , returnType{return_type}
-      , classId{class_id}
-      , endsWithParameterPack{ends_with_parameter_pack}
-    {
-        CCL_ASSERT(this->getNodeType() == NodeType::FUNCTION);
-    }
-
-    auto Function::operator==(const Signature &other) const noexcept -> bool
+    auto Function::operator==(SignatureView other) const noexcept -> bool
     {
         const auto is_constructor =
             (other.classId == 0 && getMagicType() == MagicFunctionType::INIT);
@@ -105,6 +107,7 @@ namespace fsc::ast
         switch (magicType) {
         case MagicFunctionType::DEL:
         case MagicFunctionType::INIT:
+            addConstexprModifier(output);
             output << fmt::format("{}", name);
             break;
 
@@ -113,11 +116,17 @@ namespace fsc::ast
         case MagicFunctionType::MUL:
         case MagicFunctionType::DIV:
         case MagicFunctionType::MOD:
+            addNodiscardModifier(output);
+            addConstexprModifier(output);
             output << fmt::format(
-                "{} operator{}", FscType::getTypeName(returnType), magicToRepr.at(magicType));
+                "constexpr {} operator{}", FscType::getTypeName(returnType),
+                MagicToRepr.at(magicType));
             break;
 
         default:
+            addNodiscardModifier(output);
+            addConstexprModifier(output);
+
             output << fmt::format("{} {}", FscType::getTypeName(returnType), name);
             break;
         }
@@ -137,11 +146,9 @@ namespace fsc::ast
                 processInitMethod();
             } else if (name == "__del__") {
                 processDelMethod();
+            } else if (SpecialFunctionsMagic.contains(name)) {
+                processBinaryOperatorMethod(SpecialFunctionsMagic[name]);
             }
-        }
-
-        if (SpecialFunctionsMagic.contains(name)) {
-            processBinaryOperatorMethod(SpecialFunctionsMagic[name]);
         }
     }
 
@@ -178,14 +185,10 @@ namespace fsc::ast
         -> void
     {
         magicType = binary_operator;
-        name = magicToFscName.at(binary_operator);
+        name = MagicToFscName.at(binary_operator);
 
-        if (classId != 0 && arguments.size() != 1) {
+        if (arguments.size() != 1) {
             throw std::runtime_error("You are allowed to pass one argument to binary magic method");
-        }
-
-        if (classId == 0 && arguments.size() != 2) {
-            throw std::runtime_error("You are allowed to pass two arguments to binary operator");
         }
     }
 
@@ -240,15 +243,13 @@ namespace fsc::ast
         const FscParser::ParametersContext *parameters_context,
         Visitor &visitor) -> void
     {
-        static constexpr auto comma_filter = [](auto *elem) { return elem->getText() != ","; };
-
         const auto &children = parameters_context->children;
         auto drop_first_and_last = std::views::drop(1) | ccl::views::dropBack(children, 2);
 
         for (auto &child : children | drop_first_and_last) {
             auto *casted_child = ccl::as<FscParser::Typed_arguments_listContext *>(child);
 
-            for (auto &arg : casted_child->children | std::views::filter(comma_filter)) {
+            for (auto &arg : casted_child->children | std::views::filter(CommaFilter)) {
                 auto *argument_context = ccl::as<FscParser::ArgumentContext *>(arg);
                 auto argument = processArgument(argument_context, visitor);
                 arguments.push_back(std::move(argument));
@@ -292,5 +293,19 @@ namespace fsc::ast
         FscType::checkTypeExistence(type_name);
 
         return {arg_name, FscType::getTypeId(type_name), ArgumentCategories.at(category)};
+    }
+
+    auto Function::addNodiscardModifier(gen::CodeGenerator &output) const -> void
+    {
+        if (returnType != Void::typeId && name != "main") {
+            output << "[[nodiscard]] ";
+        }
+    }
+
+    auto Function::addConstexprModifier(gen::CodeGenerator &output) const -> void
+    {
+        if (name != "main") {
+            output << "constexpr ";
+        }
     }
 }// namespace fsc::ast

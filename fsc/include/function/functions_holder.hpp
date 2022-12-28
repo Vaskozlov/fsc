@@ -19,18 +19,19 @@ namespace fsc::func
         FunctionByClassIdMap functions;
 
     public:
-        FunctionsHolder() = default;
+        FunctionsHolder();
+
         FunctionsHolder(ccl::InitializerList<ccl::Vector<ast::Function>> functions_);
 
         auto registerFunction(ccl::SharedPtr<ast::Function> function) -> void;
 
-        [[nodiscard]] auto visitFunction(const Signature &signature, auto &&function) const
+        [[nodiscard]] auto visitFunction(SignatureView signature, auto &&function) const
             -> decltype(auto)
         {
             return function(findFunction(signature)->get());
         }
 
-        [[nodiscard]] auto get(const Signature &signature) const -> ccl::SharedPtr<ast::Function>;
+        [[nodiscard]] auto get(SignatureView signature) const -> ccl::SharedPtr<ast::Function>;
 
         [[nodiscard]] auto
             get(const std::string &name, const ccl::SmallVector<Argument> &arguments) const
@@ -40,11 +41,11 @@ namespace fsc::func
         auto appendFunction(ccl::SharedPtr<ast::Function> &function, ccl::Id class_id) noexcept(
             false) -> void;
 
-        [[nodiscard]] auto findFunction(const Signature &signature) const noexcept(false) ->
+        [[nodiscard]] auto findFunction(SignatureView signature) const noexcept(false) ->
             typename FunctionsList::const_iterator;
 
         [[noreturn]] static auto
-            throwUnableToFindFunction(const Signature &signature) noexcept(false) -> void;
+            throwUnableToFindFunction(SignatureView signature) noexcept(false) -> void;
     };
 
     extern FunctionsHolder Functions;

@@ -9,11 +9,11 @@ namespace fsc::ast
     class FunctionCall : public NodeWrapper<NodeType::FUNCTION_CALL, SemicolonNeed::NEED>
     {
         ccl::SmallVector<NodePtr> arguments;
-        ccl::SharedPtr<Function> function;
+        ccl::WeakPtr<Function> function;
 
     public:
         FunctionCall(
-            ccl::SharedPtr<Function>
+            ccl::WeakPtr<Function>
                 function_to_call,
             const ccl::SmallVector<NodePtr> &function_arguments);
 

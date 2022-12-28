@@ -6,6 +6,7 @@
 #include "visibility.hpp"
 #include "visitor.hpp"
 #include <ccl/ccl.hpp>
+#include <codegen.hpp>
 
 namespace fsc::ast
 {
@@ -21,32 +22,18 @@ namespace fsc::ast
         MOD,
         EQUAL,
         NOT_EQUAL,
+        LESS,
+        GREATER,
+        LESS_EQ,
+        GREATER_EQ,
         ASSIGN
     };
 
-    class Function : public NodeWrapper<NodeType::FUNCTION, SemicolonNeed::DO_NOT_NEED>
+    class Function
+      : public NodeWrapper<NodeType::FUNCTION, SemicolonNeed::DO_NOT_NEED>
+      , public std::enable_shared_from_this<Function>
     {
     private:
-        constexpr static ccl::StaticFlatmap<MagicFunctionType, std::string_view, 8> magicToFscName =
-            {{MagicFunctionType::ADD, "__add__"},
-             {MagicFunctionType::SUB, "__sub__"},
-             {MagicFunctionType::MUL, "__mul__"},
-             {MagicFunctionType::DIV, "__div__"},
-             {MagicFunctionType::MOD, "__mod__"},
-             {MagicFunctionType::EQUAL, "__equal__"},
-             {MagicFunctionType::NOT_EQUAL, "__not_equal__"},
-             {MagicFunctionType::ASSIGN, "__copy__"}};
-
-        constexpr static ccl::StaticFlatmap<MagicFunctionType, std::string_view, 8> magicToRepr = {
-            {MagicFunctionType::ADD, "+"},
-            {MagicFunctionType::SUB, "-"},
-            {MagicFunctionType::MUL, "*"},
-            {MagicFunctionType::DIV, "/"},
-            {MagicFunctionType::MOD, "%"},
-            {MagicFunctionType::EQUAL, "__equal__"},
-            {MagicFunctionType::NOT_EQUAL, "__not_equal__"},
-            {MagicFunctionType::ASSIGN, "__copy__"}};
-
         ccl::Map<std::string, ccl::SharedPtr<ast::Node>> defaultArguments;
         ccl::SmallVector<Argument> arguments;
         NodePtr function;
@@ -58,19 +45,22 @@ namespace fsc::ast
         bool endsWithParameterPack{};
 
     public:
-        Function(
-            const FscParser::FunctionContext *function_context, Visitor &visitor, ccl::Id class_id);
+        Function();
 
         Function(
             ccl::Id class_id, std::string_view function_name, ccl::Id return_type,
             ccl::InitializerList<Argument> function_arguments,
             bool ends_with_parameter_pack = false);
 
+        auto finishConstruction(
+            const FscParser::FunctionContext *function_context, Visitor &visitor, ccl::Id class_id)
+            -> void;
+
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
         auto codeGen(gen::CodeGenerator &output) const -> void final;
 
-        [[nodiscard]] auto operator==(const Signature &other) const noexcept -> bool;
+        [[nodiscard]] auto operator==(SignatureView other) const noexcept -> bool;
 
         auto memberize(ccl::Id type_id) noexcept -> void
         {
@@ -143,6 +133,9 @@ namespace fsc::ast
             -> Argument;
 
         auto setReturnType(const std::vector<antlr4::tree::ParseTree *> &nodes) -> void;
+
+        auto addNodiscardModifier(gen::CodeGenerator &output) const -> void;
+        auto addConstexprModifier(gen::CodeGenerator &output) const -> void;
     };
 }// namespace fsc::ast
 

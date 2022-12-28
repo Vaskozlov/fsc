@@ -4,6 +4,12 @@ namespace fsc::ast
 {
     using namespace std::string_view_literals;
 
+    constexpr static ccl::StaticFlatmap<IfType, std::string_view, 3> IfTypeToStr{
+        {IfType::IF, "if "},
+        {IfType::ELIF, "else if "},
+        {IfType::ELSE, "else "},
+    };
+
     If::If(IfType if_type, NodePtr if_condition, NodePtr if_body) noexcept
       : condition{std::move(if_condition)}
       , body{std::move(if_body)}

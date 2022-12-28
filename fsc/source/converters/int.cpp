@@ -24,12 +24,11 @@ namespace fsc::converter
         }
 
         if (std::in_range<int32_t>(result)) {
-            auto i32_value = Int32{ccl::as<int32_t>(result)};
-            auto fsc_value = ccl::makeUnique<FscBuiltinType<Int32>>(i32_value);
+            auto fsc_value = ccl::makeUnique<FscBuiltinType<Int32>>(ccl::as<int32_t>(result));
             return ccl::makeShared<ast::Value>(std::move(fsc_value));
         }
 
-        auto fsc_value = ccl::makeUnique<FscBuiltinType<Int64>>(Int64{result});
+        auto fsc_value = ccl::makeUnique<FscBuiltinType<Int64>>(result);
         return ccl::makeShared<ast::Value>(std::move(fsc_value));
     }
 }// namespace fsc::converter

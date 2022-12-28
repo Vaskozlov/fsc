@@ -4,11 +4,6 @@
 
 namespace fsc::ast
 {
-    Program::Program()
-    {
-        CCL_ASSERT(getNodeType() == NodeType::PROGRAM);
-    }
-
     auto Program::codeGen(gen::CodeGenerator &output) const -> void
     {
         for (const auto &node : *this) {

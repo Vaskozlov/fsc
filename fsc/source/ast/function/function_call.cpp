@@ -6,7 +6,7 @@ using namespace std::string_view_literals;
 namespace fsc::ast
 {
     FunctionCall::FunctionCall(
-        ccl::SharedPtr<Function>
+        ccl::WeakPtr<Function>
             function_to_call,
         const ccl::SmallVector<NodePtr> &function_arguments)
       : arguments{function_arguments}
@@ -19,7 +19,7 @@ namespace fsc::ast
         -> void
     {
         const auto expanded_prefix = expandPrefix(prefix, false);
-        fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), function->getName());
+        fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), function.lock()->getName());
 
         for (auto &arg : arguments | ccl::views::dropBack(arguments)) {
             arg->print(expanded_prefix, true);
@@ -33,7 +33,7 @@ namespace fsc::ast
 
     auto FunctionCall::defaultFunctionCallCodeGen(gen::CodeGenerator &output) const -> void
     {
-        output << function->getName() << '(';
+        output << function.lock()->getName() << '(';
 
         for (const auto &argument : arguments | ccl::views::dropBack(arguments)) {
             output << *argument << ", ";
@@ -48,7 +48,7 @@ namespace fsc::ast
 
     auto FunctionCall::getValueType() const -> ccl::Id
     {
-        return function->getReturnType();
+        return function.lock()->getReturnType();
     }
 
     auto FunctionCall::codeGen(gen::CodeGenerator &output) const -> void
