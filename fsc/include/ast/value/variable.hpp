@@ -54,6 +54,11 @@ namespace fsc::ast
             return flags.constant;
         }
 
+        [[nodiscard]] auto isReference() const noexcept -> bool
+        {
+            return flags.reference;
+        }
+
         [[nodiscard]] auto getVisibility() const noexcept -> Visibility
         {
             return flags.visibility;

@@ -9,7 +9,8 @@
 namespace fsc
 {
     class FscType;
-}
+    class Argument;
+}// namespace fsc
 
 namespace fsc::ast
 {
@@ -44,18 +45,21 @@ namespace fsc::gen
             return std::back_inserter(generated);
         }
 
-        auto operator<<(char chr) -> CodeGenerator &;
+        auto operator<<(const Argument &argument) -> CodeGenerator &;
         auto operator<<(const ast::Node &node) -> CodeGenerator &;
         auto operator<<(const FscType &fsc_type) -> CodeGenerator &;
+
+        auto operator<<(char chr) -> CodeGenerator &;
         auto operator<<(std::string_view str) -> CodeGenerator &;
         auto operator<<(const std::string &str) -> CodeGenerator &;
+
         auto operator<<(PushScope /* unused */) -> CodeGenerator &;
         auto operator<<(PopScope /* unused */) -> CodeGenerator &;
 
         template<size_t N>
         auto operator<<(const char (&character_array)[N]) -> CodeGenerator &
         {
-            return *this << std::string_view{character_array};
+            return *this << std::string_view{std::forward<const char(&)[N]>(character_array)};
         }
 
     private:

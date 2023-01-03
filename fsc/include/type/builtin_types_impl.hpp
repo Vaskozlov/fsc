@@ -31,7 +31,7 @@ namespace fsc
             } else if constexpr (std::is_same_v<Float64, T>) {
                 fmt::format_to(output.getBackInserter(), "{:f}", value.value);
             } else if constexpr (std::is_same_v<String, T>) {
-                fmt::format_to(output.getBackInserter(), "string{{{}}}", value.value);
+                fmt::format_to(output.getBackInserter(), "String{{{}}}", value.value);
             } else {
                 fmt::format_to(output.getBackInserter(), "{}", value.value);
             }

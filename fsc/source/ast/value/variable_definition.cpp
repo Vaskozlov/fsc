@@ -21,9 +21,7 @@ namespace fsc::ast
       : VariableDefinition{
             std::move(variable_name), variable_flags, variable_initializer->getValueType(),
             std::move(variable_initializer)}
-    {
-        CCL_ASSERT(this->getNodeType() == NodeType::VARIABLE_DEFINITION);
-    }
+    {}
 
     VariableDefinition::VariableDefinition(
         Visitor &visitor, FscParser::Variable_definitionContext *ctx)
@@ -57,7 +55,13 @@ namespace fsc::ast
             output << "const ";
         }
 
-        output << type_name << ' ' << getName() << " = ";
+        output << type_name << ' ';
+
+        if (isReference()) {
+            output << '&';
+        }
+
+        output << getName() << " = ";
 
         if (initializer != nullptr) {
             output << *initializer;

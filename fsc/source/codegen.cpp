@@ -1,13 +1,15 @@
 #include "codegen.hpp"
 #include "ast/basic_node.hpp"
+#include "function/argument.hpp"
 #include "type/type.hpp"
+#include <ccl/flatmap.hpp>
 #include <ranges>
 
 namespace fsc::gen
 {
     using namespace std::string_view_literals;
 
-    constexpr inline auto ScopeStr = "    "sv;
+    constexpr static auto ScopeStr = "    "sv;
 
     auto CodeGenerator::operator<<(char chr) -> CodeGenerator &
     {
@@ -39,6 +41,30 @@ namespace fsc::gen
     auto CodeGenerator::operator<<(const std::string &str) -> CodeGenerator &
     {
         return *this << std::string_view{str};
+    }
+
+    auto CodeGenerator::operator<<(const Argument &argument) -> CodeGenerator &
+    {
+        const auto category = argument.getCategory();
+        const auto &name = argument.getName();
+        const auto &type_name = FscType::getTypeName(argument.getType());
+        const auto type_id = argument.getType();
+        const auto is_trivially_copiable = FscType::isTriviallyCopyable(type_id);
+
+        if (category == ArgumentCategory::IN || category == ArgumentCategory::INOUT) {
+            *this << "const ";
+        }
+
+        *this << type_name << ' ';
+
+        if ((!is_trivially_copiable && category == ArgumentCategory::IN) ||
+            category == ArgumentCategory::OUT || category == ArgumentCategory::INOUT) {
+            *this << "&";
+        }
+
+        *this << name;
+
+        return *this;
     }
 
     auto CodeGenerator::operator<<(const ast::Node &node) -> CodeGenerator &

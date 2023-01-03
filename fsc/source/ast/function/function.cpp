@@ -119,8 +119,7 @@ namespace fsc::ast
             addNodiscardModifier(output);
             addConstexprModifier(output);
             output << fmt::format(
-                "constexpr {} operator{}", FscType::getTypeName(returnType),
-                MagicToRepr.at(magicType));
+                "{} operator{}", FscType::getTypeName(returnType), MagicToRepr.at(magicType));
             break;
 
         default:
@@ -206,22 +205,11 @@ namespace fsc::ast
 
     auto Function::argumentToString(gen::CodeGenerator &output, const Argument &arg) const -> void
     {
-        const auto &arg_name = arg.getName();
-        auto category = arg.getCategory();
-        const auto &type_name = FscType::getTypeName(arg.getType());
-        const auto trivially_copiable = FscType::isTriviallyCopyable(arg.getType());
+        const auto &argument_name = arg.getName();
+        output << arg;
 
-        const auto needs_to_be_constant = category == ArgumentCategory::IN;
-        const auto need_to_be_passed_by_reference =
-            (category == ArgumentCategory::IN && !trivially_copiable) ||
-            category == ArgumentCategory::OUT || category == ArgumentCategory::INOUT;
-
-        output << fmt::format(
-            "{}{} {}{}", needs_to_be_constant ? "const " : "", type_name,
-            need_to_be_passed_by_reference ? "&" : "", arg_name);
-
-        if (defaultArguments.contains(arg_name)) {
-            output << " = " << *defaultArguments.at(arg_name);
+        if (defaultArguments.contains(argument_name)) {
+            output << " = " << *defaultArguments.at(argument_name);
         }
     }
 

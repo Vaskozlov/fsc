@@ -7,12 +7,12 @@ namespace fsc
     constinit const std::string_view ClangCompilerFlags = "-std=c++2b -DFMT_HEADER_ONLY=1";
 
     constinit const std::string_view FscProgramsHeader = R"cpp(
-#include <concepts>
-#include <string>
-#include <cstddef>
 #include <cinttypes>
-#include <iostream>
+#include <concepts>
+#include <cstddef>
 #include <fmt/format.h>
+#include <iostream>
+#include <string>
 
 using i32 = int32_t;
 using i64 = int64_t;
@@ -21,15 +21,13 @@ using u64 = uint64_t;
 using f32 = float;
 using f64 = double;
 
-class string : public std::string
+class String : public std::string
 {
 public:
-    string() = default;
-
-    template<typename T>
-    constexpr string(T &&initial_value)
-        requires(std::constructible_from<std::string, T>)
-      : std::string{std::forward<T>(initial_value)}
+    template<typename... Ts>
+    constexpr String(Ts &&...initial_value)// NOLINT
+        requires(std::constructible_from<std::string, Ts...>)
+      : std::string{std::forward<Ts>(initial_value)...}
     {}
 
     [[nodiscard]] constexpr auto toI32() const -> i32
@@ -58,24 +56,23 @@ public:
     }
 };
 
-auto input(string str = {}) -> string
+auto input(String str = {}) -> String
 {
-    if (!str.empty())
-    {
+    if (!str.empty()) {
         fmt::print("{}\n", str);
     }
 
-    string result;
+    String result;
     std::getline(std::cin, result);
     return result;
 }
 
-auto print(const string &fmt, auto&&... args) -> void
+auto print(const String &fmt, auto &&...args) -> void
 {
     fmt::print(fmt::runtime(fmt), std::forward<decltype(args)>(args)...);
 }
 
-auto format(const string &fmt, auto&&... args) -> string
+constexpr auto format(const String &fmt, auto &&...args) -> String
 {
     return fmt::format(fmt::runtime(fmt), std::forward<decltype(args)>(args)...);
 }

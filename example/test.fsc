@@ -18,11 +18,11 @@ class S
 var foo = S().someVariable
 let pi = 3.141592653589793F64
 
+
 func main()
 {
     var x = true
     var s = S()
-
     print("{}\n", "1013".toI32())
     return 0
 }

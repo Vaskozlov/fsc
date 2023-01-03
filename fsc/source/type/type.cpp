@@ -10,13 +10,13 @@ namespace fsc
         {Void::typeId, "void"},     {Auto::typeId, "void"},   {Int32::typeId, "i32"},
         {Int64::typeId, "i64"},     {UInt32::typeId, "u32"},  {UInt64::typeId, "u64"},
         {Float32::typeId, "f32"},   {Float64::typeId, "f64"}, {Bool::typeId, "bool"},
-        {String::typeId, "string"}, {Char::typeId, "char"}};
+        {String::typeId, "String"}, {Char::typeId, "char"}};
 
     ccl::Map<std::string, ccl::Id> FscType::idByTypename{
         {"void", Void::typeId},     {"auto", Auto::typeId},   {"i32", Int32::typeId},
         {"i64", Int64::typeId},     {"u32", UInt32::typeId},  {"u64", UInt64::typeId},
         {"f32", Float32::typeId},   {"f64", Float64::typeId}, {"bool", Bool::typeId},
-        {"string", String::typeId}, {"char", Char::typeId}};
+        {"String", String::typeId}, {"char", Char::typeId}};
 
     ccl::Map<ccl::Id, TypeFlags> FscType::typeFlags{
         {Void::typeId, {.isTriviallyCopyable = false}},

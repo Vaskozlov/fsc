@@ -78,7 +78,7 @@ namespace fsc
 
     struct Signature
     {
-        operator SignatureView() const // NOLINT
+        operator SignatureView() const// NOLINT
         {
             return {name, arguments, classId};
         }
