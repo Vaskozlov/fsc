@@ -25,7 +25,7 @@ namespace fsc::ast
             return nodes.end();
         }
 
-        auto codeGen(gen::CodeGenerator &output) const -> void override;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void override;
 
         auto print(const std::string &prefix, bool is_left) const -> void override;
 
@@ -39,7 +39,7 @@ namespace fsc::ast
             nodes.emplace_back(std::move(node));
         }
 
-        auto defaultBodyCodegen(gen::CodeGenerator &output) const -> void;
+        auto defaultBodyCodegen(ccl::codegen::BasicCodeGenerator &output) const -> void;
         auto defaultBodyPrint(const std::string &prefix, bool is_left) const -> void;
     };
 }// namespace fsc::ast

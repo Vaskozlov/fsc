@@ -22,7 +22,7 @@ namespace fsc::ast
         defaultFunctionCallPrint(expandPrefix(prefix, false), false);
     }
 
-    auto MethodCall::codeGen(gen::CodeGenerator &output) const -> void
+    auto MethodCall::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         output << *expression << '.';
         defaultFunctionCallCodeGen(output);

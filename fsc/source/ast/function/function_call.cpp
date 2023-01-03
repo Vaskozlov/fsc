@@ -31,7 +31,7 @@ namespace fsc::ast
         }
     }
 
-    auto FunctionCall::defaultFunctionCallCodeGen(gen::CodeGenerator &output) const -> void
+    auto FunctionCall::defaultFunctionCallCodeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         output << function.lock()->getName() << '(';
 
@@ -51,7 +51,7 @@ namespace fsc::ast
         return function.lock()->getReturnType();
     }
 
-    auto FunctionCall::codeGen(gen::CodeGenerator &output) const -> void
+    auto FunctionCall::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         defaultFunctionCallCodeGen(output);
     }

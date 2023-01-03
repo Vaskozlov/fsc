@@ -43,7 +43,7 @@ namespace fsc::ast
         }
     }
 
-    auto VariableDefinition::codeGen(gen::CodeGenerator &output) const -> void
+    auto VariableDefinition::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         const auto &type_name = FscType::getTypeName(getValueType());
 
@@ -66,7 +66,7 @@ namespace fsc::ast
         if (initializer != nullptr) {
             output << *initializer;
         } else {
-            output << fmt::format("{}()", type_name);
+            output << type_name << "()";
         }
     }
 

@@ -13,7 +13,7 @@ namespace fsc::ast
     public:
         explicit Conversion(NodePtr value_to_convert, ccl::Id type_id);
 
-        auto codeGen(gen::CodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 

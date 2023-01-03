@@ -4,8 +4,10 @@
 
 namespace fsc::ast
 {
-    auto Program::codeGen(gen::CodeGenerator &output) const -> void
+    auto Program::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
+        using namespace ccl::codegen;
+
         for (const auto &node : *this) {
             output << *node;
 
@@ -13,7 +15,7 @@ namespace fsc::ast
                 output << ';';
             }
 
-            output << gen::endl << gen::endl;
+            output << endl << endl;
         }
     }
 

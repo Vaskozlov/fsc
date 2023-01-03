@@ -22,7 +22,7 @@ namespace fsc::ast
         }
     }
 
-    auto Return::codeGen(gen::CodeGenerator &output) const -> void
+    auto Return::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         output << "return " << *value;
     }

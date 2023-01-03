@@ -97,4 +97,11 @@ namespace fsc
 
         return typeMemberVariables.at(type_id).at(name);
     }
+
+    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const FscType &fsc_type)
+        -> ccl::codegen::BasicCodeGenerator &
+    {
+        fsc_type.codeGen(generator);
+        return generator;
+    }
 }// namespace fsc

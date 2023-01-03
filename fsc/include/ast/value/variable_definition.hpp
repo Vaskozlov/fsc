@@ -27,7 +27,7 @@ namespace fsc::ast
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
-        auto codeGen(gen::CodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 
         [[nodiscard]] auto toVariable() const -> const Variable &
         {

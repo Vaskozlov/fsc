@@ -15,7 +15,7 @@ namespace fsc::ast
     public:
         explicit Class(std::string name_);
 
-        auto codeGen(gen::CodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 

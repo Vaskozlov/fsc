@@ -6,7 +6,7 @@
 #include "visibility.hpp"
 #include "visitor.hpp"
 #include <ccl/ccl.hpp>
-#include <codegen.hpp>
+#include <ccl/codegen/basic_codegen.hpp>
 
 namespace fsc::ast
 {
@@ -58,7 +58,7 @@ namespace fsc::ast
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
-        auto codeGen(gen::CodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 
         [[nodiscard]] auto operator==(SignatureView other) const noexcept -> bool;
 
@@ -122,8 +122,8 @@ namespace fsc::ast
 
         auto processAttributes(FscParser::Function_attibutesContext *ctx) -> void;
 
-        auto genArguments(gen::CodeGenerator &output) const -> void;
-        auto argumentToString(gen::CodeGenerator &output, const Argument &arg) const -> void;
+        auto genArguments(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto argumentToString(ccl::codegen::BasicCodeGenerator &output, const Argument &arg) const -> void;
         auto readArguments(const FscParser::ParametersContext *parameters_context, Visitor &visitor)
             -> void;
 
@@ -134,8 +134,8 @@ namespace fsc::ast
 
         auto setReturnType(const std::vector<antlr4::tree::ParseTree *> &nodes) -> void;
 
-        auto addNodiscardModifier(gen::CodeGenerator &output) const -> void;
-        auto addConstexprModifier(gen::CodeGenerator &output) const -> void;
+        auto addNodiscardModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto addConstexprModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
     };
 }// namespace fsc::ast
 

@@ -24,16 +24,16 @@ namespace fsc
             return fmt::format("{}: {}", getTypeName(), value.value);
         }
 
-        auto codeGen(gen::CodeGenerator &output) const -> void final
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final
         {
             if constexpr (std::is_same_v<Float32, T>) {
-                fmt::format_to(output.getBackInserter(), "{:f}F", value.value);
+                fmt::format_to(output.getBackInserter(), "{:.8e}F", value.value);
             } else if constexpr (std::is_same_v<Float64, T>) {
-                fmt::format_to(output.getBackInserter(), "{:f}", value.value);
+                fmt::format_to(output.getBackInserter(), "{:.15e}", value.value);
             } else if constexpr (std::is_same_v<String, T>) {
                 fmt::format_to(output.getBackInserter(), "String{{{}}}", value.value);
             } else {
-                fmt::format_to(output.getBackInserter(), "{}", value.value);
+                output << value.value;
             }
         }
     };

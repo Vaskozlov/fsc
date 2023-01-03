@@ -17,7 +17,7 @@ namespace fsc::ast
         }
     }
 
-    auto MemberVariable::codeGen(gen::CodeGenerator &output) const -> void
+    auto MemberVariable::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         output << *node << '.' << name;
     }

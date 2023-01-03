@@ -39,7 +39,7 @@ namespace fsc::ast
             std::mem_fn(&Function::getReturnType));
     }
 
-    auto BinaryOperation::codeGen(gen::CodeGenerator &output) const -> void
+    auto BinaryOperation::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         output << *lhs << " " << operationType << " " << *rhs;
     }

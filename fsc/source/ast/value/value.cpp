@@ -11,7 +11,7 @@ namespace fsc::ast
         CCL_ASSERT(this->getNodeType() == NodeType::VALUE);
     }
 
-    auto Value::codeGen(gen::CodeGenerator &output) const -> void
+    auto Value::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         output << *value;
     }

@@ -1,5 +1,4 @@
 #include "ast/container/body.hpp"
-#include "codegen.hpp"
 #include <ranges>
 
 namespace fsc::ast
@@ -20,17 +19,19 @@ namespace fsc::ast
         return nodes.back()->getValueType();
     }
 
-    auto Body::defaultBodyCodegen(gen::CodeGenerator &output) const -> void
+    auto Body::defaultBodyCodegen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
-        output << gen::curly_opening << gen::push_scope;
-        bool first_node_passed = false;
+        using namespace ccl::codegen;
+
+        auto first_node_passed = false;
+        output << '{' << push_scope;
 
         for (const auto &node : nodes) {
             if (node->semicolonRequired() == SemicolonNeed::DO_NOT_NEED && !first_node_passed) {
-                output << gen::endl;
+                output << endl;
             }
 
-            output << gen::endl << *node;
+            output << endl << *node;
 
             if (node->semicolonRequired() == SemicolonNeed::NEED) {
                 output << ';';
@@ -39,10 +40,10 @@ namespace fsc::ast
             first_node_passed = true;
         }
 
-        output << gen::pop_scope << gen::endl << gen::curly_closing;
+        output << pop_scope << endl << '}';
     }
 
-    auto Body::codeGen(gen::CodeGenerator &output) const -> void
+    auto Body::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         defaultBodyCodegen(output);
     }
@@ -52,12 +53,12 @@ namespace fsc::ast
         const auto expanded_prefix = expandPrefix(prefix, is_left);
         fmt::print("{}Body\n", getPrintingPrefix(prefix, is_left));
 
-        for (auto &node : nodes | ccl::views::dropBack(nodes, 1)) {
+        for (const auto &node : nodes | ccl::views::dropBack(nodes, 1)) {
             node->print(expanded_prefix, true);
         }
 
         if (!nodes.empty()) {
-            auto &node = nodes.back();
+            const auto &node = nodes.back();
             node->print(expanded_prefix, false);
         }
     }

@@ -1,8 +1,8 @@
 #ifndef FSC_BASIC_NODE_HPP
 #define FSC_BASIC_NODE_HPP
 
-#include "codegen.hpp"
 #include <ccl/ccl.hpp>
+#include <ccl/codegen/basic_codegen.hpp>
 #include <concepts>
 #include <stdexcept>
 #include <typeinfo>
@@ -78,7 +78,7 @@ namespace fsc::ast
 
         virtual auto print(const std::string &prefix = "", bool is_left = false) const -> void = 0;
 
-        virtual auto codeGen(gen::CodeGenerator &output) const -> void = 0;
+        virtual auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void = 0;
 
         virtual auto optimize(OptimizationLevel /* unused */) -> void
         {}
@@ -160,6 +160,9 @@ namespace fsc::ast
     };
 
     using NodePtr = ccl::SharedPtr<Node>;
+
+    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const Node &node)
+        -> ccl::codegen::BasicCodeGenerator &;
 }// namespace fsc::ast
 
 #endif /* FSC_BASIC_NODE_HPP */

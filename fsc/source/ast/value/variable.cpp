@@ -11,7 +11,7 @@ namespace fsc::ast
         CCL_ASSERT(this->getNodeType() == NodeType::VARIABLE);
     }
 
-    auto Variable::codeGen(gen::CodeGenerator &output) const -> void
+    auto Variable::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         output << name;
     }

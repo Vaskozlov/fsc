@@ -7,8 +7,10 @@ namespace fsc::ast
       , body{std::move(while_body)}
     {}
 
-    auto While::codeGen(gen::CodeGenerator &output) const -> void
+    auto While::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
+        using namespace ccl::codegen;
+
         output << "while ";
 
         if (condition->is(NodeType::PARENTHESIZED)) {
@@ -17,8 +19,7 @@ namespace fsc::ast
             output << '(' << *condition << ')';
         }
 
-        output << gen::endl;
-        output << *body;
+        output << endl << *body;
     }
 
     auto While::print(const std::string &prefix, bool is_left) const -> void

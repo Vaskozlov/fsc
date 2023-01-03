@@ -2,9 +2,9 @@
 #define FSC_TYPE_HPP
 
 #include "ast/value/variable.hpp"
-#include "codegen.hpp"
 #include "visibility.hpp"
 #include <ccl/ccl.hpp>
+#include <ccl/codegen/basic_codegen.hpp>
 
 namespace fsc
 {
@@ -36,7 +36,7 @@ namespace fsc
         auto operator=(FscType &&other) noexcept -> FscType & = default;
 
         [[nodiscard]] virtual auto toString() const -> std::string = 0;
-        virtual auto codeGen(gen::CodeGenerator &output) const -> void = 0;
+        virtual auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void = 0;
 
         [[nodiscard]] static auto isTriviallyCopyable(const ccl::Id id) -> bool
         {
@@ -91,6 +91,9 @@ namespace fsc
         static auto getMemberVariable(ccl::Id type_id, const std::string &name)
             -> ccl::SharedPtr<ast::Variable>;
     };
+
+    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const FscType &fsc_type)
+        -> ccl::codegen::BasicCodeGenerator &;
 }// namespace fsc
 
 #endif /* FSC_TYPE_HPP */

@@ -4,6 +4,7 @@
 #include "ast/value/variable.hpp"
 #include "type/type.hpp"
 #include <ccl/ccl.hpp>
+#include <ccl/codegen/basic_codegen.hpp>
 #include <ccl/flatmap.hpp>
 
 namespace fsc
@@ -87,6 +88,9 @@ namespace fsc
         ccl::SmallVector<Argument> arguments{};
         ccl::Id classId{};
     };
+
+    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const Argument &argument)
+        -> ccl::codegen::BasicCodeGenerator &;
 }// namespace fsc
 
 #endif /* FSC_ARGUMENT_HPP */

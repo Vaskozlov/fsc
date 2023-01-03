@@ -2,7 +2,6 @@
 #define FSC_VISITOR_HPP
 
 #include "ast/container/program.hpp"
-#include "codegen.hpp"
 #include "FscBaseVisitor.h"
 #include "function/argument.hpp"
 #include <ANTLRInputStream.h>

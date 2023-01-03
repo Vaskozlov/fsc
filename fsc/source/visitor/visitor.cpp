@@ -117,8 +117,8 @@ namespace fsc
     auto Visitor::codeGen() -> std::string
     {
         program.print("", false);
-        gen::CodeGenerator generator;
+        ccl::codegen::BasicCodeGenerator generator;
         generator << program;
-        return generator.getGenerated();
+        return generator.getCode();
     }
 }// namespace fsc

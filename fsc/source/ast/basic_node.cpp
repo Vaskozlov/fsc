@@ -57,4 +57,11 @@ namespace fsc::ast
     {
         throw std::runtime_error{"getValueType() is not implemented"};
     }
+
+    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const Node &node)
+        -> ccl::codegen::BasicCodeGenerator &
+    {
+        node.codeGen(generator);
+        return generator;
+    }
 }// namespace fsc::ast

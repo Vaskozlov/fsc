@@ -16,15 +16,17 @@ namespace fsc::ast
       , ifType{if_type}
     {}
 
-    auto If::codeGen(gen::CodeGenerator &output) const -> void
+    auto If::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
+        using namespace ccl::codegen;
+
         output << IfTypeToStr.at(getIfType());
 
         if (getIfType() != IfType::ELSE) {
             output << *condition;
         }
 
-        output << gen::endl << *body;
+        output << endl << *body;
     }
 
     auto If::print(const std::string &prefix, bool is_left) const -> void

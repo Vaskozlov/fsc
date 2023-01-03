@@ -19,13 +19,13 @@ namespace fsc::ast
 
         auto print(const std::string &prefix, bool is_left) const -> void override;
 
-        auto codeGen(gen::CodeGenerator &output) const -> void override;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void override;
 
         [[nodiscard]] auto getValueType() const -> ccl::Id final;
 
     protected:
         auto defaultFunctionCallPrint(const std::string &prefix, bool is_left) const -> void;
-        auto defaultFunctionCallCodeGen(gen::CodeGenerator &output) const -> void;
+        auto defaultFunctionCallCodeGen(ccl::codegen::BasicCodeGenerator &output) const -> void;
     };
 }// namespace fsc::ast
 

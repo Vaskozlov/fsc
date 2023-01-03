@@ -29,4 +29,29 @@ namespace fsc
 
         return {name, type, variable_flags};
     }
+
+    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const Argument &argument)
+        -> ccl::codegen::BasicCodeGenerator &
+    {
+        const auto category = argument.getCategory();
+        const auto &name = argument.getName();
+        const auto &type_name = FscType::getTypeName(argument.getType());
+        const auto type_id = argument.getType();
+        const auto is_trivially_copiable = FscType::isTriviallyCopyable(type_id);
+
+        if (category == ArgumentCategory::IN || category == ArgumentCategory::INOUT) {
+            generator << "const ";
+        }
+
+        generator << type_name << ' ';
+
+        if ((!is_trivially_copiable && category == ArgumentCategory::IN) ||
+            category == ArgumentCategory::OUT || category == ArgumentCategory::INOUT) {
+            generator << "&";
+        }
+
+        generator << name;
+
+        return generator;
+    }
 }// namespace fsc

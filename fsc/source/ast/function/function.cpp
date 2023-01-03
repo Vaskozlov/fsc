@@ -98,7 +98,7 @@ namespace fsc::ast
         function->print(expandPrefix(prefix, is_left));
     }
 
-    auto Function::codeGen(gen::CodeGenerator &output) const -> void
+    auto Function::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         if (isMember()) {
             genVisibility(visibility, output);
@@ -108,7 +108,7 @@ namespace fsc::ast
         case MagicFunctionType::DEL:
         case MagicFunctionType::INIT:
             addConstexprModifier(output);
-            output << fmt::format("{}", name);
+            output << name;
             break;
 
         case MagicFunctionType::ADD:
@@ -118,15 +118,16 @@ namespace fsc::ast
         case MagicFunctionType::MOD:
             addNodiscardModifier(output);
             addConstexprModifier(output);
-            output << fmt::format(
-                "{} operator{}", FscType::getTypeName(returnType), MagicToRepr.at(magicType));
+            fmt::format_to(
+                output.getBackInserter(), "{} operator{}", FscType::getTypeName(returnType),
+                MagicToRepr.at(magicType));
             break;
 
         default:
             addNodiscardModifier(output);
             addConstexprModifier(output);
 
-            output << fmt::format("{} {}", FscType::getTypeName(returnType), name);
+            output << FscType::getTypeName(returnType) << ' ' << name;
             break;
         }
 
@@ -191,7 +192,7 @@ namespace fsc::ast
         }
     }
 
-    auto Function::genArguments(gen::CodeGenerator &output) const -> void
+    auto Function::genArguments(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         for (const auto &arg : arguments | ccl::views::dropBack(arguments)) {
             argumentToString(output, arg);
@@ -203,7 +204,7 @@ namespace fsc::ast
         }
     }
 
-    auto Function::argumentToString(gen::CodeGenerator &output, const Argument &arg) const -> void
+    auto Function::argumentToString(ccl::codegen::BasicCodeGenerator &output, const Argument &arg) const -> void
     {
         const auto &argument_name = arg.getName();
         output << arg;
@@ -283,14 +284,14 @@ namespace fsc::ast
         return {arg_name, FscType::getTypeId(type_name), ArgumentCategories.at(category)};
     }
 
-    auto Function::addNodiscardModifier(gen::CodeGenerator &output) const -> void
+    auto Function::addNodiscardModifier(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         if (returnType != Void::typeId && name != "main") {
             output << "[[nodiscard]] ";
         }
     }
 
-    auto Function::addConstexprModifier(gen::CodeGenerator &output) const -> void
+    auto Function::addConstexprModifier(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         if (name != "main") {
             output << "constexpr ";

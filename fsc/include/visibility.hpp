@@ -1,8 +1,8 @@
 #ifndef FSC_VISIBILITY_HPP
 #define FSC_VISIBILITY_HPP
 
-#include "codegen.hpp"
 #include <ccl/flatmap.hpp>
+#include <ccl/codegen/basic_codegen.hpp>
 
 namespace fsc
 {
@@ -21,7 +21,7 @@ namespace fsc
         {"private", Visibility::PRIVATE},
         {"fileprivate", Visibility::FILE_PRIVATE}};
 
-    auto genVisibility(Visibility visibility, gen::CodeGenerator &output) -> void;
+    auto genVisibility(Visibility visibility, ccl::codegen::BasicCodeGenerator &output) -> void;
 }// namespace fsc
 
 #endif /* FSC_VISIBILITY_HPP */

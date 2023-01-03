@@ -21,7 +21,7 @@ namespace fsc::ast
         node->optimize(optimization_level);
     }
 
-    auto Parenthesized::codeGen(gen::CodeGenerator &output) const -> void
+    auto Parenthesized::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         output << '(' << *node << ')';
     }

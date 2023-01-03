@@ -16,16 +16,18 @@ namespace fsc::ast
         parseElseStmt(visitor, ccl::as<FscParser::ElseContext *>(else_context));
     }
 
-    auto IfStmt::codeGen(gen::CodeGenerator &output) const -> void
+    auto IfStmt::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
+        using namespace ccl::codegen;
+
         output << *ifNode;
 
         for (const auto &node : elifNodes) {
-            output << gen::endl << *node;
+            output << endl << *node;
         }
 
         if (elseNode != nullptr) {
-            output << gen::endl << *elseNode;
+            output << endl << *elseNode;
         }
     }
 

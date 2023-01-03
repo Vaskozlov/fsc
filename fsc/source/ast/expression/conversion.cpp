@@ -12,9 +12,9 @@ namespace fsc::ast
         CCL_ASSERT(this->getNodeType() == NodeType::CONVERSION);
     }
 
-    auto Conversion::codeGen(gen::CodeGenerator &output) const -> void
+    auto Conversion::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
-        output << fmt::format("{}{{", FscType::getTypeName(typeId)) << *value << '}';
+        output << FscType::getTypeName(typeId) << '{' << *value << '}';
     }
 
     auto Conversion::getValueType() const -> ccl::Id

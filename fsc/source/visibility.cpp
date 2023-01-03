@@ -1,11 +1,10 @@
 #include "visibility.hpp"
-#include <codegen.hpp>
 
 namespace fsc
 {
     using namespace std::string_view_literals;
 
-    auto genVisibility(Visibility visibility, gen::CodeGenerator &output) -> void
+    auto genVisibility(Visibility visibility, ccl::codegen::BasicCodeGenerator &output) -> void
     {
         switch (visibility) {
         case Visibility::PUBLIC:
@@ -24,6 +23,6 @@ namespace fsc
             break;
         }
 
-        output << gen::endl;
+        output << ccl::codegen::endl;
     }
 }// namespace fsc

@@ -16,7 +16,7 @@ namespace fsc::ast
     public:
         IfStmt(Visitor &visitor, FscParser::If_stmtContext *ctx);
 
-        auto codeGen(gen::CodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 

@@ -14,7 +14,7 @@ namespace fsc::ast
     public:
         While(NodePtr while_condition, NodePtr while_body);
 
-        auto codeGen(gen::CodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
     };

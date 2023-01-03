@@ -2,6 +2,7 @@
 #define FSC_PARENTHESIZED_HPP
 
 #include "ast/basic_node.hpp"
+#include <ccl/codegen/basic_codegen.hpp>
 
 namespace fsc::ast
 {
@@ -16,7 +17,7 @@ namespace fsc::ast
 
         auto optimize(OptimizationLevel optimization) -> void final;
 
-        auto codeGen(gen::CodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
     };
