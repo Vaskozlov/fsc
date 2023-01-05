@@ -5,7 +5,7 @@
 
 namespace fsc::ast
 {
-    class MemberVariable : public NodeWrapper<NodeType::MEMBER_VARIABLE, SemicolonNeed::NEED>
+    class MemberVariable final : public NodeWrapper<NodeType::MEMBER_VARIABLE, SemicolonNeed::NEED>
     {
     private:
         NodePtr node;
@@ -13,6 +13,8 @@ namespace fsc::ast
 
     public:
         MemberVariable(NodePtr node_to_access, std::string variable_name);
+
+        auto analyze() const -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 

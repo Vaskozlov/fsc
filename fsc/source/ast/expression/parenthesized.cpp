@@ -12,6 +12,11 @@ namespace fsc::ast
         return node->getValueType();
     }
 
+    auto Parenthesized::analyze() const -> void
+    {
+        node->analyze();
+    }
+
     auto Parenthesized::optimize(OptimizationLevel optimization_level) -> void
     {
         if (node->is(NodeType::PARENTHESIZED)) {

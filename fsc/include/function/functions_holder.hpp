@@ -3,12 +3,19 @@
 
 #include "ast/function/function.hpp"
 #include <ccl/core/types.hpp>
+#include <expected>
 #include <function/argument.hpp>
 #include <list>
 #include <type/type.hpp>
 
 namespace fsc::func
 {
+    enum struct FunctionFindFailure : ccl::u32
+    {
+        NO_FUNCTIONS_WITH_THE_SAME_NAME,
+        NO_FUNCTIONS_WITH_THE_SAME_PARAMETERS
+    };
+
     class FunctionsHolder
     {
     private:
@@ -28,7 +35,7 @@ namespace fsc::func
         [[nodiscard]] auto visitFunction(SignatureView signature, auto &&function) const
             -> decltype(auto)
         {
-            return function(findFunction(signature)->get());
+            return function(findFunction(signature).value()->get());
         }
 
         [[nodiscard]] auto get(SignatureView signature) const -> ccl::SharedPtr<ast::Function>;
@@ -41,11 +48,22 @@ namespace fsc::func
         auto appendFunction(ccl::SharedPtr<ast::Function> &function, ccl::Id class_id) noexcept(
             false) -> void;
 
-        [[nodiscard]] auto findFunction(SignatureView signature) const noexcept(false) ->
-            typename FunctionsList::const_iterator;
+        [[nodiscard]] auto findFunction(SignatureView signature) const noexcept
+            -> std::expected<typename FunctionsList::const_iterator, FunctionFindFailure>;
+
+        [[nodiscard]] auto findMagicFunction(SignatureView signature) const noexcept
+            -> std::expected<typename FunctionsList::const_iterator, FunctionFindFailure>;
+
+        [[nodiscard]] auto checkMagicFunctionOrReturnFailure(
+            SignatureView signature, FunctionFindFailure failure_type) const noexcept
+            -> std::expected<typename FunctionsList::const_iterator, FunctionFindFailure>;
 
         [[noreturn]] static auto
-            throwUnableToFindFunction(SignatureView signature) noexcept(false) -> void;
+            throwUnableToFindFunctionWithGivenName(SignatureView signature) noexcept(false) -> void;
+
+        [[noreturn]] static auto
+            throwUnableToFindFunctionWithGivenParameters(SignatureView signature) noexcept(false)
+                -> void;
     };
 
     extern FunctionsHolder Functions;

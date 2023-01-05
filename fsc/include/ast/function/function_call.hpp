@@ -17,6 +17,8 @@ namespace fsc::ast
                 function_to_call,
             const ccl::SmallVector<NodePtr> &function_arguments);
 
+        auto analyze() const -> void;
+
         auto print(const std::string &prefix, bool is_left) const -> void override;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void override;

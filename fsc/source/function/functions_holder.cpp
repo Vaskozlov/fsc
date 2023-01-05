@@ -1,13 +1,20 @@
 #include "function/functions_holder.hpp"
 #include "ast/function/function.hpp"
+#include "ast/function/magic_methods_table.hpp"
 #include "function/argument.hpp"
 #include <algorithm>
 #include <ccl/ccl.hpp>
+#include <expected>
 #include <fmt/format.h>
 #include <ranges>
 
 namespace fsc::func
 {
+    static auto isMagicFunction(SignatureView signature) noexcept -> bool
+    {
+        return ast::magic::SpecialFunctionsMagic.contains(signature.name);
+    }
+
     FunctionsHolder::FunctionsHolder() = default;
 
     FunctionsHolder::FunctionsHolder(ccl::InitializerList<ccl::Vector<ast::Function>> functions_)
@@ -51,7 +58,17 @@ namespace fsc::func
 
     auto FunctionsHolder::get(SignatureView signature) const -> ccl::SharedPtr<ast::Function>
     {
-        return *findFunction(signature);
+        auto find_result = findFunction(signature);
+
+        if (find_result == std::unexpected(FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_NAME)) {
+            throwUnableToFindFunctionWithGivenName(signature);
+        } else if (
+            find_result ==
+            std::unexpected(FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_PARAMETERS)) {
+            throwUnableToFindFunctionWithGivenParameters(signature);
+        }
+
+        return *find_result.value();
     }
 
     auto FunctionsHolder::get(const std::string &name, const ccl::SmallVector<Argument> &arguments)
@@ -60,17 +77,20 @@ namespace fsc::func
         return get({name, arguments});
     }
 
-    auto FunctionsHolder::findFunction(SignatureView signature) const noexcept(false) ->
-        typename FunctionsList::const_iterator
+    // NOLINTNEXTLINE
+    auto FunctionsHolder::findFunction(SignatureView signature) const noexcept
+        -> std::expected<typename FunctionsList::const_iterator, FunctionFindFailure>
     {
         if (!functions.contains(signature.classId)) {
-            throwUnableToFindFunction(signature);
+            return checkMagicFunctionOrReturnFailure(
+                signature, FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_NAME);
         }
 
         const auto &functions_with_similar_class_id = functions.at(signature.classId);
 
         if (!functions_with_similar_class_id.contains(signature.name)) {
-            throwUnableToFindFunction(signature);
+            return checkMagicFunctionOrReturnFailure(
+                signature, FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_NAME);
         }
 
         const auto &functions_with_similar_name =
@@ -82,24 +102,52 @@ namespace fsc::func
             });
 
         if (function_it == functions_with_similar_name.end()) {
-            if (signature.classId == 0 && signature.name.substr(0, 2) == "__") {
-                ccl::SmallVector<Argument> arguments;
-
-                for (const auto &argument : signature.arguments | std::views::drop(1)) {
-                    arguments.push_back(argument);
-                }
-
-                return findFunction({signature.name, arguments, arguments.front().getType()});
-            }
-
-            throwUnableToFindFunction(signature);
+            return checkMagicFunctionOrReturnFailure(
+                signature, FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_PARAMETERS);
         }
 
         return function_it;
     }
 
-    auto FunctionsHolder::throwUnableToFindFunction(SignatureView signature) noexcept(false) -> void
+    // NOLINTNEXTLINE
+    auto FunctionsHolder::findMagicFunction(SignatureView signature) const noexcept
+        -> std::expected<typename FunctionsList::const_iterator, FunctionFindFailure>
+    {
+        auto arguments = ccl::SmallVector<Argument>{};
+
+        for (const auto &argument : signature.arguments | std::views::drop(1)) {
+            arguments.push_back(argument);
+        }
+
+        const auto class_id = arguments.front().getType();
+
+        return findFunction({signature.name, arguments, class_id});
+    }
+
+    // NOLINTNEXTLINE
+    auto FunctionsHolder::checkMagicFunctionOrReturnFailure(
+        SignatureView signature,
+        FunctionFindFailure failure_type) const noexcept
+        -> std::expected<typename FunctionsList::const_iterator, FunctionFindFailure>
+    {
+        if (signature.classId == 0 && isMagicFunction(signature)) {
+            return findMagicFunction(signature);
+        }
+
+        return std::unexpected(failure_type);
+    }
+
+    auto FunctionsHolder::throwUnableToFindFunctionWithGivenName(SignatureView signature) noexcept(
+        false) -> void
     {
         throw std::runtime_error(fmt::format("function with name {} not found", signature.name));
+    }
+
+    auto FunctionsHolder::throwUnableToFindFunctionWithGivenParameters(
+        SignatureView signature) noexcept(false) -> void
+    {
+        throw std::runtime_error(fmt::format(
+            "function with name {} has been found, but it's parameters do not match",
+            signature.name));
     }
 }// namespace fsc::func

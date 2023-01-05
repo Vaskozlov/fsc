@@ -25,6 +25,8 @@ namespace fsc::ast
     public:
         Variable(std::string variable_name, ccl::Id type_id, VariableFlags variable_flags);
 
+        auto analyze() const -> void override;
+
         auto print(const std::string &prefix, bool is_left) const -> void override;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void override;

@@ -145,4 +145,9 @@ namespace fsc
         generator << program;
         return generator.getCode();
     }
+
+    auto Visitor::analyze() const -> void
+    {
+        program.analyze();
+    }
 }// namespace fsc

@@ -7,6 +7,12 @@ namespace fsc::ast
       , body{std::move(while_body)}
     {}
 
+    auto While::analyze() const -> void
+    {
+        condition->analyze();
+        body->analyze();
+    }
+
     auto While::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         using namespace ccl::codegen;

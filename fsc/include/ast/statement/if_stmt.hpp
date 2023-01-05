@@ -6,7 +6,7 @@
 
 namespace fsc::ast
 {
-    class IfStmt : public NodeWrapper<NodeType::IF_STMT, SemicolonNeed::DO_NOT_NEED>
+    class IfStmt final : public NodeWrapper<NodeType::IF_STMT, SemicolonNeed::DO_NOT_NEED>
     {
     private:
         ccl::Vector<NodePtr> elifNodes;
@@ -15,6 +15,8 @@ namespace fsc::ast
 
     public:
         IfStmt(Visitor &visitor, FscParser::If_stmtContext *ctx);
+
+        auto analyze() const -> void final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 

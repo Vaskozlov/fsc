@@ -6,7 +6,7 @@
 
 namespace fsc::ast
 {
-    class BinaryOperation : public NodeWrapper<NodeType::BINARY_OPERATOR, SemicolonNeed::NEED>
+    class BinaryOperation final : public NodeWrapper<NodeType::BINARY_OPERATOR, SemicolonNeed::NEED>
     {
         NodePtr lhs;
         NodePtr rhs;
@@ -16,6 +16,8 @@ namespace fsc::ast
         BinaryOperation(std::string operation_type, NodePtr left_node, NodePtr right_node);
 
         [[nodiscard]] auto getValueType() const -> ccl::Id final;
+
+        auto analyze() const -> void final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 

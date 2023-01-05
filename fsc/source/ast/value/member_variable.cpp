@@ -22,6 +22,11 @@ namespace fsc::ast
         output << *node << '.' << name;
     }
 
+    auto MemberVariable::analyze() const -> void
+    {
+        node->analyze();
+    }
+
     auto MemberVariable::print(const std::string &prefix, bool is_left) const -> void
     {
         node->print(prefix, is_left);

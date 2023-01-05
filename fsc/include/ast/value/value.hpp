@@ -2,17 +2,19 @@
 #define FSC_VALUE_HPP
 
 #include "ast/basic_node.hpp"
-#include "ccl/core/types.hpp"
 #include "type/type.hpp"
+#include <ccl/core/types.hpp>
 
 namespace fsc::ast
 {
-    class Value : public NodeWrapper<NodeType::VALUE, SemicolonNeed::NEED>
+    class Value final : public NodeWrapper<NodeType::VALUE, SemicolonNeed::NEED>
     {
         ccl::UniquePtr<FscType> value;
 
     public:
         explicit Value(ccl::UniquePtr<FscType> t_value);
+
+        auto analyze() const -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 

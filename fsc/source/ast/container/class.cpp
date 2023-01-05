@@ -20,6 +20,11 @@ namespace fsc::ast
         FscType::registerNewType(name, {.isTriviallyCopyable = false});
     }
 
+    auto Class::analyze() const -> void
+    {
+        defaultAnalyze();
+    }
+
     auto Class::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         output << "class " << name;

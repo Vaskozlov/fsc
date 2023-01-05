@@ -30,13 +30,16 @@ namespace fsc::ast
 
     auto BinaryOperation::getValueType() const -> ccl::Id
     {
-        const auto left_argument_type = Argument{lhs.get()};
-        const auto right_argument_type = Argument{rhs.get()};
         const auto function_name = OperatorToFunctionName.at(operationType);
 
         return func::Functions.visitFunction(
-            {std::string{function_name}, {left_argument_type, right_argument_type}},
+            {std::string{function_name}, {Argument{lhs.get()}, Argument{rhs.get()}}},
             std::mem_fn(&Function::getReturnType));
+    }
+
+    auto BinaryOperation::analyze() const -> void
+    {
+        [[maybe_unused]] auto make_sure_that_binary_function_exists = getValueType();
     }
 
     auto BinaryOperation::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void

@@ -41,6 +41,7 @@ namespace fsc
         {}
 
         auto codeGen() -> std::string;
+        auto analyze() const  -> void;
 
         [[nodiscard]] auto getCurrentFunctionReturnType() const -> ccl::Id
         {

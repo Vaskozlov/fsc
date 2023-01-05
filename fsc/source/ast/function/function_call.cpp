@@ -21,17 +21,18 @@ namespace fsc::ast
         const auto expanded_prefix = expandPrefix(prefix, false);
         fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), function.lock()->getName());
 
-        for (auto &arg : arguments | ccl::views::dropBack(arguments)) {
+        for (const auto &arg : arguments | ccl::views::dropBack(arguments)) {
             arg->print(expanded_prefix, true);
         }
 
         if (!arguments.empty()) {
-            auto &node = arguments.back();
+            const auto &node = arguments.back();
             node->print(expanded_prefix, false);
         }
     }
 
-    auto FunctionCall::defaultFunctionCallCodeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
+    auto FunctionCall::defaultFunctionCallCodeGen(ccl::codegen::BasicCodeGenerator &output) const
+        -> void
     {
         output << function.lock()->getName() << '(';
 
@@ -44,6 +45,11 @@ namespace fsc::ast
         }
 
         output << ')';
+    }
+
+    auto FunctionCall::analyze() const -> void
+    {
+        [[maybe_unused]] auto make_sure_return_type_exists = function.lock()->getReturnType();
     }
 
     auto FunctionCall::getValueType() const -> ccl::Id

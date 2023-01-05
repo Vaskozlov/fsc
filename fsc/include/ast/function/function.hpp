@@ -60,6 +60,8 @@ namespace fsc::ast
             const FscParser::FunctionContext *function_context, Visitor &visitor, ccl::Id class_id)
             -> void;
 
+        auto analyze() const -> void override;
+
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
@@ -113,6 +115,9 @@ namespace fsc::ast
         {
             return defaultArguments;
         }
+
+    protected:
+        auto defaultAnalyze() const -> void;
 
     private:
         [[nodiscard]] auto getReturnTypeAsString() const -> std::string;

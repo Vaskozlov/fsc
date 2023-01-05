@@ -6,8 +6,8 @@
 
 namespace fsc::ast::magic
 {
-    constexpr static auto SpecialFunctionsMagic =
-        ccl::StaticFlatmap<std::string_view, MagicFunctionType, 12>{
+    constexpr inline auto SpecialFunctionsMagic =
+        ccl::StaticFlatmap<std::string_view, MagicFunctionType, 14>{
             {"__add__", MagicFunctionType::ADD},
             {"__sub__", MagicFunctionType::SUB},
             {"__mul__", MagicFunctionType::MUL},
@@ -19,9 +19,11 @@ namespace fsc::ast::magic
             {"__greater__", MagicFunctionType::GREATER},
             {"__less_eq__", MagicFunctionType::LESS_EQ},
             {"__greater_eq__", MagicFunctionType::GREATER_EQ},
-            {"__copy__", MagicFunctionType::GREATER_EQ}};
+            {"__copy__", MagicFunctionType::GREATER_EQ},
+            {"__init__", MagicFunctionType::INIT},
+            {"__del__", MagicFunctionType::DEL}};
 
-    constexpr static ccl::StaticFlatmap<MagicFunctionType, std::string_view, 12> MagicToFscName = {
+    constexpr inline ccl::StaticFlatmap<MagicFunctionType, std::string_view, 12> MagicToFscName = {
         {MagicFunctionType::ADD, "__add__"},
         {MagicFunctionType::SUB, "__sub__"},
         {MagicFunctionType::MUL, "__mul__"},
@@ -35,7 +37,7 @@ namespace fsc::ast::magic
         {MagicFunctionType::GREATER_EQ, "__greater_eq__"},
         {MagicFunctionType::ASSIGN, "__copy__"}};
 
-    constexpr static ccl::StaticFlatmap<MagicFunctionType, std::string_view, 12> MagicToRepr = {
+    constexpr inline ccl::StaticFlatmap<MagicFunctionType, std::string_view, 12> MagicToRepr = {
         {MagicFunctionType::ADD, "+"},         {MagicFunctionType::SUB, "-"},
         {MagicFunctionType::MUL, "*"},         {MagicFunctionType::DIV, "/"},
         {MagicFunctionType::MOD, "%"},         {MagicFunctionType::EQUAL, "=="},

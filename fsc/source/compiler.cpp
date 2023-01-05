@@ -1,5 +1,4 @@
 #include "compiler.hpp"
-#include "ccl/string_view.hpp"
 #include "FscLexer.h"
 #include "FscParser.h"
 #include "visitor.hpp"
@@ -42,11 +41,13 @@ namespace fsc
         auto *tree = parser.program();
 
         auto visitor = fsc::Visitor{filename, input, parser};
+
         visitor.visit(tree);
+        visitor.analyze();
 
         auto code = visitor.codeGen();
 
-        fmt::print("{} {}\n", FscProgramsHeader, code);
+        //fmt::print("{} {}\n", FscProgramsHeader, code);
 
         writeToFile(".fsc-tmp.cpp", FscProgramsHeader, code);
         compileAndExecuteUsingSystemCommand(".fsc-tmp.cpp", "fsc-compiled");

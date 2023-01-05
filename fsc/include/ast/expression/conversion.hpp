@@ -5,13 +5,15 @@
 
 namespace fsc::ast
 {
-    class Conversion : public NodeWrapper<NodeType::CONVERSION, SemicolonNeed::NEED>
+    class Conversion final : public NodeWrapper<NodeType::CONVERSION, SemicolonNeed::NEED>
     {
         NodePtr value;
         ccl::Id typeId;
 
     public:
         explicit Conversion(NodePtr value_to_convert, ccl::Id type_id);
+
+        auto analyze() const -> void final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 

@@ -18,6 +18,8 @@ namespace fsc::ast
             NodePtr expression_for_call, ccl::WeakPtr<Function> function_to_call,
             const ccl::SmallVector<NodePtr> &function_arguments);
 
+        auto analyze() const -> void final;
+
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;

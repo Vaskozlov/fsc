@@ -16,6 +16,12 @@ namespace fsc::ast
       , ifType{if_type}
     {}
 
+    auto If::analyze() const -> void
+    {
+        condition->analyze();
+        body->analyze();
+    }
+
     auto If::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         using namespace ccl::codegen;

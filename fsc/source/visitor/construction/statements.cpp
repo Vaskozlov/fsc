@@ -1,7 +1,6 @@
 #include "ast/return.hpp"
 #include "ast/statement/if_stmt.hpp"
 #include "ast/statement/while.hpp"
-#include "ccl/core/types.hpp"
 #include "visitor.hpp"
 
 namespace fsc

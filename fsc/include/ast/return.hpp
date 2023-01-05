@@ -13,6 +13,8 @@ namespace fsc::ast
     public:
         explicit Return(Visitor &visitor, NodePtr value_to_return);
 
+        auto analyze() const -> void final;
+
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;

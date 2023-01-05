@@ -34,6 +34,19 @@ namespace fsc::ast
       : VariableDefinition{readName(ctx), readFlags(ctx), readInitializer(visitor, ctx)}
     {}
 
+    auto VariableDefinition::analyze() const -> void
+    {
+        if (initializer != nullptr && getValueType() != initializer->getValueType()) {
+            throw std::runtime_error(
+                "unable to assign variable, because type of variable does not match with the "
+                "initializer return type");
+        }
+
+        if (initializer != nullptr) {
+            initializer->analyze();
+        }
+    }
+
     auto VariableDefinition::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}Definition of {}\n", getPrintingPrefix(prefix, is_left), getName());

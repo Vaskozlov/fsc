@@ -43,6 +43,18 @@ namespace fsc::ast
         output << pop_scope << endl << '}';
     }
 
+    auto Body::analyze() const -> void
+    {
+        defaultAnalyze();
+    }
+
+    auto Body::defaultAnalyze() const -> void
+    {
+        for (const auto &node : nodes) {
+            node->analyze();
+        }
+    }
+
     auto Body::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         defaultBodyCodegen(output);

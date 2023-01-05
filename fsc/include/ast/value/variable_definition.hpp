@@ -7,7 +7,7 @@
 
 namespace fsc::ast
 {
-    class VariableDefinition
+    class VariableDefinition final
       : public NodeWrapper<NodeType::VARIABLE_DEFINITION, SemicolonNeed::NEED, Variable>
     {
     private:
@@ -24,6 +24,8 @@ namespace fsc::ast
         VariableDefinition(Visitor &visitor, FscParser::Variable_definitionContext *ctx);
 
         VariableDefinition(Visitor &visitor, FscParser::Auto_variable_definitionContext *ctx);
+
+        auto analyze() const -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 

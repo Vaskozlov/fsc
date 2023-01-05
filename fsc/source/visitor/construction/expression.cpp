@@ -109,8 +109,8 @@ namespace fsc
 
     auto Visitor::constructConversion(FscParser::ExprContext *ctx) -> ast::NodePtr
     {
-        auto expr_to_convert = visitAsNode(ctx->children[0]);
-        auto target_type = ctx->children[2]->getText();
+        auto expr_to_convert = visitAsNode(ctx->children.at(0));
+        auto target_type = ctx->children.at(2)->getText();
         return ccl::makeShared<ast::Conversion>(
             std::move(expr_to_convert), FscType::getTypeId(target_type));
     }

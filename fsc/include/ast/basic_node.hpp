@@ -80,6 +80,8 @@ namespace fsc::ast
 
         virtual auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void = 0;
 
+        virtual auto analyze() const -> void = 0;
+
         virtual auto optimize(OptimizationLevel /* unused */) -> void
         {}
 

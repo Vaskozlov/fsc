@@ -1,4 +1,5 @@
 #include "ast/expression/conversion.hpp"
+#include "function/functions_holder.hpp"
 #include "type/type.hpp"
 
 namespace fsc::ast
@@ -10,6 +11,15 @@ namespace fsc::ast
       , typeId{type_id}
     {
         CCL_ASSERT(this->getNodeType() == NodeType::CONVERSION);
+    }
+
+    auto Conversion::analyze() const -> void
+    {
+        const auto function_name = FscType::getTypeName(typeId);
+
+        [[maybe_unused]] auto make_sure_that_conversion_exists = func::Functions.visitFunction(
+            {std::string{function_name}, {Argument{value.get()}}},
+            std::mem_fn(&Function::getReturnType));
     }
 
     auto Conversion::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void

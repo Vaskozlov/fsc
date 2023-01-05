@@ -7,13 +7,24 @@ namespace fsc::ast
     IfStmt::IfStmt(Visitor &visitor, FscParser::If_stmtContext *ctx)
     {
         const auto &children = ctx->children;
-        auto if_context = children.at(0);
-        auto elif_context = children.at(1);
-        auto else_context = children.at(2);
+        auto *if_context = ccl::as<FscParser::IfContext *>(children.at(0));
+        auto *elif_context = ccl::as<FscParser::ElifContext *>(children.at(1));
+        auto *else_context = ccl::as<FscParser::ElseContext *>(children.at(2));
 
-        parseIfStmt(visitor, ccl::as<FscParser::IfContext *>(if_context));
-        parseElifStmt(visitor, ccl::as<FscParser::ElifContext *>(elif_context));
-        parseElseStmt(visitor, ccl::as<FscParser::ElseContext *>(else_context));
+        parseIfStmt(visitor, if_context);
+        parseElifStmt(visitor, elif_context);
+        parseElseStmt(visitor, else_context);
+    }
+
+    auto IfStmt::analyze() const -> void
+    {
+        ifNode->analyze();
+
+        for (const auto &elif_node : elifNodes) {
+            elif_node->analyze();
+        }
+
+        elseNode->analyze();
     }
 
     auto IfStmt::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void

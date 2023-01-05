@@ -1,7 +1,6 @@
 #include "ast/function/function.hpp"
 #include "ast/function/magic_methods_table.hpp"
 #include "ast/value/variable.hpp"
-#include "ccl/raii.hpp"
 #include "function/argument.hpp"
 #include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
@@ -113,6 +112,16 @@ namespace fsc::ast
 
         return (arguments_equal && ((classId == other.classId) || is_constructor)) &&
                name == other.name;
+    }
+
+    auto Function::analyze() const -> void
+    {
+        defaultAnalyze();
+    }
+
+    auto Function::defaultAnalyze() const -> void
+    {
+        functionBody->analyze();
     }
 
     auto Function::print(const std::string &prefix, bool is_left) const -> void

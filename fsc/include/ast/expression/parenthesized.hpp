@@ -15,6 +15,8 @@ namespace fsc::ast
 
         [[nodiscard]] auto getValueType() const -> ccl::Id final;
 
+        auto analyze() const -> void final;
+
         auto optimize(OptimizationLevel optimization) -> void final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;

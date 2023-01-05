@@ -13,7 +13,7 @@ namespace fsc::ast
         ELSE
     };
 
-    class If : public NodeWrapper<NodeType::IF, SemicolonNeed::DO_NOT_NEED>
+    class If final : public NodeWrapper<NodeType::IF, SemicolonNeed::DO_NOT_NEED>
     {
     private:
         NodePtr condition;
@@ -27,6 +27,8 @@ namespace fsc::ast
         {
             return ifType;
         }
+
+        auto analyze() const -> void final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 

@@ -22,6 +22,11 @@ namespace fsc::ast
         }
     }
 
+    auto Return::analyze() const -> void
+    {
+        value->analyze();
+    }
+
     auto Return::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
         output << "return " << *value;
