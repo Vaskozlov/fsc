@@ -15,7 +15,7 @@ auto main(int argc, char **argv) -> int
         return 1;
     }
 
-    fsc::compile(stream);
+    fsc::compile(argv[1], stream);
 
     return 0;
 }

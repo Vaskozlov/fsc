@@ -21,10 +21,10 @@ namespace fsc
         auto compiler_command =
             fmt::format("clang++ {} {} -o {}", ClangCompilerFlags, source_file, output_binary);
 
-        system(compiler_command.c_str());
+        system(compiler_command.c_str());// NOLINT
 
         fmt::print("Running program...\n");
-        system(fmt::format("./{}", output_binary).c_str());
+        system(fmt::format("./{}", output_binary).c_str());// NOLINT
     }
 
     static auto deleteFile(std::string_view filename) -> void
@@ -32,16 +32,16 @@ namespace fsc
         std::filesystem::remove(filename);
     }
 
-    auto compile(std::ifstream &stream) -> void
+    auto compile(std::string_view filename, std::ifstream &stream) -> void
     {
         auto input = antlr4::ANTLRInputStream{stream};
         auto lexer = FscLexer{&input};
         auto token_stream = antlr4::CommonTokenStream{&lexer};
 
         auto parser = FscParser{&token_stream};
-        auto tree = parser.program();
+        auto *tree = parser.program();
 
-        auto visitor = fsc::Visitor{input, parser};
+        auto visitor = fsc::Visitor{filename, input, parser};
         visitor.visit(tree);
 
         auto code = visitor.codeGen();

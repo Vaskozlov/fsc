@@ -1,12 +1,15 @@
 #include "ast/function/function.hpp"
 #include "ast/function/magic_methods_table.hpp"
 #include "ast/value/variable.hpp"
+#include "ccl/raii.hpp"
 #include "function/argument.hpp"
 #include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
 #include "type/builtin_types.hpp"
 #include "type/type.hpp"
 #include "visibility.hpp"
+#include <fmt/ranges.h>
+#include <functional>
 #include <Parser.h>
 #include <ranges>
 
@@ -38,19 +41,39 @@ namespace fsc::ast
         const FscParser::FunctionContext *function_context, Visitor &visitor, ccl::Id class_id)
         -> void
     {
-        const auto &children = function_context->children;
-        const auto &parameters = children.at(3);
+        functionContext = function_context;
+        const auto &children = functionContext->children;
+        auto *function_attributes = ccl::as<FscParser::Function_attibutesContext *>(children.at(0));
+        auto *function_name = children.at(2);
+        auto *function_templates = ccl::as<FscParser::Function_templatesContext *>(children.at(3));
+        const auto *parameters = ccl::as<const FscParser::ParametersContext *>(children.at(4));
 
         classId = class_id;
-        name = children.at(2)->getText();
+        name = function_name->getText();
 
-        processAttributes(ccl::as<FscParser::Function_attibutesContext *>(children.front()));
+        processAttributes(function_attributes);
+        auto templated_types = ccl::Raii{
+            [this, function_templates]() {
+                processTemplates(function_templates);
+            },
+            [this]() {
+                for (const auto &template_name : templates) {
+                    FscType::freeTemplateType(template_name);
+                }
+            }};
+
         setReturnType(children);
-        readArguments(ccl::as<const FscParser::ParametersContext *>(parameters), visitor);
+        readArguments(parameters, visitor);
 
         processMagicMethod();
         func::Functions.registerFunction(shared_from_this());
 
+        completeBody(visitor);
+    }
+
+    auto Function::completeBody(Visitor &visitor) -> void
+    {
+        const auto &children = functionContext->children;
         auto function_scope = visitor.acquireFunctionScope(getReturnType());
         auto stack_scope = ProgramStack.acquireStackScope(ScopeType::HARD);
 
@@ -58,9 +81,9 @@ namespace fsc::ast
             ProgramStack.addVariable(ccl::makeShared<ast::Variable>(arg.toVariable()));
         }
 
-        function = visitor.visitAsNode(children.back());
+        functionBody = visitor.visitAsNode(children.back());
 
-        if (returnType == Auto::typeId) {
+        if (getReturnType() == Auto::typeId && templates.empty()) {
             returnType = visitor.getCurrentFunctionReturnType();
         }
     }
@@ -95,11 +118,17 @@ namespace fsc::ast
     auto Function::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}Function: {}\n", getPrintingPrefix(prefix, is_left), name);
-        function->print(expandPrefix(prefix, is_left));
+        functionBody->print(expandPrefix(prefix, is_left));
     }
 
     auto Function::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
+        if (!templates.empty()) {
+            output << "template<typename ";
+            fmt::format_to(output.getBackInserter(), "{}", fmt::join(templates, ", typename "));
+            output << ">\n";
+        }
+
         if (isMember()) {
             genVisibility(visibility, output);
         }
@@ -119,7 +148,7 @@ namespace fsc::ast
             addNodiscardModifier(output);
             addConstexprModifier(output);
             fmt::format_to(
-                output.getBackInserter(), "{} operator{}", FscType::getTypeName(returnType),
+                output.getBackInserter(), "{} operator{}", getReturnTypeAsString(),
                 MagicToRepr.at(magicType));
             break;
 
@@ -127,7 +156,7 @@ namespace fsc::ast
             addNodiscardModifier(output);
             addConstexprModifier(output);
 
-            output << FscType::getTypeName(returnType) << ' ' << name;
+            output << getReturnTypeAsString() << ' ' << name;
             break;
         }
 
@@ -135,8 +164,7 @@ namespace fsc::ast
         genArguments(output);
         output << ')';
 
-        const auto *body = function.get();
-        output << *body;
+        output << *functionBody.get();
     }
 
     auto Function::processMagicMethod() -> void
@@ -157,7 +185,7 @@ namespace fsc::ast
         magicType = MagicFunctionType::INIT;
         name = FscType::getTypeName(classId);
 
-        if (returnType != Auto::typeId) {
+        if (getReturnType() != Auto::typeId) {
             throw std::runtime_error("You are not allowed to set return type of __init__ method");
         }
 
@@ -174,11 +202,11 @@ namespace fsc::ast
                 "You are not allowed to set pass any arguments to __del__ method");
         }
 
-        if (returnType != Auto::typeId) {
+        if (getReturnType() != Auto::typeId) {
             throw std::runtime_error("You are not allowed to set return type of __del__ method");
         }
 
-        returnType = 0;
+        returnType = Void::typeId;
     }
 
     auto Function::processBinaryOperatorMethod(MagicFunctionType binary_operator) noexcept(false)
@@ -204,7 +232,8 @@ namespace fsc::ast
         }
     }
 
-    auto Function::argumentToString(ccl::codegen::BasicCodeGenerator &output, const Argument &arg) const -> void
+    auto Function::argumentToString(
+        ccl::codegen::BasicCodeGenerator &output, const Argument &arg) const -> void
     {
         const auto &argument_name = arg.getName();
         output << arg;
@@ -221,7 +250,7 @@ namespace fsc::ast
         if (nodes.at(length - 4)->getText() == "->") {
             const auto type_name = nodes[length - 3]->getText();
 
-            FscType::checkTypeExistence(type_name);
+            FscType::ensureTypeExists(type_name);
             returnType = FscType::getTypeId(type_name);
         } else {
             returnType = Auto::typeId;
@@ -235,10 +264,10 @@ namespace fsc::ast
         const auto &children = parameters_context->children;
         auto drop_first_and_last = std::views::drop(1) | ccl::views::dropBack(children, 2);
 
-        for (auto &child : children | drop_first_and_last) {
+        for (auto *child : children | drop_first_and_last) {
             auto *casted_child = ccl::as<FscParser::Typed_arguments_listContext *>(child);
 
-            for (auto &arg : casted_child->children | std::views::filter(CommaFilter)) {
+            for (auto *arg : casted_child->children | std::views::filter(CommaFilter)) {
                 auto *argument_context = ccl::as<FscParser::ArgumentContext *>(arg);
                 auto argument = processArgument(argument_context, visitor);
                 arguments.push_back(std::move(argument));
@@ -270,6 +299,19 @@ namespace fsc::ast
         }
     }
 
+    auto Function::processTemplates(FscParser::Function_templatesContext *ctx) -> void
+    {
+        if (ctx->children.empty()) {
+            return;
+        }
+
+        for (auto *function_template :
+             ctx->children.at(1)->children | std::views::filter(CommaFilter)) {
+            templates.emplace_back(function_template->getText());
+            FscType::registerTemplate(function_template->getText());
+        }
+    }
+
     auto Function::defineArgument(const FscParser::Argument_definitionContext *argument_definition)
         -> Argument
     {
@@ -279,14 +321,14 @@ namespace fsc::ast
         const auto type_name = children.at(1)->getText();
         const auto arg_name = children.at(2)->getText();
 
-        FscType::checkTypeExistence(type_name);
+        FscType::ensureTypeExists(type_name);
 
         return {arg_name, FscType::getTypeId(type_name), ArgumentCategories.at(category)};
     }
 
     auto Function::addNodiscardModifier(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
-        if (returnType != Void::typeId && name != "main") {
+        if (getReturnType() != Void::typeId && name != "main") {
             output << "[[nodiscard]] ";
         }
     }
@@ -296,5 +338,29 @@ namespace fsc::ast
         if (name != "main") {
             output << "constexpr ";
         }
+    }
+
+    auto Function::getReturnTypeAsString() const -> std::string
+    {
+        if (returnType.index() == 0) {
+            return FscType::getTypeName(std::get<0>(returnType));
+        }
+
+        return std::get<1>(returnType);
+    }
+
+    auto Function::getReturnType() const -> ccl::Id
+    {
+        if (returnType.index() == 0) {
+            return std::get<0>(returnType);
+        }
+
+        const auto &type_name = std::get<1>(returnType);
+
+        if (!FscType::exists(type_name)) {
+            throw std::runtime_error("Return type of the template function is not known yet.");
+        }
+
+        return FscType::getTypeId(type_name);
     }
 }// namespace fsc::ast

@@ -12,7 +12,7 @@ namespace fsc
     {
         const auto &children = ctx->children;
 
-        return ccl::makeShared<ast::Return>(*this, visitAsNode(children[1]));
+        return ccl::makeShared<ast::Return>(*this, visitAsNode(children.at(1)));
     }
 
     auto Visitor::constructIf(FscParser::If_stmtContext *ctx) -> ast::NodePtr

@@ -5,6 +5,8 @@
 #include "FscBaseVisitor.h"
 #include "function/argument.hpp"
 #include <ANTLRInputStream.h>
+#include <any>
+#include <ast/basic_node.hpp>
 #include <ccl/raii.hpp>
 #include <FscParser.h>
 #include <tuple>
@@ -16,12 +18,25 @@ namespace fsc
     private:
         ast::Program program;
         ccl::Vector<ccl::Id> functionReturnStack;
+        std::string filename;
         antlr4::ANTLRInputStream &inputStream;
         FscParser &parser;
+        ccl::Vector<std::string> inputAsLines = [this]() {
+            auto split_lines = std::ranges::views::split(inputStream.toString(), '\n');
+            auto result = ccl::Vector<std::string>{};
+
+            for (auto line : split_lines) {
+                result.emplace_back(std::string_view{line});
+            }
+
+            return result;
+        }();
 
     public:
-        explicit Visitor(antlr4::ANTLRInputStream &input, FscParser &fsc_parser)
-          : inputStream{input}
+        explicit Visitor(
+            std::string_view name_of_file, antlr4::ANTLRInputStream &input, FscParser &fsc_parser)
+          : filename{name_of_file}
+          , inputStream{input}
           , parser{fsc_parser}
         {}
 
@@ -35,8 +50,12 @@ namespace fsc
         [[nodiscard]] auto acquireFunctionScope(ccl::Id return_type) -> auto
         {
             return ccl::Raii{
-                [this, return_type]() { functionReturnStack.push_back(return_type); },
-                [this]() { functionReturnStack.pop_back(); },
+                [this, return_type]() {
+                    functionReturnStack.push_back(return_type);
+                },
+                [this]() {
+                    functionReturnStack.pop_back();
+                },
             };
         }
 
@@ -80,6 +99,8 @@ namespace fsc
 
         auto visitFunction_call(FscParser::Function_callContext *ctx) -> std::any final;
 
+        auto constructExpression(FscParser::ExprContext *ctx) -> std::any;
+
         auto constructVariableDefinition(FscParser::Variable_definitionContext *ctx)
             -> ast::NodePtr;
 
@@ -96,7 +117,7 @@ namespace fsc
 
         auto constructConversion(FscParser::ExprContext *ctx) -> ast::NodePtr;
 
-        template<typename BodyT, typename... Ts>
+        template<std::derived_from<ast::Body> BodyT, typename... Ts>
         auto constructBody(FscParser::BodyContext *ctx, Ts &&...args) -> ast::NodePtr;
 
         auto constructReturn(FscParser::StmtContext *ctx) -> ast::NodePtr;
@@ -123,6 +144,9 @@ namespace fsc
 
         auto parseFunction(FscParser::Function_callContext *ctx)
             -> std::tuple<std::string, ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>;
+
+        [[noreturn]] auto throwError(antlr4::ParserRuleContext *ctx, std::string_view message)
+            -> void;
     };
 }// namespace fsc
 

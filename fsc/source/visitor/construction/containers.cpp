@@ -1,6 +1,5 @@
 #include "ast/container/class.hpp"
 #include "stack/stack.hpp"
-#include <ccl/raii.hpp>
 
 namespace fsc
 {
@@ -12,11 +11,9 @@ namespace fsc
         return !text.empty() && text[0] != '\n';
     };
 
-    template<typename BodyT, typename... Ts>
+    template<std::derived_from<ast::Body> BodyT, typename... Ts>
     auto Visitor::constructBody(FscParser::BodyContext *ctx, Ts &&...args) -> ast::NodePtr
     {
-        static_assert(std::derived_from<BodyT, ast::Body>);
-
         const auto &children = ctx->children;
         auto body = ccl::makeShared<BodyT>(std::forward<Ts>(args)...);
         auto id_for_class_scope = ccl::as<size_t>(0);
@@ -40,13 +37,11 @@ namespace fsc
     auto Visitor::constructClass(FscParser::ClassContext *const ctx) -> ast::NodePtr
     {
         const auto &children = ctx->children;
-        const auto name = children[1]->getText();
+        const auto name = children.at(1)->getText();
 
         auto scope = ProgramStack.acquireStackScope(ScopeType::HARD);
+        auto *body_context = ccl::as<FscParser::BodyContext *>(children.back());
 
-        auto body =
-            constructBody<ast::Class>(ccl::as<FscParser::BodyContext *>(children.back()), name);
-
-        return body;
+        return constructBody<ast::Class>(body_context, name);
     }
 }// namespace fsc

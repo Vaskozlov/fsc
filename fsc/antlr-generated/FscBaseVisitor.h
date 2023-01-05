@@ -23,6 +23,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitTemplated_types(FscParser::Templated_typesContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitStmt(FscParser::StmtContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -68,6 +72,10 @@ public:
   }
 
   virtual std::any visitVisibility(FscParser::VisibilityContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitFunction_templates(FscParser::Function_templatesContext *ctx) override {
     return visitChildren(ctx);
   }
 

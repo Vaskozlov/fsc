@@ -24,16 +24,16 @@ public:
   };
 
   enum {
-    RuleProgram = 0, RuleType = 1, RuleStmt = 2, RuleBody = 3, RuleClass = 4, 
-    RuleWhile_loop = 5, RuleIf_stmt = 6, RuleIf = 7, RuleElif = 8, RuleElse = 9, 
-    RuleElif_def = 10, RuleElse_def = 11, RuleFunction = 12, RuleVisibility = 13, 
-    RuleFunction_attibutes = 14, RuleVariable_attributes = 15, RuleArgument_passing_type = 16, 
-    RuleArgument_definition = 17, RuleParameters = 18, RuleTyped_arguments_list = 19, 
-    RuleArgument = 20, RuleFunction_call = 21, RuleFunction_parameter = 22, 
-    RuleFunction_typed_arguments_list = 23, RuleFunction_argument = 24, 
-    RuleVariable_prefix = 25, RuleAuto_variable_definition = 26, RuleVariable_definition = 27, 
-    RuleMember_variable_access = 28, RuleMethod_call = 29, RuleExpr = 30, 
-    RuleNew_line = 31, RuleStmt_end = 32
+    RuleProgram = 0, RuleType = 1, RuleTemplated_types = 2, RuleStmt = 3, 
+    RuleBody = 4, RuleClass = 5, RuleWhile_loop = 6, RuleIf_stmt = 7, RuleIf = 8, 
+    RuleElif = 9, RuleElse = 10, RuleElif_def = 11, RuleElse_def = 12, RuleFunction = 13, 
+    RuleVisibility = 14, RuleFunction_templates = 15, RuleFunction_attibutes = 16, 
+    RuleVariable_attributes = 17, RuleArgument_passing_type = 18, RuleArgument_definition = 19, 
+    RuleParameters = 20, RuleTyped_arguments_list = 21, RuleArgument = 22, 
+    RuleFunction_call = 23, RuleFunction_parameter = 24, RuleFunction_typed_arguments_list = 25, 
+    RuleFunction_argument = 26, RuleVariable_prefix = 27, RuleAuto_variable_definition = 28, 
+    RuleVariable_definition = 29, RuleMember_variable_access = 30, RuleMethod_call = 31, 
+    RuleExpr = 32, RuleNew_line = 33, RuleStmt_end = 34
   };
 
   explicit FscParser(antlr4::TokenStream *input);
@@ -55,6 +55,7 @@ public:
 
   class ProgramContext;
   class TypeContext;
+  class Templated_typesContext;
   class StmtContext;
   class BodyContext;
   class ClassContext;
@@ -67,6 +68,7 @@ public:
   class Else_defContext;
   class FunctionContext;
   class VisibilityContext;
+  class Function_templatesContext;
   class Function_attibutesContext;
   class Variable_attributesContext;
   class Argument_passing_typeContext;
@@ -105,9 +107,9 @@ public:
   public:
     TypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
-    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
+    antlr4::tree::TerminalNode *IDENTIFIER();
     antlr4::tree::TerminalNode *LESS();
+    Templated_typesContext *templated_types();
     antlr4::tree::TerminalNode *GREATER();
 
 
@@ -116,6 +118,20 @@ public:
   };
 
   TypeContext* type();
+
+  class  Templated_typesContext : public antlr4::ParserRuleContext {
+  public:
+    Templated_typesContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<TypeContext *> type();
+    TypeContext* type(size_t i);
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Templated_typesContext* templated_types();
 
   class  StmtContext : public antlr4::ParserRuleContext {
   public:
@@ -274,6 +290,7 @@ public:
     Function_attibutesContext *function_attibutes();
     std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
     antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
+    Function_templatesContext *function_templates();
     ParametersContext *parameters();
     New_lineContext *new_line();
     BodyContext *body();
@@ -296,6 +313,21 @@ public:
   };
 
   VisibilityContext* visibility();
+
+  class  Function_templatesContext : public antlr4::ParserRuleContext {
+  public:
+    Function_templatesContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LESS();
+    Templated_typesContext *templated_types();
+    antlr4::tree::TerminalNode *GREATER();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Function_templatesContext* function_templates();
 
   class  Function_attibutesContext : public antlr4::ParserRuleContext {
   public:
@@ -483,8 +515,8 @@ public:
     virtual size_t getRuleIndex() const override;
     Variable_attributesContext *variable_attributes();
     Variable_prefixContext *variable_prefix();
-    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
-    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
+    antlr4::tree::TerminalNode *IDENTIFIER();
+    TypeContext *type();
     ExprContext *expr();
     antlr4::tree::TerminalNode *ASSIGN();
 

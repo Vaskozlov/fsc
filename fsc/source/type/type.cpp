@@ -6,18 +6,21 @@
 
 namespace fsc
 {
+    // NOLINTNEXTLINE
     ccl::Map<ccl::Id, std::string> FscType::typenameById{
         {Void::typeId, "void"},     {Auto::typeId, "void"},   {Int32::typeId, "i32"},
         {Int64::typeId, "i64"},     {UInt32::typeId, "u32"},  {UInt64::typeId, "u64"},
         {Float32::typeId, "f32"},   {Float64::typeId, "f64"}, {Bool::typeId, "bool"},
         {String::typeId, "String"}, {Char::typeId, "char"}};
 
+    // NOLINTNEXTLINE
     ccl::Map<std::string, ccl::Id> FscType::idByTypename{
         {"void", Void::typeId},     {"auto", Auto::typeId},   {"i32", Int32::typeId},
         {"i64", Int64::typeId},     {"u32", UInt32::typeId},  {"u64", UInt64::typeId},
         {"f32", Float32::typeId},   {"f64", Float64::typeId}, {"bool", Bool::typeId},
         {"String", String::typeId}, {"char", Char::typeId}};
 
+    // NOLINTNEXTLINE
     ccl::Map<ccl::Id, TypeFlags> FscType::typeFlags{
         {Void::typeId, {.isTriviallyCopyable = false}},
         {Int32::typeId, {.isTriviallyCopyable = true}},
@@ -30,8 +33,11 @@ namespace fsc
         {String::typeId, {.isTriviallyCopyable = false}},
         {Char::typeId, {.isTriviallyCopyable = true}}};
 
-    ccl::Map<ccl::Id, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>
-        FscType::typeMemberVariables;
+    ccl::Map<ccl::Id, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>// NOLINTNEXTLINE
+        FscType::typeMemberVariables{};
+
+    // NOLINTNEXTLINE
+    ccl::Set<ccl::Id> FscType::templateTypes{};
 
     FscType::FscType(const ccl::Id type_id)
       : typeId{type_id}
@@ -50,13 +56,29 @@ namespace fsc
         typeId = getTypeId(type_name);
     }
 
-    auto FscType::checkTypeExistence(const std::string &type_name) -> void
+    auto FscType::isTemplate(ccl::Id id) noexcept -> bool
+    {
+        return templateTypes.contains(id);
+    }
+
+    auto FscType::ensureTypeExists(const std::string &type_name) -> void
     {
         if (exists(type_name)) {
             return;
         }
 
         throw std::invalid_argument(fmt::format("Type {} not found", type_name));
+    }
+
+    auto FscType::registerTemplate(const std::string &type_name) -> void
+    {
+        registerNewType(type_name, TypeFlags{});
+        templateTypes.emplace(getTypeId(type_name));
+    }
+
+    auto FscType::freeTemplateType(const std::string &type_name) -> void
+    {
+        idByTypename.erase(type_name);
     }
 
     auto FscType::registerNewType(const std::string &name, const TypeFlags flags) noexcept(false)

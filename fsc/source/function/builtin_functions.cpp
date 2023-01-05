@@ -39,6 +39,16 @@
         }                                                                                          \
     }
 
+#define BUILTIN_CONVERT(REPR, TO, FROM)                                                            \
+    {                                                                                              \
+        0, #REPR, TO::typeId,                                                                      \
+        {                                                                                          \
+            {                                                                                      \
+                "value", FROM::typeId                                                              \
+            }                                                                                      \
+        }                                                                                          \
+    }
+
 namespace fsc::func
 {
     static const auto AddFunctions = ccl::Vector<ast::Function>{
@@ -116,6 +126,24 @@ namespace fsc::func
         BUILTIN_ASSIGN(Float64, Float64, Float64),
     };
 
+    static const auto Constructors = ccl::Vector<ast::Function>{
+        BUILTIN_CONVERT(f32, Float32, Int32),   BUILTIN_CONVERT(f32, Float32, Int64),
+        BUILTIN_CONVERT(f32, Float32, UInt32),  BUILTIN_CONVERT(f32, Float32, UInt64),
+        BUILTIN_CONVERT(f32, Float32, Float64), BUILTIN_CONVERT(f64, Float64, Int32),
+        BUILTIN_CONVERT(f64, Float64, Int64),   BUILTIN_CONVERT(f64, Float64, UInt32),
+        BUILTIN_CONVERT(f64, Float64, UInt64),  BUILTIN_CONVERT(f64, Float64, Float32),
+        BUILTIN_CONVERT(i32, Int32, Int64),     BUILTIN_CONVERT(i32, Int32, UInt32),
+        BUILTIN_CONVERT(i32, Int32, UInt64),    BUILTIN_CONVERT(i32, Int32, Float32),
+        BUILTIN_CONVERT(i32, Int32, Float64),   BUILTIN_CONVERT(i64, Int64, Int32),
+        BUILTIN_CONVERT(i64, Int64, UInt32),    BUILTIN_CONVERT(i64, Int64, UInt64),
+        BUILTIN_CONVERT(i64, Int64, Float32),   BUILTIN_CONVERT(i64, Int64, Float64),
+        BUILTIN_CONVERT(u32, UInt32, Int32),    BUILTIN_CONVERT(u32, UInt32, Int64),
+        BUILTIN_CONVERT(u32, UInt32, UInt64),   BUILTIN_CONVERT(u32, UInt32, Float32),
+        BUILTIN_CONVERT(u32, UInt32, Float64),  BUILTIN_CONVERT(u64, UInt64, Int32),
+        BUILTIN_CONVERT(u64, UInt64, Int64),    BUILTIN_CONVERT(u64, UInt64, UInt32),
+        BUILTIN_CONVERT(u64, UInt64, Float32),  BUILTIN_CONVERT(u64, UInt64, Float64),
+    };
+
     static const auto InputFunctions = ccl::Vector<ast::Function>{
         {0, "input", String::typeId, {}},
         {0, "input", String::typeId, {{"message", String::typeId, ArgumentCategory::IN}}}};
@@ -136,10 +164,10 @@ namespace fsc::func
                                    {String::typeId, "toF32", Float32::typeId, {}},
                                    {String::typeId, "toF64", Float64::typeId, {}}};
 
-    FunctionsHolder Functions{AddFunctions,       SubFunctions,       MulFunctions,
-                              DivFunctions,       LessFunctions,      GreaterFunctions,
-                              LessEqFunctions,    GreaterEqFunctions, LogicalAndFunctions,
-                              LogicalOrFunctions, EqualFunctions,     NotEqualFunctions,
-                              AssignFunctions,    InputFunctions,     OutputFunctions,
-                              FormatFunctions,    StringMethods};
+    FunctionsHolder Functions{Constructors, AddFunctions,       SubFunctions,
+                              MulFunctions,        DivFunctions,       LessFunctions,
+                              GreaterFunctions,    LessEqFunctions,    GreaterEqFunctions,
+                              LogicalAndFunctions, LogicalOrFunctions, EqualFunctions,
+                              NotEqualFunctions,   AssignFunctions,    InputFunctions,
+                              OutputFunctions,     FormatFunctions,    StringMethods};
 }// namespace fsc::func

@@ -3,10 +3,12 @@
 
 #include "ast/basic_node.hpp"
 #include "function/argument.hpp"
+#include "type/builtin_types.hpp"
 #include "visibility.hpp"
 #include "visitor.hpp"
 #include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
+#include <FscParser.h>
 
 namespace fsc::ast
 {
@@ -34,13 +36,15 @@ namespace fsc::ast
       , public std::enable_shared_from_this<Function>
     {
     private:
-        ccl::Map<std::string, ccl::SharedPtr<ast::Node>> defaultArguments;
+        ccl::Map<std::string, NodePtr> defaultArguments;
         ccl::SmallVector<Argument> arguments;
-        NodePtr function;
+        ccl::SmallVector<std::string> templates;
+        NodePtr functionBody;
         std::string name;
-        Visibility visibility{Visibility::FILE_PRIVATE};
-        ccl::Id returnType{};
+        Visibility visibility{};
+        std::variant<ccl::Id, std::string> returnType{Void::typeId};
         ccl::Id classId{};
+        const FscParser::FunctionContext *functionContext{};
         MagicFunctionType magicType{};
         bool endsWithParameterPack{};
 
@@ -92,10 +96,7 @@ namespace fsc::ast
             return arguments;
         }
 
-        [[nodiscard]] auto getReturnType() const noexcept -> ccl::Id
-        {
-            return returnType;
-        }
+        [[nodiscard]] auto getReturnType() const -> ccl::Id;
 
         [[nodiscard]] auto getVisibility() const noexcept -> Visibility
         {
@@ -104,7 +105,7 @@ namespace fsc::ast
 
         [[nodiscard]] auto getBody() const noexcept -> NodePtr
         {
-            return function;
+            return functionBody;
         }
 
         [[nodiscard]] auto getDefaultArguments() const noexcept
@@ -114,6 +115,8 @@ namespace fsc::ast
         }
 
     private:
+        [[nodiscard]] auto getReturnTypeAsString() const -> std::string;
+
         auto processMagicMethod() -> void;
 
         auto processInitMethod() noexcept(false) -> void;
@@ -122,8 +125,11 @@ namespace fsc::ast
 
         auto processAttributes(FscParser::Function_attibutesContext *ctx) -> void;
 
+        auto processTemplates(FscParser::Function_templatesContext *ctx) -> void;
+
         auto genArguments(ccl::codegen::BasicCodeGenerator &output) const -> void;
-        auto argumentToString(ccl::codegen::BasicCodeGenerator &output, const Argument &arg) const -> void;
+        auto argumentToString(ccl::codegen::BasicCodeGenerator &output, const Argument &arg) const
+            -> void;
         auto readArguments(const FscParser::ParametersContext *parameters_context, Visitor &visitor)
             -> void;
 
@@ -133,6 +139,8 @@ namespace fsc::ast
             -> Argument;
 
         auto setReturnType(const std::vector<antlr4::tree::ParseTree *> &nodes) -> void;
+
+        auto completeBody(Visitor &visitor) -> void;
 
         auto addNodiscardModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
         auto addConstexprModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;

@@ -51,7 +51,6 @@ namespace fsc
         }
 
         generator << name;
-
         return generator;
     }
 }// namespace fsc

@@ -8,8 +8,8 @@ namespace fsc
 {
     enum struct Visibility : size_t
     {
-        EXPORT,
         FILE_PRIVATE,
+        EXPORT,
         PRIVATE,
         PROTECTED,
         PUBLIC

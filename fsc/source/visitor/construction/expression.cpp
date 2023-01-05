@@ -32,7 +32,7 @@ namespace fsc
         return ccl::makeShared<ast::Parenthesized>(std::move(stored_node));
     }
 
-    auto Visitor::visitExpr(FscParser::ExprContext *const ctx) -> std::any
+    auto Visitor::constructExpression(FscParser::ExprContext *ctx) -> std::any
     {
         auto node = ast::NodePtr{};
         const auto &children = ctx->children;
@@ -77,11 +77,11 @@ namespace fsc
             node = constructBinaryExpression(ctx);
         }
 
-        else if (ctx->variable_definition()) {
+        else if (ctx->variable_definition() != nullptr) {
             node = constructVariableDefinition(ctx->variable_definition());
         }
 
-        else if (ctx->auto_variable_definition()) {
+        else if (ctx->auto_variable_definition() != nullptr) {
             node = constructAutoVariableDefinition(ctx->auto_variable_definition());
         }
 
@@ -104,7 +104,7 @@ namespace fsc
         auto rhs = visitAsNode(children.at(2));
 
         return ccl::makeShared<ast::BinaryOperation>(
-            children[1]->getText(), std::move(lhs), std::move(rhs));
+            children.at(1)->getText(), std::move(lhs), std::move(rhs));
     }
 
     auto Visitor::constructConversion(FscParser::ExprContext *ctx) -> ast::NodePtr

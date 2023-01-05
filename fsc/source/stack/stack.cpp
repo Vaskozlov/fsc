@@ -5,6 +5,8 @@
 
 namespace fsc
 {
+    Stack::ScopeStorage Stack::globalStorage{};// NOLINT
+
     auto Stack::addVariable(ccl::SharedPtr<ast::Variable> value) -> void
     {
         if (scopes.empty()) {
@@ -52,5 +54,5 @@ namespace fsc
         return !classScopes.empty() && FscType::hasMemberVariables(classScopes.back(), name);
     }
 
-    thread_local Stack ProgramStack{};
+    Stack ProgramStack{};// NOLINT
 }// namespace fsc

@@ -1,28 +1,9 @@
-class S
+func test<T>()
 {
-    public var someVariable : i32
-
-    public func __init__()
-    {
-        someVariable = 42
-    }
-
-    public func __add__(in S other)
-    {
-        var tmp = this
-        tmp.someVariable = tmp.someVariable + other.someVariable
-        return tmp
-    }
 }
-
-var foo = S().someVariable
-let pi = 3.141592653589793F64
-
 
 func main()
 {
-    var x = true
-    var s = S()
-    print("{}\n", "1013".toI32())
+    let x = i64(10)
     return 0
 }

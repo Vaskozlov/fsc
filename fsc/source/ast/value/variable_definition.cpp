@@ -45,7 +45,7 @@ namespace fsc::ast
 
     auto VariableDefinition::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
-        const auto &type_name = FscType::getTypeName(getValueType());
+        const auto type_name = FscType::getTypeName(getValueType());
 
         if (isMemberOfClass()) {
             genVisibility(getVisibility(), output);
@@ -55,7 +55,7 @@ namespace fsc::ast
             output << "const ";
         }
 
-        output << type_name << ' ';
+        output << "auto ";
 
         if (isReference()) {
             output << '&';

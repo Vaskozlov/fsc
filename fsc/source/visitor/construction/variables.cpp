@@ -23,7 +23,7 @@ namespace fsc
 
     auto Visitor::constructMemberVariableAccess(FscParser::ExprContext *ctx) -> ast::NodePtr
     {
-        auto &children = ctx->children;
+        const auto &children = ctx->children;
         auto base_node = visitAsNode(children.at(0));
         auto member_variable_name = children.at(1)->children.at(1)->getText();
         return ccl::makeShared<ast::MemberVariable>(base_node, member_variable_name);

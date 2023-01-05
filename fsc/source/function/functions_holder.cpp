@@ -43,7 +43,7 @@ namespace fsc::func
         if (std::ranges::find(functions_with_similar_name, function) !=
             functions_with_similar_name.end()) {
             throw std::runtime_error(
-                fmt::format("Function with name {} already exists", function->getName()));
+                fmt::format("function with name {} already exists", function->getName()));
         }
 
         functions_with_similar_name.push_back(function);
@@ -63,6 +63,10 @@ namespace fsc::func
     auto FunctionsHolder::findFunction(SignatureView signature) const noexcept(false) ->
         typename FunctionsList::const_iterator
     {
+        if (!functions.contains(signature.classId)) {
+            throwUnableToFindFunction(signature);
+        }
+
         const auto &functions_with_similar_class_id = functions.at(signature.classId);
 
         if (!functions_with_similar_class_id.contains(signature.name)) {
@@ -96,6 +100,6 @@ namespace fsc::func
 
     auto FunctionsHolder::throwUnableToFindFunction(SignatureView signature) noexcept(false) -> void
     {
-        throw std::runtime_error(fmt::format("Function with name {} not found", signature.name));
+        throw std::runtime_error(fmt::format("function with name {} not found", signature.name));
     }
 }// namespace fsc::func

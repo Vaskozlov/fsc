@@ -31,7 +31,9 @@ LAYOUT  : [ \t] -> skip;
 program: (stmt)*;
 
 type:   IDENTIFIER
-    |   IDENTIFIER '<' IDENTIFIER '>';
+    |   IDENTIFIER LESS templated_types GREATER;
+
+templated_types: type (',' type)*;
 
 stmt:   function
     |   expr stmt_end
@@ -55,12 +57,13 @@ else: else_def?;
 elif_def: 'elif' expr new_line body new_line;
 else_def: 'else' body;
 
-function: function_attibutes 'func' IDENTIFIER parameters ('->' IDENTIFIER) ? new_line body;
+function: function_attibutes 'func' IDENTIFIER function_templates parameters ('->' IDENTIFIER) ? new_line body;
 visibility: 'public'
             | 'private'
             | 'protected'
             | 'fileprivae';
 
+function_templates: (LESS templated_types GREATER)?;
 function_attibutes: visibility?;
 variable_attributes: visibility?;
 
@@ -79,7 +82,7 @@ function_argument : (IDENTIFIER '=') ? expr;
 
 variable_prefix: 'let' | 'var';
 auto_variable_definition: variable_attributes variable_prefix IDENTIFIER '=' expr;
-variable_definition: variable_attributes variable_prefix IDENTIFIER ':' IDENTIFIER (('=' '\n'*) expr)?;
+variable_definition: variable_attributes variable_prefix IDENTIFIER ':' type (('=' '\n'*) expr)?;
 
 member_variable_access:  '.' IDENTIFIER;
 method_call:  '.' function_call;

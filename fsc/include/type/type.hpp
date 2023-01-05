@@ -20,6 +20,7 @@ namespace fsc
         static ccl::Map<ccl::Id, TypeFlags> typeFlags;
         static ccl::Map<ccl::Id, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>
             typeMemberVariables;
+        static ccl::Set<ccl::Id> templateTypes;
 
         ccl::Id typeId;
 
@@ -43,7 +44,7 @@ namespace fsc
             return typeFlags[id].isTriviallyCopyable;
         }
 
-        [[nodiscard]] auto is(const ccl::Id id) const noexcept -> bool
+        [[nodiscard]] auto is(ccl::Id id) const noexcept -> bool
         {
             return id == getId();
         }
@@ -68,7 +69,9 @@ namespace fsc
             return idByTypename.contains(type_name);
         }
 
-        [[nodiscard]] static auto checkTypeExistence(const std::string &type_name) -> void;
+        [[nodiscard]] static auto isTemplate(ccl::Id id) noexcept -> bool;
+
+        [[nodiscard]] static auto ensureTypeExists(const std::string &type_name) -> void;
 
         [[nodiscard]] static auto getTypeId(const std::string &type_name) -> ccl::Id
         {
@@ -79,6 +82,10 @@ namespace fsc
         {
             return typenameById.at(type_id);
         }
+
+        static auto registerTemplate(const std::string &type_name) -> void;
+
+        static auto freeTemplateType(const std::string &type_name) -> void;
 
         static auto registerNewType(const std::string &name, const TypeFlags flags) noexcept(false)
             -> void;

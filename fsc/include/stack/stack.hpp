@@ -51,7 +51,7 @@ namespace fsc
             }
         };
 
-        static inline ScopeStorage globalStorage;
+        static ScopeStorage globalStorage;
         ccl::SmallVector<ccl::Id> classScopes;
         std::deque<Scope> scopes;
 
@@ -59,8 +59,12 @@ namespace fsc
         [[nodiscard]] auto acquireStackScope(ScopeType scope_type) -> auto
         {
             return ccl::Raii{
-                [this, scope_type]() { scopes.push_front(Scope{scope_type}); },
-                [this]() { scopes.pop_front(); }};
+                [this, scope_type]() {
+                    scopes.push_front(Scope{scope_type});
+                },
+                [this]() {
+                    scopes.pop_front();
+                }};
         }
 
         [[nodiscard]] auto acquireClassScope(ccl::Id type_id) -> auto
@@ -90,6 +94,7 @@ namespace fsc
         auto addVariable(ccl::SharedPtr<ast::Variable> value) -> void;
 
         [[nodiscard]] auto get(const std::string &name) const -> ast::Variable;
+
         [[nodiscard]] static auto getGlobal(const std::string &name) noexcept(false)
             -> ccl::SharedPtr<ast::Variable>;
 
@@ -97,7 +102,7 @@ namespace fsc
         [[nodiscard]] auto isMemberVariable(const std::string &name) const -> bool;
     };
 
-    extern thread_local Stack ProgramStack;
+    extern Stack ProgramStack;
 }// namespace fsc
 
 #endif /* FSC_STACK_HPP */

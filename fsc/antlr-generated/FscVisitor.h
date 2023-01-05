@@ -23,6 +23,8 @@ public:
 
     virtual std::any visitType(FscParser::TypeContext *context) = 0;
 
+    virtual std::any visitTemplated_types(FscParser::Templated_typesContext *context) = 0;
+
     virtual std::any visitStmt(FscParser::StmtContext *context) = 0;
 
     virtual std::any visitBody(FscParser::BodyContext *context) = 0;
@@ -46,6 +48,8 @@ public:
     virtual std::any visitFunction(FscParser::FunctionContext *context) = 0;
 
     virtual std::any visitVisibility(FscParser::VisibilityContext *context) = 0;
+
+    virtual std::any visitFunction_templates(FscParser::Function_templatesContext *context) = 0;
 
     virtual std::any visitFunction_attibutes(FscParser::Function_attibutesContext *context) = 0;
 

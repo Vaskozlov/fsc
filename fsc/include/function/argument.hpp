@@ -9,10 +9,6 @@
 
 namespace fsc
 {
-    namespace ast
-    {
-        class Node;
-    }
 
     enum struct ArgumentCategory : ccl::Id
     {
@@ -44,12 +40,13 @@ namespace fsc
 
         [[nodiscard]] auto operator==(ccl::Id other) const noexcept -> bool
         {
-            return type == other;
+            const auto is_template = FscType::isTemplate(type);
+            return type == other || is_template;
         }
 
         [[nodiscard]] auto operator==(const Argument &other) const noexcept -> bool
         {
-            return type == other.type;
+            return this->operator==(other.type);
         }
 
         [[nodiscard]] auto getType() const noexcept -> ccl::Id
