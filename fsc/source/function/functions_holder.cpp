@@ -4,7 +4,6 @@
 #include "function/argument.hpp"
 #include <algorithm>
 #include <ccl/ccl.hpp>
-#include <expected>
 #include <fmt/format.h>
 #include <ranges>
 
@@ -58,17 +57,7 @@ namespace fsc::func
 
     auto FunctionsHolder::get(SignatureView signature) const -> ccl::SharedPtr<ast::Function>
     {
-        auto find_result = findFunction(signature);
-
-        if (find_result == std::unexpected(FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_NAME)) {
-            throwUnableToFindFunctionWithGivenName(signature);
-        } else if (
-            find_result ==
-            std::unexpected(FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_PARAMETERS)) {
-            throwUnableToFindFunctionWithGivenParameters(signature);
-        }
-
-        return *find_result.value();
+        return *findFunction(signature);
     }
 
     auto FunctionsHolder::get(const std::string &name, const ccl::SmallVector<Argument> &arguments)
@@ -78,8 +67,8 @@ namespace fsc::func
     }
 
     // NOLINTNEXTLINE
-    auto FunctionsHolder::findFunction(SignatureView signature) const noexcept
-        -> std::expected<typename FunctionsList::const_iterator, FunctionFindFailure>
+    auto FunctionsHolder::findFunction(SignatureView signature) const ->
+        typename FunctionsList::const_iterator
     {
         if (!functions.contains(signature.classId)) {
             return checkMagicFunctionOrReturnFailure(
@@ -110,8 +99,8 @@ namespace fsc::func
     }
 
     // NOLINTNEXTLINE
-    auto FunctionsHolder::findMagicFunction(SignatureView signature) const noexcept
-        -> std::expected<typename FunctionsList::const_iterator, FunctionFindFailure>
+    auto FunctionsHolder::findMagicFunction(SignatureView signature) const ->
+        typename FunctionsList::const_iterator
     {
         auto arguments = ccl::SmallVector<Argument>{};
 
@@ -127,14 +116,17 @@ namespace fsc::func
     // NOLINTNEXTLINE
     auto FunctionsHolder::checkMagicFunctionOrReturnFailure(
         SignatureView signature,
-        FunctionFindFailure failure_type) const noexcept
-        -> std::expected<typename FunctionsList::const_iterator, FunctionFindFailure>
+        FunctionFindFailure failure_type) const -> typename FunctionsList::const_iterator
     {
         if (signature.classId == 0 && isMagicFunction(signature)) {
             return findMagicFunction(signature);
         }
 
-        return std::unexpected(failure_type);
+        if (failure_type == FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_NAME) {
+            throwUnableToFindFunctionWithGivenName(signature);
+        } else {
+            throwUnableToFindFunctionWithGivenParameters(signature);
+        }
     }
 
     auto FunctionsHolder::throwUnableToFindFunctionWithGivenName(SignatureView signature) noexcept(

@@ -1,14 +1,20 @@
 #ifndef FSC_BASIC_NODE_HPP
 #define FSC_BASIC_NODE_HPP
 
+#include "ccl/core/types.hpp"
 #include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
 #include <concepts>
+#include <optional>
+#include <ParserRuleContext.h>
 #include <stdexcept>
 #include <typeinfo>
 
 namespace fsc::ast
 {
+    inline std::string SourceFile;              // NOLINT
+    inline ccl::Vector<std::string> SourceLines;// NOLINT
+
     enum struct SemicolonNeed : bool
     {
         NEED,
@@ -52,10 +58,11 @@ namespace fsc::ast
         template<NodeType TypeOfNode, SemicolonNeed NeedSemicolon, typename Base>
         friend class NodeWrapper;
 
+        ccl::Optional<antlr4::Token *> start{std::nullopt};
+        ccl::Optional<antlr4::Token *> stop{std::nullopt};
         NodeType nodeType;
         SemicolonNeed needSemicolon{SemicolonNeed::NEED};
 
-    private:
         auto setNodeType(NodeType node_type) noexcept -> void;
         auto setSemicolonNeed(SemicolonNeed need_semicolon) noexcept -> void;
 
@@ -84,6 +91,28 @@ namespace fsc::ast
 
         virtual auto optimize(OptimizationLevel /* unused */) -> void
         {}
+
+        auto setStart(antlr4::Token *rule_start) noexcept -> void
+        {
+            start = rule_start;
+        }
+
+        auto setStop(antlr4::Token *rule_stop) noexcept -> void
+        {
+            stop = rule_stop;
+        }
+
+        auto getStart() const noexcept -> ccl::Optional<antlr4::Token *>
+        {
+            return start;
+        }
+
+        auto getStop() const noexcept -> ccl::Optional<antlr4::Token *>
+        {
+            return stop;
+        }
+
+        auto reportAboutError(const std::exception &exception) const -> void;
 
         [[nodiscard]] virtual auto getValueType() const noexcept(false) -> ccl::Id;
 

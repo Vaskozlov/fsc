@@ -4,6 +4,7 @@ func test<T>()
 
 func main()
 {
-    let x = i64(10)
+    var x = i64(10)
+    del()
     return 0
 }

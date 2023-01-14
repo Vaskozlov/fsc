@@ -140,8 +140,10 @@ namespace fsc
 
     auto Visitor::codeGen() -> std::string
     {
+        auto generator = ccl::codegen::BasicCodeGenerator{};
+
         program.print("", false);
-        ccl::codegen::BasicCodeGenerator generator;
+
         generator << program;
         return generator.getCode();
     }

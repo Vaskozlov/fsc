@@ -9,13 +9,7 @@ namespace fsc::ast
     MemberVariable::MemberVariable(NodePtr node_to_access, std::string variable_name)
       : node{std::move(node_to_access)}
       , name{std::move(variable_name)}
-    {
-        CCL_ASSERT(this->getNodeType() == NodeType::MEMBER_VARIABLE);
-
-        if (!canAccessMember()) {
-            throw std::runtime_error{"Unable to construct member access"};
-        }
-    }
+    {}
 
     auto MemberVariable::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
@@ -24,6 +18,10 @@ namespace fsc::ast
 
     auto MemberVariable::analyze() const -> void
     {
+        if (!canAccessMember()) {
+            throw std::runtime_error{"unable to construct member access"};
+        }
+
         node->analyze();
     }
 

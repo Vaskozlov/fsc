@@ -3,7 +3,6 @@
 
 #include "ast/function/function.hpp"
 #include <ccl/core/types.hpp>
-#include <expected>
 #include <function/argument.hpp>
 #include <list>
 #include <type/type.hpp>
@@ -35,7 +34,7 @@ namespace fsc::func
         [[nodiscard]] auto visitFunction(SignatureView signature, auto &&function) const
             -> decltype(auto)
         {
-            return function(findFunction(signature).value()->get());
+            return function(findFunction(signature)->get());
         }
 
         [[nodiscard]] auto get(SignatureView signature) const -> ccl::SharedPtr<ast::Function>;
@@ -48,15 +47,15 @@ namespace fsc::func
         auto appendFunction(ccl::SharedPtr<ast::Function> &function, ccl::Id class_id) noexcept(
             false) -> void;
 
-        [[nodiscard]] auto findFunction(SignatureView signature) const noexcept
-            -> std::expected<typename FunctionsList::const_iterator, FunctionFindFailure>;
+        [[nodiscard]] auto findFunction(SignatureView signature) const ->
+            typename FunctionsList::const_iterator;
 
-        [[nodiscard]] auto findMagicFunction(SignatureView signature) const noexcept
-            -> std::expected<typename FunctionsList::const_iterator, FunctionFindFailure>;
+        [[nodiscard]] auto findMagicFunction(SignatureView signature) const ->
+            typename FunctionsList::const_iterator;
 
         [[nodiscard]] auto checkMagicFunctionOrReturnFailure(
-            SignatureView signature, FunctionFindFailure failure_type) const noexcept
-            -> std::expected<typename FunctionsList::const_iterator, FunctionFindFailure>;
+            SignatureView signature, FunctionFindFailure failure_type) const ->
+            typename FunctionsList::const_iterator;
 
         [[noreturn]] static auto
             throwUnableToFindFunctionWithGivenName(SignatureView signature) noexcept(false) -> void;

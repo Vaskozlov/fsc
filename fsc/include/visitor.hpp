@@ -38,10 +38,13 @@ namespace fsc
           : filename{name_of_file}
           , inputStream{input}
           , parser{fsc_parser}
-        {}
+        {
+            ast::SourceFile = filename;
+            ast::SourceLines = inputAsLines;
+        }
 
         auto codeGen() -> std::string;
-        auto analyze() const  -> void;
+        auto analyze() const -> void;
 
         [[nodiscard]] auto getCurrentFunctionReturnType() const -> ccl::Id
         {

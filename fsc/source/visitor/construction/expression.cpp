@@ -104,7 +104,7 @@ namespace fsc
         auto rhs = visitAsNode(children.at(2));
 
         return ccl::makeShared<ast::BinaryOperation>(
-            children.at(1)->getText(), std::move(lhs), std::move(rhs));
+            ctx, children.at(1)->getText(), std::move(lhs), std::move(rhs));
     }
 
     auto Visitor::constructConversion(FscParser::ExprContext *ctx) -> ast::NodePtr

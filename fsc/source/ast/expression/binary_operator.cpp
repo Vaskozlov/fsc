@@ -2,8 +2,8 @@
 #include "function/argument.hpp"
 #include "function/functions_holder.hpp"
 #include <ccl/flatmap.hpp>
+#include <exception>
 #include <ranges>
-#include <utility>
 
 namespace fsc::ast
 {
@@ -18,6 +18,7 @@ namespace fsc::ast
             {"=", "__copy__"}};
 
     BinaryOperation::BinaryOperation(
+        FscParser::ExprContext *ctx,
         std::string operation_type,
         NodePtr left_node,
         NodePtr right_node)
@@ -25,6 +26,8 @@ namespace fsc::ast
       , rhs{std::move(right_node)}
       , operationType{std::move(operation_type)}
     {
+        setStart(ctx->start);
+        setStop(ctx->stop);
         CCL_ASSERT(this->getNodeType() == NodeType::BINARY_OPERATOR);
     }
 
@@ -39,7 +42,11 @@ namespace fsc::ast
 
     auto BinaryOperation::analyze() const -> void
     {
-        [[maybe_unused]] auto make_sure_that_binary_function_exists = getValueType();
+        try {
+            [[maybe_unused]] auto make_sure_that_binary_function_exists = getValueType();
+        } catch (const std::exception &exception) {
+            reportAboutError(exception);
+        }
     }
 
     auto BinaryOperation::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
