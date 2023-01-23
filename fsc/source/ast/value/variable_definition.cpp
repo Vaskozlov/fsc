@@ -2,6 +2,7 @@
 #include "type/type.hpp"
 #include "visibility.hpp"
 #include "visitor.hpp"
+#include <type/antlr-types.hpp>
 
 namespace fsc::ast
 {
@@ -23,13 +24,13 @@ namespace fsc::ast
     {}
 
     VariableDefinition::VariableDefinition(
-        Visitor &visitor, FscParser::Variable_definitionContext *ctx)
+        Visitor &visitor, VariableDefinitionContext *ctx)
       : VariableDefinition{
             readName(ctx), readFlags(ctx), readType(ctx), readInitializer(visitor, ctx)}
     {}
 
     VariableDefinition::VariableDefinition(
-        Visitor &visitor, FscParser::Auto_variable_definitionContext *ctx)
+        Visitor &visitor, AutoVariableDefinitionContext *ctx)
       : VariableDefinition{readName(ctx), readFlags(ctx), readInitializer(visitor, ctx)}
     {}
 
@@ -112,7 +113,7 @@ namespace fsc::ast
 
     auto VariableDefinition::readInitializer(Visitor &visitor, auto *ctx) -> NodePtr
     {
-        const auto *expr = ccl::as<FscParser::ExprContext *>(ctx->children.back());
+        const auto *expr = ccl::as<ExpressionContext *>(ctx->children.back());
  
         if (expr != nullptr) {
             return visitor.visitAsNode(ctx->children.back());

@@ -1,6 +1,5 @@
 #include "ast/function/function.hpp"
 #include "ast/value/variable.hpp"
-#include "ccl/core/types.hpp"
 #include "function/argument.hpp"
 #include "type/builtin_types.hpp"
 #include "type/type.hpp"
@@ -17,12 +16,12 @@ namespace fsc::ast
 {
     auto Function::operator==(SignatureView other) const noexcept -> bool
     {
-        const auto is_constructor =
-            (other.classId == 0 && getMagicType() == MagicFunctionType::INIT);
-
         if (arguments.size() > std::size(other.arguments)) {
             return false;
         }
+
+        const auto is_constructor =
+            (other.classId == 0 && getMagicType() == MagicFunctionType::INIT);
 
         const auto first_arguments_equal = std::ranges::equal(
             arguments.cbegin(), arguments.cend(), other.arguments.cbegin(),
@@ -38,8 +37,10 @@ namespace fsc::ast
             arguments_equal = endsWithParameterPack;
         }
 
-        return (arguments_equal && ((classId == other.classId) || is_constructor)) &&
-               name == other.name;
+        const auto have_similar_names = name == other.name;
+        const auto have_similar_class_id = classId == other.classId;
+
+        return arguments_equal && have_similar_names && (have_similar_class_id || is_constructor);
     }
 
     auto Function::analyze() const -> void

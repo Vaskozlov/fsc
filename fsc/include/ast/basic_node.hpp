@@ -9,6 +9,7 @@
 #include <ParserRuleContext.h>
 #include <stdexcept>
 #include <typeinfo>
+#include "type/antlr-types.hpp"
 
 namespace fsc::ast
 {

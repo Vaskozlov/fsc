@@ -1,9 +1,10 @@
 #include "ast/container/program.hpp"
 #include "visitor.hpp"
+#include <type/antlr-types.hpp>
 
 namespace fsc
 {
-    auto Visitor::constructProgram(FscParser::ProgramContext *ctx) -> void
+    auto Visitor::constructProgram(ProgramContext *ctx) -> void
     {
         const auto &children = ctx->children;
 

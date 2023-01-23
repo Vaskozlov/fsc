@@ -1,17 +1,18 @@
 #include "ast/statement/if_stmt.hpp"
 #include "ast/expression/parenthesized.hpp"
 #include <ccl/ccl.hpp>
+#include <type/antlr-types.hpp>
 
 namespace fsc::ast
 {
     using namespace ccl;
 
-    IfStmt::IfStmt(Visitor &visitor, FscParser::If_stmtContext *ctx)
+    IfStmt::IfStmt(Visitor &visitor, IfStatementContext *ctx)
     {
         const auto &children = ctx->children;
-        auto *if_context = ccl::as<FscParser::IfContext *>(children.at(0));
-        auto *elif_context = ccl::as<FscParser::ElifContext *>(children.at(1));
-        auto *else_context = ccl::as<FscParser::ElseContext *>(children.at(2));
+        auto *if_context = ccl::as<IfContext *>(children.at(0));
+        auto *elif_context = ccl::as<ElifContext *>(children.at(1));
+        auto *else_context = ccl::as<ElseContext *>(children.at(2));
 
         parseIfStmt(visitor, if_context);
         parseElifStmt(visitor, elif_context);
@@ -65,7 +66,7 @@ namespace fsc::ast
         }
     }
 
-    auto IfStmt::parseIfStmt(Visitor &visitor, FscParser::IfContext *ctx) -> void
+    auto IfStmt::parseIfStmt(Visitor &visitor, IfContext *ctx) -> void
     {
         const auto &children = ctx->children;
         auto expr = visitor.visitAsNode(children.at(1));
@@ -74,7 +75,7 @@ namespace fsc::ast
         ifNode = makeShared<If>(IfType::IF, makeShared<Parenthesized>(expr), body);
     }
 
-    auto IfStmt::parseElifStmt(Visitor &visitor, FscParser::ElifContext *ctx) -> void
+    auto IfStmt::parseElifStmt(Visitor &visitor, ElifContext *ctx) -> void
     {
         for (auto *context : ctx->children) {
             const auto &children = context->children;
@@ -86,7 +87,7 @@ namespace fsc::ast
         }
     }
 
-    auto IfStmt::parseElseStmt(Visitor &visitor, FscParser::ElseContext *ctx) -> void
+    auto IfStmt::parseElseStmt(Visitor &visitor, ElseContext *ctx) -> void
     {
         if (ctx->children.empty()) {
             return;

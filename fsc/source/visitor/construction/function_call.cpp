@@ -4,6 +4,7 @@
 #include "function/functions_holder.hpp"
 #include "visitor.hpp"
 #include <ast/value/variable.hpp>
+#include <type/antlr-types.hpp>
 
 namespace fsc
 {
@@ -16,19 +17,18 @@ namespace fsc
         return !text.empty() && text[0] != ',';
     }
 
-    auto Visitor::parseFunction(FscParser::Function_callContext *ctx)
+    auto Visitor::parseFunction(FunctionCallContext *ctx)
         -> std::tuple<std::string, SmallVector<Argument>, SmallVector<ast::NodePtr>>
     {
         const auto &children = ctx->children;
         const auto name = children.at(0)->getText();
         auto *args = children.at(1);
 
-        auto [arguments, values] =
-            processFunctionArguments(as<FscParser::Function_parameterContext *>(args));
+        auto [arguments, values] = processFunctionArguments(as<FunctionParameterContext *>(args));
         return std::make_tuple(name, std::move(arguments), std::move(values));
     }
 
-    auto Visitor::constructFunctionCall(FscParser::Function_callContext *ctx) -> ast::NodePtr
+    auto Visitor::constructFunctionCall(FunctionCallContext *ctx) -> ast::NodePtr
     {
         auto [name, arguments, values] = parseFunction(ctx);
 
@@ -36,10 +36,10 @@ namespace fsc
             func::Functions.get({name, arguments}), values);
     }
 
-    auto Visitor::constructMethodCall(FscParser::ExprContext *ctx) -> ast::NodePtr
+    auto Visitor::constructMethodCall(ExpressionContext *ctx) -> ast::NodePtr
     {
         auto *function_call_context =
-            as<FscParser::Function_callContext *>(ctx->children.at(1)->children.at(1));
+            as<FunctionCallContext *>(ctx->children.at(1)->children.at(1));
 
         auto expression = visitAsNode(ctx->children.at(0));
         auto [name, arguments, values] = parseFunction(function_call_context);
@@ -49,18 +49,18 @@ namespace fsc
     }
 
 
-    auto Visitor::processFunctionArguments(FscParser::Function_parameterContext *ctx)
+    auto Visitor::processFunctionArguments(FunctionParameterContext *ctx)
         -> Pair<SmallVector<Argument>, SmallVector<ast::NodePtr>>
     {
         const auto &children = ctx->children;
-        auto *argument_list = as<FscParser::Function_typed_arguments_listContext *>(children[1]);
+        auto *argument_list = as<FunctionTypedArgumentsListContext *>(children[1]);
         auto result = Pair<SmallVector<Argument>, SmallVector<ast::NodePtr>>{};
         auto &[arguments, nodes] = result;
 
         if (argument_list != nullptr) {
             for (auto *parameter : argument_list->children | sv::filter(CommaFilter)) {
                 auto [argument, node] =
-                    constructFunctionArgument(as<FscParser::Function_argumentContext *>(parameter));
+                    constructFunctionArgument(as<FunctionArgumentContext *>(parameter));
                 arguments.push_back(argument);
                 nodes.push_back(std::move(node));
             }
@@ -69,7 +69,7 @@ namespace fsc
         return result;
     }
 
-    auto Visitor::constructFunctionArgument(FscParser::Function_argumentContext *argument_context)
+    auto Visitor::constructFunctionArgument(FunctionArgumentContext *argument_context)
         -> Pair<Argument, ast::NodePtr>
     {
         const auto &children = argument_context->children;

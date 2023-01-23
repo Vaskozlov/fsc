@@ -13,7 +13,7 @@ namespace fsc
         return variable;
     }
 
-    auto Visitor::constructAutoVariableDefinition(FscParser::Auto_variable_definitionContext *ctx)
+    auto Visitor::constructAutoVariableDefinition(AutoVariableDefinitionContext *ctx)
         -> ast::NodePtr
     {
         auto variable = ccl::makeShared<ast::VariableDefinition>(*this, ctx);
@@ -21,7 +21,7 @@ namespace fsc
         return variable;
     }
 
-    auto Visitor::constructMemberVariableAccess(FscParser::ExprContext *ctx) -> ast::NodePtr
+    auto Visitor::constructMemberVariableAccess(ExpressionContext *ctx) -> ast::NodePtr
     {
         const auto &children = ctx->children;
         auto base_node = visitAsNode(children.at(0));

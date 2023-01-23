@@ -33,8 +33,7 @@ namespace fsc::ast
         }
     }
 
-    auto Function::generateTemplateParameters(codegen::BasicCodeGenerator &output) const
-        -> void
+    auto Function::generateTemplateParameters(codegen::BasicCodeGenerator &output) const -> void
     {
         if (!templates.empty()) {
             output << "template<typename ";
@@ -51,30 +50,18 @@ namespace fsc::ast
             genVisibility(visibility, output);
         }
 
-        switch (magicType) {
-        case MagicFunctionType::DEL:
-        case MagicFunctionType::INIT:
+        if (magicType == MagicFunctionType::INIT || magicType == MagicFunctionType::DEL) {
             addConstexprModifier(output);
             output << name;
-            break;
-
-        case MagicFunctionType::ADD:
-        case MagicFunctionType::SUB:
-        case MagicFunctionType::MUL:
-        case MagicFunctionType::DIV:
-        case MagicFunctionType::MOD:
+        } else {
             addNodiscardModifier(output);
             addConstexprModifier(output);
 
-            output << getReturnTypeAsString() << " operator" << MagicToRepr.at(magicType);
-            break;
-
-        default:
-            addNodiscardModifier(output);
-            addConstexprModifier(output);
-
-            output << getReturnTypeAsString() << ' ' << name;
-            break;
+            if (magicType != MagicFunctionType::NONE) {
+                output << getReturnTypeAsString() << " operator" << MagicToRepr.at(magicType);
+            } else {
+                output << getReturnTypeAsString() << ' ' << name;
+            }
         }
 
         output << '(';

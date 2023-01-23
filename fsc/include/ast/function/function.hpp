@@ -4,6 +4,7 @@
 #include "ast/basic_node.hpp"
 #include "ccl/core/types.hpp"
 #include "function/argument.hpp"
+#include "type/antlr-types.hpp"
 #include "type/builtin_types.hpp"
 #include "visibility.hpp"
 #include "visitor.hpp"
@@ -32,9 +33,6 @@ namespace fsc::ast
         ASSIGN
     };
 
-    using FunctionAttributeContext = FscParser::Function_attibutesContext;
-    using FunctionTemplateContext = FscParser::Function_templatesContext;
-    using ParametersContext = FscParser::ParametersContext;
 
     class Function
       : public NodeWrapper<NodeType::FUNCTION, SemicolonNeed::DO_NOT_NEED>
@@ -49,7 +47,7 @@ namespace fsc::ast
         Visibility visibility{};
         std::variant<ccl::Id, std::string> returnType{Void::typeId};
         ccl::Id classId{};
-        const FscParser::FunctionContext *functionContext{};
+        const FunctionContext *functionContext{};
         MagicFunctionType magicType{};
         bool endsWithParameterPack{};
 
@@ -62,8 +60,7 @@ namespace fsc::ast
             bool ends_with_parameter_pack = false);
 
         auto finishConstruction(
-            const FscParser::FunctionContext *function_context, Visitor &visitor, ccl::Id class_id)
-            -> void;
+            const FunctionContext *function_context, Visitor &visitor, ccl::Id class_id) -> void;
 
         auto analyze() const -> void override;
 

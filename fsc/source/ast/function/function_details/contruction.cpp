@@ -25,7 +25,7 @@ namespace fsc::ast
     {}
 
     auto Function::finishConstruction(
-        const FscParser::FunctionContext *function_context, Visitor &visitor, Id class_id) -> void
+        const FunctionContext *function_context, Visitor &visitor, Id class_id) -> void
     {
         functionContext = function_context;
         const auto &children = functionContext->children;
@@ -60,8 +60,8 @@ namespace fsc::ast
     auto Function::completeBody(Visitor &visitor) -> void
     {
         const auto &children = functionContext->children;
-        auto function_scope = visitor.acquireFunctionScope(getReturnType());
-        auto stack_scope = ProgramStack.acquireStackScope(ScopeType::HARD);
+        const auto function_scope = visitor.acquireFunctionScope(getReturnType());
+        const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::HARD);
 
         for (const auto &arg : arguments) {
             ProgramStack.addVariable(makeShared<ast::Variable>(arg.toVariable()));
@@ -100,7 +100,7 @@ namespace fsc::ast
         auto *argument_definition =
             ccl::as<FscParser::Argument_definitionContext *>(children.front());
         auto argument = defineArgument(argument_definition);
-        auto *argument_initializer = ccl::as<FscParser::ExprContext *>(children.back());
+        auto *argument_initializer = ccl::as<ExpressionContext *>(children.back());
 
         if (argument_initializer != nullptr) {
             defaultArguments.emplace(argument.getName(), visitor.visitAsNode(argument_initializer));

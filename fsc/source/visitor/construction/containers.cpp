@@ -1,12 +1,13 @@
 #include "ast/container/class.hpp"
 #include "stack/stack.hpp"
+#include <type/antlr-types.hpp>
 
 namespace fsc
 {
     using namespace ccl;
     namespace sv = std::views;
 
-    template auto Visitor::constructBody<ast::Body>(FscParser::BodyContext *ctx) -> ast::NodePtr;
+    template auto Visitor::constructBody<ast::Body>(BodyContext *ctx) -> ast::NodePtr;
 
     static constexpr auto NewLineFilter(antlr4::tree::ParseTree *elem) -> bool
     {
@@ -15,7 +16,7 @@ namespace fsc
     };
 
     template<std::derived_from<ast::Body> BodyT, typename... Ts>
-    auto Visitor::constructBody(FscParser::BodyContext *ctx, Ts &&...args) -> ast::NodePtr
+    auto Visitor::constructBody(BodyContext *ctx, Ts &&...args) -> ast::NodePtr
     {
         const auto &children = ctx->children;
         auto body = makeShared<BodyT>(std::forward<Ts>(args)...);
@@ -37,13 +38,13 @@ namespace fsc
         return body;
     }
 
-    auto Visitor::constructClass(FscParser::ClassContext *const ctx) -> ast::NodePtr
+    auto Visitor::constructClass(ClassContext *ctx) -> ast::NodePtr
     {
         const auto &children = ctx->children;
         const auto name = children.at(1)->getText();
 
         auto scope = ProgramStack.acquireStackScope(ScopeType::HARD);
-        auto *body_context = as<FscParser::BodyContext *>(children.back());
+        auto *body_context = as<BodyContext *>(children.back());
 
         return constructBody<ast::Class>(body_context, name);
     }

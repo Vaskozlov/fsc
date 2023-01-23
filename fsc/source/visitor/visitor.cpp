@@ -6,13 +6,13 @@
 #include <cstdlib>
 #include <exception>
 #include <ranges>
+#include <type/antlr-types.hpp>
 
 using namespace std::string_view_literals;
 
 namespace fsc
 {
-    extern template auto Visitor::constructBody<ast::Body>(FscParser::BodyContext *ctx)
-        -> ast::NodePtr;
+    extern template auto Visitor::constructBody<ast::Body>(BodyContext *ctx) -> ast::NodePtr;
 
     auto Visitor::throwError(antlr4::ParserRuleContext *ctx, std::string_view message) -> void
     {
@@ -64,7 +64,7 @@ namespace fsc
         }
     }
 
-    auto Visitor::visitExpr(FscParser::ExprContext *ctx) -> std::any
+    auto Visitor::visitExpr(ExpressionContext *ctx) -> std::any
     {
         try {
             return constructExpression(ctx);
@@ -82,7 +82,7 @@ namespace fsc
         }
     }
 
-    auto Visitor::visitFunction(FscParser::FunctionContext *const ctx) -> std::any
+    auto Visitor::visitFunction(FunctionContext *ctx) -> std::any
     {
         try {
             return constructFunction(ctx);

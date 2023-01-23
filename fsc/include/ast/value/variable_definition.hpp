@@ -21,9 +21,9 @@ namespace fsc::ast
         VariableDefinition(
             std::string variable_name, VariableFlags variable_flags, NodePtr variable_initializer);
 
-        VariableDefinition(Visitor &visitor, FscParser::Variable_definitionContext *ctx);
+        VariableDefinition(Visitor &visitor, VariableDefinitionContext *ctx);
 
-        VariableDefinition(Visitor &visitor, FscParser::Auto_variable_definitionContext *ctx);
+        VariableDefinition(Visitor &visitor, AutoVariableDefinitionContext *ctx);
 
         auto analyze() const -> void final;
 

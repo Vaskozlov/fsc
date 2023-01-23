@@ -4,6 +4,7 @@
 #include "ast/basic_node.hpp"
 #include "function/functions_holder.hpp"
 #include <FscParser.h>
+#include <type/antlr-types.hpp>
 
 namespace fsc::ast
 {
@@ -14,7 +15,7 @@ namespace fsc::ast
         std::string operationType;
 
     public:
-        BinaryOperation(FscParser::ExprContext *ctx, std::string operation_type, NodePtr left_node, NodePtr right_node);
+        BinaryOperation(ExpressionContext *ctx, std::string operation_type, NodePtr left_node, NodePtr right_node);
 
         [[nodiscard]] auto getValueType() const -> ccl::Id final;
 

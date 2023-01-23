@@ -4,6 +4,7 @@
 #include "ast/container/program.hpp"
 #include "FscBaseVisitor.h"
 #include "function/argument.hpp"
+#include "type/antlr-types.hpp"
 #include <ANTLRInputStream.h>
 #include <any>
 #include <ast/basic_node.hpp>
@@ -82,7 +83,7 @@ namespace fsc
 
         auto visitProgram(FscParser::ProgramContext *ctx) -> std::any final;
 
-        auto visitStmt(FscParser::StmtContext *ctx) -> std::any final;
+        auto visitStmt(StatementContext *ctx) -> std::any final;
 
         auto visitWhile_loop(FscParser::While_loopContext *ctx) -> std::any final;
 
@@ -103,50 +104,48 @@ namespace fsc
 
         auto visitFunction_call(FscParser::Function_callContext *ctx) -> std::any final;
 
-        auto constructExpression(FscParser::ExprContext *ctx) -> std::any;
+        auto constructExpression(ExpressionContext *ctx) -> std::any;
 
-        auto constructVariableDefinition(FscParser::Variable_definitionContext *ctx)
-            -> ast::NodePtr;
+        auto constructVariableDefinition(VariableDefinitionContext *ctx) -> ast::NodePtr;
 
-        auto constructMethodCall(FscParser::ExprContext *ctx) -> ast::NodePtr;
+        auto constructMethodCall(ExpressionContext *ctx) -> ast::NodePtr;
 
-        auto constructMemberVariableAccess(FscParser::ExprContext *ctx) -> ast::NodePtr;
+        auto constructMemberVariableAccess(ExpressionContext *ctx) -> ast::NodePtr;
 
-        auto constructAutoVariableDefinition(FscParser::Auto_variable_definitionContext *ctx)
-            -> ast::NodePtr;
+        auto constructAutoVariableDefinition(AutoVariableDefinitionContext *ctx) -> ast::NodePtr;
 
-        auto constructProgram(FscParser::ProgramContext *ctx) -> void;
+        auto constructProgram(ProgramContext *ctx) -> void;
 
-        auto constructClass(FscParser::ClassContext *ctx) -> ast::NodePtr;
+        auto constructClass(ClassContext *ctx) -> ast::NodePtr;
 
-        auto constructConversion(FscParser::ExprContext *ctx) -> ast::NodePtr;
+        auto constructConversion(ExpressionContext *ctx) -> ast::NodePtr;
 
         template<std::derived_from<ast::Body> BodyT, typename... Ts>
-        auto constructBody(FscParser::BodyContext *ctx, Ts &&...args) -> ast::NodePtr;
+        auto constructBody(BodyContext *ctx, Ts &&...args) -> ast::NodePtr;
 
-        auto constructReturn(FscParser::StmtContext *ctx) -> ast::NodePtr;
+        auto constructReturn(StatementContext *ctx) -> ast::NodePtr;
 
-        auto constructIf(FscParser::If_stmtContext *ctx) -> ast::NodePtr;
+        auto constructIf(IfStatementContext *ctx) -> ast::NodePtr;
 
-        auto constructWhile(FscParser::While_loopContext *ctx) -> ast::NodePtr;
+        auto constructWhile(WhileContext *ctx) -> ast::NodePtr;
 
-        auto constructStatement(FscParser::StmtContext *ctx) -> std::any;
+        auto constructStatement(StatementContext *ctx) -> std::any;
 
-        auto constructParenthesized(FscParser::ExprContext *expr_context) -> ast::NodePtr;
+        auto constructParenthesized(ExpressionContext *expr_context) -> ast::NodePtr;
 
-        auto constructBinaryExpression(FscParser::ExprContext *ctx) -> ast::NodePtr;
+        auto constructBinaryExpression(ExpressionContext *ctx) -> ast::NodePtr;
 
-        auto constructFunctionCall(FscParser::Function_callContext *ctx) -> ast::NodePtr;
+        auto constructFunctionCall(FunctionCallContext *ctx) -> ast::NodePtr;
 
-        auto constructFunction(FscParser::FunctionContext *ctx) -> ast::NodePtr;
+        auto constructFunction(FunctionContext *ctx) -> ast::NodePtr;
 
-        auto processFunctionArguments(FscParser::Function_parameterContext *ctx)
+        auto processFunctionArguments(FunctionParameterContext *ctx)
             -> ccl::Pair<ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>;
 
-        auto constructFunctionArgument(FscParser::Function_argumentContext *argument_context)
+        auto constructFunctionArgument(FunctionArgumentContext *argument_context)
             -> ccl::Pair<Argument, ast::NodePtr>;
 
-        auto parseFunction(FscParser::Function_callContext *ctx)
+        auto parseFunction(FunctionCallContext *ctx)
             -> std::tuple<std::string, ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>;
 
         [[noreturn]] auto throwError(antlr4::ParserRuleContext *ctx, std::string_view message)

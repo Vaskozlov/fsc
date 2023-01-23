@@ -14,7 +14,7 @@ namespace fsc
     using namespace ccl;
     using namespace std::string_view_literals;
 
-    static auto isBinaryOperator(FscParser::ExprContext *const ctx) -> bool
+    static auto isBinaryOperator(ExpressionContext * ctx) -> bool
     {
         static constexpr auto binary_expressions = StaticFlatmap<std::string_view, bool, 14>{
             {"+", true},  {"-", true},  {"*", true},  {"/", true}, {"%", true},
@@ -26,14 +26,14 @@ namespace fsc
                binary_expressions.contains(ctx->children.at(1)->getText());
     }
 
-    auto Visitor::constructParenthesized(FscParser::ExprContext *expr_context) -> ast::NodePtr
+    auto Visitor::constructParenthesized(ExpressionContext *expr_context) -> ast::NodePtr
     {
         const auto &children = expr_context->children;
         auto stored_node = visitAsNode(children.at(1));
         return makeShared<ast::Parenthesized>(std::move(stored_node));
     }
 
-    auto Visitor::constructExpression(FscParser::ExprContext *ctx) -> std::any
+    auto Visitor::constructExpression(ExpressionContext *ctx) -> std::any
     {
         auto node = ast::NodePtr{};
         const auto &children = ctx->children;
@@ -97,7 +97,7 @@ namespace fsc
         return node;
     }
 
-    auto Visitor::constructBinaryExpression(FscParser::ExprContext *ctx) -> ast::NodePtr
+    auto Visitor::constructBinaryExpression(ExpressionContext *ctx) -> ast::NodePtr
     {
         const auto &children = ctx->children;
 
@@ -108,7 +108,7 @@ namespace fsc
             ctx, children.at(1)->getText(), std::move(lhs), std::move(rhs));
     }
 
-    auto Visitor::constructConversion(FscParser::ExprContext *ctx) -> ast::NodePtr
+    auto Visitor::constructConversion(ExpressionContext *ctx) -> ast::NodePtr
     {
         auto expr_to_convert = visitAsNode(ctx->children.at(0));
         auto target_type = ctx->children.at(2)->getText();

@@ -3,6 +3,7 @@
 
 #include "ast/statement/if.hpp"
 #include "visitor.hpp"
+#include <type/antlr-types.hpp>
 
 namespace fsc::ast
 {
@@ -14,7 +15,7 @@ namespace fsc::ast
         NodePtr elseNode;
 
     public:
-        IfStmt(Visitor &visitor, FscParser::If_stmtContext *ctx);
+        IfStmt(Visitor &visitor, IfStatementContext *ctx);
 
         auto analyze() const -> void final;
 
@@ -23,9 +24,9 @@ namespace fsc::ast
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
     private:
-        auto parseIfStmt(Visitor &visitor, FscParser::IfContext *ctx) -> void;
-        auto parseElifStmt(Visitor &visitor, FscParser::ElifContext *ctx) -> void;
-        auto parseElseStmt(Visitor &visitor, FscParser::ElseContext *ctx) -> void;
+        auto parseIfStmt(Visitor &visitor, IfContext *ctx) -> void;
+        auto parseElifStmt(Visitor &visitor, ElifContext *ctx) -> void;
+        auto parseElseStmt(Visitor &visitor, ElseContext *ctx) -> void;
     };
 }// namespace fsc::ast
 

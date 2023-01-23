@@ -2,25 +2,26 @@
 #include "ast/statement/if_stmt.hpp"
 #include "ast/statement/while.hpp"
 #include "visitor.hpp"
+#include <type/antlr-types.hpp>
 
 namespace fsc
 {
     using namespace ccl;
     using namespace std::string_view_literals;
 
-    auto Visitor::constructReturn(FscParser::StmtContext *ctx) -> ast::NodePtr
+    auto Visitor::constructReturn(StatementContext *ctx) -> ast::NodePtr
     {
         const auto &children = ctx->children;
 
         return makeShared<ast::Return>(visitAsNode(children.at(1)));
     }
 
-    auto Visitor::constructIf(FscParser::If_stmtContext *ctx) -> ast::NodePtr
+    auto Visitor::constructIf(IfStatementContext *ctx) -> ast::NodePtr
     {
         return makeShared<ast::IfStmt>(*this, ctx);
     }
 
-    auto Visitor::constructWhile(FscParser::While_loopContext *ctx) -> ast::NodePtr
+    auto Visitor::constructWhile(WhileContext *ctx) -> ast::NodePtr
     {
         const auto &children = ctx->children;
         auto condition = visitAsNode(children.at(2));
@@ -29,7 +30,7 @@ namespace fsc
         return makeShared<ast::While>(std::move(condition), std::move(body));
     }
 
-    auto Visitor::constructStatement(FscParser::StmtContext *ctx) -> std::any
+    auto Visitor::constructStatement(StatementContext *ctx) -> std::any
     {
         const auto &children = ctx->children;
 
