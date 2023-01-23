@@ -8,19 +8,9 @@ namespace fsc::ast
 {
     using namespace std::string_view_literals;
 
-    Return::Return(Visitor &visitor, NodePtr value_to_return)
+    Return::Return(NodePtr value_to_return)
       : value{std::move(value_to_return)}
-    {
-        CCL_ASSERT(this->getNodeType() == NodeType::RETURN);
-
-        if (auto return_type = visitor.getCurrentFunctionReturnType();
-            return_type == Auto::typeId) {
-            visitor.updateFunctionReturnType(value->getValueType());
-        } else if (return_type != value->getValueType()) {
-            throw std::runtime_error{
-                "Return type of the function does not math with function return type"};
-        }
-    }
+    {}
 
     auto Return::analyze() const -> void
     {

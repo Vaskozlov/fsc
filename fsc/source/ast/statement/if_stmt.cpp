@@ -4,6 +4,8 @@
 
 namespace fsc::ast
 {
+    using namespace ccl;
+
     IfStmt::IfStmt(Visitor &visitor, FscParser::If_stmtContext *ctx)
     {
         const auto &children = ctx->children;
@@ -27,9 +29,9 @@ namespace fsc::ast
         elseNode->analyze();
     }
 
-    auto IfStmt::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
+    auto IfStmt::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
-        using namespace ccl::codegen;
+        using namespace codegen;
 
         output << *ifNode;
 
@@ -69,7 +71,7 @@ namespace fsc::ast
         auto expr = visitor.visitAsNode(children.at(1));
         auto body = visitor.visitAsNode(children.at(3));
 
-        ifNode = ccl::makeShared<If>(IfType::IF, ccl::makeShared<Parenthesized>(expr), body);
+        ifNode = makeShared<If>(IfType::IF, makeShared<Parenthesized>(expr), body);
     }
 
     auto IfStmt::parseElifStmt(Visitor &visitor, FscParser::ElifContext *ctx) -> void
@@ -80,7 +82,7 @@ namespace fsc::ast
             auto body = visitor.visitAsNode(children.at(3));
 
             elifNodes.emplace_back(
-                ccl::makeShared<If>(IfType::ELIF, ccl::makeShared<Parenthesized>(expr), body));
+                makeShared<If>(IfType::ELIF, makeShared<Parenthesized>(expr), body));
         }
     }
 
@@ -93,6 +95,6 @@ namespace fsc::ast
         const auto &children = ctx->children.at(0)->children;
         auto body = visitor.visitAsNode(children.at(1));
 
-        elseNode = ccl::makeShared<If>(IfType::ELSE, nullptr, body);
+        elseNode = makeShared<If>(IfType::ELSE, nullptr, body);
     }
 }// namespace fsc::ast

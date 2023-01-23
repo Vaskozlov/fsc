@@ -3,7 +3,9 @@
 
 namespace fsc::ast
 {
-    Variable::Variable(std::string variable_name, ccl::Id type_id, VariableFlags variable_flags)
+    using namespace ccl;
+
+    Variable::Variable(std::string variable_name, Id type_id, VariableFlags variable_flags)
       : name{std::move(variable_name)}
       , typeId{type_id}
       , flags{variable_flags}
@@ -14,7 +16,7 @@ namespace fsc::ast
     auto Variable::analyze() const -> void
     {}
 
-    auto Variable::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
+    auto Variable::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
         output << name;
     }

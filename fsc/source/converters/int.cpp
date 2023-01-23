@@ -5,11 +5,13 @@ using namespace std::string_view_literals;
 
 namespace fsc::converter
 {
+    using namespace ccl;
+
     constexpr static auto BinaryBegin = "0b"sv;
     constexpr static auto OctalBegin = "0o"sv;
     constexpr static auto HexadecimalBegin = "0x"sv;
 
-    auto toInt(const std::string &repr) -> ccl::SharedPtr<ast::Value>
+    auto toInt(const std::string &repr) -> SharedPtr<ast::Value>
     {
         auto result = 0Z;
 
@@ -24,11 +26,11 @@ namespace fsc::converter
         }
 
         if (std::in_range<int32_t>(result)) {
-            auto fsc_value = ccl::makeUnique<FscBuiltinType<Int32>>(ccl::as<int32_t>(result));
-            return ccl::makeShared<ast::Value>(std::move(fsc_value));
+            auto fsc_value = makeUnique<FscBuiltinType<Int32>>(as<int32_t>(result));
+            return makeShared<ast::Value>(std::move(fsc_value));
         }
 
-        auto fsc_value = ccl::makeUnique<FscBuiltinType<Int64>>(result);
-        return ccl::makeShared<ast::Value>(std::move(fsc_value));
+        auto fsc_value = makeUnique<FscBuiltinType<Int64>>(result);
+        return makeShared<ast::Value>(std::move(fsc_value));
     }
 }// namespace fsc::converter

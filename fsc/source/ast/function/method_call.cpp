@@ -5,11 +5,12 @@
 
 namespace fsc::ast
 {
+    using namespace ccl;
     using namespace std::string_view_literals;
 
     MethodCall::MethodCall(
-        NodePtr expression_for_call, ccl::WeakPtr<Function> function_to_call,
-        const ccl::SmallVector<NodePtr> &function_arguments)
+        NodePtr expression_for_call, WeakPtr<Function> function_to_call,
+        const SmallVector<NodePtr> &function_arguments)
       : NodeWrapper{std::move(function_to_call), function_arguments}
       , expression{std::move(expression_for_call)}
     {}
@@ -27,7 +28,7 @@ namespace fsc::ast
         defaultFunctionCallPrint(expandPrefix(prefix, false), false);
     }
 
-    auto MethodCall::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
+    auto MethodCall::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
         output << *expression << '.';
         defaultFunctionCallCodeGen(output);

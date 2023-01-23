@@ -1,5 +1,4 @@
 #include "ast/expression/parenthesized.hpp"
-#include <ast/basic_node.hpp>
 
 namespace fsc::ast
 {

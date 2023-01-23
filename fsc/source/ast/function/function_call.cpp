@@ -1,19 +1,18 @@
 #include "ast/function/function_call.hpp"
 #include <ranges>
 
+using namespace ccl;
 using namespace std::string_view_literals;
 
 namespace fsc::ast
 {
     FunctionCall::FunctionCall(
-        ccl::WeakPtr<Function>
+        WeakPtr<Function>
             function_to_call,
-        const ccl::SmallVector<NodePtr> &function_arguments)
+        const SmallVector<NodePtr> &function_arguments)
       : arguments{function_arguments}
       , function{std::move(function_to_call)}
-    {
-        CCL_ASSERT(this->getNodeType() == NodeType::FUNCTION_CALL);
-    }
+    {}
 
     auto FunctionCall::defaultFunctionCallPrint(const std::string &prefix, bool is_left) const
         -> void
@@ -31,7 +30,7 @@ namespace fsc::ast
         }
     }
 
-    auto FunctionCall::defaultFunctionCallCodeGen(ccl::codegen::BasicCodeGenerator &output) const
+    auto FunctionCall::defaultFunctionCallCodeGen(codegen::BasicCodeGenerator &output) const
         -> void
     {
         output << function.lock()->getName() << '(';
@@ -49,15 +48,16 @@ namespace fsc::ast
 
     auto FunctionCall::analyze() const -> void
     {
-        [[maybe_unused]] auto make_sure_return_type_exists = function.lock()->getReturnType();
+        auto fn = function.lock();
+        fn->analyzeOnCall(arguments);
     }
 
-    auto FunctionCall::getValueType() const -> ccl::Id
+    auto FunctionCall::getValueType() const -> Id
     {
         return function.lock()->getReturnType();
     }
 
-    auto FunctionCall::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
+    auto FunctionCall::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
         defaultFunctionCallCodeGen(output);
     }

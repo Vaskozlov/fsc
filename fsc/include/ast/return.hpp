@@ -11,7 +11,7 @@ namespace fsc::ast
         NodePtr value;
 
     public:
-        explicit Return(Visitor &visitor, NodePtr value_to_return);
+        explicit Return(NodePtr value_to_return);
 
         auto analyze() const -> void final;
 

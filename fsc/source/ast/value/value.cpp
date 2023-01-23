@@ -3,23 +3,22 @@
 
 namespace fsc::ast
 {
+    using namespace ccl;
     using namespace std::string_view_literals;
 
-    Value::Value(ccl::UniquePtr<FscType> t_value)
+    Value::Value(UniquePtr<FscType> t_value)
       : value{std::move(t_value)}
-    {
-        CCL_ASSERT(this->getNodeType() == NodeType::VALUE);
-    }
+    {}
 
     auto Value::analyze() const -> void
     {}
 
-    auto Value::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
+    auto Value::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
         output << *value;
     }
 
-    auto Value::getValueType() const -> ccl::Id
+    auto Value::getValueType() const -> Id
     {
         return value->getId();
     }

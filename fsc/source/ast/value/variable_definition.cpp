@@ -5,16 +5,15 @@
 
 namespace fsc::ast
 {
+    using namespace ccl;
     using namespace std::string_view_literals;
 
     VariableDefinition::VariableDefinition(
-        std::string variable_name, VariableFlags variable_flags, ccl::Id type_id,
+        std::string variable_name, VariableFlags variable_flags, Id type_id,
         NodePtr variable_initializer)
       : NodeWrapper{std::move(variable_name), type_id, variable_flags}
       , initializer{std::move(variable_initializer)}
-    {
-        CCL_ASSERT(this->getNodeType() == NodeType::VARIABLE_DEFINITION);
-    }
+    {}
 
     VariableDefinition::VariableDefinition(
         std::string variable_name, VariableFlags variable_flags, NodePtr variable_initializer)
@@ -56,7 +55,7 @@ namespace fsc::ast
         }
     }
 
-    auto VariableDefinition::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
+    auto VariableDefinition::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
         const auto type_name = FscType::getTypeName(getValueType());
 
@@ -83,7 +82,7 @@ namespace fsc::ast
         }
     }
 
-    auto VariableDefinition::readType(FscParser::Variable_definitionContext *ctx) -> ccl::Id
+    auto VariableDefinition::readType(FscParser::Variable_definitionContext *ctx) -> Id
     {
         const auto type_name = ctx->children.at(4)->getText();
         return FscType::getTypeId(type_name);
@@ -113,7 +112,9 @@ namespace fsc::ast
 
     auto VariableDefinition::readInitializer(Visitor &visitor, auto *ctx) -> NodePtr
     {
-        if (auto *expr = ccl::as<FscParser::ExprContext *>(ctx->children.back()); expr != nullptr) {
+        const auto *expr = ccl::as<FscParser::ExprContext *>(ctx->children.back());
+ 
+        if (expr != nullptr) {
             return visitor.visitAsNode(ctx->children.back());
         }
 

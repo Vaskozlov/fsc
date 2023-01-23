@@ -3,6 +3,9 @@
 
 namespace fsc
 {
+    using namespace ccl;
+    namespace sv = std::views;
+
     template auto Visitor::constructBody<ast::Body>(FscParser::BodyContext *ctx) -> ast::NodePtr;
 
     static constexpr auto NewLineFilter(antlr4::tree::ParseTree *elem) -> bool
@@ -15,8 +18,8 @@ namespace fsc
     auto Visitor::constructBody(FscParser::BodyContext *ctx, Ts &&...args) -> ast::NodePtr
     {
         const auto &children = ctx->children;
-        auto body = ccl::makeShared<BodyT>(std::forward<Ts>(args)...);
-        auto id_for_class_scope = ccl::as<size_t>(0);
+        auto body = makeShared<BodyT>(std::forward<Ts>(args)...);
+        auto id_for_class_scope = as<size_t>(0);
 
         if constexpr (BodyT::classof() == ast::NodeType::CLASS) {
             id_for_class_scope = FscType::getTypeId(body->getName());
@@ -24,8 +27,8 @@ namespace fsc
 
         auto class_scope = ProgramStack.acquireClassScope(id_for_class_scope);
         auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
-        auto modifiers = std::views::drop(1) | ccl::views::dropBack(ctx->children, 2) |
-                         std::views::filter(NewLineFilter);
+        auto modifiers =
+            sv::drop(1) | views::dropBack(ctx->children, 2) | sv::filter(NewLineFilter);
 
         for (auto *child : children | modifiers) {
             body->addNode(visitAsNode(child));
@@ -40,7 +43,7 @@ namespace fsc
         const auto name = children.at(1)->getText();
 
         auto scope = ProgramStack.acquireStackScope(ScopeType::HARD);
-        auto *body_context = ccl::as<FscParser::BodyContext *>(children.back());
+        auto *body_context = as<FscParser::BodyContext *>(children.back());
 
         return constructBody<ast::Class>(body_context, name);
     }

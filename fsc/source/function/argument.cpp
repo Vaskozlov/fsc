@@ -23,9 +23,10 @@ namespace fsc
             optimized_category = ArgumentCategory::COPY;
         }
 
-        const auto variable_flags = VariableFlags{
-            .constant = optimized_category == ArgumentCategory::IN,
-            .reference = optimized_category != ArgumentCategory::COPY};
+        const auto should_be_constant = optimized_category == ArgumentCategory::IN;
+        const auto should_be_reference = optimized_category != ArgumentCategory::COPY;
+        const auto variable_flags =
+            VariableFlags{.constant = should_be_constant, .reference = should_be_reference};
 
         return {name, type, variable_flags};
     }

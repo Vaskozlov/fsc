@@ -1,10 +1,10 @@
-func test<T>()
+func test<T>(in T y) -> T
 {
+    return y + 1
 }
 
-func main()
+func main() -> i32
 {
-    var x = i64(10)
-    del()
+    var x = test(10)
     return 0
 }

@@ -11,8 +11,6 @@ namespace fsc::ast
     Class::Class(std::string name_)
       : name{std::move(name_)}
     {
-        CCL_ASSERT(this->getNodeType() == NodeType::CLASS);
-
         if (FscType::exists(name)) {
             throw std::invalid_argument(fmt::format("{} already exists", name));
         }

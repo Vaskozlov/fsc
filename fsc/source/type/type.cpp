@@ -5,40 +5,44 @@
 
 namespace fsc
 {
+    using namespace ccl;
+
     // NOLINTNEXTLINE
-    ccl::Map<ccl::Id, std::string> FscType::typenameById{
+    Map<Id, std::string> FscType::typenameById{
         {Void::typeId, "void"},     {Auto::typeId, "void"},   {Int32::typeId, "i32"},
         {Int64::typeId, "i64"},     {UInt32::typeId, "u32"},  {UInt64::typeId, "u64"},
         {Float32::typeId, "f32"},   {Float64::typeId, "f64"}, {Bool::typeId, "bool"},
         {String::typeId, "String"}, {Char::typeId, "char"}};
 
     // NOLINTNEXTLINE
-    ccl::Map<std::string, ccl::Id> FscType::idByTypename{
+    Map<std::string, Id> FscType::idByTypename{
         {"void", Void::typeId},     {"auto", Auto::typeId},   {"i32", Int32::typeId},
         {"i64", Int64::typeId},     {"u32", UInt32::typeId},  {"u64", UInt64::typeId},
         {"f32", Float32::typeId},   {"f64", Float64::typeId}, {"bool", Bool::typeId},
         {"String", String::typeId}, {"char", Char::typeId}};
 
     // NOLINTNEXTLINE
-    ccl::Map<ccl::Id, TypeFlags> FscType::typeFlags{
-        {Void::typeId, {.isTriviallyCopyable = false}},
-        {Int32::typeId, {.isTriviallyCopyable = true}},
-        {Int64::typeId, {.isTriviallyCopyable = true}},
-        {UInt32::typeId, {.isTriviallyCopyable = true}},
-        {UInt64::typeId, {.isTriviallyCopyable = true}},
-        {Float32::typeId, {.isTriviallyCopyable = true}},
-        {Float64::typeId, {.isTriviallyCopyable = true}},
-        {Bool::typeId, {.isTriviallyCopyable = true}},
-        {String::typeId, {.isTriviallyCopyable = false}},
-        {Char::typeId, {.isTriviallyCopyable = true}}};
+    Map<Id, TypeFlags> FscType::typeFlags{{Void::typeId, {.isTriviallyCopyable = false}},
+                                          {Int32::typeId, {.isTriviallyCopyable = true}},
+                                          {Int64::typeId, {.isTriviallyCopyable = true}},
+                                          {UInt32::typeId, {.isTriviallyCopyable = true}},
+                                          {UInt64::typeId, {.isTriviallyCopyable = true}},
+                                          {Float32::typeId, {.isTriviallyCopyable = true}},
+                                          {Float64::typeId, {.isTriviallyCopyable = true}},
+                                          {Bool::typeId, {.isTriviallyCopyable = true}},
+                                          {String::typeId, {.isTriviallyCopyable = false}},
+                                          {Char::typeId, {.isTriviallyCopyable = true}}};
 
-    ccl::Map<ccl::Id, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>// NOLINTNEXTLINE
+    Map<Id, Map<std::string, SharedPtr<ast::Variable>>>// NOLINTNEXTLINE
         FscType::typeMemberVariables{};
 
     // NOLINTNEXTLINE
-    ccl::Set<ccl::Id> FscType::templateTypes{};
+    Set<Id> FscType::templateTypes{};
 
-    FscType::FscType(const ccl::Id type_id)
+    // NOLINTNEXTLINE
+    Map<Id, Id> FscType::remapTypes{};
+
+    FscType::FscType(const Id type_id)
       : typeId{type_id}
     {
         if (!exists(typeId)) {
@@ -55,8 +59,12 @@ namespace fsc
         typeId = getTypeId(type_name);
     }
 
-    auto FscType::isTemplate(ccl::Id id) noexcept -> bool
+    auto FscType::isTemplate(Id id) noexcept -> bool
     {
+        if (remapTypes.contains(id)) {
+            return isTemplate(remapTypes[id]);
+        }
+
         return templateTypes.contains(id);
     }
 
@@ -97,30 +105,66 @@ namespace fsc
         typeFlags.emplace(type_id, flags);
     }
 
-    auto FscType::addMemberVariable(ccl::Id type_id, ccl::SharedPtr<ast::Variable> variable) -> void
+    auto FscType::addMemberVariable(Id type_id, SharedPtr<ast::Variable> variable) -> void
     {
+        if (remapTypes.contains(type_id)) {
+            return addMemberVariable(remapTypes[type_id], std::move(variable));
+        }
+
         typeMemberVariables[type_id].emplace(variable->getName(), variable);
     }
 
-    auto FscType::hasMemberVariables(ccl::Id type_id, const std::string &name) -> bool
+    auto FscType::hasMemberVariables(Id type_id, const std::string &name) -> bool
     {
+        if (remapTypes.contains(type_id)) {
+            return hasMemberVariables(remapTypes[type_id], name);
+        }
+
         return typeMemberVariables.contains(type_id) &&
                typeMemberVariables.at(type_id).contains(name);
     }
 
-    auto FscType::getMemberVariable(ccl::Id type_id, const std::string &name)
-        -> ccl::SharedPtr<ast::Variable>
+    auto FscType::getMemberVariable(Id type_id, const std::string &name) -> SharedPtr<ast::Variable>
     {
+        if (templateTypes.contains(type_id)) {
+            return getMemberVariable(remapTypes[type_id], name);
+        }
+
         if (name == "this") {
-            return ccl::makeShared<ast::Variable>(
+            return makeShared<ast::Variable>(
                 "*this", type_id, ast::VariableFlags{.reference = true});
         }
 
         return typeMemberVariables.at(type_id).at(name);
     }
 
-    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const FscType &fsc_type)
-        -> ccl::codegen::BasicCodeGenerator &
+    auto FscType::getTrueType(Id type_id) noexcept -> Id
+    {
+        if (remapTypes.contains(type_id)) {
+            return getTrueType(remapTypes[type_id]);
+        }
+
+        return type_id;
+    }
+
+    auto FscType::removeRemap(Id type_id) noexcept -> void
+    {
+        if (remapTypes.contains(type_id)) {
+            remapTypes.erase(type_id);
+        }
+    }
+
+    auto FscType::remapType(Id type_to_remap, Id target_type_id) -> void
+    {
+        if (!remapTypes.contains(type_to_remap)) {
+            remapTypes.emplace(type_to_remap, target_type_id);
+        } else {
+            throw std::invalid_argument(fmt::format("Type {} already remapped", type_to_remap));
+        }
+    }
+
+    auto operator<<(codegen::BasicCodeGenerator &generator, const FscType &fsc_type)
+        -> codegen::BasicCodeGenerator &
     {
         fsc_type.codeGen(generator);
         return generator;

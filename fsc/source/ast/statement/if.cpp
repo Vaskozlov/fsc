@@ -2,9 +2,10 @@
 
 namespace fsc::ast
 {
+    using namespace ccl;
     using namespace std::string_view_literals;
 
-    constexpr static ccl::StaticFlatmap<IfType, std::string_view, 3> IfTypeToStr{
+    constexpr static StaticFlatmap<IfType, std::string_view, 3> IfTypeToStr{
         {IfType::IF, "if "},
         {IfType::ELIF, "else if "},
         {IfType::ELSE, "else "},
@@ -22,9 +23,9 @@ namespace fsc::ast
         body->analyze();
     }
 
-    auto If::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
+    auto If::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
-        using namespace ccl::codegen;
+        using namespace codegen;
 
         output << IfTypeToStr.at(getIfType());
 

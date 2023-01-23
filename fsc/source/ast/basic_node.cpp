@@ -2,18 +2,18 @@
 #include <ccl/handler/cmd_handler.hpp>
 #include <Token.h>
 
+using namespace ccl;
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 
 namespace fsc::ast
 {
-    static auto operator*(std::string_view str, std::size_t repeat) -> std::string
+    static auto operator*(std::string_view str, size_t repeat) -> std::string
     {
         auto result = std::string{};
         result.reserve(str.size() * repeat);
 
-        CCL_UNROLL_N(4)
-        for (auto i = ccl::as<size_t>(0); i != repeat; ++i) {
+        for (auto i = as<size_t>(0); i != repeat; ++i) {
             result.append(str);
         }
 
@@ -44,7 +44,7 @@ namespace fsc::ast
         return prefix + "\u2514\u2500\u2500";
     }
 
-    auto Node::expandPrefix(const std::string &prefix, bool is_left, const size_t extra_expansion)
+    auto Node::expandPrefix(const std::string &prefix, bool is_left, size_t extra_expansion)
         -> std::string
     {
         static constexpr auto default_printing_shift = "   "sv;
@@ -55,17 +55,19 @@ namespace fsc::ast
         return result;
     }
 
-    auto Node::reportAboutError(const std::exception &exception)const -> void
+    auto Node::reportAboutError(const std::exception &exception) const -> void
     {
         if (!start.has_value() || !stop.has_value()) {
-            throw std::make_exception_ptr(exception);
+            throw exception;
         }
 
+        const auto line = (*start)->getLine();
+        const auto begin_column = (*start)->getCharPositionInLine();
+        const auto end_column = (*stop)->getCharPositionInLine();
+
         auto &handler = ccl::handler::Cmd::instance();
-        auto location =
-            ccl::text::Location{SourceFile, (*start)->getLine(), (*start)->getCharPositionInLine()};
-        auto length = (*stop)->getCharPositionInLine() - (*start)->getCharPositionInLine() +
-                      (*stop)->getText().size();
+        auto location = ccl::text::Location{SourceFile, line, begin_column};
+        auto length = end_column - begin_column + (*stop)->getText().size();
 
         auto iterator_exception = ccl::text::TextIteratorException{
             ccl::ExceptionCriticality::PANIC,
@@ -77,16 +79,16 @@ namespace fsc::ast
             ""};
 
         handler.handle(iterator_exception);
-        std::exit(1);
+        std::exit(1);// NOLINT
     }
 
-    auto Node::getValueType() const noexcept(false) -> ccl::Id
+    auto Node::getValueType() const noexcept(false) -> Id
     {
         throw std::runtime_error{"getValueType() is not implemented"};
     }
 
-    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const Node &node)
-        -> ccl::codegen::BasicCodeGenerator &
+    auto operator<<(codegen::BasicCodeGenerator &generator, const Node &node)
+        -> codegen::BasicCodeGenerator &
     {
         node.codeGen(generator);
         return generator;

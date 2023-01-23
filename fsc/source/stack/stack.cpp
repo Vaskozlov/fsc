@@ -5,9 +5,12 @@
 
 namespace fsc
 {
+    using namespace ccl;
+    namespace sv = std::views;
+
     Stack::ScopeStorage Stack::globalStorage{};// NOLINT
 
-    auto Stack::addVariable(ccl::SharedPtr<ast::Variable> value) -> void
+    auto Stack::addVariable(SharedPtr<ast::Variable> value) -> void
     {
         if (scopes.empty()) {
             globalStorage.emplace(value->getName(), std::move(value));
@@ -19,7 +22,7 @@ namespace fsc
 
     auto Stack::get(const std::string &name) const -> ast::Variable
     {
-        for (const auto &scope : scopes | std::views::reverse) {
+        for (const auto &scope : scopes | sv::reverse) {
             if (scope.has(name)) {
                 return *scope.get(name);
             }
@@ -36,7 +39,7 @@ namespace fsc
         return *getGlobal(name);
     }
 
-    auto Stack::getGlobal(const std::string &name) noexcept(false) -> ccl::SharedPtr<ast::Variable>
+    auto Stack::getGlobal(const std::string &name) noexcept(false) -> SharedPtr<ast::Variable>
     {
         if (globalStorage.contains(name)) {
             return globalStorage.at(name);

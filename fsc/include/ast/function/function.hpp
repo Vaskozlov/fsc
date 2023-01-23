@@ -2,6 +2,7 @@
 #define FSC_AST_FUNCTION_HPP
 
 #include "ast/basic_node.hpp"
+#include "ccl/core/types.hpp"
 #include "function/argument.hpp"
 #include "type/builtin_types.hpp"
 #include "visibility.hpp"
@@ -30,6 +31,10 @@ namespace fsc::ast
         GREATER_EQ,
         ASSIGN
     };
+
+    using FunctionAttributeContext = FscParser::Function_attibutesContext;
+    using FunctionTemplateContext = FscParser::Function_templatesContext;
+    using ParametersContext = FscParser::ParametersContext;
 
     class Function
       : public NodeWrapper<NodeType::FUNCTION, SemicolonNeed::DO_NOT_NEED>
@@ -116,11 +121,15 @@ namespace fsc::ast
             return defaultArguments;
         }
 
+        auto analyzeOnCall(const ccl::SmallVector<NodePtr> &function_arguments) const -> void;
+
     protected:
         auto defaultAnalyze() const -> void;
 
     private:
         [[nodiscard]] auto getReturnTypeAsString() const -> std::string;
+
+        auto generateTemplateParameters(ccl::codegen::BasicCodeGenerator &output) const -> void;
 
         auto processMagicMethod() -> void;
 
@@ -128,7 +137,7 @@ namespace fsc::ast
         auto processDelMethod() noexcept(false) -> void;
         auto processBinaryOperatorMethod(MagicFunctionType binary_operator) noexcept(false) -> void;
 
-        auto processAttributes(FscParser::Function_attibutesContext *ctx) -> void;
+        auto processAttributes(FunctionAttributeContext *ctx) -> void;
 
         auto processTemplates(FscParser::Function_templatesContext *ctx) -> void;
 

@@ -3,17 +3,19 @@
 
 namespace fsc::converter
 {
-    auto toFloat(const std::string &repr) -> ccl::SharedPtr<ast::Value>
+    using namespace ccl;
+
+    auto toFloat(const std::string &repr) -> SharedPtr<ast::Value>
     {
         if (repr.ends_with("F64")) {
             auto result = std::stod(repr);
-            auto fsc_value = ccl::makeUnique<FscBuiltinType<Float64>>(result);
-            return ccl::makeShared<ast::Value>(std::move(fsc_value));
+            auto fsc_value = makeUnique<FscBuiltinType<Float64>>(result);
+            return makeShared<ast::Value>(std::move(fsc_value));
         }
 
         auto result = std::stof(repr);
-        auto fsc_value = ccl::makeUnique<FscBuiltinType<Float32>>(result);
+        auto fsc_value = makeUnique<FscBuiltinType<Float32>>(result);
 
-        return ccl::makeShared<ast::Value>(std::move(fsc_value));
+        return makeShared<ast::Value>(std::move(fsc_value));
     }
 }// namespace fsc::converter

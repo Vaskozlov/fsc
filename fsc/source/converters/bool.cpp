@@ -3,9 +3,11 @@
 
 namespace fsc::converter
 {
-    auto toBoolean(const std::string &repr) -> ccl::SharedPtr<ast::Value>
+    using namespace ccl;
+
+    auto toBoolean(const std::string &repr) -> SharedPtr<ast::Value>
     {
-        auto fsc_value = ccl::makeUnique<FscBuiltinType<Bool>>(repr == "true");
-        return ccl::makeShared<ast::Value>(std::move(fsc_value));
+        auto fsc_value = makeUnique<FscBuiltinType<Bool>>(repr == "true");
+        return makeShared<ast::Value>(std::move(fsc_value));
     }
 }// namespace fsc::converters

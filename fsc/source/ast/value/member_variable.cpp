@@ -4,6 +4,7 @@
 
 namespace fsc::ast
 {
+    using namespace ccl;
     using namespace std::string_view_literals;
 
     MemberVariable::MemberVariable(NodePtr node_to_access, std::string variable_name)
@@ -11,7 +12,7 @@ namespace fsc::ast
       , name{std::move(variable_name)}
     {}
 
-    auto MemberVariable::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
+    auto MemberVariable::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
         output << *node << '.' << name;
     }
@@ -47,7 +48,7 @@ namespace fsc::ast
         return FscType::hasMemberVariables(*id, name);
     }
 
-    auto MemberVariable::getTypeOfNode() const noexcept -> ccl::Optional<ccl::Id>
+    auto MemberVariable::getTypeOfNode() const noexcept -> Optional<Id>
     {
         try {
             return node->getValueType();

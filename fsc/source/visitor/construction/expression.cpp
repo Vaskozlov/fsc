@@ -11,11 +11,12 @@
 
 namespace fsc
 {
+    using namespace ccl;
     using namespace std::string_view_literals;
 
     static auto isBinaryOperator(FscParser::ExprContext *const ctx) -> bool
     {
-        static constexpr auto binary_expressions = ccl::StaticFlatmap<std::string_view, bool, 14>{
+        static constexpr auto binary_expressions = StaticFlatmap<std::string_view, bool, 14>{
             {"+", true},  {"-", true},  {"*", true},  {"/", true}, {"%", true},
             {"==", true}, {"!=", true}, {"<", true},  {">", true}, {"<=", true},
             {">=", true}, {"||", true}, {"&&", true}, {"=", true},
@@ -29,7 +30,7 @@ namespace fsc
     {
         const auto &children = expr_context->children;
         auto stored_node = visitAsNode(children.at(1));
-        return ccl::makeShared<ast::Parenthesized>(std::move(stored_node));
+        return makeShared<ast::Parenthesized>(std::move(stored_node));
     }
 
     auto Visitor::constructExpression(FscParser::ExprContext *ctx) -> std::any
@@ -86,7 +87,7 @@ namespace fsc
         }
 
         else if (ctx->IDENTIFIER() != nullptr) {
-            node = ccl::makeShared<ast::Variable>(ProgramStack.get(ctx->getText()));
+            node = makeShared<ast::Variable>(ProgramStack.get(ctx->getText()));
         }
 
         else {
@@ -103,7 +104,7 @@ namespace fsc
         auto lhs = visitAsNode(children.at(0));
         auto rhs = visitAsNode(children.at(2));
 
-        return ccl::makeShared<ast::BinaryOperation>(
+        return makeShared<ast::BinaryOperation>(
             ctx, children.at(1)->getText(), std::move(lhs), std::move(rhs));
     }
 
@@ -111,7 +112,7 @@ namespace fsc
     {
         auto expr_to_convert = visitAsNode(ctx->children.at(0));
         auto target_type = ctx->children.at(2)->getText();
-        return ccl::makeShared<ast::Conversion>(
+        return makeShared<ast::Conversion>(
             std::move(expr_to_convert), FscType::getTypeId(target_type));
     }
 }// namespace fsc

@@ -41,7 +41,8 @@ namespace fsc
         [[nodiscard]] auto operator==(ccl::Id other) const noexcept -> bool
         {
             const auto is_template = FscType::isTemplate(type);
-            return type == other || is_template;
+
+            return FscType::getTrueType(type) == FscType::getTrueType(other) || is_template;
         }
 
         [[nodiscard]] auto operator==(const Argument &other) const noexcept -> bool
@@ -64,7 +65,7 @@ namespace fsc
             return category;
         }
 
-        auto toVariable() const -> ast::Variable;
+        [[nodiscard]] auto toVariable() const -> ast::Variable;
     };
 
     struct SignatureView
@@ -76,7 +77,7 @@ namespace fsc
 
     struct Signature
     {
-        operator SignatureView() const// NOLINT
+        [[nodiscard]] operator SignatureView() const// NOLINT
         {
             return {name, arguments, classId};
         }

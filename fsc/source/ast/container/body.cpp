@@ -3,12 +3,9 @@
 
 namespace fsc::ast
 {
-    Body::Body()
-    {
-        CCL_ASSERT(getNodeType() == NodeType::BODY);
-    }
+    using namespace ccl;
 
-    auto Body::getValueType() const -> ccl::Id
+    auto Body::getValueType() const -> Id
     {
         for (const auto &node : nodes) {
             if (node->is(NodeType::RETURN)) {
@@ -19,9 +16,9 @@ namespace fsc::ast
         return nodes.back()->getValueType();
     }
 
-    auto Body::defaultBodyCodegen(ccl::codegen::BasicCodeGenerator &output) const -> void
+    auto Body::defaultBodyCodegen(codegen::BasicCodeGenerator &output) const -> void
     {
-        using namespace ccl::codegen;
+        using namespace codegen;
 
         auto first_node_passed = false;
         output << '{' << push_scope;
@@ -55,7 +52,7 @@ namespace fsc::ast
         }
     }
 
-    auto Body::codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void
+    auto Body::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
         defaultBodyCodegen(output);
     }

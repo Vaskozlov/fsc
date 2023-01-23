@@ -5,18 +5,19 @@
 
 namespace fsc
 {
+    using namespace ccl;
     using namespace std::string_view_literals;
 
     auto Visitor::constructReturn(FscParser::StmtContext *ctx) -> ast::NodePtr
     {
         const auto &children = ctx->children;
 
-        return ccl::makeShared<ast::Return>(*this, visitAsNode(children.at(1)));
+        return makeShared<ast::Return>(visitAsNode(children.at(1)));
     }
 
     auto Visitor::constructIf(FscParser::If_stmtContext *ctx) -> ast::NodePtr
     {
-        return ccl::makeShared<ast::IfStmt>(*this, ctx);
+        return makeShared<ast::IfStmt>(*this, ctx);
     }
 
     auto Visitor::constructWhile(FscParser::While_loopContext *ctx) -> ast::NodePtr
@@ -25,7 +26,7 @@ namespace fsc
         auto condition = visitAsNode(children.at(2));
         auto body = visitAsNode(children.at(4));
 
-        return ccl::makeShared<ast::While>(std::move(condition), std::move(body));
+        return makeShared<ast::While>(std::move(condition), std::move(body));
     }
 
     auto Visitor::constructStatement(FscParser::StmtContext *ctx) -> std::any

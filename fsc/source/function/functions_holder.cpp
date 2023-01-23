@@ -9,6 +9,9 @@
 
 namespace fsc::func
 {
+    using namespace ccl;
+    namespace sv = std::views;
+
     static auto isMagicFunction(SignatureView signature) noexcept -> bool
     {
         return ast::magic::SpecialFunctionsMagic.contains(signature.name);
@@ -16,16 +19,16 @@ namespace fsc::func
 
     FunctionsHolder::FunctionsHolder() = default;
 
-    FunctionsHolder::FunctionsHolder(ccl::InitializerList<ccl::Vector<ast::Function>> functions_)
+    FunctionsHolder::FunctionsHolder(InitializerList<Vector<ast::Function>> functions_)
     {
         for (const auto &list : functions_) {
             for (const auto &function : list) {
-                registerFunction(ccl::makeShared<ast::Function>(function));
+                registerFunction(makeShared<ast::Function>(function));
             }
         }
     }
 
-    auto FunctionsHolder::registerFunction(ccl::SharedPtr<ast::Function> function) -> void
+    auto FunctionsHolder::registerFunction(SharedPtr<ast::Function> function) -> void
     {
         appendFunction(function, function->getClassId());
 
@@ -39,9 +42,8 @@ namespace fsc::func
         }
     }
 
-    auto FunctionsHolder::appendFunction(
-        ccl::SharedPtr<ast::Function> &function,
-        ccl::Id class_id) noexcept(false) -> void
+    auto FunctionsHolder::appendFunction(SharedPtr<ast::Function> &function, Id class_id) noexcept(
+        false) -> void
     {
         auto &functions_with_similar_class_id = functions[class_id];
         auto &functions_with_similar_name = functions_with_similar_class_id[function->getName()];
@@ -55,13 +57,13 @@ namespace fsc::func
         functions_with_similar_name.push_back(function);
     }
 
-    auto FunctionsHolder::get(SignatureView signature) const -> ccl::SharedPtr<ast::Function>
+    auto FunctionsHolder::get(SignatureView signature) const -> SharedPtr<ast::Function>
     {
         return *findFunction(signature);
     }
 
-    auto FunctionsHolder::get(const std::string &name, const ccl::SmallVector<Argument> &arguments)
-        const -> ccl::SharedPtr<ast::Function>
+    auto FunctionsHolder::get(const std::string &name, const SmallVector<Argument> &arguments) const
+        -> SharedPtr<ast::Function>
     {
         return get({name, arguments});
     }
@@ -102,9 +104,9 @@ namespace fsc::func
     auto FunctionsHolder::findMagicFunction(SignatureView signature) const ->
         typename FunctionsList::const_iterator
     {
-        auto arguments = ccl::SmallVector<Argument>{};
+        auto arguments = SmallVector<Argument>{};
 
-        for (const auto &argument : signature.arguments | std::views::drop(1)) {
+        for (const auto &argument : signature.arguments | sv::drop(1)) {
             arguments.push_back(argument);
         }
 

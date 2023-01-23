@@ -13,8 +13,6 @@ namespace fsc::ast
         ccl::Vector<NodePtr> nodes;
 
     public:
-        Body();
-
         [[nodiscard]] auto begin() const noexcept -> const_iterator
         {
             return nodes.begin();

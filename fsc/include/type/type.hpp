@@ -2,6 +2,7 @@
 #define FSC_TYPE_HPP
 
 #include "ast/value/variable.hpp"
+#include "ccl/core/types.hpp"
 #include "visibility.hpp"
 #include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
@@ -21,6 +22,7 @@ namespace fsc
         static ccl::Map<ccl::Id, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>
             typeMemberVariables;
         static ccl::Set<ccl::Id> templateTypes;
+        static ccl::Map<ccl::Id, ccl::Id> remapTypes;
 
         ccl::Id typeId;
 
@@ -83,6 +85,8 @@ namespace fsc
             return typenameById.at(type_id);
         }
 
+        [[nodiscard]] static auto getTrueType(ccl::Id type_id) noexcept-> ccl::Id;
+
         static auto registerTemplate(const std::string &type_name) -> void;
 
         static auto freeTemplateType(const std::string &type_name) -> void;
@@ -97,6 +101,9 @@ namespace fsc
 
         static auto getMemberVariable(ccl::Id type_id, const std::string &name)
             -> ccl::SharedPtr<ast::Variable>;
+
+        static auto removeRemap(ccl::Id type_id) noexcept -> void;
+        static auto remapType(ccl::Id type_to_remap, ccl::Id target_type_id) -> void;
     };
 
     auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const FscType &fsc_type)

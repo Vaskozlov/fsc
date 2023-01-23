@@ -69,7 +69,7 @@ namespace fsc::ast
     protected:
         static auto getPrintingPrefix(const std::string &prefix, bool is_left) -> std::string;
         static auto
-            expandPrefix(const std::string &prefix, bool is_left, const size_t extra_expansion = 0)
+            expandPrefix(const std::string &prefix, bool is_left, size_t extra_expansion = 0)
                 -> std::string;
 
     public:

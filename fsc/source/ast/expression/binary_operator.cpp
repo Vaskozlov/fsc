@@ -28,7 +28,6 @@ namespace fsc::ast
     {
         setStart(ctx->start);
         setStop(ctx->stop);
-        CCL_ASSERT(this->getNodeType() == NodeType::BINARY_OPERATOR);
     }
 
     auto BinaryOperation::getValueType() const -> ccl::Id
