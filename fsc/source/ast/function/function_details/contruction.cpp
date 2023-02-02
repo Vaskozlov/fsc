@@ -1,6 +1,7 @@
 #include "ast/function/function.hpp"
 #include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
+#include <type/type.hpp>
 
 namespace fsc::ast
 {
@@ -15,17 +16,18 @@ namespace fsc::ast
     Function::Function() = default;
 
     Function::Function(
-        Id class_id, std::string_view function_name, Id return_type,
+        FscType class_type, std::string_view function_name, FscType return_type,
         InitializerList<Argument> function_arguments, bool ends_with_parameter_pack)
       : arguments{function_arguments}
       , name{function_name}
       , returnType{return_type}
-      , classId{class_id}
+      , classType{class_type}
       , endsWithParameterPack{ends_with_parameter_pack}
+      , builtinFunction{true}
     {}
 
     auto Function::finishConstruction(
-        const FunctionContext *function_context, Visitor &visitor, Id class_id) -> void
+        const FunctionContext *function_context, Visitor &visitor, FscType class_type) -> void
     {
         functionContext = function_context;
         const auto &children = functionContext->children;
@@ -34,11 +36,11 @@ namespace fsc::ast
         auto *function_templates = ccl::as<FunctionTemplateContext *>(children.at(3));
         const auto *parameters = ccl::as<ParametersContext *>(children.at(4));
 
-        classId = class_id;
+        classType = class_type;
         name = function_name->getText();
 
         processAttributes(function_attributes);
-        auto templated_types = Raii{
+        const auto templated_types = Raii{
             [this, function_templates]() {
                 processTemplates(function_templates);
             },
@@ -69,7 +71,7 @@ namespace fsc::ast
 
         functionBody = visitor.visitAsNode(children.back());
 
-        if (getReturnType() == Auto::typeId && templates.empty()) {
+        if (getReturnType() == Auto && templates.empty()) {
             returnType = visitor.getCurrentFunctionReturnType();
         }
     }

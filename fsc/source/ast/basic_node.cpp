@@ -1,4 +1,5 @@
 #include "ast/basic_node.hpp"
+#include "type/type.hpp"
 #include <ccl/handler/cmd_handler.hpp>
 #include <Token.h>
 
@@ -8,6 +9,9 @@ using namespace std::string_view_literals;
 
 namespace fsc::ast
 {
+    std::string SourceFile;              // NOLINT
+    ccl::Vector<std::string> SourceLines;// NOLINT
+
     static auto operator*(std::string_view str, size_t repeat) -> std::string
     {
         auto result = std::string{};
@@ -57,24 +61,24 @@ namespace fsc::ast
 
     auto Node::reportAboutError(const std::exception &exception) const -> void
     {
-        if (!start.has_value() || !stop.has_value()) {
+        if (start == nullptr || stop == nullptr) {
             throw exception;
         }
 
-        const auto line = (*start)->getLine();
-        const auto begin_column = (*start)->getCharPositionInLine();
-        const auto end_column = (*stop)->getCharPositionInLine();
+        const auto line = start->getLine();
+        const auto begin_column = start->getCharPositionInLine();
+        const auto end_column = stop->getCharPositionInLine();
 
         auto &handler = ccl::handler::Cmd::instance();
         auto location = ccl::text::Location{SourceFile, line, begin_column};
-        auto length = end_column - begin_column + (*stop)->getText().size();
+        auto length = end_column - begin_column + stop->getText().size();
 
         auto iterator_exception = ccl::text::TextIteratorException{
             ccl::ExceptionCriticality::PANIC,
             ccl::AnalysisStage::PARSING,
             location,
             length,
-            SourceLines[location.getLine() - 1],
+            SourceLines.at(location.getLine() - 1),
             exception.what(),
             ""};
 
@@ -82,7 +86,7 @@ namespace fsc::ast
         std::exit(1);// NOLINT
     }
 
-    auto Node::getValueType() const noexcept(false) -> Id
+    auto Node::getValueType() const noexcept(false) -> FscType
     {
         throw std::runtime_error{"getValueType() is not implemented"};
     }

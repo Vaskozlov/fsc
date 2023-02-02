@@ -6,6 +6,7 @@
 #include <ccl/raii.hpp>
 #include <deque>
 #include <map>
+#include <type/builtin_types.hpp>
 
 namespace fsc
 {
@@ -52,7 +53,7 @@ namespace fsc
         };
 
         static ScopeStorage globalStorage;
-        ccl::SmallVector<ccl::Id> classScopes;
+        ccl::SmallVector<FscType> classScopes;
         std::deque<Scope> scopes;
 
     public:
@@ -67,25 +68,25 @@ namespace fsc
                 }};
         }
 
-        [[nodiscard]] auto acquireClassScope(ccl::Id type_id) -> auto
+        [[nodiscard]] auto acquireClassScope(FscType type_id) -> auto
         {
             return ccl::Raii{
                 [this, type_id]() {
-                    if (type_id != 0) {
+                    if (type_id != Void) {
                         classScopes.push_back(type_id);
                     }
                 },
                 [this, type_id]() {
-                    if (type_id != 0) {
+                    if (type_id != Void) {
                         classScopes.pop_back();
                     }
                 }};
         }
 
-        [[nodiscard]] auto getCurrentClassScope() const -> ccl::Id
+        [[nodiscard]] auto getCurrentClassScope() const -> FscType
         {
             if (classScopes.empty()) {
-                return ccl::Id{};
+                return {};
             }
 
             return classScopes.back();

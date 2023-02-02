@@ -33,7 +33,7 @@ namespace fsc
         auto [name, arguments, values] = parseFunction(ctx);
 
         return makeShared<ast::Node, ast::FunctionCall>(
-            func::Functions.get({name, arguments}), values);
+            func::Functions.get({name, arguments, Void}), values);
     }
 
     auto Visitor::constructMethodCall(ExpressionContext *ctx) -> ast::NodePtr

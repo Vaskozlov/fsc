@@ -23,7 +23,7 @@ namespace fsc::ast
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void override;
 
-        [[nodiscard]] auto getValueType() const -> ccl::Id final;
+        [[nodiscard]] auto getValueType() const -> FscType final;
 
     protected:
         auto defaultFunctionCallPrint(const std::string &prefix, bool is_left) const -> void;

@@ -3,6 +3,7 @@
 
 #include "ast/basic_node.hpp"
 #include "visibility.hpp"
+#include "type/type.hpp"
 
 namespace fsc::ast
 {
@@ -19,11 +20,11 @@ namespace fsc::ast
     {
     private:
         std::string name{};
-        ccl::Id typeId{};
+        FscType type;
         VariableFlags flags{};
 
     public:
-        Variable(std::string variable_name, ccl::Id type_id, VariableFlags variable_flags);
+        Variable(std::string variable_name, FscType fsc_type, VariableFlags variable_flags);
 
         auto analyze() const -> void override;
 
@@ -41,9 +42,9 @@ namespace fsc::ast
             return name;
         }
 
-        [[nodiscard]] auto getValueType() const -> ccl::Id final
+        [[nodiscard]] auto getValueType() const -> FscType final
         {
-            return typeId;
+            return type;
         }
 
         [[nodiscard]] auto isMemberOfClass() const noexcept -> bool

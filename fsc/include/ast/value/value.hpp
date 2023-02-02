@@ -9,10 +9,10 @@ namespace fsc::ast
 {
     class Value final : public NodeWrapper<NodeType::VALUE, SemicolonNeed::NEED>
     {
-        ccl::UniquePtr<FscType> value;
+        ccl::UniquePtr<FscTypeInterface> value;
 
     public:
-        explicit Value(ccl::UniquePtr<FscType> t_value);
+        explicit Value(ccl::UniquePtr<FscTypeInterface> t_value);
 
         auto analyze() const -> void final;
 
@@ -20,7 +20,7 @@ namespace fsc::ast
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 
-        [[nodiscard]] auto getValueType() const -> ccl::Id final;
+        [[nodiscard]] auto getValueType() const -> FscType final;
     };
 }// namespace fsc::ast
 

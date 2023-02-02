@@ -30,11 +30,11 @@ namespace fsc::func
 
     auto FunctionsHolder::registerFunction(SharedPtr<ast::Function> function) -> void
     {
-        appendFunction(function, function->getClassId());
+        appendFunction(function, function->getClassType());
 
         switch (function->getMagicType()) {
         case ast::MagicFunctionType::INIT:
-            appendFunction(function, 0);
+            appendFunction(function, Void);
             break;
 
         default:
@@ -42,10 +42,11 @@ namespace fsc::func
         }
     }
 
-    auto FunctionsHolder::appendFunction(SharedPtr<ast::Function> &function, Id class_id) noexcept(
-        false) -> void
+    auto FunctionsHolder::appendFunction(
+        SharedPtr<ast::Function> &function,
+        FscType class_type) noexcept(false) -> void
     {
-        auto &functions_with_similar_class_id = functions[class_id];
+        auto &functions_with_similar_class_id = functions[class_type];
         auto &functions_with_similar_name = functions_with_similar_class_id[function->getName()];
 
         if (std::ranges::find(functions_with_similar_name, function) !=
@@ -65,19 +66,19 @@ namespace fsc::func
     auto FunctionsHolder::get(const std::string &name, const SmallVector<Argument> &arguments) const
         -> SharedPtr<ast::Function>
     {
-        return get({name, arguments});
+        return get({name, arguments, Void});
     }
 
     // NOLINTNEXTLINE
     auto FunctionsHolder::findFunction(SignatureView signature) const ->
         typename FunctionsList::const_iterator
     {
-        if (!functions.contains(signature.classId)) {
+        if (!functions.contains(signature.classType)) {
             return checkMagicFunctionOrReturnFailure(
                 signature, FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_NAME);
         }
 
-        const auto &functions_with_similar_class_id = functions.at(signature.classId);
+        const auto &functions_with_similar_class_id = functions.at(signature.classType);
 
         if (!functions_with_similar_class_id.contains(signature.name)) {
             return checkMagicFunctionOrReturnFailure(
@@ -120,7 +121,7 @@ namespace fsc::func
         SignatureView signature,
         FunctionFindFailure failure_type) const -> typename FunctionsList::const_iterator
     {
-        if (signature.classId == 0 && isMagicFunction(signature)) {
+        if (signature.classType == Void && isMagicFunction(signature)) {
             return findMagicFunction(signature);
         }
 

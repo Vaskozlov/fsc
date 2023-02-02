@@ -3,13 +3,14 @@
 #include "ast/value/variable_definition.hpp"
 #include "stack/stack.hpp"
 #include <ranges>
+#include <type/type.hpp>
 
 namespace fsc::ast
 {
     using namespace std::string_view_literals;
 
-    Class::Class(std::string name_)
-      : name{std::move(name_)}
+    Class::Class(std::string class_name)
+      : name{std::move(class_name)}
     {
         if (FscType::exists(name)) {
             throw std::invalid_argument(fmt::format("{} already exists", name));
@@ -57,12 +58,13 @@ namespace fsc::ast
     auto Class::addVariable(ast::VariableDefinition &variable_definition) -> void
     {
         variable_definition.memberize();
-        FscType::addMemberVariable(
-            FscType::getTypeId(name), ccl::makeShared<Variable>(variable_definition.toVariable()));
+
+        FscType{name}.addMemberVariable(
+            ccl::makeShared<Variable>(variable_definition.toVariable()));
     }
 
     auto Class::addFunction(ast::Function &function_declaration) -> void
     {
-        function_declaration.memberize(FscType::getTypeId(name));
+        function_declaration.memberize(FscType{name});
     }
 }// namespace fsc::ast

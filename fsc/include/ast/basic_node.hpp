@@ -1,7 +1,7 @@
 #ifndef FSC_BASIC_NODE_HPP
 #define FSC_BASIC_NODE_HPP
 
-#include "ccl/core/types.hpp"
+#include "type/antlr-types.hpp"
 #include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
 #include <concepts>
@@ -9,12 +9,17 @@
 #include <ParserRuleContext.h>
 #include <stdexcept>
 #include <typeinfo>
-#include "type/antlr-types.hpp"
+
+namespace fsc
+{
+    class FscType;
+    class FscTypeInterface;
+}// namespace fsc
 
 namespace fsc::ast
 {
-    inline std::string SourceFile;              // NOLINT
-    inline ccl::Vector<std::string> SourceLines;// NOLINT
+    extern std::string SourceFile;              // NOLINT
+    extern ccl::Vector<std::string> SourceLines;// NOLINT
 
     enum struct SemicolonNeed : bool
     {
@@ -59,8 +64,8 @@ namespace fsc::ast
         template<NodeType TypeOfNode, SemicolonNeed NeedSemicolon, typename Base>
         friend class NodeWrapper;
 
-        ccl::Optional<antlr4::Token *> start{std::nullopt};
-        ccl::Optional<antlr4::Token *> stop{std::nullopt};
+        antlr4::Token *start{nullptr};
+        antlr4::Token *stop{nullptr};
         NodeType nodeType;
         SemicolonNeed needSemicolon{SemicolonNeed::NEED};
 
@@ -103,19 +108,27 @@ namespace fsc::ast
             stop = rule_stop;
         }
 
-        auto getStart() const noexcept -> ccl::Optional<antlr4::Token *>
+        [[nodiscard]] auto getStart() const noexcept -> ccl::Optional<antlr4::Token *>
         {
+            if (start == nullptr) {
+                return std::nullopt;
+            }
+
             return start;
         }
 
-        auto getStop() const noexcept -> ccl::Optional<antlr4::Token *>
+        [[nodiscard]] auto getStop() const noexcept -> ccl::Optional<antlr4::Token *>
         {
+            if (stop == nullptr) {
+                return std::nullopt;
+            }
+
             return stop;
         }
 
         auto reportAboutError(const std::exception &exception) const -> void;
 
-        [[nodiscard]] virtual auto getValueType() const noexcept(false) -> ccl::Id;
+        [[nodiscard]] virtual auto getValueType() const noexcept(false) -> FscType;
 
         [[nodiscard]] auto getNodeType() const noexcept -> NodeType
         {

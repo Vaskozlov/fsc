@@ -6,5 +6,6 @@ func test<T>(in T y) -> T
 func main() -> i32
 {
     var x = test(10)
+    print("{}\n", x);
     return 0
 }

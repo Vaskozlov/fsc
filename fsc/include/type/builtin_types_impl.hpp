@@ -8,20 +8,20 @@
 namespace fsc
 {
     template<typename T>
-    class FscBuiltinType : public FscType
+    class FscBuiltinType : public FscTypeInterface
     {
         T value;
 
     public:
         CCL_PERFECT_FORWARDING(U, T)
         explicit FscBuiltinType(U &&value_)
-          : FscType{T::typeId}
+          : FscTypeInterface{T::typeId}
           , value{std::forward<U>(value_)}
         {}
 
         [[nodiscard]] auto toString() const -> std::string final
         {
-            return fmt::format("{}: {}", getTypeName(), value.value);
+            return fmt::format("{}: {}", getName(), value.value);
         }
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final

@@ -4,16 +4,17 @@
 #include "ast/container/body.hpp"
 #include "ast/function/function.hpp"
 #include "ast/value/variable_definition.hpp"
+#include "type/type.hpp"
 
 namespace fsc::ast
 {
     class Class : public NodeWrapper<NodeType::CLASS, SemicolonNeed::DO_NOT_NEED, Body>
     {
-        ccl::Map<std::string, ccl::Id> constructionMemberVariables;
+        ccl::Map<std::string, FscType> constructionMemberVariables;
         std::string name;
 
     public:
-        explicit Class(std::string name_);
+        explicit Class(std::string class_name);
 
         auto analyze() const -> void final;
 

@@ -33,7 +33,7 @@ namespace fsc
         }
 
         if (isMemberVariable(name)) {
-            return *FscType::getMemberVariable(classScopes.back(), name);
+            return classScopes.back().getMemberVariable(name)->as<ast::Variable>();
         }
 
         return *getGlobal(name);
@@ -54,7 +54,7 @@ namespace fsc
             return true;
         }
 
-        return !classScopes.empty() && FscType::hasMemberVariables(classScopes.back(), name);
+        return !classScopes.empty() && classScopes.back().hasMemberVariables(name);
     }
 
     Stack ProgramStack{};// NOLINT

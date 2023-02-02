@@ -6,7 +6,7 @@ namespace fsc::ast
     using namespace ccl;
     using namespace std::string_view_literals;
 
-    Value::Value(UniquePtr<FscType> t_value)
+    Value::Value(UniquePtr<FscTypeInterface> t_value)
       : value{std::move(t_value)}
     {}
 
@@ -18,9 +18,9 @@ namespace fsc::ast
         output << *value;
     }
 
-    auto Value::getValueType() const -> Id
+    auto Value::getValueType() const -> FscType
     {
-        return value->getId();
+        return *value;
     }
 
     auto Value::print(const std::string &prefix, bool is_left) const -> void

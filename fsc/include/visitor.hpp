@@ -6,11 +6,10 @@
 #include "function/argument.hpp"
 #include "type/antlr-types.hpp"
 #include <ANTLRInputStream.h>
-#include <any>
-#include <ast/basic_node.hpp>
 #include <ccl/raii.hpp>
 #include <FscParser.h>
 #include <tuple>
+#include <type/type.hpp>
 
 namespace fsc
 {
@@ -18,41 +17,23 @@ namespace fsc
     {
     private:
         ast::Program program;
-        ccl::Vector<ccl::Id> functionReturnStack;
+        ccl::Vector<FscType> functionReturnStack;
         std::string filename;
         antlr4::ANTLRInputStream &inputStream;
-        FscParser &parser;
-        ccl::Vector<std::string> inputAsLines = [this]() {
-            auto split_lines = std::ranges::views::split(inputStream.toString(), '\n');
-            auto result = ccl::Vector<std::string>{};
-
-            for (auto line : split_lines) {
-                result.emplace_back(std::string_view{line});
-            }
-
-            return result;
-        }();
+        ccl::Vector<std::string> inputAsLines{};
 
     public:
-        explicit Visitor(
-            std::string_view name_of_file, antlr4::ANTLRInputStream &input, FscParser &fsc_parser)
-          : filename{name_of_file}
-          , inputStream{input}
-          , parser{fsc_parser}
-        {
-            ast::SourceFile = filename;
-            ast::SourceLines = inputAsLines;
-        }
+        explicit Visitor(std::string_view name_of_file, antlr4::ANTLRInputStream &input);
 
         auto codeGen() -> std::string;
         auto analyze() const -> void;
 
-        [[nodiscard]] auto getCurrentFunctionReturnType() const -> ccl::Id
+        [[nodiscard]] auto getCurrentFunctionReturnType() const -> FscType
         {
             return functionReturnStack.back();
         }
 
-        [[nodiscard]] auto acquireFunctionScope(ccl::Id return_type) -> auto
+        [[nodiscard]] auto acquireFunctionScope(FscType return_type) -> auto
         {
             return ccl::Raii{
                 [this, return_type]() {
@@ -64,7 +45,7 @@ namespace fsc
             };
         }
 
-        auto updateFunctionReturnType(ccl::Id new_type) -> void
+        auto updateFunctionReturnType(FscType new_type) -> void
         {
             functionReturnStack.back() = new_type;
         }

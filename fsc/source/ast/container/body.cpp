@@ -1,11 +1,12 @@
 #include "ast/container/body.hpp"
+#include "type/type.hpp"
 #include <ranges>
 
 namespace fsc::ast
 {
     using namespace ccl;
 
-    auto Body::getValueType() const -> Id
+    auto Body::getValueType() const -> FscType
     {
         for (const auto &node : nodes) {
             if (node->is(NodeType::RETURN)) {

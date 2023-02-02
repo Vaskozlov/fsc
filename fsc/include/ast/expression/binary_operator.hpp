@@ -17,7 +17,7 @@ namespace fsc::ast
     public:
         BinaryOperation(ExpressionContext *ctx, std::string operation_type, NodePtr left_node, NodePtr right_node);
 
-        [[nodiscard]] auto getValueType() const -> ccl::Id final;
+        [[nodiscard]] auto getValueType() const -> FscType final;
 
         auto analyze() const -> void final;
 

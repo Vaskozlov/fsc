@@ -5,9 +5,9 @@ using namespace fsc::ast;
 
 namespace fsc
 {
-    Argument::Argument(std::string arg_name, ccl::Id type_id, ArgumentCategory argument_category)
+    Argument::Argument(std::string arg_name, FscType fsc_type, ArgumentCategory argument_category)
       : name{std::move(arg_name)}
-      , type{type_id}
+      , type{fsc_type}
       , category{argument_category}
     {}
 
@@ -19,7 +19,7 @@ namespace fsc
     {
         auto optimized_category = category;
 
-        if (category == ArgumentCategory::IN && FscType::isTriviallyCopyable(type)) {
+        if (category == ArgumentCategory::IN && type.isTriviallyCopyable()) {
             optimized_category = ArgumentCategory::COPY;
         }
 
@@ -36,9 +36,9 @@ namespace fsc
     {
         const auto category = argument.getCategory();
         const auto &name = argument.getName();
-        const auto &type_name = FscType::getTypeName(argument.getType());
-        const auto type_id = argument.getType();
-        const auto is_trivially_copiable = FscType::isTriviallyCopyable(type_id);
+        const auto &type_name = argument.getType().getName();
+        const auto type = argument.getType();
+        const auto is_trivially_copiable = type.isTriviallyCopyable();
 
         if (category == ArgumentCategory::IN || category == ArgumentCategory::INOUT) {
             generator << "const ";

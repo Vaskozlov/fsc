@@ -10,9 +10,9 @@ namespace fsc::ast
     using namespace std::string_view_literals;
 
     VariableDefinition::VariableDefinition(
-        std::string variable_name, VariableFlags variable_flags, Id type_id,
+        std::string variable_name, VariableFlags variable_flags, FscType fsc_type,
         NodePtr variable_initializer)
-      : NodeWrapper{std::move(variable_name), type_id, variable_flags}
+      : NodeWrapper{std::move(variable_name), fsc_type, variable_flags}
       , initializer{std::move(variable_initializer)}
     {}
 
@@ -23,14 +23,12 @@ namespace fsc::ast
             std::move(variable_initializer)}
     {}
 
-    VariableDefinition::VariableDefinition(
-        Visitor &visitor, VariableDefinitionContext *ctx)
+    VariableDefinition::VariableDefinition(Visitor &visitor, VariableDefinitionContext *ctx)
       : VariableDefinition{
             readName(ctx), readFlags(ctx), readType(ctx), readInitializer(visitor, ctx)}
     {}
 
-    VariableDefinition::VariableDefinition(
-        Visitor &visitor, AutoVariableDefinitionContext *ctx)
+    VariableDefinition::VariableDefinition(Visitor &visitor, AutoVariableDefinitionContext *ctx)
       : VariableDefinition{readName(ctx), readFlags(ctx), readInitializer(visitor, ctx)}
     {}
 
@@ -58,7 +56,7 @@ namespace fsc::ast
 
     auto VariableDefinition::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
-        const auto type_name = FscType::getTypeName(getValueType());
+        const auto type_name = getValueType().getName();
 
         if (isMemberOfClass()) {
             genVisibility(getVisibility(), output);
@@ -83,10 +81,10 @@ namespace fsc::ast
         }
     }
 
-    auto VariableDefinition::readType(FscParser::Variable_definitionContext *ctx) -> Id
+    auto VariableDefinition::readType(FscParser::Variable_definitionContext *ctx) -> FscType
     {
         const auto type_name = ctx->children.at(4)->getText();
-        return FscType::getTypeId(type_name);
+        return FscType{type_name};
     }
 
     auto VariableDefinition::readName(auto *ctx) -> std::string
@@ -114,7 +112,7 @@ namespace fsc::ast
     auto VariableDefinition::readInitializer(Visitor &visitor, auto *ctx) -> NodePtr
     {
         const auto *expr = ccl::as<ExpressionContext *>(ctx->children.back());
- 
+
         if (expr != nullptr) {
             return visitor.visitAsNode(ctx->children.back());
         }

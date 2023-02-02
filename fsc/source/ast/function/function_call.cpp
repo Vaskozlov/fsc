@@ -52,7 +52,7 @@ namespace fsc::ast
         fn->analyzeOnCall(arguments);
     }
 
-    auto FunctionCall::getValueType() const -> Id
+    auto FunctionCall::getValueType() const -> FscType
     {
         return function.lock()->getReturnType();
     }

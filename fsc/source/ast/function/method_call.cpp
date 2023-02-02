@@ -24,7 +24,7 @@ namespace fsc::ast
     {
         fmt::print(
             "{}Method call {}\n", getPrintingPrefix(prefix, is_left),
-            FscType::getTypeName(expression->getValueType()));
+            expression->getValueType().getName());
         defaultFunctionCallPrint(expandPrefix(prefix, false), false);
     }
 

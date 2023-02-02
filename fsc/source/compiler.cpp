@@ -40,14 +40,14 @@ namespace fsc
         auto parser = FscParser{&token_stream};
         auto *tree = parser.program();
 
-        auto visitor = fsc::Visitor{filename, input, parser};
+        auto visitor = fsc::Visitor{filename, input};
 
         visitor.visit(tree);
         visitor.analyze();
 
         auto code = visitor.codeGen();
 
-        //fmt::print("{} {}\n", FscProgramsHeader, code);
+        // fmt::print("{} {}\n", FscProgramsHeader, code);
 
         writeToFile(".fsc-tmp.cpp", FscProgramsHeader, code);
         compileAndExecuteUsingSystemCommand(".fsc-tmp.cpp", "fsc-compiled");

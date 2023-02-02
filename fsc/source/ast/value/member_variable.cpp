@@ -32,9 +32,9 @@ namespace fsc::ast
         fmt::print("{}.{}\n", expandPrefix(prefix, is_left), name);
     }
 
-    auto MemberVariable::getValueType() const -> ccl::Id
+    auto MemberVariable::getValueType() const -> FscType
     {
-        return FscType::getMemberVariable(node->getValueType(), name)->getValueType();
+        return node->getValueType().getMemberVariable(name)->getValueType();
     }
 
     auto MemberVariable::canAccessMember() const noexcept -> bool
@@ -45,10 +45,10 @@ namespace fsc::ast
             return false;
         }
 
-        return FscType::hasMemberVariables(*id, name);
+        return id->hasMemberVariables(name);
     }
 
-    auto MemberVariable::getTypeOfNode() const noexcept -> Optional<Id>
+    auto MemberVariable::getTypeOfNode() const noexcept -> Optional<FscType>
     {
         try {
             return node->getValueType();

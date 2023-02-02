@@ -1,6 +1,7 @@
 #include "ast/container/class.hpp"
 #include "stack/stack.hpp"
 #include <type/antlr-types.hpp>
+#include <type/type.hpp>
 
 namespace fsc
 {
@@ -20,10 +21,10 @@ namespace fsc
     {
         const auto &children = ctx->children;
         auto body = makeShared<BodyT>(std::forward<Ts>(args)...);
-        auto id_for_class_scope = as<size_t>(0);
+        auto id_for_class_scope = FscType{Void};
 
         if constexpr (BodyT::classof() == ast::NodeType::CLASS) {
-            id_for_class_scope = FscType::getTypeId(body->getName());
+            id_for_class_scope = FscType{body->getName()};
         }
 
         auto class_scope = ProgramStack.acquireClassScope(id_for_class_scope);

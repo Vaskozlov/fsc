@@ -21,7 +21,7 @@ namespace fsc::ast
         }
 
         const auto is_constructor =
-            (other.classId == 0 && getMagicType() == MagicFunctionType::INIT);
+            (other.classType == Void && getMagicType() == MagicFunctionType::INIT);
 
         const auto first_arguments_equal = std::ranges::equal(
             arguments.cbegin(), arguments.cend(), other.arguments.cbegin(),
@@ -38,7 +38,7 @@ namespace fsc::ast
         }
 
         const auto have_similar_names = name == other.name;
-        const auto have_similar_class_id = classId == other.classId;
+        const auto have_similar_class_id = classType == other.classType;
 
         return arguments_equal && have_similar_names && (have_similar_class_id || is_constructor);
     }
@@ -57,21 +57,23 @@ namespace fsc::ast
 
     auto Function::analyzeOnCall(const SmallVector<NodePtr> &function_arguments) const -> void
     {
-        auto remap_types = SmallVector<Id>{};
+        auto remap_types = SmallVector<FscType>{};
 
         for (size_t i = 0; i != arguments.size(); ++i) {
-            const auto argument_type = arguments[i].getType();
+            const auto argument_type = arguments.at(i).getType();
 
-            if (FscType::isTemplate(argument_type)) {
+            if (argument_type.isTemplate()) {
                 remap_types.emplace_back(argument_type);
-                FscType::remapType(argument_type, function_arguments[i]->getValueType());
+                argument_type.map(function_arguments[i]->getValueType());
             }
         }
 
-        functionBody->analyze();
+        if (!builtinFunction) {
+            functionBody->analyze();
+        }
 
-        for (const auto remap_type : remap_types) {
-            FscType::removeRemap(remap_type);
+        for (const auto &remap_type : remap_types) {
+            remap_type.unmap();
         }
     }
 
@@ -100,9 +102,9 @@ namespace fsc::ast
             const auto type_name = nodes[length - 3]->getText();
 
             FscType::ensureTypeExists(type_name);
-            returnType = FscType::getTypeId(type_name);
+            returnType = FscType{type_name};
         } else {
-            returnType = Auto::typeId;
+            returnType = Auto;
         }
     }
 
@@ -124,30 +126,24 @@ namespace fsc::ast
 
         FscType::ensureTypeExists(type_name);
 
-        return {arg_name, FscType::getTypeId(type_name), ArgumentCategories.at(category)};
+        return {arg_name, FscType{type_name}, ArgumentCategories.at(category)};
     }
 
     auto Function::getReturnTypeAsString() const -> std::string
     {
         if (returnType.index() == 0) {
-            return FscType::getTypeName(std::get<0>(returnType));
+            return std::get<0>(returnType).getName();
         }
 
         return std::get<1>(returnType);
     }
 
-    auto Function::getReturnType() const -> ccl::Id
+    auto Function::getReturnType() const -> FscType
     {
         if (returnType.index() == 0) {
             return std::get<0>(returnType);
         }
 
-        const auto &type_name = std::get<1>(returnType);
-
-        if (!FscType::exists(type_name)) {
-            throw std::runtime_error("Return type of the template function is not known yet.");
-        }
-
-        return FscType::getTypeId(type_name);
+        return FscType{std::get<1>(returnType)};
     }
 }// namespace fsc::ast

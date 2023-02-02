@@ -22,7 +22,7 @@ namespace fsc::ast
         output << "return " << *value;
     }
 
-    auto Return::getValueType() const -> ccl::Id
+    auto Return::getValueType() const -> FscType
     {
         return value->getValueType();
     }

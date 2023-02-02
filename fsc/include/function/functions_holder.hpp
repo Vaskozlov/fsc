@@ -20,7 +20,7 @@ namespace fsc::func
     private:
         using FunctionsList = std::list<ccl::SharedPtr<ast::Function>>;
         using FunctionsByNameMap = ccl::Map<std::string, FunctionsList>;
-        using FunctionByClassIdMap = ccl::Map<ccl::Id, FunctionsByNameMap>;
+        using FunctionByClassIdMap = ccl::Map<FscType, FunctionsByNameMap>;
 
         FunctionByClassIdMap functions;
 
@@ -44,7 +44,7 @@ namespace fsc::func
             -> ccl::SharedPtr<ast::Function>;
 
     private:
-        auto appendFunction(ccl::SharedPtr<ast::Function> &function, ccl::Id class_id) noexcept(
+        auto appendFunction(ccl::SharedPtr<ast::Function> &function, FscType class_type) noexcept(
             false) -> void;
 
         [[nodiscard]] auto findFunction(SignatureView signature) const ->

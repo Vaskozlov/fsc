@@ -6,8 +6,8 @@
 
 namespace fsc
 {
-    extern constinit const std::string_view FscProgramsHeader;
-    extern constinit const std::string_view ClangCompilerFlags;
+    extern const std::string_view FscProgramsHeader;
+    extern const std::string_view ClangCompilerFlags;
 
     auto compile(std::string_view filename, std::ifstream &stream) -> void;
 }

@@ -1,4 +1,5 @@
 #include "ast/expression/parenthesized.hpp"
+#include "type/type.hpp"
 
 namespace fsc::ast
 {
@@ -6,7 +7,7 @@ namespace fsc::ast
       : node{std::move(node_to_parenthesize)}
     {}
 
-    auto Parenthesized::getValueType() const -> ccl::Id
+    auto Parenthesized::getValueType() const -> FscType
     {
         return node->getValueType();
     }

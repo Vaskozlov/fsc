@@ -2,16 +2,17 @@
 #define FSC_CONVERSION_HPP
 
 #include "ast/basic_node.hpp"
+#include "type/type.hpp"
 
 namespace fsc::ast
 {
     class Conversion final : public NodeWrapper<NodeType::CONVERSION, SemicolonNeed::NEED>
     {
         NodePtr value;
-        ccl::Id typeId;
+        FscType type;
 
     public:
-        explicit Conversion(NodePtr value_to_convert, ccl::Id type_id);
+        explicit Conversion(NodePtr value_to_convert, FscType fsc_type);
 
         auto analyze() const -> void final;
 
@@ -19,7 +20,7 @@ namespace fsc::ast
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
-        [[nodiscard]] auto getValueType() const -> ccl::Id final;
+        [[nodiscard]] auto getValueType() const -> FscType final;
     };
 }// namespace fsc::ast
 

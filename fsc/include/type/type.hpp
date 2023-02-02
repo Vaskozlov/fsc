@@ -1,11 +1,12 @@
 #ifndef FSC_TYPE_HPP
 #define FSC_TYPE_HPP
 
-#include "ast/value/variable.hpp"
-#include "ccl/core/types.hpp"
+#include "ast/basic_node.hpp"
 #include "visibility.hpp"
 #include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
+#include <compare>
+#include <concepts>
 
 namespace fsc
 {
@@ -14,100 +15,152 @@ namespace fsc
         bool isTriviallyCopyable = false;
     };
 
-    class FscType
-    {
-        static ccl::Map<ccl::Id, std::string> typenameById;
-        static ccl::Map<std::string, ccl::Id> idByTypename;
-        static ccl::Map<ccl::Id, TypeFlags> typeFlags;
-        static ccl::Map<ccl::Id, ccl::Map<std::string, ccl::SharedPtr<ast::Variable>>>
-            typeMemberVariables;
-        static ccl::Set<ccl::Id> templateTypes;
-        static ccl::Map<ccl::Id, ccl::Id> remapTypes;
+    template<ccl::ConstString String, typename T>
+    struct FscTypeWrapper;
 
-        ccl::Id typeId;
+    class CCL_TRIVIAL_ABI FscType// NOLINT (non virtual destructor)
+    {
+    private:
+        using TypenameByIdStorage = ccl::Map<ccl::Id, std::string>;
+        using IdByTypenameStorage = ccl::Map<std::string, ccl::Id>;
+        using TypeFlagsStorage = ccl::Map<FscType, TypeFlags>;
+        using TypesMemberVariablesStorage = ccl::Map<FscType, ccl::Map<std::string, ast::NodePtr>>;
+        using TemplatedTypesStorage = ccl::Set<FscType>;
+        using RemapTypesStorage = ccl::Map<FscType, FscType>;
+
+        struct FscTypeVariables
+        {
+            TypenameByIdStorage typenameById;
+            IdByTypenameStorage idByTypename;
+            TypeFlagsStorage typeFlags;
+            TypesMemberVariablesStorage typeMemberVariables;
+            TemplatedTypesStorage templateTypes;
+            RemapTypesStorage remapTypes;
+        };
+
+        static auto getVariables() -> FscTypeVariables &;
+
+        static auto getTypenameById() -> TypenameByIdStorage &
+        {
+            return getVariables().typenameById;
+        }
+
+        static auto getIdByTypename() -> IdByTypenameStorage &
+        {
+            return getVariables().idByTypename;
+        }
+
+        static auto getTypeFlags() -> TypeFlagsStorage &
+        {
+            return getVariables().typeFlags;
+        }
+
+        static auto getTypesMemberVariables() -> TypesMemberVariablesStorage &
+        {
+            return getVariables().typeMemberVariables;
+        }
+
+        static auto getTemplatedTypes() -> TemplatedTypesStorage &
+        {
+            return getVariables().templateTypes;
+        }
+
+        static auto getRemapTypes() -> RemapTypesStorage &
+        {
+            return getVariables().remapTypes;
+        }
+
+        ccl::Id typeId{};
 
     public:
-        explicit FscType(const ccl::Id type_id);
-        explicit FscType(const std::string &type_name);
+        FscType() = default;
 
-        FscType(const FscType &other) = default;
-        FscType(FscType &&other) noexcept = default;
+        FscType(const auto &derived_type) noexcept// NOLINT
+          : typeId{derived_type.typeId}
+        {}
 
-        virtual ~FscType() = default;
-
-        auto operator=(const FscType &other) -> FscType & = default;
-        auto operator=(FscType &&other) noexcept -> FscType & = default;
-
-        [[nodiscard]] virtual auto toString() const -> std::string = 0;
-        virtual auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void = 0;
-
-        [[nodiscard]] static auto isTriviallyCopyable(const ccl::Id id) -> bool
+        explicit FscType(ccl::Id type_id) noexcept(false)
+          : typeId{type_id}
         {
-            return typeFlags[id].isTriviallyCopyable;
+            if (!exists(typeId)) [[unlikely]] {
+                throw std::invalid_argument("Type not found");
+            }
         }
 
-        [[nodiscard]] auto is(ccl::Id id) const noexcept -> bool
-        {
-            return id == getId();
-        }
+        explicit FscType(const std::string &type_name) noexcept(false);
+
+        auto operator<=>(const FscType &other) const noexcept -> std::weak_ordering = default;
+
+        [[nodiscard]] virtual auto toString() const -> std::string;
+
+        virtual auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void;
+
+        auto map(FscType target_type) const -> void;
+        auto unmap() const noexcept -> void;
 
         [[nodiscard]] auto getId() const noexcept -> ccl::Id
         {
             return typeId;
         }
 
-        [[nodiscard]] auto getTypeName() const -> std::string
-        {
-            return FscType::getTypeName(getId());
-        }
+        [[nodiscard]] auto isTemplate() const noexcept -> bool;
 
-        [[nodiscard]] static auto exists(const ccl::Id type_id) -> bool
-        {
-            return typenameById.contains(type_id);
-        }
+        [[nodiscard]] auto getName() const -> std::string;
 
-        [[nodiscard]] static auto exists(const std::string &type_name) -> bool
-        {
-            return idByTypename.contains(type_name);
-        }
+        [[nodiscard]] auto getMemberVariable(const std::string &name) const -> ast::NodePtr;
 
-        [[nodiscard]] static auto isTemplate(ccl::Id id) noexcept -> bool;
+        [[nodiscard]] auto getTrueType() const noexcept -> FscType;
 
-        [[nodiscard]] static auto ensureTypeExists(const std::string &type_name) -> void;
+        [[nodiscard]] auto hasMemberVariables(const std::string &name) const -> bool;
 
-        [[nodiscard]] static auto getTypeId(const std::string &type_name) -> ccl::Id
-        {
-            return idByTypename.at(type_name);
-        }
+        auto addMemberVariable(ast::NodePtr variable) const -> void;
 
-        [[nodiscard]] static auto getTypeName(const ccl::Id type_id) -> std::string
-        {
-            return typenameById.at(type_id);
-        }
+        [[nodiscard]] auto isTriviallyCopyable() const noexcept -> bool;
 
-        [[nodiscard]] static auto getTrueType(ccl::Id type_id) noexcept-> ccl::Id;
+        [[nodiscard]] static auto exists(ccl::Id type_id) -> bool;
+
+        [[nodiscard]] static auto exists(const std::string &type_name) -> bool;
+
+        static auto ensureTypeExists(const std::string &type_name) -> void;
 
         static auto registerTemplate(const std::string &type_name) -> void;
 
         static auto freeTemplateType(const std::string &type_name) -> void;
 
-        static auto registerNewType(const std::string &name, const TypeFlags flags) noexcept(false)
-            -> void;
+        static auto registerNewType(const std::string &name, TypeFlags flags) noexcept(false)
+            -> ccl::Id;
+    };
 
-        static auto addMemberVariable(ccl::Id type_id, ccl::SharedPtr<ast::Variable> variable)
-            -> void;
+    class FscTypeInterface : public FscType
+    {
+    public:
+        FscTypeInterface() = default;
 
-        static auto hasMemberVariables(ccl::Id type_id, const std::string &name) -> bool;
+        constexpr explicit FscTypeInterface(ccl::Id id)
+          : FscType{id}
+        {}
 
-        static auto getMemberVariable(ccl::Id type_id, const std::string &name)
-            -> ccl::SharedPtr<ast::Variable>;
+        FscTypeInterface(const FscTypeInterface &) = default;
+        FscTypeInterface(FscTypeInterface &&) noexcept = default;
 
-        static auto removeRemap(ccl::Id type_id) noexcept -> void;
-        static auto remapType(ccl::Id type_to_remap, ccl::Id target_type_id) -> void;
+        virtual ~FscTypeInterface() = default;
+
+        auto operator=(const FscTypeInterface &) -> FscTypeInterface & = default;
+        auto operator=(FscTypeInterface &&) noexcept -> FscTypeInterface & = default;
     };
 
     auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const FscType &fsc_type)
         -> ccl::codegen::BasicCodeGenerator &;
 }// namespace fsc
+
+template<>
+struct fmt::formatter<fsc::FscType> : fmt::formatter<std::string>
+{
+    auto format(fsc::FscType fsc_type, format_context &ctx) const
+    {
+        return formatter<std::string>::format(fsc_type.getName(), ctx);
+    }
+};
+
 
 #endif /* FSC_TYPE_HPP */

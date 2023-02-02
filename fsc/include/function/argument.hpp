@@ -28,21 +28,21 @@ namespace fsc
     {
     private:
         std::string name{};
-        ccl::Id type{};
+        FscType type;
         ArgumentCategory category{};
 
     public:
         explicit Argument(const ast::Node *node);
 
         Argument(
-            std::string arg_name, ccl::Id type_id,
+            std::string arg_name, FscType fsc_type,
             ArgumentCategory argument_category = ArgumentCategory::COPY);
 
-        [[nodiscard]] auto operator==(ccl::Id other) const noexcept -> bool
+        [[nodiscard]] auto operator==(FscType other) const noexcept -> bool
         {
-            const auto is_template = FscType::isTemplate(type);
+            const auto is_template = type.isTemplate();
 
-            return FscType::getTrueType(type) == FscType::getTrueType(other) || is_template;
+            return type.getTrueType() == other.getTrueType() || is_template;
         }
 
         [[nodiscard]] auto operator==(const Argument &other) const noexcept -> bool
@@ -50,7 +50,7 @@ namespace fsc
             return this->operator==(other.type);
         }
 
-        [[nodiscard]] auto getType() const noexcept -> ccl::Id
+        [[nodiscard]] auto getType() const noexcept -> FscType
         {
             return type;
         }
@@ -72,19 +72,19 @@ namespace fsc
     {
         const std::string &name;
         const ccl::SmallVector<Argument> &arguments;
-        ccl::Id classId{};
+        FscType classType;
     };
 
     struct Signature
     {
         [[nodiscard]] operator SignatureView() const// NOLINT
         {
-            return {name, arguments, classId};
+            return {name, arguments, classType};
         }
 
         std::string name{};
         ccl::SmallVector<Argument> arguments{};
-        ccl::Id classId{};
+        FscType classType;
     };
 
     auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const Argument &argument)

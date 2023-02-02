@@ -45,22 +45,23 @@ namespace fsc::ast
         NodePtr functionBody;
         std::string name;
         Visibility visibility{};
-        std::variant<ccl::Id, std::string> returnType{Void::typeId};
-        ccl::Id classId{};
+        std::variant<FscType, std::string> returnType{Void};
+        FscType classType{};
         const FunctionContext *functionContext{};
         MagicFunctionType magicType{};
         bool endsWithParameterPack{};
+        bool builtinFunction{};
 
     public:
         Function();
 
         Function(
-            ccl::Id class_id, std::string_view function_name, ccl::Id return_type,
+            FscType class_type, std::string_view function_name, FscType return_type,
             ccl::InitializerList<Argument> function_arguments,
             bool ends_with_parameter_pack = false);
 
         auto finishConstruction(
-            const FunctionContext *function_context, Visitor &visitor, ccl::Id class_id) -> void;
+            const FunctionContext *function_context, Visitor &visitor, FscType class_type) -> void;
 
         auto analyze() const -> void override;
 
@@ -70,19 +71,19 @@ namespace fsc::ast
 
         [[nodiscard]] auto operator==(SignatureView other) const noexcept -> bool;
 
-        auto memberize(ccl::Id type_id) noexcept -> void
+        auto memberize(FscType type_id) noexcept -> void
         {
-            classId = type_id;
+            classType = type_id;
         }
 
         [[nodiscard]] auto isMember() const noexcept -> bool
         {
-            return classId != 0;
+            return classType != Void;
         }
 
-        [[nodiscard]] auto getClassId() const noexcept -> ccl::Id
+        [[nodiscard]] auto getClassType() const noexcept -> FscType
         {
-            return classId;
+            return classType;
         }
 
         [[nodiscard]] auto getMagicType() const noexcept -> MagicFunctionType
@@ -100,7 +101,7 @@ namespace fsc::ast
             return arguments;
         }
 
-        [[nodiscard]] auto getReturnType() const -> ccl::Id;
+        [[nodiscard]] auto getReturnType() const -> FscType;
 
         [[nodiscard]] auto getVisibility() const noexcept -> Visibility
         {

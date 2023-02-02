@@ -20,11 +20,11 @@ namespace fsc::ast
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
 
-        [[nodiscard]] auto getValueType() const -> ccl::Id final;
+        [[nodiscard]] auto getValueType() const -> FscType final;
 
     private:
         auto canAccessMember() const noexcept -> bool;
-        auto getTypeOfNode() const noexcept -> ccl::Optional<ccl::Id>;
+        auto getTypeOfNode() const noexcept -> ccl::Optional<FscType>;
     };
 }// namespace fsc::ast
 

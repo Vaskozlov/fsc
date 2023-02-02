@@ -13,7 +13,7 @@ namespace fsc::ast
     public:
         explicit Parenthesized(NodePtr node_to_parenthesize);
 
-        [[nodiscard]] auto getValueType() const -> ccl::Id final;
+        [[nodiscard]] auto getValueType() const -> FscType final;
 
         auto analyze() const -> void final;
 

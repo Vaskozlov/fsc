@@ -30,12 +30,12 @@ namespace fsc::ast
         setStop(ctx->stop);
     }
 
-    auto BinaryOperation::getValueType() const -> ccl::Id
+    auto BinaryOperation::getValueType() const -> FscType
     {
         const auto function_name = OperatorToFunctionName.at(operationType);
 
         return func::Functions.visitFunction(
-            {std::string{function_name}, {Argument{lhs.get()}, Argument{rhs.get()}}},
+            {std::string{function_name}, {Argument{lhs.get()}, Argument{rhs.get()}}, Void},
             std::mem_fn(&Function::getReturnType));
     }
 

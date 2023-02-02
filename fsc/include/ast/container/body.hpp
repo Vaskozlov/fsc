@@ -29,7 +29,7 @@ namespace fsc::ast
 
         auto print(const std::string &prefix, bool is_left) const -> void override;
 
-        [[nodiscard]] auto getValueType() const -> ccl::Id final;
+        [[nodiscard]] auto getValueType() const -> FscType final;
 
         virtual auto addNode(NodePtr node) -> void;
 

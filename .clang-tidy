@@ -11,6 +11,7 @@ Checks: "*,
         -cppcoreguidelines-macro-usage,
         -readability-identifier-length,
         -bugprone-easily-swappable-parameters,
+        -misc-forwarding-reference-overload,
         -misc-non-private-member-variables-in-classes,
         -cppcoreguidelines-non-private-member-variables-in-classes,
 "

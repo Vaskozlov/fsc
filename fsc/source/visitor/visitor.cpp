@@ -14,6 +14,27 @@ namespace fsc
 {
     extern template auto Visitor::constructBody<ast::Body>(BodyContext *ctx) -> ast::NodePtr;
 
+    static auto splitTextIntoLines(const std::string &text) -> ccl::Vector<std::string>
+    {
+        auto split_lines = std::ranges::views::split(text, '\n');
+        auto result = ccl::Vector<std::string>{};
+
+        for (auto line : split_lines) {
+            result.emplace_back(std::string_view{line});
+        }
+
+        return result;
+    }
+
+    Visitor::Visitor(std::string_view name_of_file, antlr4::ANTLRInputStream &input)
+      : filename{name_of_file}
+      , inputStream{input}
+      , inputAsLines{splitTextIntoLines(inputStream.toString())}
+    {
+        ast::SourceFile = filename;
+        ast::SourceLines = inputAsLines;
+    }
+
     auto Visitor::throwError(antlr4::ParserRuleContext *ctx, std::string_view message) -> void
     {
         auto &handler = ccl::handler::Cmd::instance();
@@ -27,9 +48,8 @@ namespace fsc
             ccl::AnalysisStage::PARSING,
             location,
             length,
-            inputAsLines[location.getLine() - 1],
-            message,
-            ""};
+            inputAsLines.at(location.getLine() - 1),
+            message};
 
         handler.handle(iterator_exception);
         std::exit(1);

@@ -8,13 +8,14 @@
 #include "stack/stack.hpp"
 #include "visitor.hpp"
 #include <ccl/flatmap.hpp>
+#include <type/type.hpp>
 
 namespace fsc
 {
     using namespace ccl;
     using namespace std::string_view_literals;
 
-    static auto isBinaryOperator(ExpressionContext * ctx) -> bool
+    static auto isBinaryOperator(ExpressionContext *ctx) -> bool
     {
         static constexpr auto binary_expressions = StaticFlatmap<std::string_view, bool, 14>{
             {"+", true},  {"-", true},  {"*", true},  {"/", true}, {"%", true},
@@ -112,7 +113,6 @@ namespace fsc
     {
         auto expr_to_convert = visitAsNode(ctx->children.at(0));
         auto target_type = ctx->children.at(2)->getText();
-        return makeShared<ast::Conversion>(
-            std::move(expr_to_convert), FscType::getTypeId(target_type));
+        return makeShared<ast::Conversion>(std::move(expr_to_convert), FscType{target_type});
     }
 }// namespace fsc

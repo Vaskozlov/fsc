@@ -15,7 +15,7 @@ namespace fsc::ast
 
     public:
         VariableDefinition(
-            std::string variable_name, VariableFlags variable_flags, ccl::Id type_id,
+            std::string variable_name, VariableFlags variable_flags, FscType fsc_type,
             NodePtr variable_initializer);
 
         VariableDefinition(
@@ -37,7 +37,7 @@ namespace fsc::ast
         }
 
     private:
-        static auto readType(FscParser::Variable_definitionContext *ctx) -> ccl::Id;
+        static auto readType(FscParser::Variable_definitionContext *ctx) -> FscType;
         static auto readName(auto *ctx) -> std::string;
         static auto readFlags(auto *ctx) -> VariableFlags;
         static auto readInitializer(Visitor &visitor, auto *ctx) -> NodePtr;

@@ -1,13 +1,14 @@
 #include "ast/value/variable.hpp"
 #include <fmt/format.h>
+#include <type/type.hpp>
 
 namespace fsc::ast
 {
     using namespace ccl;
 
-    Variable::Variable(std::string variable_name, Id type_id, VariableFlags variable_flags)
+    Variable::Variable(std::string variable_name, FscType fsc_type, VariableFlags variable_flags)
       : name{std::move(variable_name)}
-      , typeId{type_id}
+      , type{fsc_type}
       , flags{variable_flags}
     {
         CCL_ASSERT(this->getNodeType() == NodeType::VARIABLE);

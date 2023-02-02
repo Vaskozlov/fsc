@@ -2,13 +2,14 @@
 #include "function/functions_holder.hpp"
 #include "type/builtin_types.hpp"
 #include <ccl/ccl.hpp>
+#include <type/type.hpp>
 
 #define BUILTIN_BINARY_FUNCTION(NAME, RESULT, LHS, RHS)                                            \
     {                                                                                              \
-        0, NAME, RESULT::typeId,                                                                   \
+        Void, NAME, FscType{RESULT{}},                                                             \
         {                                                                                          \
-            {"lhs", LHS::typeId, ArgumentCategory::IN},                                            \
-                {"rhs", RHS::typeId, ArgumentCategory::IN},                                        \
+            {"lhs", FscType{LHS{}}, ArgumentCategory::IN},                                         \
+                {"rhs", FscType{RHS{}}, ArgumentCategory::IN},                                     \
         }                                                                                          \
     }
 
@@ -32,19 +33,23 @@
 
 #define BUILTIN_ASSIGN(RESULT, LHS, RHS)                                                           \
     {                                                                                              \
-        0, "__copy__", RESULT::typeId,                                                             \
+        Void, "__copy__", FscType{RESULT{}},                                                       \
         {                                                                                          \
-            {"lhs", LHS::typeId, ArgumentCategory::OUT},                                           \
-                {"rhs", RHS::typeId, ArgumentCategory::IN},                                        \
+            {"lhs", FscType{LHS{}}, ArgumentCategory::OUT},                                        \
+                {"rhs", FscType{RHS{}}, ArgumentCategory::IN},                                     \
         }                                                                                          \
     }
 
 #define BUILTIN_CONVERT(REPR, TO, FROM)                                                            \
     {                                                                                              \
-        0, #REPR, TO::typeId,                                                                      \
+        Void, #REPR, FscType{TO{}},                                                                \
         {                                                                                          \
             {                                                                                      \
-                "value", FROM::typeId                                                              \
+                "value", FscType                                                                   \
+                {                                                                                  \
+                    FROM                                                                           \
+                    {}                                                                             \
+                }                                                                                  \
             }                                                                                      \
         }                                                                                          \
     }
@@ -145,26 +150,23 @@ namespace fsc::func
     };
 
     static const auto InputFunctions = ccl::Vector<ast::Function>{
-        {0, "input", String::typeId, {}},
-        {0, "input", String::typeId, {{"message", String::typeId, ArgumentCategory::IN}}}};
+        {Void, "input", String{}, {}},
+        {Void, "input", String{}, {{"message", String{}, ArgumentCategory::IN}}}};
 
     static const auto OutputFunctions = ccl::Vector<ast::Function>{
-        {0, "putchar", Void::typeId, {{"value", Int32::typeId, ArgumentCategory::IN}}},
-        {0, "print", Void::typeId, {{"fmt", String::typeId, ArgumentCategory::IN}}, true},
+        {Void, "putchar", Void, {{"value", Int32{}, ArgumentCategory::IN}}},
+        {Void, "print", Void, {{"fmt", String{}, ArgumentCategory::IN}}, true},
     };
 
     static const auto FormatFunctions = ccl::Vector<ast::Function>{
-        {0, "format", Void::typeId, {Argument{"fmt", String::typeId, ArgumentCategory::IN}}, true}};
+        {Void, "format", Void, {Argument{"fmt", String{}, ArgumentCategory::IN}}, true}};
 
-    static const auto StringMethods =
-        ccl::Vector<ast::Function>{{String::typeId, "size", UInt64::typeId, {}},
-                                   {String::typeId, "toI32", Int32::typeId, {}},
-                                   {String::typeId, "toI64", Int64::typeId, {}},
-                                   {String::typeId, "toU64", UInt64::typeId, {}},
-                                   {String::typeId, "toF32", Float32::typeId, {}},
-                                   {String::typeId, "toF64", Float64::typeId, {}}};
+    static const auto StringMethods = ccl::Vector<ast::Function>{
+        {String{}, "size", UInt64{}, {}},   {String{}, "toI32", Int32{}, {}},
+        {String{}, "toI64", Int64{}, {}},   {String{}, "toU64", UInt64{}, {}},
+        {String{}, "toF32", Float32{}, {}}, {String{}, "toF64", Float64{}, {}}};
 
-    FunctionsHolder Functions{Constructors, AddFunctions,       SubFunctions,
+    FunctionsHolder Functions{Constructors,        AddFunctions,       SubFunctions,
                               MulFunctions,        DivFunctions,       LessFunctions,
                               GreaterFunctions,    LessEqFunctions,    GreaterEqFunctions,
                               LogicalAndFunctions, LogicalOrFunctions, EqualFunctions,

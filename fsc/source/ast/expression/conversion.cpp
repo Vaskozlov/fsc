@@ -9,16 +9,16 @@ namespace fsc::ast
     using namespace ccl;
     using namespace std::string_view_literals;
 
-    Conversion::Conversion(NodePtr value_to_convert, ccl::Id type_id)
+    Conversion::Conversion(NodePtr value_to_convert, FscType fsc_type)
       : value{std::move(value_to_convert)}
-      , typeId{type_id}
+      , type{fsc_type}
     {}
 
     auto Conversion::analyze() const -> void
     {
-        const auto function_name = std::string{FscType::getTypeName(typeId)};
+        const auto &function_name = type.getName();
         const auto arguments = SmallVector<Argument>{Argument{value.get()}};
-        const auto signature_view = SignatureView{function_name, arguments};
+        const auto signature_view = SignatureView{function_name, arguments, Void};
 
         [[maybe_unused]] auto make_sure_that_conversion_exists =
             func::Functions.visitFunction(signature_view, std::mem_fn(&Function::getReturnType));
@@ -26,20 +26,17 @@ namespace fsc::ast
 
     auto Conversion::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
-        output << FscType::getTypeName(typeId) << '{' << *value << '}';
+        output << type << '{' << *value << '}';
     }
 
-    auto Conversion::getValueType() const -> Id
+    auto Conversion::getValueType() const -> FscType
     {
-        return typeId;
+        return type;
     }
 
     auto Conversion::print(const std::string &prefix, bool is_left) const -> void
     {
-        fmt::print(
-            "{} Conversion to {}\n",
-            getPrintingPrefix(prefix, is_left),
-            FscType::getTypeName(typeId));
+        fmt::print("{} Conversion to {}\n", getPrintingPrefix(prefix, is_left), type);
         value->print(expandPrefix(prefix, is_left), false);
     }
 }// namespace fsc::ast
