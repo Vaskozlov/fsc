@@ -45,7 +45,7 @@ stmt:   function
     ;
 
 body: '{' (stmt)* '}';
-class: 'class' IDENTIFIER new_line body;
+class: 'class' IDENTIFIER function_templates new_line body;
 
 while_loop: 'while' new_line expr new_line body;
 
@@ -74,7 +74,7 @@ parameters: '(' (typed_arguments_list)? ')';
 typed_arguments_list: argument ( ',' argument )*;
 argument: argument_definition ('=' expr)?;
 
-function_call: IDENTIFIER function_parameter;
+function_call: IDENTIFIER function_templates function_parameter;
 
 function_parameter: '(' (function_typed_arguments_list)? ')';
 function_typed_arguments_list: function_argument ( ',' function_argument)*;

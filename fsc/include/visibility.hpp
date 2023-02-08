@@ -1,8 +1,8 @@
 #ifndef FSC_VISIBILITY_HPP
 #define FSC_VISIBILITY_HPP
 
-#include <ccl/flatmap.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
+#include <ccl/flatmap.hpp>
 
 namespace fsc
 {

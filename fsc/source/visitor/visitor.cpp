@@ -12,8 +12,6 @@ using namespace std::string_view_literals;
 
 namespace fsc
 {
-    extern template auto Visitor::constructBody<ast::Body>(BodyContext *ctx) -> ast::NodePtr;
-
     static auto splitTextIntoLines(const std::string &text) -> ccl::Vector<std::string>
     {
         auto split_lines = std::ranges::views::split(text, '\n');
@@ -59,7 +57,7 @@ namespace fsc
     {
         try {
             constructProgram(ctx);
-        } catch (const std::exception &e) {
+        } catch (const FscException &e) {
             throwError(ctx, e.what());
         }
 
@@ -70,7 +68,7 @@ namespace fsc
     {
         try {
             return constructStatement(ctx);
-        } catch (const std::exception &e) {
+        } catch (const FscException &e) {
             throwError(ctx, e.what());
         }
     }
@@ -79,7 +77,7 @@ namespace fsc
     {
         try {
             return constructWhile(ctx);
-        } catch (const std::exception &e) {
+        } catch (const FscException &e) {
             throwError(ctx, e.what());
         }
     }
@@ -88,7 +86,7 @@ namespace fsc
     {
         try {
             return constructExpression(ctx);
-        } catch (const std::exception &e) {
+        } catch (const FscException &e) {
             throwError(ctx, e.what());
         }
     }
@@ -97,7 +95,7 @@ namespace fsc
     {
         try {
             return constructIf(ctx);
-        } catch (const std::exception &e) {
+        } catch (const FscException &e) {
             throwError(ctx, e.what());
         }
     }
@@ -106,7 +104,7 @@ namespace fsc
     {
         try {
             return constructFunction(ctx);
-        } catch (const std::exception &e) {
+        } catch (const FscException &e) {
             throwError(ctx, e.what());
         }
     }
@@ -116,7 +114,7 @@ namespace fsc
     {
         try {
             return visitChildren(ctx);
-        } catch (const std::exception &e) {
+        } catch (const FscException &e) {
             throwError(ctx, e.what());
         }
     }
@@ -126,7 +124,7 @@ namespace fsc
     {
         try {
             return visitChildren(ctx);
-        } catch (const std::exception &e) {
+        } catch (const FscException &e) {
             throwError(ctx, e.what());
         }
     }
@@ -135,7 +133,7 @@ namespace fsc
     {
         try {
             return constructClass(ctx);
-        } catch (const std::exception &e) {
+        } catch (const FscException &e) {
             throwError(ctx, e.what());
         }
     }
@@ -143,8 +141,8 @@ namespace fsc
     auto Visitor::visitBody(FscParser::BodyContext *const ctx) -> std::any
     {
         try {
-            return constructBody<ast::Body>(ctx);
-        } catch (const std::exception &e) {
+            return constructBody(ctx);
+        } catch (const FscException &e) {
             throwError(ctx, e.what());
         }
     }
@@ -153,7 +151,7 @@ namespace fsc
     {
         try {
             return constructFunctionCall(ctx);
-        } catch (const std::exception &e) {
+        } catch (const FscException &e) {
             throwError(ctx, e.what());
         }
     }

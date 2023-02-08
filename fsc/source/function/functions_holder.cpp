@@ -135,14 +135,14 @@ namespace fsc::func
     auto FunctionsHolder::throwUnableToFindFunctionWithGivenName(SignatureView signature) noexcept(
         false) -> void
     {
-        throw std::runtime_error(fmt::format("function with name {} not found", signature.name));
+        throw FscException{fmt::format("function with name {} not found", signature.name)};
     }
 
     auto FunctionsHolder::throwUnableToFindFunctionWithGivenParameters(
         SignatureView signature) noexcept(false) -> void
     {
-        throw std::runtime_error(fmt::format(
+        throw FscException{fmt::format(
             "function with name {} has been found, but it's parameters do not match",
-            signature.name));
+            signature.name)};
     }
 }// namespace fsc::func

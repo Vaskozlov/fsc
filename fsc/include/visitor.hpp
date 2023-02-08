@@ -2,14 +2,15 @@
 #define FSC_VISITOR_HPP
 
 #include "ast/container/program.hpp"
+#include "exception.hpp"
 #include "FscBaseVisitor.h"
 #include "function/argument.hpp"
 #include "type/antlr-types.hpp"
+#include "type/type.hpp"
 #include <ANTLRInputStream.h>
 #include <ccl/raii.hpp>
 #include <FscParser.h>
 #include <tuple>
-#include <type/type.hpp>
 
 namespace fsc
 {
@@ -97,12 +98,11 @@ namespace fsc
 
         auto constructProgram(ProgramContext *ctx) -> void;
 
-        auto constructClass(ClassContext *ctx) -> ast::NodePtr;
-
         auto constructConversion(ExpressionContext *ctx) -> ast::NodePtr;
 
-        template<std::derived_from<ast::Body> BodyT, typename... Ts>
-        auto constructBody(BodyContext *ctx, Ts &&...args) -> ast::NodePtr;
+        auto constructBody(BodyContext *ctx) -> ast::NodePtr;
+
+        auto constructClass(ClassContext *ctx) -> ast::NodePtr;
 
         auto constructReturn(StatementContext *ctx) -> ast::NodePtr;
 
@@ -126,8 +126,9 @@ namespace fsc
         auto constructFunctionArgument(FunctionArgumentContext *argument_context)
             -> ccl::Pair<Argument, ast::NodePtr>;
 
-        auto parseFunction(FunctionCallContext *ctx)
-            -> std::tuple<std::string, ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>;
+        auto parseFunction(FunctionCallContext *ctx) -> std::tuple<
+            std::string, ccl::SmallVector<FscType>, ccl::SmallVector<Argument>,
+            ccl::SmallVector<ast::NodePtr>>;
 
         [[noreturn]] auto throwError(antlr4::ParserRuleContext *ctx, std::string_view message)
             -> void;

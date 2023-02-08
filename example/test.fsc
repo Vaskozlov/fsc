@@ -1,11 +1,25 @@
-func test<T>(in T y) -> T
+class S<T>
 {
-    return y + 1
+    var x : i32 = 0
+
+    public func __init__(in T value)
+    {
+        if value == 1
+        {
+
+        }
+    }
+
+    public func test(in T value)
+    {
+        if value == 1.0
+        {
+        }
+    }
 }
 
 func main() -> i32
 {
-    var x = test(10)
-    print("{}\n", x);
+    var t = S<i32>(10)
     return 0
 }

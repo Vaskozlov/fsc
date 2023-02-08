@@ -2,6 +2,7 @@
 #define FSC_TYPE_HPP
 
 #include "ast/basic_node.hpp"
+#include "exception.hpp"
 #include "visibility.hpp"
 #include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
@@ -10,6 +11,11 @@
 
 namespace fsc
 {
+    namespace ast
+    {
+        class Class;
+    }
+
     struct TypeFlags
     {
         bool isTriviallyCopyable = false;
@@ -27,6 +33,7 @@ namespace fsc
         using TypesMemberVariablesStorage = ccl::Map<FscType, ccl::Map<std::string, ast::NodePtr>>;
         using TemplatedTypesStorage = ccl::Set<FscType>;
         using RemapTypesStorage = ccl::Map<FscType, FscType>;
+        using FscClasses = ccl::Map<FscType, ast::NodePtr>;
 
         struct FscTypeVariables
         {
@@ -36,6 +43,7 @@ namespace fsc
             TypesMemberVariablesStorage typeMemberVariables;
             TemplatedTypesStorage templateTypes;
             RemapTypesStorage remapTypes;
+            FscClasses fscClasses;
         };
 
         static auto getVariables() -> FscTypeVariables &;
@@ -70,6 +78,11 @@ namespace fsc
             return getVariables().remapTypes;
         }
 
+        static auto getFscClasses() -> FscClasses &
+        {
+            return getVariables().fscClasses;
+        }
+
         ccl::Id typeId{};
 
     public:
@@ -83,7 +96,7 @@ namespace fsc
           : typeId{type_id}
         {
             if (!exists(typeId)) [[unlikely]] {
-                throw std::invalid_argument("Type not found");
+                throw FscException{"Type not found"};
             }
         }
 
@@ -113,6 +126,8 @@ namespace fsc
 
         [[nodiscard]] auto hasMemberVariables(const std::string &name) const -> bool;
 
+        [[nodiscard]] auto getClass() const noexcept(false) -> ast::NodePtr;
+
         auto addMemberVariable(ast::NodePtr variable) const -> void;
 
         [[nodiscard]] auto isTriviallyCopyable() const noexcept -> bool;
@@ -129,6 +144,8 @@ namespace fsc
 
         static auto registerNewType(const std::string &name, TypeFlags flags) noexcept(false)
             -> ccl::Id;
+
+        static auto registerFscClass(ast::NodePtr new_fsc_class) -> void;
     };
 
     class FscTypeInterface : public FscType
@@ -136,7 +153,7 @@ namespace fsc
     public:
         FscTypeInterface() = default;
 
-        constexpr explicit FscTypeInterface(ccl::Id id)
+        explicit FscTypeInterface(ccl::Id id)
           : FscType{id}
         {}
 

@@ -27,7 +27,9 @@ namespace fsc::ast
             elif_node->analyze();
         }
 
-        elseNode->analyze();
+        if (elseNode != nullptr) {
+            elseNode->analyze();
+        }
     }
 
     auto IfStmt::codeGen(codegen::BasicCodeGenerator &output) const -> void

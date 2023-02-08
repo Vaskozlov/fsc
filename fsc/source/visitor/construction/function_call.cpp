@@ -17,23 +17,34 @@ namespace fsc
         return !text.empty() && text[0] != ',';
     }
 
-    auto Visitor::parseFunction(FunctionCallContext *ctx)
-        -> std::tuple<std::string, SmallVector<Argument>, SmallVector<ast::NodePtr>>
+    auto Visitor::parseFunction(FunctionCallContext *ctx) -> std::tuple<
+        std::string, SmallVector<FscType>, SmallVector<Argument>, SmallVector<ast::NodePtr>>
     {
         const auto &children = ctx->children;
         const auto name = children.at(0)->getText();
-        auto *args = children.at(1);
-
+        auto *args = children.at(2);
         auto [arguments, values] = processFunctionArguments(as<FunctionParameterContext *>(args));
-        return std::make_tuple(name, std::move(arguments), std::move(values));
+
+        auto templates = SmallVector<FscType>{};
+        auto *template_context = as<TemplateContext *>(children.at(1));
+
+        if (!template_context->children.empty()) {
+            const auto &templates_children = template_context->children.at(1)->children;
+
+            for (auto *function_template : templates_children | sv::filter(CommaFilter)) {
+                templates.emplace_back(function_template->getText());
+            }
+        }
+
+        return std::make_tuple(name, std::move(templates), std::move(arguments), std::move(values));
     }
 
     auto Visitor::constructFunctionCall(FunctionCallContext *ctx) -> ast::NodePtr
     {
-        auto [name, arguments, values] = parseFunction(ctx);
+        auto [name, templates, arguments, values] = parseFunction(ctx);
 
         return makeShared<ast::Node, ast::FunctionCall>(
-            func::Functions.get({name, arguments, Void}), values);
+            func::Functions.get({name, arguments, Void}), values, templates);
     }
 
     auto Visitor::constructMethodCall(ExpressionContext *ctx) -> ast::NodePtr
@@ -42,10 +53,10 @@ namespace fsc
             as<FunctionCallContext *>(ctx->children.at(1)->children.at(1));
 
         auto expression = visitAsNode(ctx->children.at(0));
-        auto [name, arguments, values] = parseFunction(function_call_context);
+        auto [name, templates, arguments, values] = parseFunction(function_call_context);
 
         return makeShared<ast::Node, ast::MethodCall>(
-            expression, func::Functions.get({name, arguments, expression->getValueType()}), values);
+            expression, func::Functions.get({name, arguments, expression->getValueType()}), values, templates);
     }
 
 

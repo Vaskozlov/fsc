@@ -2,6 +2,7 @@
 #include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
 #include <type/type.hpp>
+#include <utility>
 
 namespace fsc::ast
 {
@@ -21,7 +22,7 @@ namespace fsc::ast
       : arguments{function_arguments}
       , name{function_name}
       , returnType{return_type}
-      , classType{class_type}
+      , classType{std::move(class_type)}
       , endsWithParameterPack{ends_with_parameter_pack}
       , builtinFunction{true}
     {}
@@ -33,10 +34,10 @@ namespace fsc::ast
         const auto &children = functionContext->children;
         auto *function_name = children.at(2);
         auto *function_attributes = ccl::as<FunctionAttributeContext *>(children.at(0));
-        auto *function_templates = ccl::as<FunctionTemplateContext *>(children.at(3));
+        auto *function_templates = ccl::as<TemplateContext *>(children.at(3));
         const auto *parameters = ccl::as<ParametersContext *>(children.at(4));
 
-        classType = class_type;
+        classType = std::move(class_type);
         name = function_name->getText();
 
         processAttributes(function_attributes);
@@ -111,7 +112,7 @@ namespace fsc::ast
         return argument;
     }
 
-    auto Function::processTemplates(FunctionTemplateContext *ctx) -> void
+    auto Function::processTemplates(TemplateContext *ctx) -> void
     {
         if (ctx->children.empty()) {
             return;

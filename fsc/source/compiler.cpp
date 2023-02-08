@@ -47,7 +47,7 @@ namespace fsc
 
         auto code = visitor.codeGen();
 
-        // fmt::print("{} {}\n", FscProgramsHeader, code);
+        fmt::print("{} {}\n", FscProgramsHeader, code);
 
         writeToFile(".fsc-tmp.cpp", FscProgramsHeader, code);
         compileAndExecuteUsingSystemCommand(".fsc-tmp.cpp", "fsc-compiled");

@@ -9,13 +9,15 @@ namespace fsc::ast
     class FunctionCall : public NodeWrapper<NodeType::FUNCTION_CALL, SemicolonNeed::NEED>
     {
         ccl::SmallVector<NodePtr> arguments;
+        ccl::SmallVector<FscType> functionCallTemplates;
         ccl::WeakPtr<Function> function;
 
     public:
         FunctionCall(
             ccl::WeakPtr<Function>
                 function_to_call,
-            const ccl::SmallVector<NodePtr> &function_arguments);
+            const ccl::SmallVector<NodePtr> &function_arguments,
+            const ccl::SmallVector<FscType> &templates);
 
         auto analyze() const -> void;
 
@@ -26,8 +28,8 @@ namespace fsc::ast
         [[nodiscard]] auto getValueType() const -> FscType final;
 
     protected:
-        auto defaultFunctionCallPrint(const std::string &prefix, bool is_left) const -> void;
-        auto defaultFunctionCallCodeGen(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto defaultPrint(const std::string &prefix, bool is_left) const -> void;
+        auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) const -> void;
     };
 }// namespace fsc::ast
 

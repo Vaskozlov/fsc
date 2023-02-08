@@ -1,4 +1,5 @@
 #include "ast/function/function.hpp"
+#include "ast/container/class.hpp"
 #include "ast/value/variable.hpp"
 #include "function/argument.hpp"
 #include "type/builtin_types.hpp"
@@ -45,7 +46,7 @@ namespace fsc::ast
 
     auto Function::analyze() const -> void
     {
-        defaultAnalyze();
+        Function::defaultAnalyze();
     }
 
     auto Function::defaultAnalyze() const -> void
@@ -68,7 +69,10 @@ namespace fsc::ast
             }
         }
 
-        if (!builtinFunction) {
+        if (magicType == MagicFunctionType::INIT && !builtinFunction) {
+            const auto &fsc_class = classType.getClass()->as<ast::Class>();
+            fsc_class.analyzeOnConstruction();
+        } else if (!builtinFunction) {
             functionBody->analyze();
         }
 

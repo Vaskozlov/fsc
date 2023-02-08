@@ -1,4 +1,4 @@
-#ifndef FSC_MAGIC_METHODS_TABLE_HPP
+ #ifndef FSC_MAGIC_METHODS_TABLE_HPP
 #define FSC_MAGIC_METHODS_TABLE_HPP
 
 #include "ast/function/function.hpp"

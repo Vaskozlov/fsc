@@ -2,8 +2,8 @@
 #define FSC_VARIABLE_HPP
 
 #include "ast/basic_node.hpp"
-#include "visibility.hpp"
 #include "type/type.hpp"
+#include "visibility.hpp"
 
 namespace fsc::ast
 {

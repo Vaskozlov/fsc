@@ -7,15 +7,14 @@ using namespace std::string_view_literals;
 namespace fsc::ast
 {
     FunctionCall::FunctionCall(
-        WeakPtr<Function>
-            function_to_call,
-        const SmallVector<NodePtr> &function_arguments)
+        WeakPtr<Function> function_to_call, const SmallVector<NodePtr> &function_arguments,
+        const ccl::SmallVector<FscType> &templates)
       : arguments{function_arguments}
+      , functionCallTemplates{templates}
       , function{std::move(function_to_call)}
     {}
 
-    auto FunctionCall::defaultFunctionCallPrint(const std::string &prefix, bool is_left) const
-        -> void
+    auto FunctionCall::defaultPrint(const std::string &prefix, bool is_left) const -> void
     {
         const auto expanded_prefix = expandPrefix(prefix, false);
         fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), function.lock()->getName());
@@ -30,10 +29,17 @@ namespace fsc::ast
         }
     }
 
-    auto FunctionCall::defaultFunctionCallCodeGen(codegen::BasicCodeGenerator &output) const
-        -> void
+    auto FunctionCall::defaultCodegen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
-        output << function.lock()->getName() << '(';
+        output << function.lock()->getName();
+
+        if (!functionCallTemplates.empty()) {
+            output << "<";
+            fmt::format_to(output.getBackInserter(), "{}", fmt::join(functionCallTemplates, ", "));
+            output << ">";
+        }
+
+        output << '(';
 
         for (const auto &argument : arguments | ccl::views::dropBack(arguments)) {
             output << *argument << ", ";
@@ -59,11 +65,11 @@ namespace fsc::ast
 
     auto FunctionCall::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
-        defaultFunctionCallCodeGen(output);
+        defaultCodegen(output);
     }
 
     auto FunctionCall::print(const std::string &prefix, bool is_left) const -> void
     {
-        defaultFunctionCallPrint(prefix, is_left);
+        defaultPrint(prefix, is_left);
     }
 }// namespace fsc::ast

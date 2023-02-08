@@ -17,7 +17,7 @@ namespace fsc::ast
         return nodes.back()->getValueType();
     }
 
-    auto Body::defaultBodyCodegen(codegen::BasicCodeGenerator &output) const -> void
+    auto Body::defaultCodegen(codegen::BasicCodeGenerator &output) const -> void
     {
         using namespace codegen;
 
@@ -43,7 +43,7 @@ namespace fsc::ast
 
     auto Body::analyze() const -> void
     {
-        defaultAnalyze();
+        Body::defaultAnalyze();
     }
 
     auto Body::defaultAnalyze() const -> void
@@ -55,7 +55,7 @@ namespace fsc::ast
 
     auto Body::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
-        defaultBodyCodegen(output);
+        Body::defaultCodegen(output);
     }
 
     auto Body::defaultBodyPrint(const std::string &prefix, bool is_left) const -> void
@@ -75,7 +75,7 @@ namespace fsc::ast
 
     auto Body::print(const std::string &prefix, bool is_left) const -> void
     {
-        defaultBodyPrint(prefix, is_left);
+        Body::defaultBodyPrint(prefix, is_left);
     }
 
     auto Body::addNode(NodePtr node) -> void

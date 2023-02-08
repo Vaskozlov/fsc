@@ -3,6 +3,7 @@
 #include "visibility.hpp"
 #include "visitor.hpp"
 #include <type/antlr-types.hpp>
+#include "exception.hpp"
 
 namespace fsc::ast
 {
@@ -35,7 +36,7 @@ namespace fsc::ast
     auto VariableDefinition::analyze() const -> void
     {
         if (initializer != nullptr && getValueType() != initializer->getValueType()) {
-            throw std::runtime_error(
+            throw FscException(
                 "unable to assign variable, because type of variable does not match with the "
                 "initializer return type");
         }
@@ -66,7 +67,7 @@ namespace fsc::ast
             output << "const ";
         }
 
-        output << "auto ";
+        output << type_name << ' ';
 
         if (isReference()) {
             output << '&';

@@ -16,7 +16,7 @@ namespace fsc::ast
     public:
         MethodCall(
             NodePtr expression_for_call, ccl::WeakPtr<Function> function_to_call,
-            const ccl::SmallVector<NodePtr> &function_arguments);
+            const ccl::SmallVector<NodePtr> &function_arguments, const ccl::SmallVector<FscType> &templates);
 
         auto analyze() const -> void final;
 

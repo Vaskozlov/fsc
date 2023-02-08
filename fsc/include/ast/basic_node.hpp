@@ -36,6 +36,7 @@ namespace fsc::ast
         FUNCTION,
         METHOD_CALL,
         FUNCTION_CALL,
+        CONSTRUCTOR,
         BODY,
         BINARY_OPERATOR,
         PROGRAM,

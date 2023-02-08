@@ -2,23 +2,21 @@
 #define FSC_BODY_HPP
 
 #include "ast/basic_node.hpp"
+#include "ccl/codegen/basic_codegen.hpp"
 
 namespace fsc::ast
 {
     class Body : public NodeWrapper<NodeType::BODY, SemicolonNeed::DO_NOT_NEED>
     {
-        using iterator = ccl::Vector<NodePtr>::iterator;
-        using const_iterator = ccl::Vector<NodePtr>::const_iterator;
-
         ccl::Vector<NodePtr> nodes;
 
     public:
-        [[nodiscard]] auto begin() const noexcept -> const_iterator
+        [[nodiscard]] auto begin() const noexcept -> auto
         {
             return nodes.begin();
         }
 
-        [[nodiscard]] auto end() const noexcept -> const_iterator
+        [[nodiscard]] auto end() const noexcept -> auto
         {
             return nodes.end();
         }
@@ -40,7 +38,7 @@ namespace fsc::ast
         }
 
         auto defaultAnalyze() const -> void;
-        auto defaultBodyCodegen(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) const -> void;
         auto defaultBodyPrint(const std::string &prefix, bool is_left) const -> void;
     };
 }// namespace fsc::ast

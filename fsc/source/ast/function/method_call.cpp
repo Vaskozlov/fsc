@@ -10,8 +10,8 @@ namespace fsc::ast
 
     MethodCall::MethodCall(
         NodePtr expression_for_call, WeakPtr<Function> function_to_call,
-        const SmallVector<NodePtr> &function_arguments)
-      : NodeWrapper{std::move(function_to_call), function_arguments}
+        const SmallVector<NodePtr> &function_arguments, const ccl::SmallVector<FscType> &templates)
+      : NodeWrapper{std::move(function_to_call), function_arguments, templates}
       , expression{std::move(expression_for_call)}
     {}
 
@@ -25,12 +25,12 @@ namespace fsc::ast
         fmt::print(
             "{}Method call {}\n", getPrintingPrefix(prefix, is_left),
             expression->getValueType().getName());
-        defaultFunctionCallPrint(expandPrefix(prefix, false), false);
+        FunctionCall::defaultPrint(expandPrefix(prefix, false), false);
     }
 
     auto MethodCall::codeGen(codegen::BasicCodeGenerator &output) const -> void
     {
         output << *expression << '.';
-        defaultFunctionCallCodeGen(output);
+        FunctionCall::defaultCodegen(output);
     }
 };// namespace fsc::ast

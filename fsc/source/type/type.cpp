@@ -1,4 +1,5 @@
 #include "type/type.hpp"
+#include "ast/container/class.hpp"
 #include "ast/value/variable.hpp"
 #include "type/builtin_types.hpp"
 #include <mutex>
@@ -27,7 +28,7 @@ namespace fsc
         throw std::logic_error("FscType::toString is not implemented for FscType base class");
     }
 
-    auto FscType::codeGen(ccl::codegen::BasicCodeGenerator & /* unused */) const -> void
+    auto FscType::codeGen(codegen::BasicCodeGenerator & /* unused */) const -> void
     {
         throw std::logic_error("FscType::codeGen is not implemented for FscType base class");
     }
@@ -37,7 +38,7 @@ namespace fsc
         return getTemplatedTypes().contains(getTrueType());
     }
 
-    auto FscType::exists(ccl::Id type_id) -> bool
+    auto FscType::exists(Id type_id) -> bool
     {
         return getVariables().typenameById.contains(type_id);
     }
@@ -85,6 +86,13 @@ namespace fsc
         return type_id;
     }
 
+    auto FscType::registerFscClass(ast::NodePtr new_fsc_class) -> void
+    {
+        auto fsc_class = new_fsc_class->as<ast::Class>();
+
+        getFscClasses().emplace(FscType{fsc_class.getName()}, std::move(new_fsc_class));
+    }
+
     auto FscType::isTriviallyCopyable() const noexcept -> bool
     {
         return getVariables().typeFlags.at(*this).isTriviallyCopyable;
@@ -94,7 +102,8 @@ namespace fsc
     {
         auto type = getTrueType();
 
-        getTypesMemberVariables()[type].emplace(variable->as<ast::Variable>().getName(), variable);
+        getTypesMemberVariables()[type].emplace(
+            ccl::as<ast::Variable *>(variable.get())->getName(), variable);
     }
 
     auto FscType::hasMemberVariables(const std::string &name) const -> bool
@@ -103,6 +112,17 @@ namespace fsc
 
         return getTypesMemberVariables().contains(type) &&
                getTypesMemberVariables().at(type).contains(name);
+    }
+
+    auto FscType::getClass() const noexcept(false) -> ast::NodePtr
+    {
+        auto type = getTrueType();
+
+        if (!getFscClasses().contains(type)) {
+            throw std::runtime_error("Bad attempt to get class");
+        }
+
+        return getFscClasses().at(type);
     }
 
     auto FscType::getName() const -> std::string

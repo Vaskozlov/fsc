@@ -68,7 +68,7 @@ namespace fsc
         [[nodiscard]] auto toVariable() const -> ast::Variable;
     };
 
-    struct SignatureView
+    struct CCL_TRIVIAL_ABI SignatureView
     {
         const std::string &name;
         const ccl::SmallVector<Argument> &arguments;

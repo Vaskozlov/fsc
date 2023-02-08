@@ -7,7 +7,7 @@ namespace fsc
 {
     using FunctionContext = FscParser::FunctionContext;
     using ParametersContext = FscParser::ParametersContext;
-    using FunctionTemplateContext = FscParser::Function_templatesContext;
+    using TemplateContext = FscParser::Function_templatesContext;
     using FunctionAttributeContext = FscParser::Function_attibutesContext;
     using FunctionTypedArgumentsListContext = FscParser::Function_typed_arguments_listContext;
 

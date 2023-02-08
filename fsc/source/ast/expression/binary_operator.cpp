@@ -43,7 +43,7 @@ namespace fsc::ast
     {
         try {
             [[maybe_unused]] auto make_sure_that_binary_function_exists = getValueType();
-        } catch (const std::exception &exception) {
+        } catch (const FscException &exception) {
             reportAboutError(exception);
         }
     }
