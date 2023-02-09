@@ -4,7 +4,7 @@ class S<T>
 
     public func __init__(in T value)
     {
-        if value == 1
+        if value == T(1.0)
         {
 
         }
@@ -12,7 +12,7 @@ class S<T>
 
     public func test(in T value)
     {
-        if value == 1.0
+        if value == T(1.0)
         {
         }
     }
@@ -20,6 +20,6 @@ class S<T>
 
 func main() -> i32
 {
-    var t = S<i32>(10)
+    var t = S<i32>(i32(10.0))
     return 0
 }

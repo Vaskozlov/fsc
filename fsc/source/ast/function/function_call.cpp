@@ -1,4 +1,5 @@
 #include "ast/function/function_call.hpp"
+#include "function/functions_holder.hpp"
 #include <ranges>
 
 using namespace ccl;
@@ -7,17 +8,25 @@ using namespace std::string_view_literals;
 namespace fsc::ast
 {
     FunctionCall::FunctionCall(
-        WeakPtr<Function> function_to_call, const SmallVector<NodePtr> &function_arguments,
+        std::string function_name, const ccl::SmallVector<Argument> &typed_arguments,
+        FscType class_id, const SmallVector<NodePtr> &function_arguments,
         const ccl::SmallVector<FscType> &templates)
       : arguments{function_arguments}
       , functionCallTemplates{templates}
-      , function{std::move(function_to_call)}
+      , functionName{std::move(function_name)}
+      , typedArguments{typed_arguments}
+      , classId{std::move(class_id)}
     {}
+
+    auto FunctionCall::getFunction() const -> ccl::SharedPtr<Function>
+    {
+        return func::Functions.get({functionName, typedArguments, classId});
+    }
 
     auto FunctionCall::defaultPrint(const std::string &prefix, bool is_left) const -> void
     {
         const auto expanded_prefix = expandPrefix(prefix, false);
-        fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), function.lock()->getName());
+        fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), functionName);
 
         for (const auto &arg : arguments | ccl::views::dropBack(arguments)) {
             arg->print(expanded_prefix, true);
@@ -31,7 +40,7 @@ namespace fsc::ast
 
     auto FunctionCall::defaultCodegen(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
-        output << function.lock()->getName();
+        output << functionName;
 
         if (!functionCallTemplates.empty()) {
             output << "<";
@@ -54,13 +63,13 @@ namespace fsc::ast
 
     auto FunctionCall::analyze() const -> void
     {
-        auto fn = function.lock();
+        auto fn = getFunction();
         fn->analyzeOnCall(arguments);
     }
 
     auto FunctionCall::getValueType() const -> FscType
     {
-        return function.lock()->getReturnType();
+        return getFunction()->getReturnType();
     }
 
     auto FunctionCall::codeGen(codegen::BasicCodeGenerator &output) const -> void

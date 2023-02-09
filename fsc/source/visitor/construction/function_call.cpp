@@ -1,10 +1,8 @@
 #include "ast/function/function_call.hpp"
 #include "ast/function/method_call.hpp"
+#include "ast/value/variable.hpp"
 #include "FscParser.h"
-#include "function/functions_holder.hpp"
 #include "visitor.hpp"
-#include <ast/value/variable.hpp>
-#include <type/antlr-types.hpp>
 
 namespace fsc
 {
@@ -43,8 +41,7 @@ namespace fsc
     {
         auto [name, templates, arguments, values] = parseFunction(ctx);
 
-        return makeShared<ast::Node, ast::FunctionCall>(
-            func::Functions.get({name, arguments, Void}), values, templates);
+        return makeShared<ast::Node, ast::FunctionCall>(name, arguments, Void, values, templates);
     }
 
     auto Visitor::constructMethodCall(ExpressionContext *ctx) -> ast::NodePtr
@@ -56,7 +53,7 @@ namespace fsc
         auto [name, templates, arguments, values] = parseFunction(function_call_context);
 
         return makeShared<ast::Node, ast::MethodCall>(
-            expression, func::Functions.get({name, arguments, expression->getValueType()}), values, templates);
+            expression, name, arguments, expression->getValueType(), values, templates);
     }
 
 

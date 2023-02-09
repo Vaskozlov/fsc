@@ -10,12 +10,15 @@ namespace fsc::ast
     {
         ccl::SmallVector<NodePtr> arguments;
         ccl::SmallVector<FscType> functionCallTemplates;
-        ccl::WeakPtr<Function> function;
+        std::string functionName;
+        ccl::SmallVector<Argument> typedArguments;
+        FscType classId;
 
     public:
         FunctionCall(
-            ccl::WeakPtr<Function>
-                function_to_call,
+            std::string function_name,
+            const ccl::SmallVector<Argument> &typed_arguments,
+            FscType class_id,
             const ccl::SmallVector<NodePtr> &function_arguments,
             const ccl::SmallVector<FscType> &templates);
 
@@ -30,6 +33,7 @@ namespace fsc::ast
     protected:
         auto defaultPrint(const std::string &prefix, bool is_left) const -> void;
         auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto getFunction() const -> ccl::SharedPtr<Function>;
     };
 }// namespace fsc::ast
 

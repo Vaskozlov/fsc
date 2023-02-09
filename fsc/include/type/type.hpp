@@ -88,10 +88,6 @@ namespace fsc
     public:
         FscType() = default;
 
-        FscType(const auto &derived_type) noexcept// NOLINT
-          : typeId{derived_type.typeId}
-        {}
-
         explicit FscType(ccl::Id type_id) noexcept(false)
           : typeId{type_id}
         {
@@ -99,6 +95,11 @@ namespace fsc
                 throw FscException{"Type not found"};
             }
         }
+
+        template<ccl::ConstString String, typename T>
+        FscType(const FscTypeWrapper<String, T> &derived_type) noexcept
+          : typeId{derived_type.typeId}
+        {}
 
         explicit FscType(const std::string &type_name) noexcept(false);
 

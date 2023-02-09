@@ -9,9 +9,10 @@ namespace fsc::ast
     using namespace std::string_view_literals;
 
     MethodCall::MethodCall(
-        NodePtr expression_for_call, WeakPtr<Function> function_to_call,
+        NodePtr expression_for_call, std::string function_name,
+        const ccl::SmallVector<Argument> &typed_arguments, FscType class_id,
         const SmallVector<NodePtr> &function_arguments, const ccl::SmallVector<FscType> &templates)
-      : NodeWrapper{std::move(function_to_call), function_arguments, templates}
+      : NodeWrapper{std::move(function_name), typed_arguments, class_id, function_arguments, templates}
       , expression{std::move(expression_for_call)}
     {}
 

@@ -1,5 +1,6 @@
 #include "function/argument.hpp"
 #include "ast/value/variable.hpp"
+#include <utility>
 
 using namespace fsc::ast;
 
@@ -7,7 +8,7 @@ namespace fsc
 {
     Argument::Argument(std::string arg_name, FscType fsc_type, ArgumentCategory argument_category)
       : name{std::move(arg_name)}
-      , type{fsc_type}
+      , type{std::move(fsc_type)}
       , category{argument_category}
     {}
 

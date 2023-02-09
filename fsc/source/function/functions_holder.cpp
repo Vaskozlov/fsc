@@ -73,6 +73,14 @@ namespace fsc::func
     auto FunctionsHolder::findFunction(SignatureView signature) const ->
         typename FunctionsList::const_iterator
     {
+        if (FscType::exists(signature.name) && FscType{signature.name}.isTemplate()) {
+            const auto function_to_fsc_type = FscType{signature.name};
+            const auto true_type = function_to_fsc_type.getTrueType();
+            const auto real_function_name = true_type.getName();
+
+            return findFunction({real_function_name, signature.arguments, signature.classType});
+        }
+
         if (!functions.contains(signature.classType)) {
             return checkMagicFunctionOrReturnFailure(
                 signature, FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_NAME);

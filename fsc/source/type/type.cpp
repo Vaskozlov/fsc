@@ -20,7 +20,7 @@ namespace fsc
             throw std::invalid_argument("Type not found");
         }
 
-        typeId = getVariables().idByTypename.at(type_name);
+        typeId = getIdByTypename().at(type_name);
     }
 
     auto FscType::toString() const -> std::string
@@ -35,17 +35,17 @@ namespace fsc
 
     auto FscType::isTemplate() const noexcept -> bool
     {
-        return getTemplatedTypes().contains(getTrueType());
+        return getTemplatedTypes().contains(*this);
     }
 
     auto FscType::exists(Id type_id) -> bool
     {
-        return getVariables().typenameById.contains(type_id);
+        return getTypenameById().contains(type_id);
     }
 
     auto FscType::exists(const std::string &type_name) -> bool
     {
-        return getVariables().idByTypename.contains(type_name);
+        return getIdByTypename().contains(type_name);
     }
 
     auto FscType::ensureTypeExists(const std::string &type_name) -> void
@@ -95,7 +95,7 @@ namespace fsc
 
     auto FscType::isTriviallyCopyable() const noexcept -> bool
     {
-        return getVariables().typeFlags.at(*this).isTriviallyCopyable;
+        return getTypeFlags().at(*this).isTriviallyCopyable;
     }
 
     auto FscType::addMemberVariable(ast::NodePtr variable) const -> void
@@ -127,7 +127,7 @@ namespace fsc
 
     auto FscType::getName() const -> std::string
     {
-        return getVariables().typenameById.at(typeId);
+        return getTypenameById().at(typeId);
     }
 
     auto FscType::getMemberVariable(const std::string &name) const -> ast::NodePtr
@@ -143,17 +143,20 @@ namespace fsc
 
     auto FscType::getTrueType() const noexcept -> FscType
     {
-        if (getRemapTypes().contains(*this)) {
-            return getRemapTypes()[*this].getTrueType();
+        auto true_type = *this;
+
+        while (getRemapTypes().contains(true_type)) {
+            true_type = getRemapTypes()[true_type];
         }
 
-        return *this;
+        return true_type;
     }
 
     auto FscType::unmap() const noexcept -> void
     {
         if (getRemapTypes().contains(*this)) {
             getRemapTypes().erase(*this);
+            getIdByTypename().erase(getName());
         }
     }
 
@@ -164,8 +167,10 @@ namespace fsc
         if (!already_map) {
             getRemapTypes().emplace(*this, target_type.typeId);
         } else {
-            throw std::invalid_argument(fmt::format("Type {} already remapped", typeId));
+            throw std::invalid_argument{fmt::format("Type {} already remapped", typeId)};
         }
+
+        getIdByTypename().emplace(getName(), typeId);
     }
 
     auto operator<<(codegen::BasicCodeGenerator &generator, const FscType &fsc_type)

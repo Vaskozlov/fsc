@@ -10,6 +10,7 @@
 #include "visitor.hpp"
 #include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
+#include <ccl/raii.hpp>
 #include <FscParser.h>
 
 namespace fsc::ast
@@ -42,6 +43,7 @@ namespace fsc::ast
         ccl::Map<std::string, NodePtr> defaultArguments;
         ccl::SmallVector<Argument> arguments;
         ccl::SmallVector<std::string> templates;
+        ccl::SmallVector<FscType> remapTypes{};
         NodePtr functionBody;
         std::string name;
         Visibility visibility{};

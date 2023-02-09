@@ -28,10 +28,10 @@ namespace fsc
     template<ccl::ConstString String, typename T>
     struct FscTypeWrapper;
 
-    template<>
-    struct FscTypeWrapper<"void", void>
+    template<ccl::ConstString String>
+    struct FscTypeWrapper<String, void>
     {
-        inline const static ccl::Id typeId = FscType::registerNewType("void", {});
+        inline const static ccl::Id typeId = FscType::registerNewType(static_cast<std::string>(static_cast<ccl::string_view>(String)), {});
     };
 
     template<ccl::ConstString String, typename T>
@@ -55,9 +55,8 @@ namespace fsc
     {
     };
 
-    struct AutoT
+    struct AutoT : FscTypeWrapper<"auto", void>
     {
-        inline const static ccl::Id typeId = FscType::registerNewType("auto", {});
     };
 
     constexpr auto Void = VoidT{};

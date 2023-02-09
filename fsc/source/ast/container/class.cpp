@@ -29,15 +29,14 @@ namespace fsc::ast
       : name{std::move(class_name)}
     {
         FscType::registerNewType(name, {.isTriviallyCopyable = false});
+        parseTemplates(template_context);
 
-        const auto templated_types = Raii{
-            [this, template_context]() {
-                parseTemplates(template_context);
+        const auto templates_map = ccl::Raii{
+            [this]() {
+                mapTemplates();
             },
             [this]() {
-                for (const auto &template_name : templates) {
-                    FscType::freeTemplateType(template_name);
-                }
+                unmapTemplates();
             }};
 
         const auto &body_children = body_context->children;
@@ -54,6 +53,20 @@ namespace fsc::ast
         }
     }
 
+    auto Class::mapTemplates() const -> void
+    {
+        for (const auto &template_to_map : templates) {
+            FscType::registerTemplate(template_to_map);
+        }
+    }
+
+    auto Class::unmapTemplates() const -> void
+    {
+        for (const auto &template_name : templates) {
+            FscType::freeTemplateType(template_name);
+        }
+    }
+
     auto Class::parseTemplates(TemplateContext *template_context) -> void
     {
         if (template_context->children.empty()) {
@@ -64,7 +77,6 @@ namespace fsc::ast
 
         for (auto *function_template : children | sv::filter(CommaFilter)) {
             templates.emplace_back(function_template->getText());
-            FscType::registerTemplate(function_template->getText());
         }
     }
 

@@ -5,6 +5,7 @@
 #include "ast/function/function.hpp"
 #include "ast/value/variable_definition.hpp"
 #include "type/type.hpp"
+#include <ccl/raii.hpp>
 
 namespace fsc::ast
 {
@@ -15,7 +16,9 @@ namespace fsc::ast
         std::string name;
 
     public:
-        explicit Class(std::string class_name, Visitor &visitor, BodyContext *body_context, TemplateContext *template_context);
+        explicit Class(
+            std::string class_name, Visitor &visitor, BodyContext *body_context,
+            TemplateContext *template_context);
 
         auto analyze() const -> void final;
 
@@ -39,6 +42,9 @@ namespace fsc::ast
         auto addFunction(ast::Function &function_declaration) -> void;
 
         auto generateTemplateParameters(ccl::codegen::BasicCodeGenerator &output) const -> void;
+
+        auto mapTemplates() const -> void;
+        auto unmapTemplates() const -> void;
     };
 }// namespace fsc::ast
 
