@@ -20,11 +20,11 @@ namespace fsc::ast
             std::string class_name, Visitor &visitor, BodyContext *body_context,
             TemplateContext *template_context);
 
-        auto analyze() const -> void final;
+        auto analyze() -> void final;
 
         auto analyzeOnConstruction() const -> void;
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 

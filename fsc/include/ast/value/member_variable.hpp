@@ -14,13 +14,13 @@ namespace fsc::ast
     public:
         MemberVariable(NodePtr node_to_access, std::string variable_name);
 
-        auto analyze() const -> void final;
+        auto analyze() -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
-        [[nodiscard]] auto getValueType() const -> FscType final;
+        [[nodiscard]] auto getValueType() -> FscType final;
 
     private:
         auto canAccessMember() const noexcept -> bool;

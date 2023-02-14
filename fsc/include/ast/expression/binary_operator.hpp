@@ -19,11 +19,11 @@ namespace fsc::ast
             ExpressionContext *ctx, std::string operation_type, NodePtr left_node,
             NodePtr right_node);
 
-        [[nodiscard]] auto getValueType() const -> FscType final;
+        [[nodiscard]] auto getValueType() -> FscType final;
 
-        auto analyze() const -> void final;
+        auto analyze() -> void final;
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
     };

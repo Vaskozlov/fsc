@@ -15,21 +15,25 @@ namespace fsc::ast
 
     public:
         VariableDefinition(
-            std::string variable_name, VariableFlags variable_flags, FscType fsc_type,
+            std::string variable_name, ccl::Lazy<FscType> &&fsc_type, VariableFlags variable_flags,
             NodePtr variable_initializer);
 
         VariableDefinition(
-            std::string variable_name, VariableFlags variable_flags, NodePtr variable_initializer);
+            std::string variable_name, FscType fsc_type, VariableFlags variable_flags,
+            NodePtr variable_initializer);
+
+        VariableDefinition(
+            std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags);
 
         VariableDefinition(Visitor &visitor, VariableDefinitionContext *ctx);
 
         VariableDefinition(Visitor &visitor, AutoVariableDefinitionContext *ctx);
 
-        auto analyze() const -> void final;
+        auto analyze() -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
         [[nodiscard]] auto toVariable() const -> const Variable &
         {

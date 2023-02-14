@@ -60,16 +60,17 @@ namespace fsc::ast
         Function(
             FscType class_type, std::string_view function_name, FscType return_type,
             ccl::InitializerList<Argument> function_arguments,
+            const ccl::SmallVector<std::string> &function_templates = {},
             bool ends_with_parameter_pack = false);
 
         auto finishConstruction(
             const FunctionContext *function_context, Visitor &visitor, FscType class_type) -> void;
 
-        auto analyze() const -> void override;
+        auto analyze() -> void override;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
         [[nodiscard]] auto operator==(SignatureView other) const noexcept -> bool;
 
@@ -121,7 +122,7 @@ namespace fsc::ast
             return defaultArguments;
         }
 
-        auto analyzeOnCall(const ccl::SmallVector<NodePtr> &function_arguments) const -> void;
+        auto analyzeOnCall(const ccl::SmallVector<NodePtr> &function_arguments) const -> FscType;
 
     protected:
         auto defaultAnalyze() const -> void;
@@ -141,9 +142,8 @@ namespace fsc::ast
 
         auto processTemplates(FscParser::Function_templatesContext *ctx) -> void;
 
-        auto genArguments(ccl::codegen::BasicCodeGenerator &output) const -> void;
-        auto argumentToString(ccl::codegen::BasicCodeGenerator &output, const Argument &arg) const
-            -> void;
+        auto genArguments(ccl::codegen::BasicCodeGenerator &output) -> void;
+        auto argumentToString(ccl::codegen::BasicCodeGenerator &output, Argument &arg) -> void;
         auto readArguments(const FscParser::ParametersContext *parameters_context, Visitor &visitor)
             -> void;
 

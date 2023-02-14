@@ -27,7 +27,7 @@ namespace fsc
         explicit Visitor(std::string_view name_of_file, antlr4::ANTLRInputStream &input);
 
         auto codeGen() -> std::string;
-        auto analyze() const -> void;
+        auto analyze() -> void;
 
         [[nodiscard]] auto getCurrentFunctionReturnType() const -> FscType
         {

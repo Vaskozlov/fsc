@@ -21,7 +21,14 @@ namespace fsc
         bool isTriviallyCopyable = false;
     };
 
-    template<ccl::ConstString String, typename T>
+    enum struct CreationType : ccl::u16
+    {
+        DEFAULT,
+        STRONG_TEMPLATE,
+        WEAK_TEMPLATE
+    };
+
+    template<ccl::ConstString String, typename T, CreationType WayOfCreatingNewType>
     struct FscTypeWrapper;
 
     class CCL_TRIVIAL_ABI FscType// NOLINT (non virtual destructor)
@@ -96,18 +103,14 @@ namespace fsc
             }
         }
 
-        template<ccl::ConstString String, typename T>
-        FscType(const FscTypeWrapper<String, T> &derived_type) noexcept
+        template<ccl::ConstString String, typename T, CreationType WayOfCreatingNewType>
+        FscType(const FscTypeWrapper<String, T, WayOfCreatingNewType> &derived_type) noexcept
           : typeId{derived_type.typeId}
         {}
 
         explicit FscType(const std::string &type_name) noexcept(false);
 
         auto operator<=>(const FscType &other) const noexcept -> std::weak_ordering = default;
-
-        [[nodiscard]] virtual auto toString() const -> std::string;
-
-        virtual auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void;
 
         auto map(FscType target_type) const -> void;
         auto unmap() const noexcept -> void;
@@ -139,12 +142,11 @@ namespace fsc
 
         static auto ensureTypeExists(const std::string &type_name) -> void;
 
-        static auto registerTemplate(const std::string &type_name) -> void;
+        static auto weakFreeTemplateType(const std::string &type_name) -> void;
 
-        static auto freeTemplateType(const std::string &type_name) -> void;
-
-        static auto registerNewType(const std::string &name, TypeFlags flags) noexcept(false)
-            -> ccl::Id;
+        static auto registerNewType(
+            const std::string &name, TypeFlags flags,
+            CreationType creation_type = CreationType::DEFAULT) noexcept(false) -> ccl::Id;
 
         static auto registerFscClass(ast::NodePtr new_fsc_class) -> void;
     };
@@ -165,9 +167,12 @@ namespace fsc
 
         auto operator=(const FscTypeInterface &) -> FscTypeInterface & = default;
         auto operator=(FscTypeInterface &&) noexcept -> FscTypeInterface & = default;
+
+        [[nodiscard]] virtual auto toString() const -> std::string;
+        virtual auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void;
     };
 
-    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const FscType &fsc_type)
+    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, FscTypeInterface &fsc_type)
         -> ccl::codegen::BasicCodeGenerator &;
 }// namespace fsc
 

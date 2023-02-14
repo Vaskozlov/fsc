@@ -24,13 +24,13 @@ namespace fsc
             return fmt::format("{}: {}", getName(), value.value);
         }
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final
         {
-            if constexpr (std::is_same_v<Float32, T>) {
+            if constexpr (std::is_same_v<FscFloat32, T>) {
                 fmt::format_to(output.getBackInserter(), "{:.8e}F", value.value);
-            } else if constexpr (std::is_same_v<Float64, T>) {
+            } else if constexpr (std::is_same_v<FscFloat32, T>) {
                 fmt::format_to(output.getBackInserter(), "{:.15e}", value.value);
-            } else if constexpr (std::is_same_v<String, T>) {
+            } else if constexpr (std::is_same_v<FscFloat32, T>) {
                 fmt::format_to(output.getBackInserter(), "String{{{}}}", value.value);
             } else {
                 output << value.value;
@@ -38,18 +38,18 @@ namespace fsc
         }
     };
 
-    extern template class FscBuiltinType<Int32>;
-    extern template class FscBuiltinType<Int64>;
+    extern template class FscBuiltinType<FscFloat32>;
+    extern template class FscBuiltinType<FscInt64>;
 
-    extern template class FscBuiltinType<UInt32>;
-    extern template class FscBuiltinType<UInt64>;
+    extern template class FscBuiltinType<FscUInt32>;
+    extern template class FscBuiltinType<FscUInt64>;
 
-    extern template class FscBuiltinType<Float32>;
-    extern template class FscBuiltinType<Float64>;
+    extern template class FscBuiltinType<FscFloat32>;
+    extern template class FscBuiltinType<FscFloat64>;
 
-    extern template class FscBuiltinType<Bool>;
+    extern template class FscBuiltinType<FscBool>;
 
-    extern template class FscBuiltinType<String>;
+    extern template class FscBuiltinType<FscString>;
 }// namespace fsc
 
 #endif /* FSC_BUILTIN_TYPES_IMPL_HPP */

@@ -92,9 +92,9 @@ namespace fsc::ast
 
         virtual auto print(const std::string &prefix = "", bool is_left = false) const -> void = 0;
 
-        virtual auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void = 0;
+        virtual auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void = 0;
 
-        virtual auto analyze() const -> void = 0;
+        virtual auto analyze() -> void = 0;
 
         virtual auto optimize(OptimizationLevel /* unused */) -> void
         {}
@@ -129,7 +129,7 @@ namespace fsc::ast
 
         auto reportAboutError(const std::exception &exception) const -> void;
 
-        [[nodiscard]] virtual auto getValueType() const noexcept(false) -> FscType;
+        [[nodiscard]] virtual auto getValueType() noexcept(false) -> FscType;
 
         [[nodiscard]] auto getNodeType() const noexcept -> NodeType
         {
@@ -207,7 +207,7 @@ namespace fsc::ast
 
     using NodePtr = ccl::SharedPtr<Node>;
 
-    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const Node &node)
+    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, Node &node)
         -> ccl::codegen::BasicCodeGenerator &;
 }// namespace fsc::ast
 

@@ -13,13 +13,13 @@ namespace fsc::ast
     public:
         explicit Parenthesized(NodePtr node_to_parenthesize);
 
-        [[nodiscard]] auto getValueType() const -> FscType final;
+        [[nodiscard]] auto getValueType() -> FscType final;
 
-        auto analyze() const -> void final;
+        auto analyze() -> void final;
 
         auto optimize(OptimizationLevel optimization) -> void final;
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
     };

@@ -4,6 +4,7 @@
 #include "ast/basic_node.hpp"
 #include "type/type.hpp"
 #include "visibility.hpp"
+#include <ccl/lazy.hpp>
 
 namespace fsc::ast
 {
@@ -20,17 +21,18 @@ namespace fsc::ast
     {
     private:
         std::string name{};
-        FscType type;
+        ccl::Lazy<FscType> type;
         VariableFlags flags{};
 
     public:
-        Variable(std::string variable_name, FscType fsc_type, VariableFlags variable_flags);
+        Variable(
+            std::string variable_name, ccl::Lazy<FscType> &&fsc_type, VariableFlags variable_flags);
 
-        auto analyze() const -> void override;
+        auto analyze() -> void override;
 
         auto print(const std::string &prefix, bool is_left) const -> void override;
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void override;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void override;
 
         auto memberize() noexcept -> void
         {
@@ -42,9 +44,9 @@ namespace fsc::ast
             return name;
         }
 
-        [[nodiscard]] auto getValueType() const -> FscType final
+        [[nodiscard]] auto getValueType() -> FscType final
         {
-            return type;
+            return type.get();
         }
 
         [[nodiscard]] auto isMemberOfClass() const noexcept -> bool

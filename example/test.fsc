@@ -1,25 +1,5 @@
-class S<T>
-{
-    var x : i32 = 0
-
-    public func __init__(in T value)
-    {
-        if value == T(1.0)
-        {
-
-        }
-    }
-
-    public func test(in T value)
-    {
-        if value == T(1.0)
-        {
-        }
-    }
-}
 
 func main() -> i32
 {
-    var t = S<i32>(i32(10.0))
     return 0
 }

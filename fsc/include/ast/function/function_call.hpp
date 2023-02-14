@@ -13,6 +13,7 @@ namespace fsc::ast
         std::string functionName;
         ccl::SmallVector<Argument> typedArguments;
         FscType classId;
+        FscType returnedType{Void};
 
     public:
         FunctionCall(
@@ -22,17 +23,17 @@ namespace fsc::ast
             const ccl::SmallVector<NodePtr> &function_arguments,
             const ccl::SmallVector<FscType> &templates);
 
-        auto analyze() const -> void;
+        auto analyze() -> void;
 
         auto print(const std::string &prefix, bool is_left) const -> void override;
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void override;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void override;
 
-        [[nodiscard]] auto getValueType() const -> FscType final;
+        [[nodiscard]] auto getValueType() -> FscType final;
 
     protected:
         auto defaultPrint(const std::string &prefix, bool is_left) const -> void;
-        auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void;
         auto getFunction() const -> ccl::SharedPtr<Function>;
     };
 }// namespace fsc::ast

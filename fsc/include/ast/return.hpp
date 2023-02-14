@@ -13,13 +13,13 @@ namespace fsc::ast
     public:
         explicit Return(NodePtr value_to_return);
 
-        auto analyze() const -> void final;
+        auto analyze() -> void final;
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
-        [[nodiscard]] auto getValueType() const -> FscType final;
+        [[nodiscard]] auto getValueType() -> FscType final;
     };
 }// namespace fsc::ast
 

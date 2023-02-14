@@ -7,9 +7,9 @@
 namespace fsc
 {
     extern const std::string_view FscProgramsHeader;
-    extern const std::string_view ClangCompilerFlags;
+    extern const std::string_view CompilerFlags;
 
-    auto compile(std::string_view filename, std::ifstream &stream) -> void;
+    auto compile(std::string_view filename, std::ifstream &stream) -> std::string;
 }// namespace fsc
 
 #endif /* FSC_COMPILER_HPP */

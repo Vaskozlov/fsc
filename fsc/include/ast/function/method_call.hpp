@@ -20,11 +20,11 @@ namespace fsc::ast
             const ccl::SmallVector<NodePtr> &function_arguments,
             const ccl::SmallVector<FscType> &templates);
 
-        auto analyze() const -> void final;
+        auto analyze() -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
     };
 }// namespace fsc::ast
 

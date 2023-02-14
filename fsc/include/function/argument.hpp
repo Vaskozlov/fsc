@@ -32,7 +32,7 @@ namespace fsc
         ArgumentCategory category{};
 
     public:
-        explicit Argument(const ast::Node *node);
+        explicit Argument(ast::Node *node);
 
         Argument(
             std::string arg_name, FscType fsc_type,
@@ -87,7 +87,7 @@ namespace fsc
         FscType classType;
     };
 
-    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const Argument &argument)
+    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, Argument &argument)
         -> ccl::codegen::BasicCodeGenerator &;
 }// namespace fsc
 

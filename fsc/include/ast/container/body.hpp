@@ -21,13 +21,13 @@ namespace fsc::ast
             return nodes.end();
         }
 
-        auto analyze() const -> void override;
+        auto analyze() -> void override;
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void override;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void override;
 
         auto print(const std::string &prefix, bool is_left) const -> void override;
 
-        [[nodiscard]] auto getValueType() const -> FscType final;
+        [[nodiscard]] auto getValueType() -> FscType final;
 
         virtual auto addNode(NodePtr node) -> void;
 
@@ -38,7 +38,7 @@ namespace fsc::ast
         }
 
         auto defaultAnalyze() const -> void;
-        auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void;
         auto defaultBodyPrint(const std::string &prefix, bool is_left) const -> void;
     };
 }// namespace fsc::ast

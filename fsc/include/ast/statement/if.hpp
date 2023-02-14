@@ -28,9 +28,9 @@ namespace fsc::ast
             return ifType;
         }
 
-        auto analyze() const -> void final;
+        auto analyze() -> void final;
 
-        auto codeGen(ccl::codegen::BasicCodeGenerator &output) const -> void final;
+        auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
     };
