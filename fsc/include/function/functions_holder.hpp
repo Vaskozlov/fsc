@@ -31,6 +31,22 @@ namespace fsc::func
 
         auto registerFunction(ccl::SharedPtr<ast::Function> function) -> void;
 
+        CCL_PERFECT_FORWARDING(T, ast::Function)
+        auto registerFunction(T &&function) -> void
+        {
+            return registerFunction(ccl::makeShared<ast::Function>(std::forward<T>(function)));
+        }
+
+        auto registerFunctions(
+            ccl::Vector<std::reference_wrapper<ccl::Vector<ast::Function>>> &&functions_) -> void
+        {
+            for (auto &line : functions_) {
+                for (auto &function : line.get()) {
+                    registerFunction(std::move(function));
+                }
+            }
+        }
+
         [[nodiscard]] auto visitFunction(SignatureView signature, auto &&function) const
             -> decltype(auto)
         {

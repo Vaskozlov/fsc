@@ -1,5 +1,26 @@
+class S
+{
+    public func __init__()
+    {
+        print("S constructed\n");
+    }
+
+    public func __del__()
+    {
+        print("S destructed\n");
+    }
+}
+
+func test(in Vector<f32> vec) -> void
+{
+    print("{}\n", vec.at(u32(0)));
+}
 
 func main() -> i32
 {
+    var x = Vector<f32>()
+    x.push_back(10.24)
+    test(x)
+
     return 0
 }

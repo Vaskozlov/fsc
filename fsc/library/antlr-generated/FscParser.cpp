@@ -129,13 +129,13 @@ void fscParserInitialize() {
   	0,0,153,154,3,64,32,0,154,155,3,66,33,0,155,156,3,8,4,0,156,157,3,66,
   	33,0,157,23,1,0,0,0,158,159,5,9,0,0,159,160,3,8,4,0,160,25,1,0,0,0,161,
   	162,3,32,16,0,162,163,5,10,0,0,163,164,5,50,0,0,164,165,3,30,15,0,165,
-  	168,3,40,20,0,166,167,5,11,0,0,167,169,5,50,0,0,168,166,1,0,0,0,168,169,
+  	168,3,40,20,0,166,167,5,11,0,0,167,169,3,2,1,0,168,166,1,0,0,0,168,169,
   	1,0,0,0,169,170,1,0,0,0,170,171,3,66,33,0,171,172,3,8,4,0,172,27,1,0,
   	0,0,173,174,7,0,0,0,174,29,1,0,0,0,175,176,5,36,0,0,176,177,3,4,2,0,177,
   	178,5,37,0,0,178,180,1,0,0,0,179,175,1,0,0,0,179,180,1,0,0,0,180,31,1,
   	0,0,0,181,183,3,28,14,0,182,181,1,0,0,0,182,183,1,0,0,0,183,33,1,0,0,
   	0,184,186,3,28,14,0,185,184,1,0,0,0,185,186,1,0,0,0,186,35,1,0,0,0,187,
-  	188,7,1,0,0,188,37,1,0,0,0,189,190,3,36,18,0,190,191,5,50,0,0,191,192,
+  	188,7,1,0,0,188,37,1,0,0,0,189,190,3,36,18,0,190,191,3,2,1,0,191,192,
   	5,50,0,0,192,39,1,0,0,0,193,195,5,19,0,0,194,196,3,42,21,0,195,194,1,
   	0,0,0,195,196,1,0,0,0,196,197,1,0,0,0,197,198,5,20,0,0,198,41,1,0,0,0,
   	199,204,3,44,22,0,200,201,5,1,0,0,201,203,3,44,22,0,202,200,1,0,0,0,203,
@@ -1161,12 +1161,8 @@ FscParser::Function_attibutesContext* FscParser::FunctionContext::function_attib
   return getRuleContext<FscParser::Function_attibutesContext>(0);
 }
 
-std::vector<tree::TerminalNode *> FscParser::FunctionContext::IDENTIFIER() {
-  return getTokens(FscParser::IDENTIFIER);
-}
-
-tree::TerminalNode* FscParser::FunctionContext::IDENTIFIER(size_t i) {
-  return getToken(FscParser::IDENTIFIER, i);
+tree::TerminalNode* FscParser::FunctionContext::IDENTIFIER() {
+  return getToken(FscParser::IDENTIFIER, 0);
 }
 
 FscParser::Function_templatesContext* FscParser::FunctionContext::function_templates() {
@@ -1183,6 +1179,10 @@ FscParser::New_lineContext* FscParser::FunctionContext::new_line() {
 
 FscParser::BodyContext* FscParser::FunctionContext::body() {
   return getRuleContext<FscParser::BodyContext>(0);
+}
+
+FscParser::TypeContext* FscParser::FunctionContext::type() {
+  return getRuleContext<FscParser::TypeContext>(0);
 }
 
 
@@ -1230,7 +1230,7 @@ FscParser::FunctionContext* FscParser::function() {
       setState(166);
       match(FscParser::T__10);
       setState(167);
-      match(FscParser::IDENTIFIER);
+      type();
     }
     setState(170);
     new_line();
@@ -1547,12 +1547,12 @@ FscParser::Argument_passing_typeContext* FscParser::Argument_definitionContext::
   return getRuleContext<FscParser::Argument_passing_typeContext>(0);
 }
 
-std::vector<tree::TerminalNode *> FscParser::Argument_definitionContext::IDENTIFIER() {
-  return getTokens(FscParser::IDENTIFIER);
+FscParser::TypeContext* FscParser::Argument_definitionContext::type() {
+  return getRuleContext<FscParser::TypeContext>(0);
 }
 
-tree::TerminalNode* FscParser::Argument_definitionContext::IDENTIFIER(size_t i) {
-  return getToken(FscParser::IDENTIFIER, i);
+tree::TerminalNode* FscParser::Argument_definitionContext::IDENTIFIER() {
+  return getToken(FscParser::IDENTIFIER, 0);
 }
 
 
@@ -1584,7 +1584,7 @@ FscParser::Argument_definitionContext* FscParser::argument_definition() {
     setState(189);
     argument_passing_type();
     setState(190);
-    match(FscParser::IDENTIFIER);
+    type();
     setState(191);
     match(FscParser::IDENTIFIER);
    

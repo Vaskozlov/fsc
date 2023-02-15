@@ -75,18 +75,6 @@ namespace fsc
         FscType classType;
     };
 
-    struct Signature
-    {
-        [[nodiscard]] operator SignatureView() const// NOLINT
-        {
-            return {name, arguments, classType};
-        }
-
-        std::string name{};
-        ccl::SmallVector<Argument> arguments{};
-        FscType classType;
-    };
-
     auto operator<<(ccl::codegen::BasicCodeGenerator &generator, Argument &argument)
         -> ccl::codegen::BasicCodeGenerator &;
 }// namespace fsc

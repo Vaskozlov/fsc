@@ -8,7 +8,7 @@ namespace fsc
     using namespace ccl;
     namespace sv = std::views;
 
-    static constexpr auto NewLineFilter(antlr4::tree::ParseTree *elem) -> bool
+    static auto NewLineFilter(antlr4::tree::ParseTree *elem) -> bool
     {
         const auto text = elem->getText();
         return !text.empty() && text[0] != '\n';
@@ -19,9 +19,8 @@ namespace fsc
         const auto &children = ctx->children;
         auto body = makeShared<ast::Body>();
 
-        auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
-
-        auto modifiers =
+        const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
+        const auto modifiers =
             sv::drop(1) | views::dropBack(ctx->children, 2) | sv::filter(NewLineFilter);
 
         for (auto *child : children | modifiers) {

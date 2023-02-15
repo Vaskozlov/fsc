@@ -1,7 +1,7 @@
 #ifndef FSC_IO_HPP
 #define FSC_IO_HPP
 
-#include <ccl/ccl.hpp>
+#include <ccl/string_view.hpp>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -9,7 +9,7 @@
 
 namespace fsc
 {
-    template<typename... Ts>
+    template<ccl::StringLike<char>... Ts>
     auto writeToFile(const std::string &filename, Ts &&...args) -> void
     {
         auto out = std::ofstream{filename};

@@ -24,7 +24,7 @@ namespace fsc::ast
       , templates{function_templates}
       , name{function_name}
       , returnType{return_type}
-      , classType{std::move(class_type)}
+      , classType{class_type}
       , endsWithParameterPack{ends_with_parameter_pack}
       , builtinFunction{true}
     {}
@@ -39,7 +39,7 @@ namespace fsc::ast
         auto *function_templates = ccl::as<TemplateContext *>(children.at(3));
         const auto *parameters = ccl::as<ParametersContext *>(children.at(4));
 
-        classType = std::move(class_type);
+        classType = class_type;
         name = function_name->getText();
 
         processAttributes(function_attributes);

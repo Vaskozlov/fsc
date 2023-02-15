@@ -1,4 +1,5 @@
 #include "function/argument.hpp"
+
 #include "function/functions_holder.hpp"
 #include "type/builtin_types.hpp"
 #include "type/type.hpp"
@@ -52,131 +53,185 @@
         }                                                                                          \
     }
 
-namespace fsc::func
+#define BUILTIN_VECTOR(VectorType, VectorName, StoredType)                                         \
+    Vector<ast::Function>                                                                          \
+    {                                                                                              \
+        ast::Function(Void, VectorName, VectorType, {}),                                           \
+            ast::Function(                                                                         \
+                VectorType, "at", StoredType, {{"index", UInt32, ArgumentCategory::IN}}),          \
+            ast::Function(                                                                         \
+                VectorType, "push_back", Void, {{"value", StoredType, ArgumentCategory::IN}})      \
+    }
+
+
+namespace fsc
 {
     using namespace ccl;
 
-    static const auto AddFunctions = Vector<ast::Function>{
-        BUILTIN_ADD(Int32, Int32, Int32), BUILTIN_ADD(Int64, Int64, Int64),
-        BUILTIN_ADD(Float32, Float32, Float32), BUILTIN_ADD(Float64, Float64, Float64)};
+    static auto initializeNumericTypes() -> void
+    {
+        FscBool::initialize(CreationType::DEFAULT);
 
-    static const auto SubFunctions = Vector<ast::Function>{
-        BUILTIN_SUB(Int32, Int32, Int32), BUILTIN_SUB(Int64, Int64, Int64),
-        BUILTIN_SUB(Float32, Float32, Float32), BUILTIN_SUB(Float64, Float64, Float64)};
+        FscInt32::initialize(CreationType::DEFAULT);
+        FscInt64::initialize(CreationType::DEFAULT);
 
-    static const auto MulFunctions = Vector<ast::Function>{
-        BUILTIN_MUL(Int32, Int32, Int32),
-        BUILTIN_MUL(Int64, Int64, Int64),
-        BUILTIN_MUL(Float32, Float32, Float32),
-        BUILTIN_MUL(Float64, Float64, Float64),
-    };
+        FscUInt32::initialize(CreationType::DEFAULT);
+        FscUInt64::initialize(CreationType::DEFAULT);
 
-    static const auto DivFunctions = Vector<ast::Function>{
-        BUILTIN_DIV(Int32, Int32, Int32),
-        BUILTIN_DIV(Int64, Int64, Int64),
-        BUILTIN_DIV(Float32, Float32, Float32),
-        BUILTIN_DIV(Float64, Float64, Float64),
-    };
+        FscFloat32::initialize(CreationType::DEFAULT);
+        FscFloat64::initialize(CreationType::DEFAULT);
+    }
 
-    static const auto LessFunctions = Vector<ast::Function>{
-        BUILTIN_LESS(Bool, Int32, Int32),     BUILTIN_LESS(Bool, Int64, Int64),
-        BUILTIN_LESS(Bool, Float32, Float32), BUILTIN_LESS(Bool, Float64, Float64),
-        BUILTIN_LESS(Bool, String, String),
-    };
+    static auto initializeString() -> void
+    {
+        FscChar::initialize(CreationType::DEFAULT);
+        FscString::initialize(CreationType::DEFAULT);
+    }
 
-    static const auto GreaterFunctions = Vector<ast::Function>{
-        BUILTIN_GREATER(Bool, Int32, Int32),     BUILTIN_GREATER(Bool, Int64, Int64),
-        BUILTIN_GREATER(Bool, Float32, Float32), BUILTIN_GREATER(Bool, Float64, Float64),
-        BUILTIN_GREATER(Bool, String, String),
-    };
+    static auto initializeTemplates() -> void
+    {
+        FscTemplate1::initialize(CreationType::STRONG_TEMPLATE);
+    }
 
-    static const auto LessEqFunctions = Vector<ast::Function>{
-        BUILTIN_LESS_EQ(Bool, Int32, Int32),     BUILTIN_LESS_EQ(Bool, Int64, Int64),
-        BUILTIN_LESS_EQ(Bool, Float32, Float32), BUILTIN_LESS_EQ(Bool, Float64, Float64),
-        BUILTIN_LESS_EQ(Bool, String, String),
-    };
+    static auto initializeTypes() -> void
+    {
+        VoidT::initialize(CreationType::DEFAULT);
+        AutoT::initialize(CreationType::DEFAULT);
 
-    static const auto GreaterEqFunctions = Vector<ast::Function>{
-        BUILTIN_GREATER_EQ(Bool, Int32, Int32),     BUILTIN_GREATER_EQ(Bool, Int64, Int64),
-        BUILTIN_GREATER_EQ(Bool, Float32, Float32), BUILTIN_GREATER_EQ(Bool, Float64, Float64),
-        BUILTIN_GREATER_EQ(Bool, String, String),
-    };
+        initializeNumericTypes();
+        initializeString();
+        initializeTemplates();
+    }
 
-    static const auto LogicalAndFunctions = Vector<ast::Function>{
-        BUILTIN_LOGICAL_AND(Bool, Bool, Bool),
-    };
+    auto initializeCompilerBuiltin() -> void
+    {
+        initializeTypes();
 
-    static const auto LogicalOrFunctions = Vector<ast::Function>{
-        BUILTIN_LOGICAL_OR(Bool, Bool, Bool),
-    };
+        auto AddFunctions = Vector<ast::Function>{
+            BUILTIN_ADD(Int32, Int32, Int32), BUILTIN_ADD(Int64, Int64, Int64),
+            BUILTIN_ADD(Float32, Float32, Float32), BUILTIN_ADD(Float64, Float64, Float64)};
 
-    static const auto EqualFunctions = Vector<ast::Function>{
-        BUILTIN_EQUAL(Bool, Int32, Int32),
-        BUILTIN_EQUAL(Bool, Int64, Int64),
-        BUILTIN_EQUAL(Bool, Float32, Float32),
-        BUILTIN_EQUAL(Bool, Float64, Float64),
-    };
+        auto SubFunctions = Vector<ast::Function>{
+            BUILTIN_SUB(Int32, Int32, Int32), BUILTIN_SUB(Int64, Int64, Int64),
+            BUILTIN_SUB(Float32, Float32, Float32), BUILTIN_SUB(Float64, Float64, Float64)};
 
-    static const auto NotEqualFunctions = Vector<ast::Function>{
-        BUILTIN_NOT_EQUAL(Bool, Int32, Int32),
-        BUILTIN_NOT_EQUAL(Bool, Int64, Int64),
-        BUILTIN_NOT_EQUAL(Bool, Float32, Float32),
-        BUILTIN_NOT_EQUAL(Bool, Float64, Float64),
-    };
+        auto MulFunctions = Vector<ast::Function>{
+            BUILTIN_MUL(Int32, Int32, Int32),
+            BUILTIN_MUL(Int64, Int64, Int64),
+            BUILTIN_MUL(Float32, Float32, Float32),
+            BUILTIN_MUL(Float64, Float64, Float64),
+        };
 
-    static const auto AssignFunctions = Vector<ast::Function>{
-        BUILTIN_ASSIGN(Int32, Int32, Int32),
-        BUILTIN_ASSIGN(Int64, Int64, Int64),
-        BUILTIN_ASSIGN(Float32, Float32, Float32),
-        BUILTIN_ASSIGN(Float64, Float64, Float64),
-    };
+        auto DivFunctions = Vector<ast::Function>{
+            BUILTIN_DIV(Int32, Int32, Int32),
+            BUILTIN_DIV(Int64, Int64, Int64),
+            BUILTIN_DIV(Float32, Float32, Float32),
+            BUILTIN_DIV(Float64, Float64, Float64),
+        };
 
-    static const auto Constructors = Vector<ast::Function>{
-        BUILTIN_CONVERT(f32, Float32, Int32),   BUILTIN_CONVERT(f32, Float32, Float32),
-        BUILTIN_CONVERT(f32, Float32, Int64),   BUILTIN_CONVERT(f32, Float32, UInt32),
-        BUILTIN_CONVERT(f32, Float32, UInt64),  BUILTIN_CONVERT(f32, Float32, Float64),
-        BUILTIN_CONVERT(f64, Float64, Float64), BUILTIN_CONVERT(f64, Float64, Int32),
-        BUILTIN_CONVERT(f64, Float64, Int64),   BUILTIN_CONVERT(f64, Float64, UInt32),
-        BUILTIN_CONVERT(f64, Float64, UInt64),  BUILTIN_CONVERT(f64, Float64, Float32),
-        BUILTIN_CONVERT(i32, Int32, Int64),     BUILTIN_CONVERT(i32, Int32, Int32),
-        BUILTIN_CONVERT(i32, Int32, UInt32),    BUILTIN_CONVERT(i32, Int32, UInt64),
-        BUILTIN_CONVERT(i32, Int32, Float32),   BUILTIN_CONVERT(i32, Int32, Float64),
-        BUILTIN_CONVERT(i64, Int64, Int32),     BUILTIN_CONVERT(i64, Int64, Int64),
-        BUILTIN_CONVERT(i64, Int64, UInt32),    BUILTIN_CONVERT(i64, Int64, UInt64),
-        BUILTIN_CONVERT(i64, Int64, Float32),   BUILTIN_CONVERT(i64, Int64, Float64),
-        BUILTIN_CONVERT(u32, UInt32, Int32),    BUILTIN_CONVERT(u32, UInt32, UInt32),
-        BUILTIN_CONVERT(u32, UInt32, Int64),    BUILTIN_CONVERT(u32, UInt32, UInt64),
-        BUILTIN_CONVERT(u32, UInt32, Float32),  BUILTIN_CONVERT(u32, UInt32, Float64),
-        BUILTIN_CONVERT(u64, UInt64, Int32),    BUILTIN_CONVERT(u64, UInt64, UInt64),
-        BUILTIN_CONVERT(u64, UInt64, Int64),    BUILTIN_CONVERT(u64, UInt64, UInt32),
-        BUILTIN_CONVERT(u64, UInt64, Float32),  BUILTIN_CONVERT(u64, UInt64, Float64),
-    };
+        auto LessFunctions = Vector<ast::Function>{
+            BUILTIN_LESS(Bool, Int32, Int32),     BUILTIN_LESS(Bool, Int64, Int64),
+            BUILTIN_LESS(Bool, Float32, Float32), BUILTIN_LESS(Bool, Float64, Float64),
+            BUILTIN_LESS(Bool, String, String),
+        };
 
-    static const auto InputFunctions = Vector<ast::Function>{
-        {Void, "input", String, {}},
-        {Void, "input", String, {{"message", String, ArgumentCategory::IN}}}};
+        auto GreaterFunctions = Vector<ast::Function>{
+            BUILTIN_GREATER(Bool, Int32, Int32),     BUILTIN_GREATER(Bool, Int64, Int64),
+            BUILTIN_GREATER(Bool, Float32, Float32), BUILTIN_GREATER(Bool, Float64, Float64),
+            BUILTIN_GREATER(Bool, String, String),
+        };
 
-    static const auto OutputFunctions = Vector<ast::Function>{
-        {Void, "putchar", Void, {{"value", Int32, ArgumentCategory::IN}}},
-        {Void, "print", Void, {{"fmt", String, ArgumentCategory::IN}}, {}, true},
-    };
+        auto LessEqFunctions = Vector<ast::Function>{
+            BUILTIN_LESS_EQ(Bool, Int32, Int32),     BUILTIN_LESS_EQ(Bool, Int64, Int64),
+            BUILTIN_LESS_EQ(Bool, Float32, Float32), BUILTIN_LESS_EQ(Bool, Float64, Float64),
+            BUILTIN_LESS_EQ(Bool, String, String),
+        };
 
-    static const auto FormatFunctions = Vector<ast::Function>{
-        {Void, "format", Void, {Argument{"fmt", String, ArgumentCategory::IN}}, {}, true}};
+        auto GreaterEqFunctions = Vector<ast::Function>{
+            BUILTIN_GREATER_EQ(Bool, Int32, Int32),     BUILTIN_GREATER_EQ(Bool, Int64, Int64),
+            BUILTIN_GREATER_EQ(Bool, Float32, Float32), BUILTIN_GREATER_EQ(Bool, Float64, Float64),
+            BUILTIN_GREATER_EQ(Bool, String, String),
+        };
 
-    static const auto StringMethods =
-        Vector<ast::Function>{{String, "size", UInt64, {}},   {String, "toI32", Int32, {}},
-                              {String, "toI64", Int64, {}},   {String, "toU64", UInt64, {}},
-                              {String, "toF32", Float32, {}}, {String, "toF64", Float64, {}}};
+        auto LogicalAndFunctions = Vector<ast::Function>{
+            BUILTIN_LOGICAL_AND(Bool, Bool, Bool),
+        };
 
+        auto LogicalOrFunctions = Vector<ast::Function>{
+            BUILTIN_LOGICAL_OR(Bool, Bool, Bool),
+        };
 
-    static const auto MemoryAllocation = Vector<ast::Function>{
-        {Void, "create", Template1, {{"first", Template1, ArgumentCategory::IN}}, {"T1"}}};
+        auto EqualFunctions = Vector<ast::Function>{
+            BUILTIN_EQUAL(Bool, Int32, Int32),
+            BUILTIN_EQUAL(Bool, Int64, Int64),
+            BUILTIN_EQUAL(Bool, Float32, Float32),
+            BUILTIN_EQUAL(Bool, Float64, Float64),
+        };
 
-    FunctionsHolder Functions{
-        Constructors,       AddFunctions,        SubFunctions,       MulFunctions,
-        DivFunctions,       LessFunctions,       GreaterFunctions,   LessEqFunctions,
-        GreaterEqFunctions, LogicalAndFunctions, LogicalOrFunctions, EqualFunctions,
-        NotEqualFunctions,  AssignFunctions,     InputFunctions,     OutputFunctions,
-        FormatFunctions,    StringMethods,       MemoryAllocation};
-}// namespace fsc::func
+        auto NotEqualFunctions = Vector<ast::Function>{
+            BUILTIN_NOT_EQUAL(Bool, Int32, Int32),
+            BUILTIN_NOT_EQUAL(Bool, Int64, Int64),
+            BUILTIN_NOT_EQUAL(Bool, Float32, Float32),
+            BUILTIN_NOT_EQUAL(Bool, Float64, Float64),
+        };
+
+        auto AssignFunctions = Vector<ast::Function>{
+            BUILTIN_ASSIGN(Int32, Int32, Int32),
+            BUILTIN_ASSIGN(Int64, Int64, Int64),
+            BUILTIN_ASSIGN(Float32, Float32, Float32),
+            BUILTIN_ASSIGN(Float64, Float64, Float64),
+        };
+
+        auto Constructors = Vector<ast::Function>{
+            BUILTIN_CONVERT(f32, Float32, Int32),   BUILTIN_CONVERT(f32, Float32, Float32),
+            BUILTIN_CONVERT(f32, Float32, Int64),   BUILTIN_CONVERT(f32, Float32, UInt32),
+            BUILTIN_CONVERT(f32, Float32, UInt64),  BUILTIN_CONVERT(f32, Float32, Float64),
+            BUILTIN_CONVERT(f64, Float64, Float64), BUILTIN_CONVERT(f64, Float64, Int32),
+            BUILTIN_CONVERT(f64, Float64, Int64),   BUILTIN_CONVERT(f64, Float64, UInt32),
+            BUILTIN_CONVERT(f64, Float64, UInt64),  BUILTIN_CONVERT(f64, Float64, Float32),
+            BUILTIN_CONVERT(i32, Int32, Int64),     BUILTIN_CONVERT(i32, Int32, Int32),
+            BUILTIN_CONVERT(i32, Int32, UInt32),    BUILTIN_CONVERT(i32, Int32, UInt64),
+            BUILTIN_CONVERT(i32, Int32, Float32),   BUILTIN_CONVERT(i32, Int32, Float64),
+            BUILTIN_CONVERT(i64, Int64, Int32),     BUILTIN_CONVERT(i64, Int64, Int64),
+            BUILTIN_CONVERT(i64, Int64, UInt32),    BUILTIN_CONVERT(i64, Int64, UInt64),
+            BUILTIN_CONVERT(i64, Int64, Float32),   BUILTIN_CONVERT(i64, Int64, Float64),
+            BUILTIN_CONVERT(u32, UInt32, Int32),    BUILTIN_CONVERT(u32, UInt32, UInt32),
+            BUILTIN_CONVERT(u32, UInt32, Int64),    BUILTIN_CONVERT(u32, UInt32, UInt64),
+            BUILTIN_CONVERT(u32, UInt32, Float32),  BUILTIN_CONVERT(u32, UInt32, Float64),
+            BUILTIN_CONVERT(u64, UInt64, Int32),    BUILTIN_CONVERT(u64, UInt64, UInt64),
+            BUILTIN_CONVERT(u64, UInt64, Int64),    BUILTIN_CONVERT(u64, UInt64, UInt32),
+            BUILTIN_CONVERT(u64, UInt64, Float32),  BUILTIN_CONVERT(u64, UInt64, Float64),
+        };
+
+        auto InputFunctions = Vector<ast::Function>{
+            {Void, "input", String, {}},
+            {Void, "input", String, {{"message", String, ArgumentCategory::IN}}}};
+
+        auto OutputFunctions = Vector<ast::Function>{
+            {Void, "putchar", Void, {{"value", Int32, ArgumentCategory::IN}}},
+            {Void, "print", Void, {{"fmt", String, ArgumentCategory::IN}}, {}, true},
+        };
+
+        auto FormatFunctions = Vector<ast::Function>{
+            {Void, "format", Void, {Argument{"fmt", String, ArgumentCategory::IN}}, {}, true}};
+
+        auto StringMethods =
+            Vector<ast::Function>{{String, "size", UInt64, {}},   {String, "toI32", Int32, {}},
+                                  {String, "toI64", Int64, {}},   {String, "toU64", UInt64, {}},
+                                  {String, "toF32", Float32, {}}, {String, "toF64", Float64, {}}};
+
+        auto MemoryAllocation = Vector<ast::Function>{
+            {Void, "construct", Template1, {{"number", UInt32, ArgumentCategory::IN}}, {"T1"}}};
+
+        func::Functions.registerFunctions(
+            {Constructors, AddFunctions, SubFunctions, MulFunctions, DivFunctions, LessFunctions,
+             GreaterFunctions, LessEqFunctions, GreaterEqFunctions, LogicalAndFunctions,
+             LogicalOrFunctions, EqualFunctions, NotEqualFunctions, AssignFunctions, InputFunctions,
+             OutputFunctions, FormatFunctions, StringMethods, MemoryAllocation});
+    }
+
+    namespace func
+    {
+        FunctionsHolder Functions{};
+    }
+}// namespace fsc

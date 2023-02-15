@@ -112,7 +112,7 @@ namespace fsc
     auto Visitor::constructConversion(ExpressionContext *ctx) -> ast::NodePtr
     {
         auto expr_to_convert = visitAsNode(ctx->children.at(0));
-        auto target_type = ctx->children.at(2)->getText();
+        const auto target_type = ctx->children.at(2)->getText();
         return makeShared<ast::Conversion>(std::move(expr_to_convert), FscType{target_type});
     }
 }// namespace fsc

@@ -57,7 +57,7 @@ else: else_def?;
 elif_def: 'elif' expr new_line body new_line;
 else_def: 'else' body;
 
-function: function_attibutes 'func' IDENTIFIER function_templates parameters ('->' IDENTIFIER) ? new_line body;
+function: function_attibutes 'func' IDENTIFIER function_templates parameters ('->' type) ? new_line body;
 visibility: 'public'
             | 'private'
             | 'protected'
@@ -68,7 +68,7 @@ function_attibutes: visibility?;
 variable_attributes: visibility?;
 
 argument_passing_type: 'in' | 'out' | 'inout';
-argument_definition: argument_passing_type IDENTIFIER IDENTIFIER;
+argument_definition: argument_passing_type type IDENTIFIER;
 
 parameters: '(' (typed_arguments_list)? ')';
 typed_arguments_list: argument ( ',' argument )*;

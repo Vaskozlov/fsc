@@ -10,7 +10,7 @@ namespace fsc
     {
     public:
         template<typename... Ts>
-        FscException(Ts &&...args)
+        explicit FscException(Ts &&...args)
           : std::runtime_error{std::forward<Ts>(args)...}
         {}
     };

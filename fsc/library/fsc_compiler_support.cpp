@@ -4,15 +4,16 @@ namespace fsc
 {
     using namespace std::string_view_literals;
 
-    constinit const std::string_view CompilerFlags = "-std=c++2b -DFMT_HEADER_ONLY=1";
+    constexpr std::string_view CompilerFlags = "-std=c++2b -DFMT_HEADER_ONLY=1";
 
-    constinit const std::string_view FscProgramsHeader = R"cpp(
+    constexpr std::string_view FscProgramsHeader = R"cpp(
 #include <cinttypes>
 #include <concepts>
 #include <cstddef>
 #include <fmt/format.h>
 #include <iostream>
 #include <string>
+#include <vector>
 
 using i32 = int32_t;
 using i64 = int64_t;
@@ -20,6 +21,9 @@ using u32 = uint32_t;
 using u64 = uint64_t;
 using f32 = float;
 using f64 = double;
+
+template<typename T>
+using Vector = std::vector<T>;
 
 class String : public std::string
 {

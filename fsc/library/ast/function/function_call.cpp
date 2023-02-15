@@ -15,12 +15,29 @@ namespace fsc::ast
       , functionCallTemplates{templates}
       , functionName{std::move(function_name)}
       , typedArguments{typed_arguments}
-      , classId{std::move(class_id)}
+      , classId{class_id}
     {}
 
     auto FunctionCall::getFunction() const -> ccl::SharedPtr<Function>
     {
-        return func::Functions.get({functionName, typedArguments, classId});
+        // TODO: change way how template classes are stored
+        try {
+            return func::Functions.get({functionName, typedArguments, classId});
+        } catch (const std::exception &) {
+            if (functionCallTemplates.empty()) {
+                throw;
+            }
+
+            auto full_name = fmt::format("{}<", functionName);
+
+            for (auto function_template :
+                 functionCallTemplates | ccl::views::dropBack(functionCallTemplates)) {
+                full_name.append(fmt::format("{}, ", function_template.getName()));
+            }
+
+            full_name.append(functionCallTemplates.back().getName() + ">");
+            return func::Functions.get({full_name, typedArguments, classId});
+        }
     }
 
     auto FunctionCall::defaultPrint(const std::string &prefix, bool is_left) const -> void
@@ -71,7 +88,7 @@ namespace fsc::ast
     {
         auto fn = getFunction();
         returnedType = fn->analyzeOnCall(arguments);
-        
+
         return returnedType;
     }
 

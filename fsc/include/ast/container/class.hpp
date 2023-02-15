@@ -35,6 +35,11 @@ namespace fsc::ast
             return name;
         }
 
+        [[nodiscard]] auto getTemplates() const noexcept -> const ccl::SmallVector<std::string> &
+        {
+            return templates;
+        }
+
     private:
         auto parseTemplates(TemplateContext *template_context) -> void;
 

@@ -70,8 +70,10 @@ namespace fsc::ast
         }
 
         if (magicType == MagicFunctionType::INIT && !builtinFunction) {
-            const auto &fsc_class = classType.getClass()->as<ast::Class>();
+            const auto &class_node = classType.getClass();
+            const auto &fsc_class = class_node->as<ast::Class>();
             fsc_class.analyzeOnConstruction();
+
         } else if (!builtinFunction) {
             functionBody->analyze();
         }
@@ -91,8 +93,7 @@ namespace fsc::ast
         functionBody->print(expandPrefix(prefix, is_left));
     }
 
-    auto Function::argumentToString(codegen::BasicCodeGenerator &output,  Argument &arg)
-        -> void
+    auto Function::argumentToString(codegen::BasicCodeGenerator &output, Argument &arg) -> void
     {
         const auto &argument_name = arg.getName();
         output << arg;

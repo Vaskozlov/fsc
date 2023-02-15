@@ -4,7 +4,6 @@
 #include <ccl/text/iterator_exception.hpp>
 #include <ccl/text/location.hpp>
 #include <cstdlib>
-#include <exception>
 #include <ranges>
 #include <type/antlr-types.hpp>
 

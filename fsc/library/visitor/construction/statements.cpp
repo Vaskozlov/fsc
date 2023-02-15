@@ -34,7 +34,7 @@ namespace fsc
     {
         const auto &children = ctx->children;
 
-        if (children[0]->getText() == "return"sv) {
+        if (children.at(0)->getText() == "return"sv) {
             return constructReturn(ctx);
         }
 

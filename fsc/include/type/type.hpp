@@ -28,7 +28,7 @@ namespace fsc
         WEAK_TEMPLATE
     };
 
-    template<ccl::ConstString String, typename T, CreationType WayOfCreatingNewType>
+    template<ccl::ConstString String, typename T>
     struct FscTypeWrapper;
 
     class CCL_TRIVIAL_ABI FscType// NOLINT (non virtual destructor)
@@ -103,8 +103,9 @@ namespace fsc
             }
         }
 
-        template<ccl::ConstString String, typename T, CreationType WayOfCreatingNewType>
-        FscType(const FscTypeWrapper<String, T, WayOfCreatingNewType> &derived_type) noexcept
+        template<ccl::ConstString String, typename T>
+        // NOLINTNEXTLINE
+        FscType(const FscTypeWrapper<String, T> &derived_type) noexcept
           : typeId{derived_type.typeId}
         {}
 
@@ -146,9 +147,13 @@ namespace fsc
 
         static auto registerNewType(
             const std::string &name, TypeFlags flags,
-            CreationType creation_type = CreationType::DEFAULT) noexcept(false) -> ccl::Id;
+            CreationType creation_type = CreationType::DEFAULT,
+            bool add_to_builtin = true) noexcept(false) -> ccl::Id;
 
         static auto registerFscClass(ast::NodePtr new_fsc_class) -> void;
+
+    private:
+        static auto addTypeToBuiltinFunctions(FscType type) -> void;
     };
 
     class FscTypeInterface : public FscType

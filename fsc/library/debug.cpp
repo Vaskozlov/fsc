@@ -7,7 +7,7 @@
 
 namespace fsc
 {
-    static std::atomic<size_t> FileUuid{0};
+    static constinit std::atomic<size_t> FileUuid{0};
 
     static auto compileCppProgram(std::string_view cpp_program) -> std::string
     {
@@ -26,10 +26,10 @@ namespace fsc
 
         writeToFile(cpp_filename, fsc::FscProgramsHeader, cpp_program);
 
-        auto compiler_command =
+        const auto compiler_command =
             fmt::format("clang++ {} {} -o {}", CompilerFlags, cpp_filename, compiled_filename);
 
-        auto run_command = fmt::format("{} > {}", compiled_filename, output_filename);
+        const auto run_command = fmt::format("{} > {}", compiled_filename, output_filename);
 
         std::system(compiler_command.c_str());
         std::system(run_command.c_str());
@@ -56,9 +56,7 @@ namespace fsc
             fmt::print("{} is not a valid file\n", fsc_filename);
         }
 
-        auto code = fsc::compile(fsc_filename, stream);
-        
-        return compileCppProgram(code);
+        return compileCppProgram(fsc::compile(fsc_filename, stream));
     }
 
     auto compareProgramsOutput(std::string_view fsc_program, std::string_view cpp_program) -> bool

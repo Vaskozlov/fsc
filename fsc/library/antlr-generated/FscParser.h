@@ -289,12 +289,12 @@ public:
     FunctionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     Function_attibutesContext *function_attibutes();
-    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
-    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
+    antlr4::tree::TerminalNode *IDENTIFIER();
     Function_templatesContext *function_templates();
     ParametersContext *parameters();
     New_lineContext *new_line();
     BodyContext *body();
+    TypeContext *type();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -373,8 +373,8 @@ public:
     Argument_definitionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     Argument_passing_typeContext *argument_passing_type();
-    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
-    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
+    TypeContext *type();
+    antlr4::tree::TerminalNode *IDENTIFIER();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;

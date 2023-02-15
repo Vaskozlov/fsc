@@ -13,6 +13,7 @@ std::string Source;
 std::string Output;
 std::string CppCompiler = "clang++";
 std::string CppFlags;
+bool PrintCode = false;
 
 constexpr static std::string_view TmpFilename = ".fsc-tmp.cpp";
 
@@ -30,6 +31,11 @@ auto doCompilation() -> void
     }
 
     auto code = fsc::compile(Source, stream);
+
+    if (PrintCode) {
+        fmt::print("{}\n", code);
+    }
+
     auto tmp_file = ccl::Raii{
         [&code]() {
             fsc::writeToFile(std::string{TmpFilename}, fsc::FscProgramsHeader, code);
@@ -51,7 +57,8 @@ auto main(int argc, char *argv[]) -> int
         "source,s", po::value(&Source), "Fsc file, which will be compiled")(
         "output,o", po::value(&Output),
         "Name of generated file")("cxx", po::value(&CppCompiler), "C++ compiler")(
-        "cxx-flags", po::value(&CppFlags), "C++ additional flags")("run", "Run compiled program");
+        "cxx-flags", po::value(&CppFlags), "C++ additional flags")("run", "Run compiled program")(
+        "print-code", "Prints translated version of fsc program");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -71,6 +78,8 @@ auto main(int argc, char *argv[]) -> int
     if (vm.count("output") == 0) {
         Output = "a.out";
     }
+
+    PrintCode = vm.count("print-code") != 0;
 
     doCompilation();
 
