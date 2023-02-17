@@ -81,6 +81,9 @@ namespace fsc::func
             return findFunction({real_function_name, signature.arguments, signature.classType});
         }
 
+        signature.classType = cleanupType(signature.classType.getTrueType()).getTrueType();
+        fmt::print("{}\n", signature.classType.getName());
+
         if (!functions.contains(signature.classType)) {
             return checkMagicFunctionOrReturnFailure(
                 signature, FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_NAME);
@@ -96,8 +99,8 @@ namespace fsc::func
         const auto &functions_with_similar_name =
             functions_with_similar_class_id.at(signature.name);
 
-        const auto function_it =
-            std::ranges::find_if(functions_with_similar_name, [&signature](const auto &function) {
+        const auto function_it = std::ranges::find_if(
+            functions_with_similar_name, [&signature](const SharedPtr<ast::Function> &function) {
                 return *function == signature;
             });
 

@@ -3,14 +3,13 @@
 #include "ast/value/variable.hpp"
 #include "function/functions_holder.hpp"
 #include "type/builtin_types.hpp"
+#include <ccl/lex/tokenizer.hpp>
 #include <mutex>
 
 namespace fsc
 {
     using namespace ccl;
     using namespace std::string_literals;
-
-    static constinit std::atomic<ccl::Id> TypeUuidCreator{0};
 
     auto FscType::getVariables() -> FscTypeVariables &
     {
@@ -39,7 +38,21 @@ namespace fsc
 
     auto FscType::exists(const std::string &type_name) -> bool
     {
-        return getIdByTypename().contains(type_name);
+        if (getIdByTypename().contains(type_name)) {
+            return true;
+        }
+
+        if (type_name.contains('<')) {
+            const auto base_name = type_name.substr(0, type_name.find('<'));
+
+            if (exists(base_name)) {
+                auto new_type = registerNewType(type_name, {});
+                func::Functions.map(FscType{base_name}, FscType{new_type});
+                return true;
+            }
+        }
+
+        return false;
     }
 
     auto FscType::ensureTypeExists(const std::string &type_name) -> void
@@ -60,9 +73,10 @@ namespace fsc
         const std::string &name, TypeFlags flags, CreationType creation_type,
         bool add_to_builtin) noexcept(false) -> Id
     {
-        static std::mutex type_registration_mutex;
+        static auto type_registration_mutex = std::mutex{};
+        static constinit auto TypeUuidCreator = std::atomic<ccl::Id>{0};
 
-        if (exists(name)) {
+        if (getIdByTypename().contains(name)) {
             throw std::invalid_argument(fmt::format("Type {} already registered", name));
         }
 

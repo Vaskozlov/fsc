@@ -59,6 +59,7 @@ namespace fsc::ast
     auto Function::analyzeOnCall(const SmallVector<NodePtr> &function_arguments) const -> FscType
     {
         auto remap_types = SmallVector<FscType>{};
+        auto remap_types_names = SmallVector<std::string>{};
 
         for (size_t i = 0; i != arguments.size(); ++i) {
             const auto argument_type = arguments.at(i).getType();
@@ -66,6 +67,7 @@ namespace fsc::ast
             if (argument_type.isTemplate()) {
                 remap_types.emplace_back(argument_type);
                 argument_type.map(function_arguments[i]->getValueType());
+                remap_types_names.emplace_back(argument_type.getTrueType().getName());
             }
         }
 
@@ -79,6 +81,11 @@ namespace fsc::ast
         }
 
         auto returned_type = getReturnType().getTrueType();
+
+        if (magicType == MagicFunctionType::INIT && !remap_types.empty()) {
+            returned_type =
+                FscType{fmt::format("{}<{}>", name, fmt::join(remap_types_names, ", "))};
+        }
 
         for (const auto &remap_type : remap_types) {
             remap_type.unmap();
@@ -150,6 +157,10 @@ namespace fsc::ast
     auto Function::getReturnType() const -> FscType
     {
         if (returnType.index() == 0) {
+            if (magicType == MagicFunctionType::INIT && !templates.empty()) {
+                return FscType{fmt::format("{}<{}>", name, fmt::join(templates, ", "))};
+            }
+
             return std::get<0>(returnType);
         }
 

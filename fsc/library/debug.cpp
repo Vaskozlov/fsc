@@ -7,11 +7,11 @@
 
 namespace fsc
 {
-    static constinit std::atomic<size_t> FileUuid{0};
-
     static auto compileCppProgram(std::string_view cpp_program) -> std::string
     {
-        const auto test_uuid = FileUuid++;
+        static constinit std::atomic<size_t> file_uuid{0};
+
+        const auto test_uuid = file_uuid++;
         const auto cpp_filename = fmt::format("test-{}.cpp", test_uuid);
         const auto compiled_filename = fmt::format("./test-{}", test_uuid);
         const auto output_filename = fmt::format("test-out-{}.txt", test_uuid);
@@ -39,7 +39,9 @@ namespace fsc
 
     static auto compileFscProgram(std::string_view fsc_program) -> std::string
     {
-        const auto test_uuid = FileUuid++;
+        static constinit std::atomic<size_t> file_uuid{0};
+
+        const auto test_uuid = file_uuid++;
         const auto fsc_filename = fmt::format("test-{}.fsc", test_uuid);
         const auto file_cleaner = ccl::Raii{
             []() {

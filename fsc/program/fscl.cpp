@@ -14,6 +14,7 @@ std::string Output;
 std::string CppCompiler = "clang++";
 std::string CppFlags;
 bool PrintCode = false;
+bool PrintTree = false;
 
 constexpr static std::string_view TmpFilename = ".fsc-tmp.cpp";
 
@@ -30,7 +31,7 @@ auto doCompilation() -> void
         return;
     }
 
-    auto code = fsc::compile(Source, stream);
+    auto code = fsc::compile(Source, stream, PrintTree);
 
     if (PrintCode) {
         fmt::print("{}\n", code);
@@ -58,7 +59,8 @@ auto main(int argc, char *argv[]) -> int
         "output,o", po::value(&Output),
         "Name of generated file")("cxx", po::value(&CppCompiler), "C++ compiler")(
         "cxx-flags", po::value(&CppFlags), "C++ additional flags")("run", "Run compiled program")(
-        "print-code", "Prints translated version of fsc program");
+        "print-code",
+        "Prints translated version of fsc program")("print-tree", "Prints fsc program's tree");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -80,6 +82,7 @@ auto main(int argc, char *argv[]) -> int
     }
 
     PrintCode = vm.count("print-code") != 0;
+    PrintTree = vm.count("print-tree") != 0;
 
     doCompilation();
 

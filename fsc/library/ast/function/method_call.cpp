@@ -19,6 +19,7 @@ namespace fsc::ast
     auto MethodCall::analyze() -> void
     {
         expression->analyze();
+        FunctionCall::analyze();
     }
 
     auto MethodCall::print(const std::string &prefix, bool is_left) const -> void

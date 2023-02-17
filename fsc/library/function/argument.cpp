@@ -42,7 +42,7 @@ namespace fsc
         const auto type = argument.getType();
         const auto is_trivially_copiable = type.isTriviallyCopyable();
 
-        if (category == ArgumentCategory::IN || category == ArgumentCategory::INOUT) {
+        if (category == ArgumentCategory::IN) {
             generator << "const ";
         }
 

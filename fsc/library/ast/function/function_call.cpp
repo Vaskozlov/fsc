@@ -60,9 +60,8 @@ namespace fsc::ast
         output << functionName;
 
         if (!functionCallTemplates.empty()) {
-            output << "<";
-            fmt::format_to(output.getBackInserter(), "{}", fmt::join(functionCallTemplates, ", "));
-            output << ">";
+            fmt::format_to(
+                output.getBackInserter(), "<{}>", fmt::join(functionCallTemplates, ", "));
         }
 
         output << '(';

@@ -29,6 +29,11 @@ namespace fsc
         auto codeGen() -> std::string;
         auto analyze() -> void;
 
+        auto print() const -> void
+        {
+            program.print("", false);
+        }
+
         [[nodiscard]] auto getCurrentFunctionReturnType() const -> FscType
         {
             return functionReturnStack.back();

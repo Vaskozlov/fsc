@@ -53,17 +53,6 @@
         }                                                                                          \
     }
 
-#define BUILTIN_VECTOR(VectorType, VectorName, StoredType)                                         \
-    Vector<ast::Function>                                                                          \
-    {                                                                                              \
-        ast::Function(Void, VectorName, VectorType, {}),                                           \
-            ast::Function(                                                                         \
-                VectorType, "at", StoredType, {{"index", UInt32, ArgumentCategory::IN}}),          \
-            ast::Function(                                                                         \
-                VectorType, "push_back", Void, {{"value", StoredType, ArgumentCategory::IN}})      \
-    }
-
-
 namespace fsc
 {
     using namespace ccl;
@@ -105,6 +94,12 @@ namespace fsc
 
     auto initializeCompilerBuiltin() -> void
     {
+        static bool initialized = false;
+
+        if (initialized) {
+            return;
+        }
+
         initializeTypes();
 
         auto AddFunctions = Vector<ast::Function>{
@@ -228,6 +223,8 @@ namespace fsc
              GreaterFunctions, LessEqFunctions, GreaterEqFunctions, LogicalAndFunctions,
              LogicalOrFunctions, EqualFunctions, NotEqualFunctions, AssignFunctions, InputFunctions,
              OutputFunctions, FormatFunctions, StringMethods, MemoryAllocation});
+
+        initialized = true;
     }
 
     namespace func

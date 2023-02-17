@@ -63,7 +63,7 @@ public:
 auto input(String str = {}) -> String
 {
     if (!str.empty()) {
-        fmt::print("{}\n", str);
+        fmt::print("{}", str);
     }
 
     String result;

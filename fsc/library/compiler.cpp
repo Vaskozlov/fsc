@@ -8,7 +8,7 @@ using namespace ccl;
 
 namespace fsc
 {
-    auto compile(std::string_view filename, std::ifstream &stream) -> std::string
+    auto compile(std::string_view filename, std::ifstream &stream, bool print_tree) -> std::string
     {
         initializeCompilerBuiltin();
 
@@ -22,6 +22,11 @@ namespace fsc
         auto visitor = fsc::Visitor{filename, input};
 
         visitor.visit(tree);
+        
+        if (print_tree) {
+            visitor.print();
+        }
+
         visitor.analyze();
 
         return visitor.codeGen();
