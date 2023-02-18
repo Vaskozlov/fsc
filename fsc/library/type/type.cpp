@@ -194,7 +194,7 @@ namespace fsc
         auto type = getTrueType();
 
         if (!getFscClasses().contains(type)) {
-            throw std::runtime_error("Bad attempt to get class");
+            throw std::runtime_error{"Bad attempt to get class"};
         }
 
         return getFscClasses().at(type);
