@@ -9,7 +9,7 @@
 
 namespace fsc::ast
 {
-    class Class : public NodeWrapper<NodeType::CLASS, SemicolonNeed::DO_NOT_NEED, Body>
+    class Class final : public NodeWrapper<NodeType::CLASS, SemicolonNeed::DO_NOT_NEED, Body>
     {
         ccl::Map<std::string, FscType> constructionMemberVariables;
         ccl::SmallVector<std::string> templates;

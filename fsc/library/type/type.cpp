@@ -3,7 +3,6 @@
 #include "ast/value/variable.hpp"
 #include "function/functions_holder.hpp"
 #include "type/builtin_types.hpp"
-#include <ccl/lex/tokenizer.hpp>
 #include <mutex>
 
 namespace fsc
@@ -11,10 +10,47 @@ namespace fsc
     using namespace ccl;
     using namespace std::string_literals;
 
-    auto FscType::getVariables() -> FscTypeVariables &
+    static constinit auto TypeUuidCreator = std::atomic<ccl::Id>{0};
+
+    CCL_INLINE auto FscType::getVariables() noexcept -> FscTypeVariables &
     {
         static auto variables = FscTypeVariables{};
         return variables;
+    }
+
+    CCL_INLINE auto FscType::getTypenameById() noexcept -> TypenameByIdStorage &
+    {
+        return getVariables().typenameById;
+    }
+
+    CCL_INLINE auto FscType::getIdByTypename() noexcept -> IdByTypenameStorage &
+    {
+        return getVariables().idByTypename;
+    }
+
+    CCL_INLINE auto FscType::getTypeFlags() noexcept -> TypeFlagsStorage &
+    {
+        return getVariables().typeFlags;
+    }
+
+    CCL_INLINE auto FscType::getTypesMemberVariables() noexcept -> TypesMemberVariablesStorage &
+    {
+        return getVariables().typeMemberVariables;
+    }
+
+    CCL_INLINE auto FscType::getTemplatedTypes() noexcept -> TemplatedTypesStorage &
+    {
+        return getVariables().templateTypes;
+    }
+
+    CCL_INLINE auto FscType::getRemapTypes() noexcept -> RemapTypesStorage &
+    {
+        return getVariables().remapTypes;
+    }
+
+    CCL_INLINE auto FscType::getFscClasses() noexcept -> FscClasses &
+    {
+        return getVariables().fscClasses;
     }
 
     FscType::FscType(const std::string &type_name) noexcept(false)
@@ -55,13 +91,41 @@ namespace fsc
         return false;
     }
 
+    auto FscType::registerInstantiatedTemplate(
+        const std::string &full_name, const std::string &base_name) -> void
+    {
+        if (!full_name.contains('<')) {
+            throw std::invalid_argument{"Name in not a valid template"};
+        }
+
+        if (!getIdByTypename().contains(base_name)) {
+            throw std::invalid_argument{fmt::format("{} is not a valid type", base_name)};
+        }
+    }
+
+    auto FscType::registerInstantiatedTemplate(const std::string &full_name) -> void
+    {
+        return registerInstantiatedTemplate(full_name, full_name.substr(0, full_name.find('<')));
+    }
+
+    auto FscType::templateTypeExist(const std::string &name) -> bool
+    {
+        if (!name.contains('<')) {
+            return false;
+        }
+
+        const auto base_name = name.substr(0, name.find('<'));
+
+        if (exists(base_name)) {}
+    }
+
     auto FscType::ensureTypeExists(const std::string &type_name) -> void
     {
         if (exists(type_name)) {
             return;
         }
 
-        throw FscException(fmt::format("Type {} not found", type_name));
+        throw FscException{fmt::format("Type {} not found", type_name)};
     }
 
     auto FscType::weakFreeTemplateType(const std::string &type_name) -> void
@@ -70,36 +134,27 @@ namespace fsc
     }
 
     auto FscType::registerNewType(
-        const std::string &name, TypeFlags flags, CreationType creation_type,
-        bool add_to_builtin) noexcept(false) -> Id
+        const std::string &name, TypeFlags flags, CreationType creation_type) noexcept(false) -> Id
     {
         static auto type_registration_mutex = std::mutex{};
-        static constinit auto TypeUuidCreator = std::atomic<ccl::Id>{0};
 
         if (getIdByTypename().contains(name)) {
-            throw std::invalid_argument(fmt::format("Type {} already registered", name));
+            throw std::invalid_argument{fmt::format("Type {} already registered", name)};
         }
 
         auto type_id = TypeUuidCreator.fetch_add(1U, std::memory_order_relaxed);
+        auto scope_lock = std::scoped_lock{type_registration_mutex};
 
-        {
-            auto scope_lock = std::scoped_lock{type_registration_mutex};
+        getTypenameById().emplace(type_id, name);
+        getIdByTypename().emplace(name, type_id);
+        getTypeFlags().emplace(type_id, flags);
 
-            getTypenameById().emplace(type_id, name);
-            getIdByTypename().emplace(name, type_id);
-            getTypeFlags().emplace(type_id, flags);
-
-            if (creation_type != CreationType::DEFAULT) {
-                getTemplatedTypes().emplace(name);
-            }
-
-            if (creation_type == CreationType::WEAK_TEMPLATE) {
-                weakFreeTemplateType(name);
-            }
+        if (creation_type != CreationType::DEFAULT) {
+            getTemplatedTypes().emplace(name);
         }
 
-        if (add_to_builtin) {
-            addTypeToBuiltinFunctions(FscType{type_id});
+        if (creation_type == CreationType::WEAK_TEMPLATE) {
+            weakFreeTemplateType(name);
         }
 
         return type_id;
@@ -111,18 +166,6 @@ namespace fsc
         auto value_type = FscType{fsc_class.getName()};
 
         getFscClasses().emplace(value_type, std::move(new_fsc_class));
-    }
-
-    auto FscType::addTypeToBuiltinFunctions(FscType type) -> void
-    {
-        auto vector_name = fmt::format("Vector<{}>", type.getName());
-        auto vector_id = FscType{registerNewType(vector_name, {}, CreationType::DEFAULT, false)};
-
-        func::Functions.registerFunction(ast::Function(Void, vector_name, vector_id, {}));
-        func::Functions.registerFunction(
-            ast::Function(vector_id, "at", type, {{"index", UInt32, ArgumentCategory::IN}}));
-        func::Functions.registerFunction(
-            ast::Function(vector_id, "push_back", Void, {{"value", type, ArgumentCategory::IN}}));
     }
 
     auto FscType::isTriviallyCopyable() const noexcept -> bool

@@ -7,7 +7,6 @@
 #include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
 #include <compare>
-#include <concepts>
 
 namespace fsc
 {
@@ -31,7 +30,7 @@ namespace fsc
     template<ccl::ConstString String, typename T>
     struct FscTypeWrapper;
 
-    class CCL_TRIVIAL_ABI FscType// NOLINT (non virtual destructor)
+    class CCL_TRIVIAL_ABI FscType
     {
     private:
         using TypenameByIdStorage = ccl::Map<ccl::Id, std::string>;
@@ -53,42 +52,15 @@ namespace fsc
             FscClasses fscClasses;
         };
 
-        static auto getVariables() -> FscTypeVariables &;
+        static auto getVariables() noexcept -> FscTypeVariables &;
 
-        static auto getTypenameById() -> TypenameByIdStorage &
-        {
-            return getVariables().typenameById;
-        }
-
-        static auto getIdByTypename() -> IdByTypenameStorage &
-        {
-            return getVariables().idByTypename;
-        }
-
-        static auto getTypeFlags() -> TypeFlagsStorage &
-        {
-            return getVariables().typeFlags;
-        }
-
-        static auto getTypesMemberVariables() -> TypesMemberVariablesStorage &
-        {
-            return getVariables().typeMemberVariables;
-        }
-
-        static auto getTemplatedTypes() -> TemplatedTypesStorage &
-        {
-            return getVariables().templateTypes;
-        }
-
-        static auto getRemapTypes() -> RemapTypesStorage &
-        {
-            return getVariables().remapTypes;
-        }
-
-        static auto getFscClasses() -> FscClasses &
-        {
-            return getVariables().fscClasses;
-        }
+        static auto getTypenameById() noexcept -> TypenameByIdStorage &;
+        static auto getIdByTypename() noexcept -> IdByTypenameStorage &;
+        static auto getTypeFlags() noexcept -> TypeFlagsStorage &;
+        static auto getTypesMemberVariables() noexcept -> TypesMemberVariablesStorage &;
+        static auto getTemplatedTypes() noexcept -> TemplatedTypesStorage &;
+        static auto getRemapTypes() noexcept -> RemapTypesStorage &;
+        static auto getFscClasses() noexcept -> FscClasses &;
 
         ccl::Id typeId{};
 
@@ -113,13 +85,14 @@ namespace fsc
 
         auto operator<=>(const FscType &other) const noexcept -> std::weak_ordering = default;
 
-        auto map(FscType target_type) const -> void;
-        auto unmap() const noexcept -> void;
-
         [[nodiscard]] auto getId() const noexcept -> ccl::Id
         {
             return typeId;
         }
+
+        auto map(FscType target_type) const -> void;
+
+        auto unmap() const noexcept -> void;
 
         [[nodiscard]] auto isTemplate() const noexcept -> bool;
 
@@ -147,13 +120,18 @@ namespace fsc
 
         static auto registerNewType(
             const std::string &name, TypeFlags flags,
-            CreationType creation_type = CreationType::DEFAULT,
-            bool add_to_builtin = true) noexcept(false) -> ccl::Id;
+            CreationType creation_type = CreationType::DEFAULT) noexcept(false) -> ccl::Id;
 
         static auto registerFscClass(ast::NodePtr new_fsc_class) -> void;
 
     private:
-        static auto addTypeToBuiltinFunctions(FscType type) -> void;
+        static auto templateTypeExist(const std::string &name) -> bool;
+
+        static auto
+            registerInstantiatedTemplate(const std::string &full_name, const std::string &base_name)
+                -> void;
+
+        static auto registerInstantiatedTemplate(const std::string &full_name) -> void;
     };
 
     class FscTypeInterface : public FscType

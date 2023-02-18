@@ -14,9 +14,11 @@ Checks: "*,
         -misc-forwarding-reference-overload,
         -misc-non-private-member-variables-in-classes,
         -cppcoreguidelines-non-private-member-variables-in-classes,
+        -cppcoreguidelines-avoid-non-const-global-variables,
         -misc-use-anonymous-namespace,
         -concurrency-mt-unsafe,
         -cert-env33-c,
+        -cert-err58-cpp,
 "
 WarningsAsErrors: ''
 HeaderFilterRegex: ''

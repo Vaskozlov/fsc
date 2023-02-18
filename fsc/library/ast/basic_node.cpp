@@ -9,15 +9,15 @@ using namespace std::string_view_literals;
 
 namespace fsc::ast
 {
-    std::string SourceFile;              // NOLINT
-    ccl::Vector<std::string> SourceLines;// NOLINT
+    std::string SourceFile;
+    ccl::Vector<std::string> SourceLines;
 
     static auto operator*(std::string_view str, size_t repeat) -> std::string
     {
         auto result = std::string{};
         result.reserve(str.size() * repeat);
 
-        for (auto i = as<size_t>(0); i != repeat; ++i) {
+        for (size_t i = 0; i != repeat; ++i) {
             result.append(str);
         }
 
@@ -37,6 +37,24 @@ namespace fsc::ast
     auto Node::setSemicolonNeed(SemicolonNeed need_semicolon) noexcept -> void
     {
         needSemicolon = need_semicolon;
+    }
+
+    auto Node::getStart() const noexcept -> ccl::Optional<antlr4::Token *>
+    {
+        if (start == nullptr) {
+            return std::nullopt;
+        }
+
+        return start;
+    }
+
+    auto Node::getStop() const noexcept -> ccl::Optional<antlr4::Token *>
+    {
+        if (stop == nullptr) {
+            return std::nullopt;
+        }
+
+        return stop;
     }
 
     auto Node::getPrintingPrefix(const std::string &prefix, bool is_left) -> std::string
@@ -90,6 +108,9 @@ namespace fsc::ast
     {
         throw std::runtime_error{"getValueType() is not implemented"};
     }
+
+    auto Node::optimize(OptimizationLevel /* unused */) -> void
+    {}
 
     auto operator<<(codegen::BasicCodeGenerator &generator, Node &node)
         -> codegen::BasicCodeGenerator &

@@ -36,7 +36,6 @@ namespace fsc::ast
         FUNCTION,
         METHOD_CALL,
         FUNCTION_CALL,
-        CONSTRUCTOR,
         BODY,
         BINARY_OPERATOR,
         PROGRAM,
@@ -96,8 +95,7 @@ namespace fsc::ast
 
         virtual auto analyze() -> void = 0;
 
-        virtual auto optimize(OptimizationLevel /* unused */) -> void
-        {}
+        virtual auto optimize(OptimizationLevel /* unused */) -> void;
 
         auto setStart(antlr4::Token *rule_start) noexcept -> void
         {
@@ -109,23 +107,8 @@ namespace fsc::ast
             stop = rule_stop;
         }
 
-        [[nodiscard]] auto getStart() const noexcept -> ccl::Optional<antlr4::Token *>
-        {
-            if (start == nullptr) {
-                return std::nullopt;
-            }
-
-            return start;
-        }
-
-        [[nodiscard]] auto getStop() const noexcept -> ccl::Optional<antlr4::Token *>
-        {
-            if (stop == nullptr) {
-                return std::nullopt;
-            }
-
-            return stop;
-        }
+        [[nodiscard]] auto getStart() const noexcept -> ccl::Optional<antlr4::Token *>;
+        [[nodiscard]] auto getStop() const noexcept -> ccl::Optional<antlr4::Token *>;
 
         auto reportAboutError(const std::exception &exception) const -> void;
 

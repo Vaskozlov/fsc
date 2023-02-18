@@ -82,7 +82,6 @@ namespace fsc::func
         }
 
         signature.classType = cleanupType(signature.classType.getTrueType()).getTrueType();
-        fmt::print("{}\n", signature.classType.getName());
 
         if (!functions.contains(signature.classType)) {
             return checkMagicFunctionOrReturnFailure(

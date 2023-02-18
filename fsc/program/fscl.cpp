@@ -9,12 +9,13 @@
 
 namespace po = boost::program_options;
 
+bool PrintCode = false;
+bool PrintTree = false;
+
 std::string Source;
 std::string Output;
 std::string CppCompiler = "clang++";
 std::string CppFlags;
-bool PrintCode = false;
-bool PrintTree = false;
 
 constexpr static std::string_view TmpFilename = ".fsc-tmp.cpp";
 
@@ -81,8 +82,8 @@ auto main(int argc, char *argv[]) -> int
         Output = "a.out";
     }
 
-    PrintCode = vm.count("print-code") != 0;
-    PrintTree = vm.count("print-tree") != 0;
+    PrintCode = (vm.count("print-code") != 0);
+    PrintTree = (vm.count("print-tree") != 0);
 
     doCompilation();
 

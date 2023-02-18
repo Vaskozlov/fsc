@@ -28,9 +28,9 @@ namespace fsc
         {
             if constexpr (std::is_same_v<FscFloat32, T>) {
                 fmt::format_to(output.getBackInserter(), "{:.8e}F", value.value);
-            } else if constexpr (std::is_same_v<FscFloat32, T>) {
+            } else if constexpr (std::is_same_v<FscFloat64, T>) {
                 fmt::format_to(output.getBackInserter(), "{:.15e}", value.value);
-            } else if constexpr (std::is_same_v<FscFloat32, T>) {
+            } else if constexpr (std::is_same_v<FscString, T>) {
                 fmt::format_to(output.getBackInserter(), "String{{{}}}", value.value);
             } else {
                 output << value.value;
