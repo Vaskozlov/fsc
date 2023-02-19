@@ -2,7 +2,7 @@
 #define FSC_BUILTIN_TYPES_HPP
 
 #include "ccl/string_view.hpp"
-#include "type/type.hpp"
+#include "type/type_manager.hpp"
 #include <ccl/ccl.hpp>
 #include <ccl/const_string.hpp>
 #include <utility>
@@ -33,7 +33,8 @@ namespace fsc
 
         static auto initialize(CreationType creation_type) -> void
         {
-            typeId = FscType::registerNewType(static_cast<std::string>(String), {}, creation_type);
+            typeId = TypeManager::createNewType(static_cast<std::string>(String), {}, creation_type)
+                         .getId();
         }
     };
 
@@ -45,7 +46,8 @@ namespace fsc
 
         static auto initialize(CreationType creation_type) -> void
         {
-            typeId = FscType::registerNewType(static_cast<std::string>(String), {}, creation_type);
+            typeId = TypeManager::createNewType(static_cast<std::string>(String), {}, creation_type)
+                         .getId();
         }
 
         T value;

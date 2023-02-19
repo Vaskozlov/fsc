@@ -27,8 +27,8 @@ namespace fsc::ast
         std::string class_name, Visitor &visitor, BodyContext *body_context,
         TemplateContext *template_context)
       : name{std::move(class_name)}
+      , fscType{TypeManager::createNewType(name, {.isTriviallyCopyable = false})}
     {
-        FscType::registerNewType(name, {.isTriviallyCopyable = false});
         parseTemplates(template_context);
 
         const auto templates_map = ccl::Raii{
@@ -56,14 +56,14 @@ namespace fsc::ast
     auto Class::mapTemplates() const -> void
     {
         for (const auto &template_to_map : templates) {
-            FscType::registerNewType(template_to_map, {}, CreationType::STRONG_TEMPLATE);
+            TypeManager::createNewType(template_to_map, {}, CreationType::STRONG_TEMPLATE);
         }
     }
 
     auto Class::unmapTemplates() const -> void
     {
         for (const auto &template_name : templates) {
-            FscType::weakFreeTemplateType(template_name);
+            TypeManager::hideTemplate(template_name);
         }
     }
 

@@ -41,7 +41,7 @@ namespace fsc
 
         auto constructed_class =
             makeShared<ast::Class>(std::move(name), *this, body_context, templates);
-        FscType::registerFscClass(constructed_class);
+        TypeManager::addFscClass(constructed_class);
 
         return constructed_class;
     }

@@ -52,7 +52,7 @@ namespace fsc::ast
         const auto value_type = getValueType();
         const auto initializer_type = initializer->getValueType();
 
-        if (value_type.getTrueType() != initializer_type.getTrueType()) {
+        if (value_type != initializer_type) {
             throw FscException(
                 "unable to assign variable, because type of variable does not match with the "
                 "initializer return type");

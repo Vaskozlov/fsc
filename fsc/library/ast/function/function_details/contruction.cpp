@@ -49,7 +49,7 @@ namespace fsc::ast
             },
             [this]() {
                 for (const auto &template_name : templates) {
-                    FscType::weakFreeTemplateType(template_name);
+                    TypeManager::hideTemplate(template_name);
                 }
             }};
 
@@ -124,7 +124,7 @@ namespace fsc::ast
 
         for (auto *function_template : children | sv::filter(CommaFilter)) {
             templates.emplace_back(function_template->getText());
-            FscType::registerNewType(
+            TypeManager::createNewType(
                 function_template->getText(), {}, CreationType::STRONG_TEMPLATE);
         }
     }

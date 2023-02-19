@@ -14,6 +14,7 @@ namespace fsc::ast
         ccl::Map<std::string, FscType> constructionMemberVariables;
         ccl::SmallVector<std::string> templates;
         std::string name;
+        FscType fscType{Void};
 
     public:
         explicit Class(
@@ -29,6 +30,11 @@ namespace fsc::ast
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
         auto addNode(NodePtr node) -> void final;
+
+        [[nodiscard]] auto getType() const noexcept -> FscType
+        {
+            return fscType;
+        }
 
         [[nodiscard]] auto getName() const noexcept -> const std::string &
         {

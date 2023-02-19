@@ -42,7 +42,7 @@ namespace fsc
         {
             const auto is_template = type.isTemplate();
 
-            return type.getTrueType() == other.getTrueType() || is_template;
+            return type == other || is_template;
         }
 
         [[nodiscard]] auto operator==(const Argument &other) const noexcept -> bool

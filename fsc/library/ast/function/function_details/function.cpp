@@ -58,16 +58,16 @@ namespace fsc::ast
 
     auto Function::analyzeOnCall(const SmallVector<NodePtr> &function_arguments) const -> FscType
     {
-        auto remap_types = SmallVector<FscType>{};
         auto remap_types_names = SmallVector<std::string>{};
+        auto remap_types_lock = SmallVector<decltype(TypeManager::acquireTypeMap(Void, Void))>{};
 
         for (size_t i = 0; i != arguments.size(); ++i) {
             const auto argument_type = arguments.at(i).getType();
 
             if (argument_type.isTemplate()) {
-                remap_types.emplace_back(argument_type);
-                argument_type.map(function_arguments[i]->getValueType());
-                remap_types_names.emplace_back(argument_type.getTrueType().getName());
+                remap_types_lock.emplace_back(TypeManager::acquireTypeMap(
+                    argument_type, function_arguments.at(i)->getValueType()));
+                remap_types_names.emplace_back(TypeManager::getTypename(argument_type));
             }
         }
 
@@ -80,15 +80,11 @@ namespace fsc::ast
             functionBody->analyze();
         }
 
-        auto returned_type = getReturnType().getTrueType();
+        auto returned_type = getReturnType();
 
-        if (magicType == MagicFunctionType::INIT && !remap_types.empty()) {
+        if (magicType == MagicFunctionType::INIT && !remap_types_lock.empty()) {
             returned_type =
                 FscType{fmt::format("{}<{}>", name, fmt::join(remap_types_names, ", "))};
-        }
-
-        for (const auto &remap_type : remap_types) {
-            remap_type.unmap();
         }
 
         return returned_type;
@@ -117,7 +113,7 @@ namespace fsc::ast
         if (nodes.at(length - 4)->getText() == "->") {
             const auto type_name = nodes[length - 3]->getText();
 
-            FscType::ensureTypeExists(type_name);
+            TypeManager::ensureTypeExists(type_name);
             returnType = FscType{type_name};
         } else {
             returnType = Auto;
@@ -140,7 +136,7 @@ namespace fsc::ast
         const auto type_name = children.at(1)->getText();
         const auto arg_name = children.at(2)->getText();
 
-        FscType::ensureTypeExists(type_name);
+        TypeManager::ensureTypeExists(type_name);
 
         return {arg_name, FscType{type_name}, ArgumentCategories.at(category)};
     }
