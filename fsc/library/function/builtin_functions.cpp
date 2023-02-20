@@ -53,6 +53,12 @@
         }                                                                                          \
     }
 
+#define BUILTIN_EMPTY_CONSTRUCTOR(REPR, TYPE)                                                      \
+    {                                                                                              \
+        Void, #REPR, FscType{TYPE},                                                                \
+        {}                                                                                         \
+    }
+
 namespace fsc
 {
     using namespace ccl;
@@ -178,24 +184,29 @@ namespace fsc
         };
 
         auto Constructors = Vector<ast::Function>{
-            BUILTIN_CONVERT(f32, Float32, Int32),   BUILTIN_CONVERT(f32, Float32, Float32),
-            BUILTIN_CONVERT(f32, Float32, Int64),   BUILTIN_CONVERT(f32, Float32, UInt32),
-            BUILTIN_CONVERT(f32, Float32, UInt64),  BUILTIN_CONVERT(f32, Float32, Float64),
-            BUILTIN_CONVERT(f64, Float64, Float64), BUILTIN_CONVERT(f64, Float64, Int32),
-            BUILTIN_CONVERT(f64, Float64, Int64),   BUILTIN_CONVERT(f64, Float64, UInt32),
-            BUILTIN_CONVERT(f64, Float64, UInt64),  BUILTIN_CONVERT(f64, Float64, Float32),
-            BUILTIN_CONVERT(i32, Int32, Int64),     BUILTIN_CONVERT(i32, Int32, Int32),
-            BUILTIN_CONVERT(i32, Int32, UInt32),    BUILTIN_CONVERT(i32, Int32, UInt64),
-            BUILTIN_CONVERT(i32, Int32, Float32),   BUILTIN_CONVERT(i32, Int32, Float64),
-            BUILTIN_CONVERT(i64, Int64, Int32),     BUILTIN_CONVERT(i64, Int64, Int64),
-            BUILTIN_CONVERT(i64, Int64, UInt32),    BUILTIN_CONVERT(i64, Int64, UInt64),
-            BUILTIN_CONVERT(i64, Int64, Float32),   BUILTIN_CONVERT(i64, Int64, Float64),
-            BUILTIN_CONVERT(u32, UInt32, Int32),    BUILTIN_CONVERT(u32, UInt32, UInt32),
-            BUILTIN_CONVERT(u32, UInt32, Int64),    BUILTIN_CONVERT(u32, UInt32, UInt64),
-            BUILTIN_CONVERT(u32, UInt32, Float32),  BUILTIN_CONVERT(u32, UInt32, Float64),
-            BUILTIN_CONVERT(u64, UInt64, Int32),    BUILTIN_CONVERT(u64, UInt64, UInt64),
-            BUILTIN_CONVERT(u64, UInt64, Int64),    BUILTIN_CONVERT(u64, UInt64, UInt32),
-            BUILTIN_CONVERT(u64, UInt64, Float32),  BUILTIN_CONVERT(u64, UInt64, Float64),
+            BUILTIN_EMPTY_CONSTRUCTOR(i32, Int32),     BUILTIN_EMPTY_CONSTRUCTOR(i64, Int64),
+            BUILTIN_EMPTY_CONSTRUCTOR(u32, UInt32),    BUILTIN_EMPTY_CONSTRUCTOR(u64, UInt64),
+            BUILTIN_EMPTY_CONSTRUCTOR(f32, Float32),   BUILTIN_EMPTY_CONSTRUCTOR(f64, Float64),
+            BUILTIN_EMPTY_CONSTRUCTOR(bool, Bool),     BUILTIN_EMPTY_CONSTRUCTOR(char, Char),
+            BUILTIN_EMPTY_CONSTRUCTOR(String, String), BUILTIN_CONVERT(f32, Float32, Int32),
+            BUILTIN_CONVERT(f32, Float32, Float32),    BUILTIN_CONVERT(f32, Float32, Int64),
+            BUILTIN_CONVERT(f32, Float32, UInt32),     BUILTIN_CONVERT(f32, Float32, UInt64),
+            BUILTIN_CONVERT(f32, Float32, Float64),    BUILTIN_CONVERT(f64, Float64, Float64),
+            BUILTIN_CONVERT(f64, Float64, Int32),      BUILTIN_CONVERT(f64, Float64, Int64),
+            BUILTIN_CONVERT(f64, Float64, UInt32),     BUILTIN_CONVERT(f64, Float64, UInt64),
+            BUILTIN_CONVERT(f64, Float64, Float32),    BUILTIN_CONVERT(i32, Int32, Int64),
+            BUILTIN_CONVERT(i32, Int32, Int32),        BUILTIN_CONVERT(i32, Int32, UInt32),
+            BUILTIN_CONVERT(i32, Int32, UInt64),       BUILTIN_CONVERT(i32, Int32, Float32),
+            BUILTIN_CONVERT(i32, Int32, Float64),      BUILTIN_CONVERT(i64, Int64, Int32),
+            BUILTIN_CONVERT(i64, Int64, Int64),        BUILTIN_CONVERT(i64, Int64, UInt32),
+            BUILTIN_CONVERT(i64, Int64, UInt64),       BUILTIN_CONVERT(i64, Int64, Float32),
+            BUILTIN_CONVERT(i64, Int64, Float64),      BUILTIN_CONVERT(u32, UInt32, Int32),
+            BUILTIN_CONVERT(u32, UInt32, UInt32),      BUILTIN_CONVERT(u32, UInt32, Int64),
+            BUILTIN_CONVERT(u32, UInt32, UInt64),      BUILTIN_CONVERT(u32, UInt32, Float32),
+            BUILTIN_CONVERT(u32, UInt32, Float64),     BUILTIN_CONVERT(u64, UInt64, Int32),
+            BUILTIN_CONVERT(u64, UInt64, UInt64),      BUILTIN_CONVERT(u64, UInt64, Int64),
+            BUILTIN_CONVERT(u64, UInt64, UInt32),      BUILTIN_CONVERT(u64, UInt64, Float32),
+            BUILTIN_CONVERT(u64, UInt64, Float64),
         };
 
         auto InputFunctions = Vector<ast::Function>{
@@ -216,7 +227,11 @@ namespace fsc
                                   {String, "toF32", Float32, {}}, {String, "toF64", Float64, {}}};
 
         auto MemoryAllocation = Vector<ast::Function>{
-            {Void, "construct", Template1, {{"number", UInt32, ArgumentCategory::IN}}, {"T1"}}};
+            {Void,
+             "construct",
+             Template1,
+             {{"number", UInt32, ArgumentCategory::IN}},
+             {Template1}}};
 
         func::Functions.registerFunctions(
             {Constructors, AddFunctions, SubFunctions, MulFunctions, DivFunctions, LessFunctions,

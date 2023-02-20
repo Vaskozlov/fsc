@@ -23,7 +23,8 @@ namespace fsc::ast
             NodePtr variable_initializer);
 
         VariableDefinition(
-            std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags);
+            std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags,
+            Visitor &visitor, antlr4::ParserRuleContext *ctx);
 
         VariableDefinition(Visitor &visitor, VariableDefinitionContext *ctx);
 

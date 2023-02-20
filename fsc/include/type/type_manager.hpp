@@ -46,6 +46,10 @@ namespace fsc
 
         [[nodiscard]] static auto isTemplate(FscType type) noexcept -> bool;
 
+        [[nodiscard]] static auto isRemapTemplate(FscType type) noexcept -> bool;
+
+        [[nodiscard]] static auto isMap(FscType type) -> void;
+
         [[nodiscard]] static auto isTriviallyCopyable(FscType type) noexcept -> bool;
 
         [[nodiscard]] static auto exists(ccl::Id type_id) -> bool;

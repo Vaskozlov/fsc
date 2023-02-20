@@ -1,7 +1,7 @@
 #include "ast/function/function.hpp"
 #include "ast/function/magic_methods_table.hpp"
-#include <type/builtin_types.hpp>
-#include <type/type.hpp>
+#include "type/builtin_types.hpp"
+#include "type/type.hpp"
 
 using namespace fsc::ast::magic;
 

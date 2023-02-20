@@ -23,17 +23,17 @@ namespace fsc::ast
         return !text.empty() && text[0] != '\n';
     }
 
-    Class::Class(
-        std::string class_name, Visitor &visitor, BodyContext *body_context,
-        TemplateContext *template_context)
+    Class::Class(std::string class_name)
       : name{std::move(class_name)}
       , fscType{TypeManager::createNewType(name, {.isTriviallyCopyable = false})}
-    {
-        parseTemplates(template_context);
+    {}
 
+    auto Class::finishClass(
+        Visitor &visitor, BodyContext *body_context, TemplateContext *template_context) -> void
+    {
         const auto templates_map = ccl::Raii{
-            [this]() {
-                mapTemplates();
+            [this, template_context]() {
+                parseTemplates(template_context);
             },
             [this]() {
                 unmapTemplates();
@@ -53,17 +53,10 @@ namespace fsc::ast
         }
     }
 
-    auto Class::mapTemplates() const -> void
-    {
-        for (const auto &template_to_map : templates) {
-            TypeManager::createNewType(template_to_map, {}, CreationType::STRONG_TEMPLATE);
-        }
-    }
-
     auto Class::unmapTemplates() const -> void
     {
-        for (const auto &template_name : templates) {
-            TypeManager::hideTemplate(template_name);
+        for (const auto &class_template : templates) {
+            TypeManager::hideTemplate(class_template.getName());
         }
     }
 
@@ -76,7 +69,8 @@ namespace fsc::ast
         const auto &children = template_context->children.at(1)->children;
 
         for (auto *function_template : children | sv::filter(CommaFilter)) {
-            templates.emplace_back(function_template->getText());
+            templates.emplace_back(TypeManager::createNewType(
+                function_template->getText(), {}, CreationType::STRONG_TEMPLATE));
         }
     }
 

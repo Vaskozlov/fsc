@@ -73,7 +73,13 @@ namespace fsc::func
     auto FunctionsHolder::findFunction(SignatureView signature) const ->
         typename FunctionsList::const_iterator
     {
-        // TODO: bugs can be here
+        if (TypeManager::exists(signature.name) &&
+            FscType{signature.name}.getName() != signature.name) {
+            const auto function_to_fsc_type = FscType{signature.name};
+            const auto real_function_name = function_to_fsc_type.getName();
+
+            return findFunction({real_function_name, signature.arguments, signature.classType});
+        }
 
         signature.classType = cleanupType(signature.classType);
 
@@ -139,7 +145,7 @@ namespace fsc::func
     auto FunctionsHolder::throwUnableToFindFunctionWithGivenName(SignatureView signature) noexcept(
         false) -> void
     {
-        throw FscException{fmt::format("function with name {} not found", signature.name)};
+        throw std::runtime_error{fmt::format("function with name {} not found", signature.name)};
     }
 
     auto FunctionsHolder::throwUnableToFindFunctionWithGivenParameters(

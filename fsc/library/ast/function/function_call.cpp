@@ -80,13 +80,13 @@ namespace fsc::ast
     auto FunctionCall::analyze() -> void
     {
         auto fn = getFunction();
-        returnedType = fn->analyzeOnCall(arguments);
+        returnedType = fn->analyzeOnCall(arguments, functionCallTemplates);
     }
 
     auto FunctionCall::getValueType() -> FscType
     {
         auto fn = getFunction();
-        returnedType = fn->analyzeOnCall(arguments);
+        returnedType = fn->analyzeOnCall(arguments, functionCallTemplates);
 
         return returnedType;
     }

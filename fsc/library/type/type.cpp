@@ -45,6 +45,11 @@ namespace fsc
         return TypeManager::isTemplate(*this);
     }
 
+      auto FscType::isRemapTemplate() const noexcept -> bool
+    {
+        return TypeManager::isRemapTemplate(*this);
+    }
+
     auto FscType::isTriviallyCopyable() const noexcept -> bool
     {
         return TypeManager::isTriviallyCopyable(*this);

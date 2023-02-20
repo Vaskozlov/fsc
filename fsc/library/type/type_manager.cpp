@@ -110,8 +110,9 @@ namespace fsc
                 fmt::format("Unable to map {} more than once at the same time", getTypename(key))};
         }
 
+        getTemplatedTypes().emplace(key);
+        getTypeByName().emplace(key.getName(), value);
         getRemapTypes().emplace(key.getId(), value);
-        getTypeByName().emplace(getTypename(key), value);
     }
 
     auto TypeManager::unmap(FscType key) -> void
@@ -149,8 +150,12 @@ namespace fsc
 
     auto TypeManager::isTemplate(FscType type) noexcept -> bool
     {
-        type = getTrueType(type);
         return getTemplatedTypes().contains(type);
+    }
+
+    auto TypeManager::isRemapTemplate(FscType type) noexcept -> bool
+    {
+        return isTemplate(type) && getTrueType(type) != type;
     }
 
     auto TypeManager::isTriviallyCopyable(FscType type) noexcept -> bool
@@ -249,6 +254,7 @@ namespace fsc
         getTypeByName().emplace(type_name, type);
         getTypenameById().emplace(type.getId(), type_name);
         getTypeFlags().emplace(type, type_flags);
+        getTypesMemberVariables().insert({type, {}});
 
         postCreationSetupForTemplates(type, creation_type);
 

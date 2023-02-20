@@ -56,15 +56,24 @@ namespace fsc::ast
         }
     }
 
-    auto Function::analyzeOnCall(const SmallVector<NodePtr> &function_arguments) const -> FscType
+    auto Function::analyzeOnCall(
+        const SmallVector<NodePtr> &function_arguments,
+        const ccl::SmallVector<FscType> &call_templates) -> FscType
     {
         auto remap_types_names = SmallVector<std::string>{};
         auto remap_types_lock = SmallVector<decltype(TypeManager::acquireTypeMap(Void, Void))>{};
 
+        for (auto i = ccl::as<size_t>(0); i != std::min(templates.size(), call_templates.size());
+             ++i) {
+            remap_types_lock.emplace_back(
+                TypeManager::acquireTypeMap(templates[i], call_templates[i]));
+            remap_types_names.emplace_back(TypeManager::getTypename(templates[i]));
+        }
+
         for (size_t i = 0; i != arguments.size(); ++i) {
             const auto argument_type = arguments.at(i).getType();
 
-            if (argument_type.isTemplate()) {
+            if (argument_type.isTemplate() && !argument_type.isRemapTemplate()) {
                 remap_types_lock.emplace_back(TypeManager::acquireTypeMap(
                     argument_type, function_arguments.at(i)->getValueType()));
                 remap_types_names.emplace_back(TypeManager::getTypename(argument_type));
@@ -77,6 +86,10 @@ namespace fsc::ast
             fsc_class.analyzeOnConstruction();
 
         } else if (!builtinFunction) {
+            if (!templates.empty()) {
+                completeBody(*visitorPtr);
+            }
+
             functionBody->analyze();
         }
 
@@ -93,7 +106,10 @@ namespace fsc::ast
     auto Function::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}Function: {}\n", getPrintingPrefix(prefix, is_left), name);
-        functionBody->print(expandPrefix(prefix, is_left));
+
+        if (functionBody != nullptr) {
+            functionBody->print(expandPrefix(prefix, is_left));
+        }
     }
 
     auto Function::argumentToString(codegen::BasicCodeGenerator &output, Argument &arg) -> void

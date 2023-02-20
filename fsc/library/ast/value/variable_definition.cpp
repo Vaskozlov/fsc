@@ -26,10 +26,15 @@ namespace fsc::ast
     {}
 
     VariableDefinition::VariableDefinition(
-        std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags)
+        std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags,
+        Visitor &visitor, antlr4::ParserRuleContext *ctx)
       : VariableDefinition{
-            std::move(variable_name), toLazy([variable_initializer]() {
-                return variable_initializer->getValueType();
+            std::move(variable_name), toLazy([variable_initializer, &visitor, ctx]() {
+                try {
+                    return variable_initializer->getValueType();
+                } catch (const FscException &e) {
+                    visitor.throwError(ctx, e.what());
+                }
             }),
             variable_flags, std::move(variable_initializer)}
     {}
@@ -40,7 +45,8 @@ namespace fsc::ast
     {}
 
     VariableDefinition::VariableDefinition(Visitor &visitor, AutoVariableDefinitionContext *ctx)
-      : VariableDefinition{readName(ctx), readInitializer(visitor, ctx), readFlags(ctx)}
+      : VariableDefinition{
+            readName(ctx), readInitializer(visitor, ctx), readFlags(ctx), visitor, ctx}
     {}
 
     auto VariableDefinition::analyze() -> void

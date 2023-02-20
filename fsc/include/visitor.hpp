@@ -61,6 +61,9 @@ namespace fsc
             return castToNode(visit(node));
         }
 
+        [[noreturn]] auto throwError(antlr4::ParserRuleContext *ctx, std::string_view message)
+            -> void;
+
     private:
         CCL_PERFECT_FORWARDING(T, std::any)
         static auto castToNode(T &&to_cast) -> ast::NodePtr
@@ -134,9 +137,6 @@ namespace fsc
         auto parseFunction(FunctionCallContext *ctx) -> std::tuple<
             std::string, ccl::SmallVector<FscType>, ccl::SmallVector<Argument>,
             ccl::SmallVector<ast::NodePtr>>;
-
-        [[noreturn]] auto throwError(antlr4::ParserRuleContext *ctx, std::string_view message)
-            -> void;
     };
 }// namespace fsc
 

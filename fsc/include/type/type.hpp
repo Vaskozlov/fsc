@@ -56,7 +56,7 @@ namespace fsc
 
         explicit FscType(const std::string &type_name) noexcept(false);
 
-         [[nodiscard]] auto operator==(FscType other) const noexcept -> bool;
+        [[nodiscard]] auto operator==(FscType other) const noexcept -> bool;
         [[nodiscard]] auto operator<=>(FscType other) const noexcept -> std::weak_ordering;
 
         [[nodiscard]] auto getId() const noexcept -> ccl::Id
@@ -65,6 +65,8 @@ namespace fsc
         }
 
         [[nodiscard]] auto isTemplate() const noexcept -> bool;
+
+        [[nodiscard]] auto isRemapTemplate() const noexcept -> bool;
 
         [[nodiscard]] auto getName() const -> std::string;
 

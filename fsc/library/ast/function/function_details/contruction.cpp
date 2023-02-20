@@ -19,7 +19,7 @@ namespace fsc::ast
     Function::Function(
         FscType class_type, std::string_view function_name, FscType return_type,
         InitializerList<Argument> function_arguments,
-        const ccl::SmallVector<std::string> &function_templates, bool ends_with_parameter_pack)
+        const ccl::SmallVector<FscType> &function_templates, bool ends_with_parameter_pack)
       : arguments{function_arguments}
       , templates{function_templates}
       , name{function_name}
@@ -33,6 +33,7 @@ namespace fsc::ast
         const FunctionContext *function_context, Visitor &visitor, FscType class_type) -> void
     {
         functionContext = function_context;
+        visitorPtr = &visitor;
         const auto &children = functionContext->children;
         auto *function_name = children.at(2);
         auto *function_attributes = ccl::as<FunctionAttributeContext *>(children.at(0));
@@ -43,13 +44,14 @@ namespace fsc::ast
         name = function_name->getText();
 
         processAttributes(function_attributes);
+
         const auto templated_types = Raii{
             [this, function_templates]() {
                 processTemplates(function_templates);
             },
             [this]() {
-                for (const auto &template_name : templates) {
-                    TypeManager::hideTemplate(template_name);
+                for (const auto &function_template : templates) {
+                    TypeManager::hideTemplate(function_template.getName());
                 }
             }};
 
@@ -59,7 +61,9 @@ namespace fsc::ast
         processMagicMethod();
         func::Functions.registerFunction(shared_from_this());
 
-        completeBody(visitor);
+        if (templates.empty()) {
+            completeBody(visitor);
+        }
     }
 
     auto Function::completeBody(Visitor &visitor) -> void
@@ -123,9 +127,8 @@ namespace fsc::ast
         const auto &children = ctx->children.at(1)->children;
 
         for (auto *function_template : children | sv::filter(CommaFilter)) {
-            templates.emplace_back(function_template->getText());
-            TypeManager::createNewType(
-                function_template->getText(), {}, CreationType::STRONG_TEMPLATE);
+            templates.emplace_back(TypeManager::createNewType(
+                function_template->getText(), {}, CreationType::STRONG_TEMPLATE));
         }
     }
 }// namespace fsc::ast

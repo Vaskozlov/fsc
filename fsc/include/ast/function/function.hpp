@@ -42,12 +42,13 @@ namespace fsc::ast
     private:
         ccl::Map<std::string, NodePtr> defaultArguments;
         ccl::SmallVector<Argument> arguments;
-        ccl::SmallVector<std::string> templates;
+        ccl::SmallVector<FscType> templates;
         ccl::SmallVector<FscType> remapTypes{};
         NodePtr functionBody;
         std::string name;
-        Visibility visibility{};
         std::variant<FscType, std::string> returnType{Void};
+        Visibility visibility{};
+        Visitor *visitorPtr{};
         FscType classType{};
         const FunctionContext *functionContext{};
         MagicFunctionType magicType{};
@@ -60,7 +61,7 @@ namespace fsc::ast
         Function(
             FscType class_type, std::string_view function_name, FscType return_type,
             ccl::InitializerList<Argument> function_arguments,
-            const ccl::SmallVector<std::string> &function_templates = {},
+            const ccl::SmallVector<FscType> &function_templates = {},
             bool ends_with_parameter_pack = false);
 
         auto finishConstruction(
@@ -122,7 +123,9 @@ namespace fsc::ast
             return defaultArguments;
         }
 
-        auto analyzeOnCall(const ccl::SmallVector<NodePtr> &function_arguments) const -> FscType;
+        auto analyzeOnCall(
+            const ccl::SmallVector<NodePtr> &function_arguments,
+            const ccl::SmallVector<FscType> &call_templates) -> FscType;
 
     protected:
         auto defaultAnalyze() const -> void;

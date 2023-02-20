@@ -12,14 +12,15 @@ namespace fsc::ast
     class Class final : public NodeWrapper<NodeType::CLASS, SemicolonNeed::DO_NOT_NEED, Body>
     {
         ccl::Map<std::string, FscType> constructionMemberVariables;
-        ccl::SmallVector<std::string> templates;
+        ccl::SmallVector<FscType> templates;
         std::string name;
         FscType fscType{Void};
 
     public:
-        explicit Class(
-            std::string class_name, Visitor &visitor, BodyContext *body_context,
-            TemplateContext *template_context);
+        explicit Class(std::string class_name);
+
+        auto finishClass(
+            Visitor &visitor, BodyContext *body_context, TemplateContext *template_context) -> void;
 
         auto analyze() -> void final;
 
@@ -41,7 +42,7 @@ namespace fsc::ast
             return name;
         }
 
-        [[nodiscard]] auto getTemplates() const noexcept -> const ccl::SmallVector<std::string> &
+        [[nodiscard]] auto getTemplates() const noexcept -> const ccl::SmallVector<FscType> &
         {
             return templates;
         }
@@ -54,7 +55,6 @@ namespace fsc::ast
 
         auto generateTemplateParameters(ccl::codegen::BasicCodeGenerator &output) const -> void;
 
-        auto mapTemplates() const -> void;
         auto unmapTemplates() const -> void;
     };
 }// namespace fsc::ast
