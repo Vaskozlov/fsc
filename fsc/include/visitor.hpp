@@ -61,8 +61,7 @@ namespace fsc
             return castToNode(visit(node));
         }
 
-        [[noreturn]] auto throwError(antlr4::ParserRuleContext *ctx, std::string_view message)
-            -> void;
+        [[noreturn]] auto throwError(BasicContextPtr ctx, std::string_view message) -> void;
 
     private:
         CCL_PERFECT_FORWARDING(T, std::any)
@@ -138,6 +137,8 @@ namespace fsc
             std::string, ccl::SmallVector<FscType>, ccl::SmallVector<Argument>,
             ccl::SmallVector<ast::NodePtr>>;
     };
+
+    inline constinit Visitor *GlobalVisitor{nullptr};
 }// namespace fsc
 
 #endif /* FSC_VISITOR_HPP */

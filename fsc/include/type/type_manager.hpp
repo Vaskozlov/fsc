@@ -13,31 +13,34 @@ namespace fsc
 
         struct TypeManagerFrame
         {
-            ccl::Map<ccl::Id, std::string> typenameById;
-            ccl::Map<std::string, FscType> idByTypename;
-            ccl::Map<FscType, TypeFlags> typeFlags;
-            ccl::Map<FscType, ccl::Map<std::string, ast::NodePtr>> memberVariables;
-            ccl::Set<FscType> templateTypes;
-            ccl::Map<ccl::Id, FscType> remapTypes;
-            ccl::Map<FscType, ast::NodePtr> fscClasses;
+            ccl::UnorderedMap<ccl::Id, std::string> typenameById;
+            ccl::UnorderedMap<std::string, FscType> idByTypename;
+            ccl::UnorderedMap<FscType, TypeInfo> typeInfo;
+            ccl::UnorderedMap<FscType, ccl::Map<std::string, ast::NodePtr>> memberVariables;
+            ccl::UnorderedSet<FscType> templateTypes;
+            ccl::UnorderedMap<ccl::Id, FscType> remapTypes;
+            ccl::UnorderedMap<FscType, ast::NodePtr> fscClasses;
         };
 
         [[nodiscard]] static auto getFrame() noexcept -> TypeManagerFrame &;
 
-        [[nodiscard]] static auto getTypenameById() noexcept -> ccl::Map<ccl::Id, std::string> &;
+        [[nodiscard]] static auto getTypenameById() noexcept
+            -> ccl::UnorderedMap<ccl::Id, std::string> &;
 
-        [[nodiscard]] static auto getTypeByName() noexcept -> ccl::Map<std::string, FscType> &;
+        [[nodiscard]] static auto getTypeByName() noexcept
+            -> ccl::UnorderedMap<std::string, FscType> &;
 
-        [[nodiscard]] static auto getTypeFlags() noexcept -> ccl::Map<FscType, TypeFlags> &;
+        [[nodiscard]] static auto getTypeInfo() noexcept -> ccl::UnorderedMap<FscType, TypeInfo> &;
 
         [[nodiscard]] static auto getTypesMemberVariables() noexcept
-            -> ccl::Map<FscType, ccl::Map<std::string, ast::NodePtr>> &;
+            -> ccl::UnorderedMap<FscType, ccl::Map<std::string, ast::NodePtr>> &;
 
-        [[nodiscard]] static auto getTemplatedTypes() noexcept -> ccl::Set<FscType> &;
+        [[nodiscard]] static auto getTemplatedTypes() noexcept -> ccl::UnorderedSet<FscType> &;
 
-        [[nodiscard]] static auto getRemapTypes() noexcept -> ccl::Map<ccl::Id, FscType> &;
+        [[nodiscard]] static auto getRemapTypes() noexcept -> ccl::UnorderedMap<ccl::Id, FscType> &;
 
-        [[nodiscard]] static auto getFscClasses() noexcept -> ccl::Map<FscType, ast::NodePtr> &;
+        [[nodiscard]] static auto getFscClasses() noexcept
+            -> ccl::UnorderedMap<FscType, ast::NodePtr> &;
 
     public:
         static auto hideTemplate(const std::string &type_name) -> void;
@@ -48,8 +51,6 @@ namespace fsc
 
         [[nodiscard]] static auto isRemapTemplate(FscType type) noexcept -> bool;
 
-        [[nodiscard]] static auto isMap(FscType type) -> void;
-
         [[nodiscard]] static auto isTriviallyCopyable(FscType type) noexcept -> bool;
 
         [[nodiscard]] static auto exists(ccl::Id type_id) -> bool;
@@ -57,6 +58,10 @@ namespace fsc
         [[nodiscard]] static auto exists(const std::string &name) -> bool;
 
         static auto ensureTypeExists(const std::string &name) noexcept(false) -> void;
+
+        [[nodiscard]] static auto getInfoAboutType(FscType type) -> TypeInfo;
+
+        static auto updateTypeInfo(FscType type, TypeInfo type_info) -> void;
 
         static auto addFscClass(ast::NodePtr class_node) -> void;
 
@@ -72,7 +77,8 @@ namespace fsc
                 -> ast::NodePtr;
 
         static auto createNewType(
-            const std::string &type_name, TypeFlags type_flags = TypeFlags{},
+            const std::string &type_name,
+            TypeInfo type_flags,
             CreationType creation_type = CreationType::DEFAULT) -> FscType;
 
         [[nodiscard]] static auto createFromName(const std::string &type_name) -> FscType;
@@ -88,6 +94,8 @@ namespace fsc
                 });
         }
 
+        [[nodiscard]] static auto hash(FscType type) noexcept -> size_t;
+
     private:
         [[nodiscard]] static auto generateUuid() noexcept -> ccl::Id;
 
@@ -99,7 +107,7 @@ namespace fsc
 
         static auto
             instantiatedTemplate(const std::string &base_name, const std::string &template_name)
-                -> void;
+                -> FscType;
 
         static auto map(FscType key, FscType value) -> void;
 

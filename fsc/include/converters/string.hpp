@@ -6,7 +6,7 @@
 
 namespace fsc::converter
 {
-    auto toString(const std::string &repr) -> ccl::SharedPtr<ast::Value>;
+    auto toString(const std::string &repr, BasicContextPtr value_context) -> ccl::SharedPtr<ast::Value>;
 }
 
 #endif /* FSC_STRING_HPP */

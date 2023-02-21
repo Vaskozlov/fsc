@@ -1,6 +1,7 @@
 #ifndef FSC_IO_HPP
 #define FSC_IO_HPP
 
+#include <ccl/raii.hpp>
 #include <ccl/string_view.hpp>
 #include <filesystem>
 #include <fstream>
@@ -13,8 +14,15 @@ namespace fsc
     auto writeToFile(const std::string &filename, Ts &&...args) -> void
     {
         auto out = std::ofstream{filename};
+
+        const auto file_watcher = ccl::Raii(
+            []() {
+            },
+            [&out]() {
+                out.close();
+            });
+
         (out.write(std::data(args), ccl::as<long>(std::size(args))), ...);
-        out.close();
     }
 
     inline auto deleteFile(std::string_view filename) -> void

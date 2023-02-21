@@ -22,6 +22,11 @@ func any<T2>(inout T2 a)
     print("{}\n", a.test())
 }
 
+func test<T>(in T a)
+{
+    return a
+}
+
 func main() -> i32
 {
     var t = S<i32>(10)
@@ -29,6 +34,9 @@ func main() -> i32
 
     any(t)
     any(k)
+
+    test<i32>(10)
+    test<f32>(10.0)
 
     return 0
 }

@@ -32,7 +32,7 @@ namespace fsc
         ast::SourceLines = inputAsLines;
     }
 
-    auto Visitor::throwError(antlr4::ParserRuleContext *ctx, std::string_view message) -> void
+    auto Visitor::throwError(BasicContextPtr ctx, std::string_view message) -> void
     {
         auto &handler = ccl::handler::Cmd::instance();
         auto location = ccl::text::Location{

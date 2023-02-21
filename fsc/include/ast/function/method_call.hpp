@@ -18,7 +18,7 @@ namespace fsc::ast
             NodePtr expression_for_call, std::string function_name,
             const ccl::SmallVector<Argument> &typed_arguments, FscType class_id,
             const ccl::SmallVector<NodePtr> &function_arguments,
-            const ccl::SmallVector<FscType> &templates);
+            const ccl::SmallVector<FscType> &templates, BasicContextPtr node_context);
 
         auto analyze() -> void final;
 

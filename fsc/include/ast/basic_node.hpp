@@ -66,6 +66,7 @@ namespace fsc::ast
 
         antlr4::Token *start{nullptr};
         antlr4::Token *stop{nullptr};
+        BasicContextPtr context{nullptr};
         NodeType nodeType;
         SemicolonNeed needSemicolon{SemicolonNeed::NEED};
 
@@ -79,7 +80,9 @@ namespace fsc::ast
                 -> std::string;
 
     public:
-        explicit Node(NodeType node_type, SemicolonNeed need_semicolon) noexcept;
+        explicit Node(
+            NodeType node_type, SemicolonNeed need_semicolon,
+            BasicContextPtr node_context) noexcept;
 
         Node(const Node &node) = default;
         Node(Node &&) noexcept = default;
@@ -107,8 +110,14 @@ namespace fsc::ast
             stop = rule_stop;
         }
 
+        auto setContext(BasicContextPtr node_context) noexcept -> void
+        {
+            context = node_context;
+        }
+
         [[nodiscard]] auto getStart() const noexcept -> ccl::Optional<antlr4::Token *>;
         [[nodiscard]] auto getStop() const noexcept -> ccl::Optional<antlr4::Token *>;
+        [[nodiscard]] auto getContext() const noexcept -> ccl::Optional<BasicContextPtr>;
 
         auto reportAboutError(const std::exception &exception) const -> void;
 
@@ -162,16 +171,19 @@ namespace fsc::ast
         static_assert(std::derived_from<Base, Node>);
 
     public:
-        NodeWrapper() noexcept(std::is_nothrow_constructible_v<Base, NodeType>)
+        NodeWrapper(BasicContextPtr node_context = nullptr) noexcept(
+            std::is_nothrow_constructible_v<Base, NodeType>)
             requires(std::is_same_v<Base, Node>)
-          : Base{classof(), NeedSemicolon}
+          : Base{classof(), NeedSemicolon, node_context}
         {}
 
-        NodeWrapper() noexcept(std::is_nothrow_constructible_v<Base>)
+        NodeWrapper(BasicContextPtr node_context = nullptr) noexcept(
+            std::is_nothrow_constructible_v<Base>)
             requires(!std::is_same_v<Base, Node>)
         {
             this->setNodeType(classof());
             this->setSemicolonNeed(NeedSemicolon);
+            this->setContext(node_context);
         }
 
         template<typename... Ts>

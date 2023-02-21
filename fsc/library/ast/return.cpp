@@ -8,8 +8,9 @@ namespace fsc::ast
 {
     using namespace std::string_view_literals;
 
-    Return::Return(NodePtr value_to_return)
-      : value{std::move(value_to_return)}
+    Return::Return(NodePtr value_to_return, BasicContextPtr node_context)
+      : NodeWrapper{node_context}
+      , value{std::move(value_to_return)}
     {}
 
     auto Return::analyze() -> void

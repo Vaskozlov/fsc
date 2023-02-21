@@ -44,19 +44,19 @@ namespace fsc
         }
 
         else if (ctx->INT() != nullptr) {
-            node = converter::toInt(ctx->getText());
+            node = converter::toInt(ctx->getText(), ctx);
         }
 
         else if (ctx->FLOAT() != nullptr) {
-            node = converter::toFloat(ctx->getText());
+            node = converter::toFloat(ctx->getText(), ctx);
         }
 
         else if (ctx->TRUE() != nullptr) {
-            node = converter::toBoolean(ctx->getText());
+            node = converter::toBoolean(ctx->getText(), ctx);
         }
 
         else if (ctx->STRING() != nullptr) {
-            node = converter::toString(ctx->getText());
+            node = converter::toString(ctx->getText(), ctx);
         }
 
         else if (children.size() == 3 && children.at(0)->getText() == "("sv) {

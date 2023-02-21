@@ -6,56 +6,56 @@ using namespace ccl;
 
 namespace fsc
 {
-    CCL_INLINE auto TypeManager::getFrame() noexcept -> TypeManagerFrame &
+    auto TypeManager::getFrame() noexcept -> TypeManagerFrame &
     {
         static auto type_manager_frame = TypeManagerFrame{};
         return type_manager_frame;
     }
 
-    CCL_INLINE auto TypeManager::getTypenameById() noexcept -> Map<Id, std::string> &
+    auto TypeManager::getTypenameById() noexcept -> UnorderedMap<Id, std::string> &
     {
         return getFrame().typenameById;
     }
 
-    CCL_INLINE auto TypeManager::getTypeByName() noexcept -> Map<std::string, FscType> &
+    auto TypeManager::getTypeByName() noexcept -> UnorderedMap<std::string, FscType> &
     {
         return getFrame().idByTypename;
     }
 
-    CCL_INLINE auto TypeManager::getTypeFlags() noexcept -> Map<FscType, TypeFlags> &
+    auto TypeManager::getTypeInfo() noexcept -> UnorderedMap<FscType, TypeInfo> &
     {
-        return getFrame().typeFlags;
+        return getFrame().typeInfo;
     }
 
-    CCL_INLINE auto TypeManager::getTypesMemberVariables() noexcept
-        -> Map<FscType, Map<std::string, ast::NodePtr>> &
+    auto TypeManager::getTypesMemberVariables() noexcept
+        -> UnorderedMap<FscType, Map<std::string, ast::NodePtr>> &
     {
         return getFrame().memberVariables;
     }
 
-    CCL_INLINE auto TypeManager::getTemplatedTypes() noexcept -> Set<FscType> &
+    auto TypeManager::getTemplatedTypes() noexcept -> UnorderedSet<FscType> &
     {
         return getFrame().templateTypes;
     }
 
-    CCL_INLINE auto TypeManager::getRemapTypes() noexcept -> Map<ccl::Id, FscType> &
+    auto TypeManager::getRemapTypes() noexcept -> UnorderedMap<ccl::Id, FscType> &
     {
         return getFrame().remapTypes;
     }
 
-    CCL_INLINE auto TypeManager::getFscClasses() noexcept -> Map<FscType, ast::NodePtr> &
+    auto TypeManager::getFscClasses() noexcept -> UnorderedMap<FscType, ast::NodePtr> &
     {
         return getFrame().fscClasses;
     }
 
-    CCL_INLINE auto TypeManager::generateUuid() noexcept -> Id
+    auto TypeManager::generateUuid() noexcept -> Id
     {
         static constinit auto type_uuid_creator = std::atomic<ccl::Id>{0};
 
         return type_uuid_creator.fetch_add(1U, std::memory_order_relaxed);
     }
 
-    CCL_INLINE auto TypeManager::templateTypeExists(const std::string &name) -> bool
+    auto TypeManager::templateTypeExists(const std::string &name) -> bool
     {
         const auto template_begin = name.find('<');
 
@@ -75,13 +75,13 @@ namespace fsc
         return false;
     }
 
-    CCL_INLINE auto TypeManager::exactTypeExists(const std::string &type_name) noexcept -> bool
+    auto TypeManager::exactTypeExists(const std::string &type_name) noexcept -> bool
     {
         return getTypeByName().contains(type_name);
     }
 
-    CCL_INLINE auto
-        TypeManager::postCreationSetupForTemplates(FscType type, CreationType creation_type) -> void
+    auto TypeManager::postCreationSetupForTemplates(FscType type, CreationType creation_type)
+        -> void
     {
         if (creation_type == CreationType::DEFAULT) {
             return;
@@ -89,18 +89,47 @@ namespace fsc
 
         getTemplatedTypes().emplace(type);
 
-        // TODO: weak free
+        if (creation_type == CreationType::WEAK_TEMPLATE) {
+            hideTemplate(type.getName());
+        }
     }
 
     auto TypeManager::instantiatedTemplate(
-        const std::string &base_name, const std::string &template_name) -> void
+        const std::string &base_name,
+        const std::string &template_name) -> FscType
     {
-        // TODO: add additional checks
         if (!exactTypeExists(base_name)) {
             throw std::invalid_argument{fmt::format("{} is not a valid type", base_name)};
         }
 
-        createFromName(fmt::format("{}<{}>", base_name, template_name));
+        for (auto template_typename : template_name | std::views::split(',')) {
+            auto converted_name_view = ccl::string_view{std::string_view{template_typename}};
+
+            while (converted_name_view[0] == ' ') {
+                converted_name_view = {converted_name_view.begin() + 1, converted_name_view.end()};
+            }
+
+            auto converted_name = std::string{converted_name_view};
+
+            while (converted_name.back() == ' ') {
+                converted_name.pop_back();
+            }
+
+            if (!exists(converted_name)) {
+                throw std::invalid_argument{fmt::format("{} is not a valid type", template_name)};
+            }
+        }
+
+        const auto templates_count = std::ranges::count(template_name, ',') + 1;
+        const auto base_type = FscType{base_name};
+
+        if (getTypeInfo().at(base_type).templatesParametersCount !=
+            ccl::as<size_t>(templates_count)) {
+            throw FscException{
+                fmt::format("{} can not hold {} templates parameters", base_name, templates_count)};
+        }
+
+        return createFromName(fmt::format("{}<{}>", base_name, template_name));
     }
 
     auto TypeManager::map(FscType key, FscType value) -> void
@@ -128,7 +157,11 @@ namespace fsc
 
     auto TypeManager::hideTemplate(const std::string &type_name) -> void
     {
-        // TODO: add checks
+        if (!getTypeByName().contains(type_name)) {
+            throw std::invalid_argument{
+                fmt::format("Unable to hide {}, because it is not a valid type", type_name)};
+        }
+
         getTypeByName().erase(type_name);
     }
 
@@ -161,7 +194,7 @@ namespace fsc
     auto TypeManager::isTriviallyCopyable(FscType type) noexcept -> bool
     {
         type = getTrueType(type);
-        return getTypeFlags().at(type).isTriviallyCopyable;
+        return getTypeInfo().at(type).isTriviallyCopyable;
     }
 
     auto TypeManager::exists(ccl::Id type_id) -> bool
@@ -183,6 +216,16 @@ namespace fsc
         if (!exists(name)) {
             throw FscException{fmt::format("{} is not a valid type", name)};
         }
+    }
+
+    auto TypeManager::getInfoAboutType(FscType type) -> TypeInfo
+    {
+        return getTypeInfo().at(type);
+    }
+
+    auto TypeManager::updateTypeInfo(FscType type, TypeInfo type_info) -> void
+    {
+        getTypeInfo().at(type) = type_info;
     }
 
     auto TypeManager::addFscClass(ast::NodePtr class_node) -> void
@@ -240,7 +283,9 @@ namespace fsc
     }
 
     auto TypeManager::createNewType(
-        const std::string &type_name, TypeFlags type_flags, CreationType creation_type) -> FscType
+        const std::string &type_name,
+        TypeInfo type_flags,
+        CreationType creation_type) -> FscType
     {
         static auto type_registration_mutex = std::mutex{};
 
@@ -253,9 +298,8 @@ namespace fsc
 
         getTypeByName().emplace(type_name, type);
         getTypenameById().emplace(type.getId(), type_name);
-        getTypeFlags().emplace(type, type_flags);
+        getTypeInfo().emplace(type, type_flags);
         getTypesMemberVariables().insert({type, {}});
-
         postCreationSetupForTemplates(type, creation_type);
 
         return type;
@@ -282,6 +326,15 @@ namespace fsc
                 throw FscException{fmt::format("{} is not a valid type", template_name)};
             }
 
+            const auto base_type = FscType{base_name};
+            const auto templates_count = std::ranges::count(template_name, ',') + 1;
+
+            if (ccl::as<size_t>(templates_count) !=
+                getTypeInfo().at(base_type).templatesParametersCount) {
+                throw FscException{fmt::format(
+                    "{} can not hold {} templates parameters", base_name, templates_count)};
+            }
+
             const auto new_type = createNewType(type_name, {});
 
             func::Functions.map(FscType{base_name}, new_type);
@@ -289,5 +342,10 @@ namespace fsc
         }
 
         return getTypeByName().at(type_name);
+    }
+
+    auto TypeManager::hash(FscType type) noexcept -> size_t
+    {
+        return getTrueType(type).getId();
     }
 }// namespace fsc

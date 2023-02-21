@@ -11,8 +11,10 @@ namespace fsc::ast
     MethodCall::MethodCall(
         NodePtr expression_for_call, std::string function_name,
         const ccl::SmallVector<Argument> &typed_arguments, FscType class_id,
-        const SmallVector<NodePtr> &function_arguments, const ccl::SmallVector<FscType> &templates)
-      : NodeWrapper{std::move(function_name), typed_arguments, class_id, function_arguments, templates}
+        const SmallVector<NodePtr> &function_arguments, const ccl::SmallVector<FscType> &templates,
+        BasicContextPtr node_context)
+      : NodeWrapper{std::move(function_name), typed_arguments, class_id,
+                    function_arguments,       templates,       node_context}
       , expression{std::move(expression_for_call)}
     {}
 

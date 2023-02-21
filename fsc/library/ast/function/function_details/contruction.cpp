@@ -14,7 +14,9 @@ namespace fsc::ast
         return elem->getText() != ",";
     }
 
-    Function::Function() = default;
+    Function::Function(BasicContextPtr node_context)
+      : NodeWrapper{node_context}
+    {}
 
     Function::Function(
         FscType class_type, std::string_view function_name, FscType return_type,

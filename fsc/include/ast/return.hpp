@@ -11,7 +11,7 @@ namespace fsc::ast
         NodePtr value;
 
     public:
-        explicit Return(NodePtr value_to_return);
+        explicit Return(NodePtr value_to_return, BasicContextPtr node_context);
 
         auto analyze() -> void final;
 

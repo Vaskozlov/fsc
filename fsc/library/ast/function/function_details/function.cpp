@@ -80,6 +80,15 @@ namespace fsc::ast
             }
         }
 
+        if (!std::ranges::equal(
+                arguments.begin(), arguments.end(), function_arguments.begin(),
+                function_arguments.begin() + ccl::as<long>(arguments.size()),
+                [](auto lhs, auto rhs) {
+                    return lhs == rhs->getValueType();
+                })) {
+            throw FscException{fmt::format("function argument do not match")};
+        }
+
         if (magicType == MagicFunctionType::INIT && !builtinFunction) {
             const auto &class_node = classType.getClass();
             const auto &fsc_class = class_node->as<ast::Class>();

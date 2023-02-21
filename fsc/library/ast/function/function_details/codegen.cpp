@@ -7,6 +7,23 @@ using namespace std::string_view_literals;
 
 namespace fsc::ast
 {
+    auto Function::addVisibility(codegen::BasicCodeGenerator &output) const -> void
+    {
+        if (classType != Void || magicType == MagicFunctionType::INIT || name == "main") {
+            return;
+        }
+
+        switch (visibility) {
+        case Visibility::EXPORT:
+        case Visibility::PUBLIC:
+            output << "extern ";
+            break;
+
+        default:
+            output << "static ";
+        }
+    }
+
     auto Function::addNodiscardModifier(codegen::BasicCodeGenerator &output) const -> void
     {
         if (getReturnTypeAsString() != "void" && name != "main") {
@@ -56,6 +73,7 @@ namespace fsc::ast
         } else {
             addNodiscardModifier(output);
             addConstexprModifier(output);
+            addVisibility(output);
 
             if (magicType != MagicFunctionType::NONE) {
                 output << getReturnTypeAsString() << " operator" << MagicToRepr.at(magicType);

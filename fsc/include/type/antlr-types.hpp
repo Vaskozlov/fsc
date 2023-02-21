@@ -5,6 +5,8 @@
 
 namespace fsc
 {
+    using BasicContextPtr = antlr4::ParserRuleContext *;
+
     using FunctionContext = FscParser::FunctionContext;
     using ParametersContext = FscParser::ParametersContext;
     using TemplateContext = FscParser::Function_templatesContext;

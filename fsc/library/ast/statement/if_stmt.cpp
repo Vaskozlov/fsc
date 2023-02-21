@@ -8,6 +8,7 @@ namespace fsc::ast
     using namespace ccl;
 
     IfStmt::IfStmt(Visitor &visitor, IfStatementContext *ctx)
+      : NodeWrapper{ccl::as<BasicContextPtr>(ctx)}
     {
         const auto &children = ctx->children;
         auto *if_context = ccl::as<IfContext *>(children.at(0));
@@ -79,8 +80,8 @@ namespace fsc::ast
 
     auto IfStmt::parseElifStmt(Visitor &visitor, ElifContext *ctx) -> void
     {
-        for (auto *context : ctx->children) {
-            const auto &children = context->children;
+        for (auto *children_context : ctx->children) {
+            const auto &children = children_context->children;
             auto expr = visitor.visitAsNode(children.at(1));
             auto body = visitor.visitAsNode(children.at(3));
 

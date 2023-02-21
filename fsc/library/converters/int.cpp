@@ -11,7 +11,7 @@ namespace fsc::converter
     constexpr static auto OctalBegin = "0o"sv;
     constexpr static auto HexadecimalBegin = "0x"sv;
 
-    auto toInt(const std::string &repr) -> SharedPtr<ast::Value>
+    auto toInt(const std::string &repr, BasicContextPtr value_context) -> SharedPtr<ast::Value>
     {
         auto result = 0Z;
 
@@ -27,10 +27,10 @@ namespace fsc::converter
 
         if (std::in_range<int32_t>(result)) {
             auto fsc_value = makeUnique<FscBuiltinType<FscInt32>>(as<int32_t>(result));
-            return makeShared<ast::Value>(std::move(fsc_value));
+            return makeShared<ast::Value>(std::move(fsc_value), value_context);
         }
 
         auto fsc_value = makeUnique<FscBuiltinType<FscInt64>>(result);
-        return makeShared<ast::Value>(std::move(fsc_value));
+        return makeShared<ast::Value>(std::move(fsc_value), value_context);
     }
 }// namespace fsc::converter

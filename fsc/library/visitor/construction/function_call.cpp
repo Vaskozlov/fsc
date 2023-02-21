@@ -40,9 +40,16 @@ auto fsc::Visitor::parseFunction(FunctionCallContext *ctx) -> std::tuple<
 
 auto fsc::Visitor::constructFunctionCall(FunctionCallContext *ctx) -> ast::NodePtr
 {
-    auto [name, templates, arguments, values] = parseFunction(ctx);
+    try {
+        auto [name, templates, arguments, values] = parseFunction(ctx);
 
-    return makeShared<ast::Node, ast::FunctionCall>(name, arguments, Void, values, templates);
+        auto function_call =
+            makeShared<ast::Node, ast::FunctionCall>(name, arguments, Void, values, templates, ctx);
+        function_call->setContext(ctx);
+        return function_call;
+    } catch (const FscException &e) {
+        throwError(ctx, e.what());
+    }
 }
 
 auto fsc::Visitor::constructMethodCall(ExpressionContext *ctx) -> ast::NodePtr
@@ -53,7 +60,7 @@ auto fsc::Visitor::constructMethodCall(ExpressionContext *ctx) -> ast::NodePtr
     auto [name, templates, arguments, values] = parseFunction(function_call_context);
 
     return makeShared<ast::Node, ast::MethodCall>(
-        expression, name, arguments, expression->getValueType(), values, templates);
+        expression, name, arguments, expression->getValueType(), values, templates, ctx);
 }
 
 

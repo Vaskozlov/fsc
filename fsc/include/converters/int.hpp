@@ -6,7 +6,8 @@
 
 namespace fsc::converter
 {
-    auto toInt(const std::string &repr) -> ccl::SharedPtr<ast::Value>;
+    auto toInt(const std::string &repr, BasicContextPtr value_context)
+        -> ccl::SharedPtr<ast::Value>;
 }
 
 #endif /* FSC_INT_HPP */

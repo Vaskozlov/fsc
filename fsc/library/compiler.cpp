@@ -20,9 +20,10 @@ namespace fsc
         auto *tree = parser.program();
 
         auto visitor = fsc::Visitor{filename, input};
+        GlobalVisitor = &visitor;
 
         visitor.visit(tree);
-        
+
         if (print_tree) {
             visitor.print();
         }

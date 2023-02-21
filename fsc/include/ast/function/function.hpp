@@ -56,7 +56,9 @@ namespace fsc::ast
         bool builtinFunction{};
 
     public:
-        Function();
+        Function() = default;
+
+        Function(BasicContextPtr node_context);
 
         Function(
             FscType class_type, std::string_view function_name, FscType return_type,
@@ -159,6 +161,7 @@ namespace fsc::ast
 
         auto completeBody(Visitor &visitor) -> void;
 
+        auto addVisibility(ccl::codegen::BasicCodeGenerator &output) const -> void;
         auto addNodiscardModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
         auto addConstexprModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
     };

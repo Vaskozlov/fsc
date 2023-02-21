@@ -24,8 +24,10 @@ namespace fsc::ast
         return result;
     }
 
-    Node::Node(NodeType node_type, SemicolonNeed need_semicolon) noexcept
-      : nodeType{node_type}
+    Node::Node(
+        NodeType node_type, SemicolonNeed need_semicolon, BasicContextPtr node_context) noexcept
+      : context{node_context}
+      , nodeType{node_type}
       , needSemicolon{need_semicolon}
     {}
 
@@ -55,6 +57,15 @@ namespace fsc::ast
         }
 
         return stop;
+    }
+
+    auto Node::getContext() const noexcept -> ccl::Optional<BasicContextPtr>
+    {
+        if (context == nullptr) {
+            return std::nullopt;
+        }
+
+        return context;
     }
 
     auto Node::getPrintingPrefix(const std::string &prefix, bool is_left) -> std::string

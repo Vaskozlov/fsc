@@ -27,7 +27,7 @@ namespace fsc::ast
 
     VariableDefinition::VariableDefinition(
         std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags,
-        Visitor &visitor, antlr4::ParserRuleContext *ctx)
+        Visitor &visitor, BasicContextPtr ctx)
       : VariableDefinition{
             std::move(variable_name), toLazy([variable_initializer, &visitor, ctx]() {
                 try {

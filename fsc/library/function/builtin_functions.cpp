@@ -85,7 +85,7 @@ namespace fsc
 
     static auto initializeTemplates() -> void
     {
-        FscTemplate1::initialize(CreationType::STRONG_TEMPLATE);
+        FscTemplate1::initialize(CreationType::WEAK_TEMPLATE);
     }
 
     static auto initializeTypes() -> void

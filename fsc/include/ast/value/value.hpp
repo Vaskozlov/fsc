@@ -12,7 +12,7 @@ namespace fsc::ast
         ccl::UniquePtr<FscTypeInterface> value;
 
     public:
-        explicit Value(ccl::UniquePtr<FscTypeInterface> t_value);
+        explicit Value(ccl::UniquePtr<FscTypeInterface> t_value, BasicContextPtr node_context);
 
         auto analyze() -> void final;
 

@@ -22,7 +22,8 @@ namespace fsc::ast
         std::string operation_type,
         NodePtr left_node,
         NodePtr right_node)
-      : lhs{std::move(left_node)}
+      : NodeWrapper{ccl::as<BasicContextPtr>(ctx)}
+      , lhs{std::move(left_node)}
       , rhs{std::move(right_node)}
       , operationType{std::move(operation_type)}
     {

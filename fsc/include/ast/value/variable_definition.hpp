@@ -24,7 +24,7 @@ namespace fsc::ast
 
         VariableDefinition(
             std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags,
-            Visitor &visitor, antlr4::ParserRuleContext *ctx);
+            Visitor &visitor, BasicContextPtr ctx);
 
         VariableDefinition(Visitor &visitor, VariableDefinitionContext *ctx);
 

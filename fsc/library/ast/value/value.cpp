@@ -6,8 +6,9 @@ namespace fsc::ast
     using namespace ccl;
     using namespace std::string_view_literals;
 
-    Value::Value(UniquePtr<FscTypeInterface> t_value)
-      : value{std::move(t_value)}
+    Value::Value(UniquePtr<FscTypeInterface> t_value, BasicContextPtr node_context)
+      : NodeWrapper{node_context}
+      , value{std::move(t_value)}
     {}
 
     auto Value::analyze() -> void

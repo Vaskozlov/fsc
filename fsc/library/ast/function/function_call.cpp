@@ -10,8 +10,9 @@ namespace fsc::ast
     FunctionCall::FunctionCall(
         std::string function_name, const ccl::SmallVector<Argument> &typed_arguments,
         FscType class_id, const SmallVector<NodePtr> &function_arguments,
-        const ccl::SmallVector<FscType> &templates)
-      : arguments{function_arguments}
+        const ccl::SmallVector<FscType> &templates, BasicContextPtr node_context)
+      : NodeWrapper{node_context}
+      , arguments{function_arguments}
       , functionCallTemplates{templates}
       , functionName{std::move(function_name)}
       , typedArguments{typed_arguments}
@@ -20,24 +21,7 @@ namespace fsc::ast
 
     auto FunctionCall::getFunction() const -> ccl::SharedPtr<Function>
     {
-        // TODO: change way how template classes are stored
-        try {
-            return func::Functions.get({functionName, typedArguments, classId});
-        } catch (const std::exception &) {
-            if (functionCallTemplates.empty()) {
-                throw;
-            }
-
-            auto full_name = fmt::format("{}<", functionName);
-
-            for (auto function_template :
-                 functionCallTemplates | ccl::views::dropBack(functionCallTemplates)) {
-                full_name.append(fmt::format("{}, ", function_template.getName()));
-            }
-
-            full_name.append(functionCallTemplates.back().getName() + ">");
-            return func::Functions.get({full_name, typedArguments, classId});
-        }
+        return func::Functions.get({functionName, typedArguments, classId});
     }
 
     auto FunctionCall::defaultPrint(const std::string &prefix, bool is_left) const -> void
@@ -79,8 +63,12 @@ namespace fsc::ast
 
     auto FunctionCall::analyze() -> void
     {
-        auto fn = getFunction();
-        returnedType = fn->analyzeOnCall(arguments, functionCallTemplates);
+        try {
+            auto fn = getFunction();
+            returnedType = fn->analyzeOnCall(arguments, functionCallTemplates);
+        } catch (const FscException &e) {
+            GlobalVisitor->throwError(getContext().value(), e.what());
+        }
     }
 
     auto FunctionCall::getValueType() -> FscType

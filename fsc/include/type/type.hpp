@@ -7,6 +7,7 @@
 #include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
 #include <compare>
+#include <functional>
 
 namespace fsc
 {
@@ -15,8 +16,9 @@ namespace fsc
         class Class;
     }
 
-    struct TypeFlags
+    struct CCL_TRIVIAL_ABI TypeInfo
     {
+        size_t templatesParametersCount = 0;
         bool isTriviallyCopyable = false;
     };
 
@@ -105,6 +107,12 @@ namespace fsc
     auto operator<<(ccl::codegen::BasicCodeGenerator &generator, FscTypeInterface &fsc_type)
         -> ccl::codegen::BasicCodeGenerator &;
 }// namespace fsc
+
+template<>
+struct std::hash<fsc::FscType>
+{
+    auto operator()(fsc::FscType type) const noexcept -> std::size_t;
+};
 
 template<>
 struct fmt::formatter<fsc::FscType> : fmt::formatter<std::string>

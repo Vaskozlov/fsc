@@ -1,7 +1,5 @@
 #include "type/type.hpp"
-#include "ast/container/class.hpp"
 #include "ast/value/variable.hpp"
-#include "function/functions_holder.hpp"
 #include "type/builtin_types.hpp"
 #include "type/type_manager.hpp"
 #include <mutex>
@@ -45,7 +43,7 @@ namespace fsc
         return TypeManager::isTemplate(*this);
     }
 
-      auto FscType::isRemapTemplate() const noexcept -> bool
+    auto FscType::isRemapTemplate() const noexcept -> bool
     {
         return TypeManager::isRemapTemplate(*this);
     }
@@ -97,3 +95,9 @@ namespace fsc
         throw std::logic_error("FscType::codeGen is not implemented for FscType base class");
     }
 }// namespace fsc
+
+
+auto std::hash<fsc::FscType>::operator()(fsc::FscType type) const noexcept -> std::size_t
+{
+    return fsc::TypeManager::hash(type);
+}

@@ -72,6 +72,11 @@ namespace fsc::ast
             templates.emplace_back(TypeManager::createNewType(
                 function_template->getText(), {}, CreationType::STRONG_TEMPLATE));
         }
+
+        auto type_info = TypeManager::getInfoAboutType(fscType);
+        type_info.templatesParametersCount = templates.size();
+
+        TypeManager::updateTypeInfo(fscType, type_info);
     }
 
     auto Class::analyze() -> void
