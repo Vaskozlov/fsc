@@ -20,17 +20,15 @@ namespace fsc::ast
 
     Function::Function(
         FscType class_type, std::string_view function_name, FscType return_type,
-        InitializerList<Argument> function_arguments,
-        const ccl::SmallVector<FscType> &function_templates, bool ends_with_parameter_pack,
-        MagicFunctionType magic)
+        InitializerList<Argument> function_arguments, FunctionInfo function_info,
+        const ccl::SmallVector<FscType> &function_templates, MagicFunctionType magic)
       : arguments{function_arguments}
       , templates{function_templates}
       , name{function_name}
+      , functionInfo{function_info}
       , returnType{return_type}
       , classType{class_type}
       , magicType{magic}
-      , endsWithParameterPack{ends_with_parameter_pack}
-      , builtinFunction{true}
     {}
 
     auto Function::finishConstruction(
@@ -46,6 +44,7 @@ namespace fsc::ast
 
         classType = class_type;
         name = function_name->getText();
+        functionInfo.IS_METHOD = classType != Void;
 
         processAttributes(function_attributes);
 
@@ -132,7 +131,7 @@ namespace fsc::ast
 
         for (auto *function_template : children | sv::filter(CommaFilter)) {
             templates.emplace_back(TypeManager::createNewType(
-                function_template->getText(), {}, CreationType::STRONG_TEMPLATE));
+                function_template->getText(), {}, CreationType::TEMPLATE_KEEP_NAME));
         }
     }
 }// namespace fsc::ast

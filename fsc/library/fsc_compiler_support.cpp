@@ -10,10 +10,12 @@ namespace fsc
 #include <cinttypes>
 #include <concepts>
 #include <cstddef>
-#include <fmt/format.h>
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 
 using i32 = int32_t;
 using i64 = int64_t;

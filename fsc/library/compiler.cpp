@@ -24,11 +24,11 @@ namespace fsc
 
         visitor.visit(tree);
 
+        visitor.analyze();
+
         if (print_tree) {
             visitor.print();
         }
-
-        visitor.analyze();
 
         return visitor.codeGen();
     }

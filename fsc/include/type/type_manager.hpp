@@ -115,6 +115,8 @@ namespace fsc
 
         [[nodiscard]] static auto getTrueType(FscType type) -> FscType;
     };
+
+    using AcquireTypeMapType = decltype(TypeManager::acquireTypeMap(FscType{}, FscType{}));
 }// namespace fsc
 
 #endif /* FSC_TYPE_MANAGER_HPP */

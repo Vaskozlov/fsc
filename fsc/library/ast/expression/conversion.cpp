@@ -26,7 +26,7 @@ namespace fsc::ast
 
     auto Conversion::codeGen(codegen::BasicCodeGenerator &output) -> void
     {
-        output << type.getName() << '{' << *value << '}';
+        output << "static_cast<" << type.getName() << ">(" << *value << ')';
     }
 
     auto Conversion::getValueType() -> FscType

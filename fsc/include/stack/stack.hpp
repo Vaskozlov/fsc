@@ -86,7 +86,7 @@ namespace fsc
         [[nodiscard]] auto getCurrentClassScope() const -> FscType
         {
             if (classScopes.empty()) {
-                return {};
+                return Void;
             }
 
             return classScopes.back();

@@ -2,9 +2,9 @@
 #include "ast/function/function.hpp"
 #include "ast/function/magic_methods_table.hpp"
 #include "function/argument.hpp"
+#include "stack/stack.hpp"
 #include <algorithm>
 #include <ccl/ccl.hpp>
-#include <fmt/format.h>
 #include <ranges>
 
 namespace fsc::func
@@ -137,6 +137,11 @@ namespace fsc::func
     {
         if (signature.classType == Void && isMagicFunction(signature)) {
             return findMagicFunction(signature);
+        }
+
+        if (signature.classType == Void && ProgramStack.getCurrentClassScope() != Void) {
+            return findFunction(
+                {signature.name, signature.arguments, ProgramStack.getCurrentClassScope()});
         }
 
         if (failure_type == FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_NAME) {

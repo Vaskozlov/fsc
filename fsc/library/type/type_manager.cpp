@@ -89,7 +89,7 @@ namespace fsc
 
         getTemplatedTypes().emplace(type);
 
-        if (creation_type == CreationType::WEAK_TEMPLATE) {
+        if (creation_type == CreationType::TEMPLATE_HIDE_NAME) {
             hideTemplate(type.getName());
         }
     }

@@ -10,11 +10,11 @@ namespace fsc::ast
 {
     auto Function::addVisibility(codegen::BasicCodeGenerator &output) const -> void
     {
-        if (classType != Void || magicType == MagicFunctionType::INIT || name == "main") {
+        if (isMember() || magicType == MagicFunctionType::INIT || name == "main") {
             return;
         }
 
-        switch (visibility) {
+        switch (functionInfo.VISIBILITY) {
         case Visibility::EXPORT:
         case Visibility::PUBLIC:
             output << "extern ";
@@ -27,15 +27,29 @@ namespace fsc::ast
 
     auto Function::addNodiscardModifier(codegen::BasicCodeGenerator &output) const -> void
     {
-        if (getReturnTypeAsString() != "void" && name != "main") {
+        if (getReturnType().getName() != "void" && name != "main" && functionInfo.NODISCARD) {
             output << "[[nodiscard]] ";
         }
     }
 
     auto Function::addConstexprModifier(codegen::BasicCodeGenerator &output) const -> void
     {
-        if (name != "main") {
+        if (name != "main" && functionInfo.CONSTEXPR) {
             output << "constexpr ";
+        }
+    }
+
+    auto Function::addConstModifier(ccl::codegen::BasicCodeGenerator &output) const -> void
+    {
+        if (functionInfo.IS_METHOD && functionInfo.CONSTANT_METHOD) {
+            output << "const ";
+        }
+    }
+
+    auto Function::addNoexceptModifier(ccl::codegen::BasicCodeGenerator &output) const -> void
+    {
+        if (functionInfo.NOEXCEPT) {
+            output << "noexcept ";
         }
     }
 
@@ -63,7 +77,7 @@ namespace fsc::ast
         generateTemplateParameters(output);
 
         if (isMember()) {
-            genVisibility(visibility, output);
+            genVisibility(functionInfo.VISIBILITY, output);
         }
 
         if (magicType == MagicFunctionType::INIT || magicType == MagicFunctionType::DEL) {
@@ -75,15 +89,18 @@ namespace fsc::ast
             addVisibility(output);
 
             if (magicType != MagicFunctionType::NONE) {
-                output << getReturnTypeAsString() << " operator" << MagicToRepr.at(magicType);
+                output << getReturnType().getName() << " operator" << MagicToRepr.at(magicType);
             } else {
-                output << getReturnTypeAsString() << ' ' << name;
+                output << getReturnType().getName() << ' ' << name;
             }
         }
 
         output << '(';
         genArguments(output);
-        output << ')';
+        output << ") ";
+
+        addConstModifier(output);
+        addNoexceptModifier(output);
 
         output << *functionBody.get();
     }

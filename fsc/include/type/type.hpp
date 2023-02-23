@@ -4,10 +4,8 @@
 #include "ast/basic_node.hpp"
 #include "exception.hpp"
 #include "visibility.hpp"
-#include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
 #include <compare>
-#include <functional>
 
 namespace fsc
 {
@@ -25,8 +23,8 @@ namespace fsc
     enum struct CreationType : ccl::u16
     {
         DEFAULT,
-        STRONG_TEMPLATE,
-        WEAK_TEMPLATE
+        TEMPLATE_KEEP_NAME,
+        TEMPLATE_HIDE_NAME
     };
 
     template<ccl::ConstString String, typename T>

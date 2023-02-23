@@ -40,7 +40,7 @@ namespace fsc
     };
 
     template<ccl::ConstString String, typename T>
-    class FscTypeWrapper
+    struct FscTypeWrapper
     {
     public:
         inline constinit static ccl::Id typeId = 0;

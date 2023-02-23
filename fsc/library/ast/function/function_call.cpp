@@ -49,21 +49,24 @@ namespace fsc::ast
                 output.getBackInserter(), "<{}>", fmt::join(functionCallTemplates, ", "));
         }
 
-        output << '('
+        const auto is_constructor = TypeManager::exists(functionName);
+        const auto open_bracket = is_constructor ? '{' : '(';
+        const auto close_bracket = is_constructor ? '}' : ')';
+
+        output << open_bracket
                << ccl::join(
                       arguments,
                       [](const SharedPtr<Node> &argument) {
                           return argument->toString();
                       },
                       ", ")
-               << ')';
+               << close_bracket;
     }
 
     auto FunctionCall::analyze() -> void
     {
         try {
-            auto fn = getFunction();
-            returnedType = fn->analyzeOnCall(arguments, functionCallTemplates);
+            getFunction()->analyzeOnCall(arguments, functionCallTemplates);
         } catch (const FscException &e) {
             GlobalVisitor->throwError(getContext().value(), e.what());
         }
@@ -71,9 +74,7 @@ namespace fsc::ast
 
     auto FunctionCall::getValueType() -> FscType
     {
-        auto fn = getFunction();
-        returnedType = fn->analyzeOnCall(arguments, functionCallTemplates);
-
+        returnedType = getFunction()->analyzeOnCall(arguments, functionCallTemplates);
         return returnedType;
     }
 

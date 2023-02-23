@@ -24,24 +24,28 @@ namespace fsc::ast
         const auto is_constructor =
             (other.classType == Void && getMagicType() == MagicFunctionType::INIT);
 
-        const auto first_arguments_equal = std::ranges::equal(
+        const auto argument_before_parameter_pack_equal = std::ranges::equal(
             arguments.cbegin(), arguments.cend(), other.arguments.cbegin(),
             other.arguments.cbegin() + ccl::as<std::ptrdiff_t>(arguments.size()));
 
-        if (!first_arguments_equal) {
+        if (!argument_before_parameter_pack_equal) {
             return false;
         }
 
-        auto arguments_equal = first_arguments_equal;
+        auto arguments_equal = argument_before_parameter_pack_equal;
 
         if (std::size(other.arguments) > arguments.size()) {
-            arguments_equal = endsWithParameterPack;
+            arguments_equal = functionInfo.HAVE_PARAMETER_PACK;
+        }
+
+        if (!arguments_equal) {
+            return false;
         }
 
         const auto have_similar_names = name == other.name;
         const auto have_similar_class_id = classType == other.classType;
 
-        return arguments_equal && have_similar_names && (have_similar_class_id || is_constructor);
+        return have_similar_names && (have_similar_class_id || is_constructor);
     }
 
     auto Function::analyze() -> void
@@ -58,19 +62,45 @@ namespace fsc::ast
 
     auto Function::analyzeOnCall(
         const SmallVector<NodePtr> &function_arguments,
-        const ccl::SmallVector<FscType> &call_templates) -> FscType
+        const ccl::SmallVector<FscType> &on_call_templates) -> FscType
     {
         auto remap_types_names = SmallVector<std::string>{};
-        auto remap_types_lock = SmallVector<decltype(TypeManager::acquireTypeMap(Void, Void))>{};
+        auto remap_types_lock = SmallVector<AcquireTypeMapType>{};
 
-        for (auto i = ccl::as<size_t>(0); i != std::min(templates.size(), call_templates.size());
-             ++i) {
-            remap_types_lock.emplace_back(
-                TypeManager::acquireTypeMap(templates[i], call_templates[i]));
-            remap_types_names.emplace_back(TypeManager::getTypename(templates[i]));
+        mapExplicitTemplates(remap_types_names, remap_types_lock, on_call_templates);
+        mapImplicitTemplates(remap_types_names, remap_types_lock, function_arguments);
+        checkFunctionArgumentAfterDeductionMatch(
+            function_arguments);// TODO: check this before finding function
+
+        if (magicType == MagicFunctionType::INIT && !functionInfo.BUILTIN_FUNCTION) {
+            analyzeClassAfterConstruction();
+        } else if (!functionInfo.BUILTIN_FUNCTION) {
+            analyzeFunctionAfterTemplatesRemap();
         }
 
-        for (size_t i = 0; i != arguments.size(); ++i) {
+        return deduceReturnType(remap_types_names);
+    }
+
+    auto Function::mapExplicitTemplates(
+        SmallVector<std::string> &remap_types_names,
+        SmallVector<AcquireTypeMapType> &remap_types_lock,
+        const ccl::SmallVector<FscType> &on_call_templates) -> void
+    {
+        auto explicit_templates_to_remap = std::min(templates.size(), on_call_templates.size());
+
+        for (auto i = 0ZU; i != explicit_templates_to_remap; ++i) {
+            remap_types_lock.emplace_back(
+                TypeManager::acquireTypeMap(templates[i], on_call_templates[i]));
+            remap_types_names.emplace_back(TypeManager::getTypename(templates[i]));
+        }
+    }
+
+    auto Function::mapImplicitTemplates(
+        ccl::SmallVector<std::string> &remap_types_names,
+        ccl::SmallVector<AcquireTypeMapType> &remap_types_lock,
+        const SmallVector<NodePtr> &function_arguments) -> void
+    {
+        for (auto i = 0ZU; i != arguments.size(); ++i) {
             const auto argument_type = arguments.at(i).getType();
 
             if (argument_type.isTemplate() && !argument_type.isRemapTemplate()) {
@@ -79,7 +109,11 @@ namespace fsc::ast
                 remap_types_names.emplace_back(TypeManager::getTypename(argument_type));
             }
         }
+    }
 
+    auto Function::checkFunctionArgumentAfterDeductionMatch(
+        const SmallVector<NodePtr> &function_arguments) const noexcept(false) -> void
+    {
         if (!std::ranges::equal(
                 arguments.begin(), arguments.end(), function_arguments.begin(),
                 function_arguments.begin() + ccl::as<long>(arguments.size()),
@@ -88,23 +122,30 @@ namespace fsc::ast
                 })) {
             throw FscException{fmt::format("function argument do not match")};
         }
+    }
 
-        if (magicType == MagicFunctionType::INIT && !builtinFunction) {
-            const auto &class_node = classType.getClass();
-            const auto &fsc_class = class_node->as<ast::Class>();
-            fsc_class.analyzeOnConstruction();
+    auto Function::analyzeClassAfterConstruction() -> void
+    {
+        const auto &class_node = classType.getClass();
+        const auto &fsc_class = class_node->as<ast::Class>();
+        fsc_class.analyzeOnConstruction();
+    }
 
-        } else if (!builtinFunction) {
-            if (!templates.empty()) {
-                completeBody(*visitorPtr);
-            }
-
-            functionBody->analyze();
+    auto Function::analyzeFunctionAfterTemplatesRemap() -> void
+    {
+        if (!templates.empty()) {
+            completeBody(*visitorPtr);
         }
 
+        functionBody->analyze();
+    }
+
+    auto Function::deduceReturnType(const SmallVector<std::string> &remap_types_names) const
+        -> FscType
+    {
         auto returned_type = getReturnType();
 
-        if (magicType == MagicFunctionType::INIT && !remap_types_lock.empty()) {
+        if (magicType == MagicFunctionType::INIT && !remap_types_names.empty()) {
             returned_type =
                 FscType{fmt::format("{}<{}>", name, fmt::join(remap_types_names, ", "))};
         }
@@ -151,7 +192,7 @@ namespace fsc::ast
     auto Function::processAttributes(FunctionAttributeContext *ctx) -> void
     {
         if (ctx->visibility() != nullptr) {
-            visibility = VisibilityByStr.at(ctx->visibility()->getText());
+            functionInfo.VISIBILITY = VisibilityByStr.at(ctx->visibility()->getText());
         }
     }
 
@@ -169,25 +210,12 @@ namespace fsc::ast
         return {arg_name, FscType{type_name}, ArgumentCategories.at(category)};
     }
 
-    auto Function::getReturnTypeAsString() const -> std::string
-    {
-        if (returnType.index() == 0) {
-            return std::get<0>(returnType).getName();
-        }
-
-        return std::get<1>(returnType);
-    }
-
     auto Function::getReturnType() const -> FscType
     {
-        if (returnType.index() == 0) {
-            if (magicType == MagicFunctionType::INIT && !templates.empty()) {
-                return FscType{fmt::format("{}<{}>", name, fmt::join(templates, ", "))};
-            }
-
-            return std::get<0>(returnType);
+        if (magicType == MagicFunctionType::INIT && !templates.empty()) {
+            return FscType{fmt::format("{}<{}>", name, fmt::join(templates, ", "))};
         }
 
-        return FscType{std::get<1>(returnType)};
+        return returnType;
     }
 }// namespace fsc::ast

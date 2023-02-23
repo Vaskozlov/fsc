@@ -70,7 +70,7 @@ namespace fsc::ast
 
         for (auto *function_template : children | sv::filter(CommaFilter)) {
             templates.emplace_back(TypeManager::createNewType(
-                function_template->getText(), {}, CreationType::STRONG_TEMPLATE));
+                function_template->getText(), {}, CreationType::TEMPLATE_KEEP_NAME));
         }
 
         auto type_info = TypeManager::getInfoAboutType(fscType);
@@ -88,6 +88,8 @@ namespace fsc::ast
 
     auto Class::analyzeOnConstruction() const -> void
     {
+        const auto class_scope = ProgramStack.acquireClassScope(fscType);
+        const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
         Body::defaultAnalyze();
     }
 
