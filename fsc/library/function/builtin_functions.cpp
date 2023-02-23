@@ -53,10 +53,10 @@
         }                                                                                          \
     }
 
-#define BUILTIN_EMPTY_CONSTRUCTOR(REPR, TYPE)                                                      \
+#define BUILTIN_EMPTY_CONSTRUCTOR(REPR, TYPE, TEMPLATES)                                           \
     {                                                                                              \
-        Void, #REPR, FscType{TYPE},                                                                \
-        {}                                                                                         \
+        FscType{TYPE}, #REPR, FscType{TYPE}, {}, TEMPLATES, false,                                 \
+            fsc::ast::MagicFunctionType::INIT                                                      \
     }
 
 namespace fsc
@@ -65,37 +65,38 @@ namespace fsc
 
     static auto initializeNumericTypes() -> void
     {
-        FscBool::initialize(CreationType::DEFAULT);
+        FscBool::initialize({.isTriviallyCopyable = true}, CreationType::DEFAULT);
 
-        FscInt32::initialize(CreationType::DEFAULT);
-        FscInt64::initialize(CreationType::DEFAULT);
+        FscInt32::initialize({.isTriviallyCopyable = true}, CreationType::DEFAULT);
+        FscInt64::initialize({.isTriviallyCopyable = true}, CreationType::DEFAULT);
 
-        FscUInt32::initialize(CreationType::DEFAULT);
-        FscUInt64::initialize(CreationType::DEFAULT);
+        FscUInt32::initialize({.isTriviallyCopyable = true}, CreationType::DEFAULT);
+        FscUInt64::initialize({.isTriviallyCopyable = true}, CreationType::DEFAULT);
 
-        FscFloat32::initialize(CreationType::DEFAULT);
-        FscFloat64::initialize(CreationType::DEFAULT);
+        FscFloat32::initialize({.isTriviallyCopyable = true}, CreationType::DEFAULT);
+        FscFloat64::initialize({.isTriviallyCopyable = true}, CreationType::DEFAULT);
     }
 
     static auto initializeString() -> void
     {
-        FscChar::initialize(CreationType::DEFAULT);
-        FscString::initialize(CreationType::DEFAULT);
+        FscChar::initialize({.isTriviallyCopyable = true}, CreationType::DEFAULT);
+        FscString::initialize({.isTriviallyCopyable = false}, CreationType::DEFAULT);
     }
 
     static auto initializeTemplates() -> void
     {
-        FscTemplate1::initialize(CreationType::WEAK_TEMPLATE);
+        VectorType::initialize({.templatesParametersCount = 1}, CreationType::DEFAULT);
+        FscTemplate1::initialize({}, CreationType::WEAK_TEMPLATE);
     }
 
     static auto initializeTypes() -> void
     {
-        VoidT::initialize(CreationType::DEFAULT);
-        AutoT::initialize(CreationType::DEFAULT);
+        VoidType::initialize({.isTriviallyCopyable = true}, CreationType::DEFAULT);
+        AutoType::initialize({.isTriviallyCopyable = false}, CreationType::DEFAULT);
 
         initializeNumericTypes();
-        initializeString();
         initializeTemplates();
+        initializeString();
     }
 
     auto initializeCompilerBuiltin() -> void
@@ -184,28 +185,51 @@ namespace fsc
         };
 
         auto Constructors = Vector<ast::Function>{
-            BUILTIN_EMPTY_CONSTRUCTOR(i32, Int32),     BUILTIN_EMPTY_CONSTRUCTOR(i64, Int64),
-            BUILTIN_EMPTY_CONSTRUCTOR(u32, UInt32),    BUILTIN_EMPTY_CONSTRUCTOR(u64, UInt64),
-            BUILTIN_EMPTY_CONSTRUCTOR(f32, Float32),   BUILTIN_EMPTY_CONSTRUCTOR(f64, Float64),
-            BUILTIN_EMPTY_CONSTRUCTOR(bool, Bool),     BUILTIN_EMPTY_CONSTRUCTOR(char, Char),
-            BUILTIN_EMPTY_CONSTRUCTOR(String, String), BUILTIN_CONVERT(f32, Float32, Int32),
-            BUILTIN_CONVERT(f32, Float32, Float32),    BUILTIN_CONVERT(f32, Float32, Int64),
-            BUILTIN_CONVERT(f32, Float32, UInt32),     BUILTIN_CONVERT(f32, Float32, UInt64),
-            BUILTIN_CONVERT(f32, Float32, Float64),    BUILTIN_CONVERT(f64, Float64, Float64),
-            BUILTIN_CONVERT(f64, Float64, Int32),      BUILTIN_CONVERT(f64, Float64, Int64),
-            BUILTIN_CONVERT(f64, Float64, UInt32),     BUILTIN_CONVERT(f64, Float64, UInt64),
-            BUILTIN_CONVERT(f64, Float64, Float32),    BUILTIN_CONVERT(i32, Int32, Int64),
-            BUILTIN_CONVERT(i32, Int32, Int32),        BUILTIN_CONVERT(i32, Int32, UInt32),
-            BUILTIN_CONVERT(i32, Int32, UInt64),       BUILTIN_CONVERT(i32, Int32, Float32),
-            BUILTIN_CONVERT(i32, Int32, Float64),      BUILTIN_CONVERT(i64, Int64, Int32),
-            BUILTIN_CONVERT(i64, Int64, Int64),        BUILTIN_CONVERT(i64, Int64, UInt32),
-            BUILTIN_CONVERT(i64, Int64, UInt64),       BUILTIN_CONVERT(i64, Int64, Float32),
-            BUILTIN_CONVERT(i64, Int64, Float64),      BUILTIN_CONVERT(u32, UInt32, Int32),
-            BUILTIN_CONVERT(u32, UInt32, UInt32),      BUILTIN_CONVERT(u32, UInt32, Int64),
-            BUILTIN_CONVERT(u32, UInt32, UInt64),      BUILTIN_CONVERT(u32, UInt32, Float32),
-            BUILTIN_CONVERT(u32, UInt32, Float64),     BUILTIN_CONVERT(u64, UInt64, Int32),
-            BUILTIN_CONVERT(u64, UInt64, UInt64),      BUILTIN_CONVERT(u64, UInt64, Int64),
-            BUILTIN_CONVERT(u64, UInt64, UInt32),      BUILTIN_CONVERT(u64, UInt64, Float32),
+            BUILTIN_EMPTY_CONSTRUCTOR(i32, Int32, {}),
+            BUILTIN_EMPTY_CONSTRUCTOR(i64, Int64, {}),
+            BUILTIN_EMPTY_CONSTRUCTOR(u32, UInt32, {}),
+            BUILTIN_EMPTY_CONSTRUCTOR(u64, UInt64, {}),
+            BUILTIN_EMPTY_CONSTRUCTOR(f32, Float32, {}),
+            BUILTIN_EMPTY_CONSTRUCTOR(f64, Float64, {}),
+            BUILTIN_EMPTY_CONSTRUCTOR(bool, Bool, {}),
+            BUILTIN_EMPTY_CONSTRUCTOR(char, Char, {}),
+            BUILTIN_EMPTY_CONSTRUCTOR(String, String, {}),
+            BUILTIN_EMPTY_CONSTRUCTOR(Vector, VectorTemplate, {Template1}),
+            BUILTIN_CONVERT(f32, Float32, Int32),
+            BUILTIN_CONVERT(f32, Float32, Float32),
+            BUILTIN_CONVERT(f32, Float32, Int64),
+            BUILTIN_CONVERT(f32, Float32, UInt32),
+            BUILTIN_CONVERT(f32, Float32, UInt64),
+            BUILTIN_CONVERT(f32, Float32, Float64),
+            BUILTIN_CONVERT(f64, Float64, Float64),
+            BUILTIN_CONVERT(f64, Float64, Int32),
+            BUILTIN_CONVERT(f64, Float64, Int64),
+            BUILTIN_CONVERT(f64, Float64, UInt32),
+            BUILTIN_CONVERT(f64, Float64, UInt64),
+            BUILTIN_CONVERT(f64, Float64, Float32),
+            BUILTIN_CONVERT(i32, Int32, Int64),
+            BUILTIN_CONVERT(i32, Int32, Int32),
+            BUILTIN_CONVERT(i32, Int32, UInt32),
+            BUILTIN_CONVERT(i32, Int32, UInt64),
+            BUILTIN_CONVERT(i32, Int32, Float32),
+            BUILTIN_CONVERT(i32, Int32, Float64),
+            BUILTIN_CONVERT(i64, Int64, Int32),
+            BUILTIN_CONVERT(i64, Int64, Int64),
+            BUILTIN_CONVERT(i64, Int64, UInt32),
+            BUILTIN_CONVERT(i64, Int64, UInt64),
+            BUILTIN_CONVERT(i64, Int64, Float32),
+            BUILTIN_CONVERT(i64, Int64, Float64),
+            BUILTIN_CONVERT(u32, UInt32, Int32),
+            BUILTIN_CONVERT(u32, UInt32, UInt32),
+            BUILTIN_CONVERT(u32, UInt32, Int64),
+            BUILTIN_CONVERT(u32, UInt32, UInt64),
+            BUILTIN_CONVERT(u32, UInt32, Float32),
+            BUILTIN_CONVERT(u32, UInt32, Float64),
+            BUILTIN_CONVERT(u64, UInt64, Int32),
+            BUILTIN_CONVERT(u64, UInt64, UInt64),
+            BUILTIN_CONVERT(u64, UInt64, Int64),
+            BUILTIN_CONVERT(u64, UInt64, UInt32),
+            BUILTIN_CONVERT(u64, UInt64, Float32),
             BUILTIN_CONVERT(u64, UInt64, Float64),
         };
 
@@ -226,6 +250,15 @@ namespace fsc
                                   {String, "toI64", Int64, {}},   {String, "toU64", UInt64, {}},
                                   {String, "toF32", Float32, {}}, {String, "toF64", Float64, {}}};
 
+
+        auto VectorMethods = Vector<ast::Function>{
+            {VectorTemplate, "size", UInt64, {}},
+            {VectorTemplate,
+             "push_back",
+             Void,
+             {Argument{"value", Template1, ArgumentCategory::IN}}},
+            {VectorTemplate, "at", Template1, {Argument{"index", UInt64, ArgumentCategory::IN}}}};
+
         auto MemoryAllocation = Vector<ast::Function>{
             {Void,
              "construct",
@@ -234,10 +267,11 @@ namespace fsc
              {Template1}}};
 
         func::Functions.registerFunctions(
-            {Constructors, AddFunctions, SubFunctions, MulFunctions, DivFunctions, LessFunctions,
-             GreaterFunctions, LessEqFunctions, GreaterEqFunctions, LogicalAndFunctions,
-             LogicalOrFunctions, EqualFunctions, NotEqualFunctions, AssignFunctions, InputFunctions,
-             OutputFunctions, FormatFunctions, StringMethods, MemoryAllocation});
+            {Constructors,       AddFunctions,        SubFunctions,       MulFunctions,
+             DivFunctions,       LessFunctions,       GreaterFunctions,   LessEqFunctions,
+             GreaterEqFunctions, LogicalAndFunctions, LogicalOrFunctions, EqualFunctions,
+             NotEqualFunctions,  AssignFunctions,     InputFunctions,     OutputFunctions,
+             FormatFunctions,    VectorMethods,       StringMethods,      MemoryAllocation});
 
         initialized = true;
     }

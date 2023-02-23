@@ -64,7 +64,8 @@ namespace fsc::ast
             FscType class_type, std::string_view function_name, FscType return_type,
             ccl::InitializerList<Argument> function_arguments,
             const ccl::SmallVector<FscType> &function_templates = {},
-            bool ends_with_parameter_pack = false);
+            bool ends_with_parameter_pack = false,
+            MagicFunctionType magic = MagicFunctionType::NONE);
 
         auto finishConstruction(
             const FunctionContext *function_context, Visitor &visitor, FscType class_type) -> void;
@@ -148,7 +149,7 @@ namespace fsc::ast
         auto processTemplates(FscParser::Function_templatesContext *ctx) -> void;
 
         auto genArguments(ccl::codegen::BasicCodeGenerator &output) -> void;
-        auto argumentToString(ccl::codegen::BasicCodeGenerator &output, Argument &arg) -> void;
+        auto argumentToString(Argument &arg) const -> std::string;
         auto readArguments(const FscParser::ParametersContext *parameters_context, Visitor &visitor)
             -> void;
 

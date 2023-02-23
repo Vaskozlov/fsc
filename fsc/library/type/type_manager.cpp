@@ -135,8 +135,10 @@ namespace fsc
     auto TypeManager::map(FscType key, FscType value) -> void
     {
         if (getRemapTypes().contains(key.getId())) {
-            throw std::invalid_argument{
-                fmt::format("Unable to map {} more than once at the same time", getTypename(key))};
+            throw std::invalid_argument{fmt::format(
+                "Unable to map {}:{} more than once at the same time",
+                getTypename(key),
+                key.getId())};
         }
 
         getTemplatedTypes().emplace(key);

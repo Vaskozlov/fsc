@@ -1,5 +1,6 @@
 #include "ast/function/function_call.hpp"
 #include "function/functions_holder.hpp"
+#include <ccl/join.hpp>
 #include <ranges>
 
 using namespace ccl;
@@ -48,17 +49,14 @@ namespace fsc::ast
                 output.getBackInserter(), "<{}>", fmt::join(functionCallTemplates, ", "));
         }
 
-        output << '(';
-
-        for (const auto &argument : arguments | ccl::views::dropBack(arguments)) {
-            output << *argument << ", ";
-        }
-
-        if (!arguments.empty()) {
-            output << *arguments.back();
-        }
-
-        output << ')';
+        output << '('
+               << ccl::join(
+                      arguments,
+                      [](const SharedPtr<Node> &argument) {
+                          return argument->toString();
+                      },
+                      ", ")
+               << ')';
     }
 
     auto FunctionCall::analyze() -> void

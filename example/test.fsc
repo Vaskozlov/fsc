@@ -22,21 +22,16 @@ func any<T2>(inout T2 a)
     print("{}\n", a.test())
 }
 
-func test<T>(in T a)
-{
-    return a
-}
-
 func main() -> i32
 {
     var t = S<i32>(10)
     var k = S<f32>(15.34)
+    var vec = Vector<i32>()
+
+    vec.push_back(10)
 
     any(t)
     any(k)
-
-    test<i32>(10)
-    test<f32>(10.0)
 
     return 0
 }

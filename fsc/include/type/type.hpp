@@ -123,5 +123,4 @@ struct fmt::formatter<fsc::FscType> : fmt::formatter<std::string>
     }
 };
 
-
 #endif /* FSC_TYPE_HPP */

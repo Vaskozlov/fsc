@@ -4,7 +4,8 @@ namespace fsc
 {
     using namespace std::string_view_literals;
 
-    auto genVisibility(Visibility visibility, ccl::codegen::BasicCodeGenerator &output) -> void
+    static auto genMethodVisibility(Visibility visibility, ccl::codegen::BasicCodeGenerator &output)
+        -> void
     {
         switch (visibility) {
         case Visibility::PUBLIC:
@@ -24,5 +25,10 @@ namespace fsc
         }
 
         output << ccl::codegen::endl;
+    }
+
+    auto genVisibility(Visibility visibility, ccl::codegen::BasicCodeGenerator &output) -> void
+    {
+        genMethodVisibility(visibility, output);
     }
 }// namespace fsc

@@ -1,5 +1,6 @@
 #include "ast/function/function.hpp"
 #include "ast/function/magic_methods_table.hpp"
+#include <ccl/join.hpp>
 
 using namespace ccl;
 using namespace fsc::ast::magic;
@@ -40,22 +41,20 @@ namespace fsc::ast
 
     auto Function::genArguments(codegen::BasicCodeGenerator &output) -> void
     {
-        for (auto &arg : arguments | ccl::views::dropBack(arguments)) {
-            argumentToString(output, arg);
-            output << ", ";
-        }
-
-        if (!arguments.empty()) {
-            argumentToString(output, arguments.back());
-        }
+        output << ccl::join(
+            arguments,
+            [this](Argument &argument) {
+                return argumentToString(argument);
+            },
+            ", ");
     }
 
     auto Function::generateTemplateParameters(codegen::BasicCodeGenerator &output) const -> void
     {
         if (!templates.empty()) {
-            output << "template<typename ";
-            fmt::format_to(output.getBackInserter(), "{}", fmt::join(templates, ", typename "));
-            output << ">\n";
+            fmt::format_to(
+                output.getBackInserter(), "template<typename {}>\n",
+                fmt::join(templates, ", typename "));
         }
     }
 

@@ -123,6 +123,13 @@ namespace fsc::ast
     auto Node::optimize(OptimizationLevel /* unused */) -> void
     {}
 
+    auto Node::toString() -> std::string
+    {
+        auto tmp_codegen = codegen::BasicCodeGenerator{};
+        tmp_codegen << *this;
+        return tmp_codegen.getCode();
+    }
+
     auto operator<<(codegen::BasicCodeGenerator &generator, Node &node)
         -> codegen::BasicCodeGenerator &
     {

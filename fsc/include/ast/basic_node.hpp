@@ -100,6 +100,8 @@ namespace fsc::ast
 
         virtual auto optimize(OptimizationLevel /* unused */) -> void;
 
+        [[nodiscard]] auto toString() -> std::string;
+
         auto setStart(antlr4::Token *rule_start) noexcept -> void
         {
             start = rule_start;
@@ -205,5 +207,6 @@ namespace fsc::ast
     auto operator<<(ccl::codegen::BasicCodeGenerator &generator, Node &node)
         -> ccl::codegen::BasicCodeGenerator &;
 }// namespace fsc::ast
+
 
 #endif /* FSC_BASIC_NODE_HPP */

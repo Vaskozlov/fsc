@@ -103,9 +103,9 @@ namespace fsc::ast
     auto Class::generateTemplateParameters(codegen::BasicCodeGenerator &output) const -> void
     {
         if (!templates.empty()) {
-            output << "template<typename ";
-            fmt::format_to(output.getBackInserter(), "{}", fmt::join(templates, ", typename "));
-            output << ">\n";
+            fmt::format_to(
+                output.getBackInserter(), "template<typename {}>\n",
+                fmt::join(templates, ", typename "));
         }
     }
 

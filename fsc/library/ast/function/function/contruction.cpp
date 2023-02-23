@@ -21,12 +21,14 @@ namespace fsc::ast
     Function::Function(
         FscType class_type, std::string_view function_name, FscType return_type,
         InitializerList<Argument> function_arguments,
-        const ccl::SmallVector<FscType> &function_templates, bool ends_with_parameter_pack)
+        const ccl::SmallVector<FscType> &function_templates, bool ends_with_parameter_pack,
+        MagicFunctionType magic)
       : arguments{function_arguments}
       , templates{function_templates}
       , name{function_name}
       , returnType{return_type}
       , classType{class_type}
+      , magicType{magic}
       , endsWithParameterPack{ends_with_parameter_pack}
       , builtinFunction{true}
     {}

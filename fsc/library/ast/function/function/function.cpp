@@ -121,14 +121,17 @@ namespace fsc::ast
         }
     }
 
-    auto Function::argumentToString(codegen::BasicCodeGenerator &output, Argument &arg) -> void
+    auto Function::argumentToString(Argument &arg) const -> std::string
     {
+        auto tmp_codegen = codegen::BasicCodeGenerator{};
         const auto &argument_name = arg.getName();
-        output << arg;
+        tmp_codegen << arg;
 
         if (defaultArguments.contains(argument_name)) {
-            output << " = " << *defaultArguments.at(argument_name);
+            tmp_codegen << " = " << *defaultArguments.at(argument_name);
         }
+
+        return tmp_codegen.getCode();
     }
 
     auto Function::setReturnType(const std::vector<antlr4::tree::ParseTree *> &nodes) -> void

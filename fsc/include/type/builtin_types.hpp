@@ -31,9 +31,10 @@ namespace fsc
     {
         inline constinit static ccl::Id typeId = 0;
 
-        static auto initialize(CreationType creation_type) -> void
+        static auto initialize(TypeInfo type_info, CreationType creation_type) -> void
         {
-            typeId = TypeManager::createNewType(static_cast<std::string>(String), {}, creation_type)
+            typeId = TypeManager::createNewType(
+                         static_cast<std::string>(String), type_info, creation_type)
                          .getId();
         }
     };
@@ -44,9 +45,10 @@ namespace fsc
     public:
         inline constinit static ccl::Id typeId = 0;
 
-        static auto initialize(CreationType creation_type) -> void
+        static auto initialize(TypeInfo type_info, CreationType creation_type) -> void
         {
-            typeId = TypeManager::createNewType(static_cast<std::string>(String), {}, creation_type)
+            typeId = TypeManager::createNewType(
+                         static_cast<std::string>(String), type_info, creation_type)
                          .getId();
         }
 
@@ -60,16 +62,21 @@ namespace fsc
         {}
     };
 
-    struct VoidT : FscTypeWrapper<"void", void>
+    struct VoidType : FscTypeWrapper<"void", void>
     {
     };
 
-    struct AutoT : FscTypeWrapper<"auto", void>
+    struct AutoType : FscTypeWrapper<"auto", void>
     {
     };
 
-    inline constexpr auto Void = VoidT{};
-    inline constexpr auto Auto = AutoT{};
+    struct VectorType : FscTypeWrapper<"Vector", void>
+    {
+    };
+
+    inline constexpr auto Void = VoidType{};
+    inline constexpr auto Auto = AutoType{};
+    inline constexpr auto VectorTemplate = VectorType{};
 
     FSC_WRAP_TYPE(Bool, "bool", bool);
 
@@ -83,7 +90,10 @@ namespace fsc
     FSC_WRAP_TYPE(Char, "char", char);
     FSC_WRAP_TYPE(String, "String", std::string);
 
-    FSC_WRAP_TYPE(Template1, "T1", void);
+    FSC_WRAP_TYPE(Template1, "_FSC_TEMPLATE_1", void);
+    FSC_WRAP_TYPE(Template2, "_FSC_TEMPLATE_2", void);
+    FSC_WRAP_TYPE(Template3, "_FSC_TEMPLATE_3", void);
+    FSC_WRAP_TYPE(Template4, "_FSC_TEMPLATE_4", void);
 
     auto initializeCompilerBuiltin() -> void;
 }// namespace fsc

@@ -49,10 +49,14 @@ namespace fsc::func
         auto &functions_with_similar_class_id = functions[class_type];
         auto &functions_with_similar_name = functions_with_similar_class_id[function->getName()];
 
-        if (std::ranges::find(functions_with_similar_name, function) !=
-            functions_with_similar_name.end()) {
-            throw std::runtime_error(
-                fmt::format("function with name {} already exists", function->getName()));
+        if (auto similar_function_it = std::ranges::find(functions_with_similar_name, function);
+            similar_function_it != functions_with_similar_name.end()) {
+            auto &similar_function = *similar_function_it;
+
+            if (similar_function->getArguments() == function->getArguments()) {
+                throw std::runtime_error(
+                    fmt::format("function with name {} already exists", function->getName()));
+            }
         }
 
         functions_with_similar_name.push_back(function);
