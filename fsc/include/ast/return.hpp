@@ -13,7 +13,7 @@ namespace fsc::ast
     public:
         explicit Return(NodePtr value_to_return, BasicContextPtr node_context);
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 

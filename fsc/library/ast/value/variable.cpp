@@ -1,6 +1,5 @@
 #include "ast/value/variable.hpp"
 #include <fmt/format.h>
-#include <type/type.hpp>
 
 namespace fsc::ast
 {
@@ -15,8 +14,10 @@ namespace fsc::ast
         CCL_ASSERT(this->getNodeType() == NodeType::VARIABLE);
     }
 
-    auto Variable::analyze() -> void
-    {}
+    auto Variable::analyze() -> AnalysisReport
+    {
+        return {};
+    }
 
     auto Variable::codeGen(codegen::BasicCodeGenerator &output) -> void
     {

@@ -45,7 +45,7 @@ namespace fsc
             return globalStorage.at(name);
         }
 
-        throw std::runtime_error(fmt::format("Variable {} does not exist", name));
+        throw FscException(fmt::format("Variable {} does not exist", name));
     }
 
     CCL_INLINE auto Stack::isMemberVariable(const std::string &name) const -> bool

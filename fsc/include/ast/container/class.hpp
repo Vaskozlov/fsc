@@ -19,12 +19,11 @@ namespace fsc::ast
     public:
         explicit Class(std::string class_name);
 
-        auto finishClass(
-            Visitor &visitor, BodyContext *body_context, TemplateContext *template_context) -> void;
+        auto finishClass(BodyContext *body_context, TemplateContext *template_context) -> void;
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
 
-        auto analyzeOnConstruction() const -> void;
+        auto analyzeOnConstruction() const -> AnalysisReport;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 

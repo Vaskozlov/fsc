@@ -1,7 +1,7 @@
 #ifndef FSC_BODY_HPP
 #define FSC_BODY_HPP
 
-#include "ast/basic_node.hpp"
+#include "ast/analysis_report.hpp"
 #include "ccl/codegen/basic_codegen.hpp"
 
 namespace fsc::ast
@@ -21,7 +21,7 @@ namespace fsc::ast
             return nodes.end();
         }
 
-        auto analyze() -> void override;
+        auto analyze() -> AnalysisReport override;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void override;
 
@@ -37,7 +37,7 @@ namespace fsc::ast
             nodes.emplace_back(std::move(node));
         }
 
-        auto defaultAnalyze() const -> void;
+        auto defaultAnalyze() const -> AnalysisReport;
         auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void;
         auto defaultBodyPrint(const std::string &prefix, bool is_left) const -> void;
     };

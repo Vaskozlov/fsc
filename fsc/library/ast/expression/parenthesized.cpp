@@ -12,9 +12,9 @@ namespace fsc::ast
         return node->getValueType();
     }
 
-    auto Parenthesized::analyze() -> void
+    auto Parenthesized::analyze() -> AnalysisReport
     {
-        node->analyze();
+        return node->analyze();
     }
 
     auto Parenthesized::optimize(OptimizationLevel optimization_level) -> void

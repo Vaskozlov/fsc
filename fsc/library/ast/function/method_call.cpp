@@ -17,10 +17,11 @@ namespace fsc::ast
       , expression{std::move(expression_for_call)}
     {}
 
-    auto MethodCall::analyze() -> void
+    auto MethodCall::analyze() -> AnalysisReport
     {
-        expression->analyze();
-        FunctionCall::analyze();
+        auto expression_analysis = expression->analyze();
+        expression_analysis.merge(FunctionCall::analyze());
+        return expression_analysis;
     }
 
     auto MethodCall::print(const std::string &prefix, bool is_left) const -> void
@@ -28,7 +29,7 @@ namespace fsc::ast
         fmt::print(
             "{}Method call {}\n", getPrintingPrefix(prefix, is_left),
             expression->getValueType().getName());
-        FunctionCall::defaultPrint(expandPrefix(prefix, false), false);
+        FunctionCall::defaultPrint(expandPrefix(prefix, is_left), false);
     }
 
     auto MethodCall::codeGen(codegen::BasicCodeGenerator &output) -> void

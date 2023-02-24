@@ -24,13 +24,13 @@ namespace fsc::ast
 
         VariableDefinition(
             std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags,
-            Visitor &visitor, BasicContextPtr ctx);
+            BasicContextPtr ctx);
 
-        VariableDefinition(Visitor &visitor, VariableDefinitionContext *ctx);
+        explicit VariableDefinition(VariableDefinitionContext *ctx);
 
-        VariableDefinition(Visitor &visitor, AutoVariableDefinitionContext *ctx);
+        explicit VariableDefinition(AutoVariableDefinitionContext *ctx);
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
@@ -45,7 +45,7 @@ namespace fsc::ast
         static auto readType(FscParser::Variable_definitionContext *ctx) -> FscType;
         static auto readName(auto *ctx) -> std::string;
         static auto readFlags(auto *ctx) -> VariableFlags;
-        static auto readInitializer(Visitor &visitor, auto *ctx) -> NodePtr;
+        static auto readInitializer(auto *ctx) -> NodePtr;
     };
 }// namespace fsc::ast
 

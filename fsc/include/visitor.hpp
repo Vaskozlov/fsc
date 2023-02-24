@@ -51,11 +51,6 @@ namespace fsc
             };
         }
 
-        auto updateFunctionReturnType(FscType new_type) -> void
-        {
-            functionReturnStack.back() = new_type;
-        }
-
         [[nodiscard]] auto visitAsNode(auto *node) -> ccl::SharedPtr<ast::Node>
         {
             return castToNode(visit(node));

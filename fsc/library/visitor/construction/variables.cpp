@@ -8,7 +8,7 @@ namespace fsc
     auto Visitor::constructVariableDefinition(FscParser::Variable_definitionContext *ctx)
         -> ast::NodePtr
     {
-        auto variable = ccl::makeShared<ast::VariableDefinition>(*this, ctx);
+        auto variable = ccl::makeShared<ast::VariableDefinition>(ctx);
         ProgramStack.addVariable(variable);
         return variable;
     }
@@ -16,7 +16,7 @@ namespace fsc
     auto Visitor::constructAutoVariableDefinition(AutoVariableDefinitionContext *ctx)
         -> ast::NodePtr
     {
-        auto variable = ccl::makeShared<ast::VariableDefinition>(*this, ctx);
+        auto variable = ccl::makeShared<ast::VariableDefinition>(ctx);
         ProgramStack.addVariable(variable);
         return variable;
     }

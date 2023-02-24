@@ -15,7 +15,7 @@ namespace fsc
     {
         auto out = std::ofstream{filename};
 
-        const auto file_watcher = ccl::Raii(
+        const auto file_tracker = ccl::Raii(
             []() {
             },
             [&out]() {

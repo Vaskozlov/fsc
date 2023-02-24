@@ -28,8 +28,7 @@ namespace fsc::ast
       , fscType{TypeManager::createNewType(name, {.isTriviallyCopyable = false})}
     {}
 
-    auto Class::finishClass(
-        Visitor &visitor, BodyContext *body_context, TemplateContext *template_context) -> void
+    auto Class::finishClass(BodyContext *body_context, TemplateContext *template_context) -> void
     {
         const auto templates_map = ccl::Raii{
             [this, template_context]() {
@@ -49,7 +48,7 @@ namespace fsc::ast
             sv::drop(1) | views::dropBack(body_children, 2) | sv::filter(NewLineFilter);
 
         for (auto *child : body_children | modifiers) {
-            addNode(visitor.visitAsNode(child));
+            addNode(GlobalVisitor->visitAsNode(child));
         }
     }
 
@@ -79,18 +78,20 @@ namespace fsc::ast
         TypeManager::updateTypeInfo(fscType, type_info);
     }
 
-    auto Class::analyze() -> void
+    auto Class::analyze() -> AnalysisReport
     {
         if (templates.empty()) {
-            Body::defaultAnalyze();
+            return Body::defaultAnalyze();
         }
+
+        return {};
     }
 
-    auto Class::analyzeOnConstruction() const -> void
+    auto Class::analyzeOnConstruction() const -> AnalysisReport
     {
         const auto class_scope = ProgramStack.acquireClassScope(fscType);
         const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
-        Body::defaultAnalyze();
+        return Body::defaultAnalyze();
     }
 
     auto Class::codeGen(ccl::codegen::BasicCodeGenerator &output) -> void

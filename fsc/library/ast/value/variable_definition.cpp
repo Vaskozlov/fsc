@@ -27,32 +27,30 @@ namespace fsc::ast
 
     VariableDefinition::VariableDefinition(
         std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags,
-        Visitor &visitor, BasicContextPtr ctx)
+        BasicContextPtr ctx)
       : VariableDefinition{
-            std::move(variable_name), toLazy([variable_initializer, &visitor, ctx]() {
+            std::move(variable_name), toLazy([variable_initializer, ctx]() {
                 try {
                     return variable_initializer->getValueType();
                 } catch (const FscException &e) {
-                    visitor.throwError(ctx, e.what());
+                    GlobalVisitor->throwError(ctx, e.what());
                 }
             }),
             variable_flags, std::move(variable_initializer)}
     {}
 
-    VariableDefinition::VariableDefinition(Visitor &visitor, VariableDefinitionContext *ctx)
-      : VariableDefinition{
-            readName(ctx), Lazy{readType(ctx)}, readFlags(ctx), readInitializer(visitor, ctx)}
+    VariableDefinition::VariableDefinition(VariableDefinitionContext *ctx)
+      : VariableDefinition{readName(ctx), Lazy{readType(ctx)}, readFlags(ctx), readInitializer(ctx)}
     {}
 
-    VariableDefinition::VariableDefinition(Visitor &visitor, AutoVariableDefinitionContext *ctx)
-      : VariableDefinition{
-            readName(ctx), readInitializer(visitor, ctx), readFlags(ctx), visitor, ctx}
+    VariableDefinition::VariableDefinition(AutoVariableDefinitionContext *ctx)
+      : VariableDefinition{readName(ctx), readInitializer(ctx), readFlags(ctx), ctx}
     {}
 
-    auto VariableDefinition::analyze() -> void
+    auto VariableDefinition::analyze() -> AnalysisReport
     {
         if (initializer == nullptr) {
-            return;
+            return {};
         }
 
         const auto value_type = getValueType();
@@ -64,7 +62,7 @@ namespace fsc::ast
                 "initializer return type");
         }
 
-        initializer->analyze();
+        return initializer->analyze();
     }
 
     auto VariableDefinition::print(const std::string &prefix, bool is_left) const -> void
@@ -131,12 +129,12 @@ namespace fsc::ast
         return flags;
     }
 
-    auto VariableDefinition::readInitializer(Visitor &visitor, auto *ctx) -> NodePtr
+    auto VariableDefinition::readInitializer(auto *ctx) -> NodePtr
     {
         const auto *expr = ccl::as<ExpressionContext *>(ctx->children.back());
 
         if (expr != nullptr) {
-            return visitor.visitAsNode(ctx->children.back());
+            return GlobalVisitor->visitAsNode(ctx->children.back());
         }
 
         return nullptr;

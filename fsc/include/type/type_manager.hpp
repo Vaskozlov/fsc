@@ -76,6 +76,9 @@ namespace fsc
             getMemberVariable(FscType type, const std::string &member_variable_name)
                 -> ast::NodePtr;
 
+        [[nodiscard]] static auto getMemberVariables(FscType type)
+            -> const ccl::Map<std::string, ast::NodePtr> &;
+
         static auto createNewType(
             const std::string &type_name,
             TypeInfo type_flags,

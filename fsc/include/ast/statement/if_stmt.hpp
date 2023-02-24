@@ -15,18 +15,18 @@ namespace fsc::ast
         NodePtr elseNode;
 
     public:
-        IfStmt(Visitor &visitor, IfStatementContext *ctx);
+        IfStmt(IfStatementContext *ctx);
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
     private:
-        auto parseIfStmt(Visitor &visitor, IfContext *ctx) -> void;
-        auto parseElifStmt(Visitor &visitor, ElifContext *ctx) -> void;
-        auto parseElseStmt(Visitor &visitor, ElseContext *ctx) -> void;
+        auto parseIfStmt(IfContext *ctx) -> void;
+        auto parseElifStmt(ElifContext *ctx) -> void;
+        auto parseElseStmt(ElseContext *ctx) -> void;
     };
 }// namespace fsc::ast
 

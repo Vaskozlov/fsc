@@ -18,7 +18,7 @@ namespace fsc
 
     auto Visitor::constructIf(IfStatementContext *ctx) -> ast::NodePtr
     {
-        return makeShared<ast::IfStmt>(*this, ctx);
+        return makeShared<ast::IfStmt>(ctx);
     }
 
     auto Visitor::constructWhile(WhileContext *ctx) -> ast::NodePtr

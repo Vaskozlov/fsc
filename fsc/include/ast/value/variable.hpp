@@ -1,7 +1,7 @@
 #ifndef FSC_VARIABLE_HPP
 #define FSC_VARIABLE_HPP
 
-#include "ast/basic_node.hpp"
+#include "ast/analysis_report.hpp"
 #include "type/type.hpp"
 #include "visibility.hpp"
 #include <ccl/lazy.hpp>
@@ -20,15 +20,18 @@ namespace fsc::ast
     class Variable : public NodeWrapper<NodeType::VARIABLE, SemicolonNeed::NEED>
     {
     private:
+        static inline constinit std::atomic<ccl::Id> variableUuid{0};
+
         std::string name{};
         ccl::Lazy<FscType> type;
         VariableFlags flags{};
+        ccl::Id uuid{variableUuid++};
 
     public:
         Variable(
             std::string variable_name, ccl::Lazy<FscType> &&fsc_type, VariableFlags variable_flags);
 
-        auto analyze() -> void override;
+        auto analyze() -> AnalysisReport override;
 
         auto print(const std::string &prefix, bool is_left) const -> void override;
 
@@ -37,6 +40,11 @@ namespace fsc::ast
         auto memberize() noexcept -> void
         {
             flags.memberVariable = true;
+        }
+
+        [[nodiscard]] auto getUuid() const noexcept -> ccl::Id
+        {
+            return uuid;
         }
 
         [[nodiscard]] auto getName() const noexcept -> const std::string &

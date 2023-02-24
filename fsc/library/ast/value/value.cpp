@@ -11,8 +11,10 @@ namespace fsc::ast
       , value{std::move(t_value)}
     {}
 
-    auto Value::analyze() -> void
-    {}
+    auto Value::analyze() -> AnalysisReport
+    {
+        return {};
+    }
 
     auto Value::codeGen(codegen::BasicCodeGenerator &output) -> void
     {

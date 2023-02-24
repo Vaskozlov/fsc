@@ -284,6 +284,12 @@ namespace fsc
         return getTypesMemberVariables().at(type).at(member_variable_name);
     }
 
+    auto TypeManager::getMemberVariables(FscType type)
+        -> const ccl::Map<std::string, ast::NodePtr> &
+    {
+        return getTypesMemberVariables()[type];
+    }
+
     auto TypeManager::createNewType(
         const std::string &type_name,
         TypeInfo type_flags,

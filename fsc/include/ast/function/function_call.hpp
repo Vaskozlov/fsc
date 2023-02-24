@@ -23,7 +23,7 @@ namespace fsc::ast
             const ccl::SmallVector<NodePtr> &function_arguments,
             const ccl::SmallVector<FscType> &templates, BasicContextPtr node_context);
 
-        auto analyze() -> void;
+        auto analyze() -> AnalysisReport;
 
         auto print(const std::string &prefix, bool is_left) const -> void override;
 
@@ -32,6 +32,8 @@ namespace fsc::ast
         [[nodiscard]] auto getValueType() -> FscType final;
 
     protected:
+        auto attemptToAnalyze() -> AnalysisReport;
+
         auto defaultPrint(const std::string &prefix, bool is_left) const -> void;
         auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void;
         auto getFunction() const -> ccl::SharedPtr<Function>;

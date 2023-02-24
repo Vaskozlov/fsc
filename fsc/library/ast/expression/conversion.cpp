@@ -14,14 +14,14 @@ namespace fsc::ast
       , type{fsc_type}
     {}
 
-    auto Conversion::analyze() -> void
+    auto Conversion::analyze() -> AnalysisReport
     {
         const auto &function_name = type.getName();
         const auto arguments = SmallVector<Argument>{Argument{value.get()}};
         const auto signature_view = SignatureView{function_name, arguments, Void};
+        auto function = func::Functions.get(signature_view);
 
-        [[maybe_unused]] auto make_sure_that_conversion_exists =
-            func::Functions.visitFunction(signature_view, std::mem_fn(&Function::getReturnType));
+        return function->analyze();
     }
 
     auto Conversion::codeGen(codegen::BasicCodeGenerator &output) -> void

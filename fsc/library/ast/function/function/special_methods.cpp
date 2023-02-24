@@ -23,6 +23,7 @@ namespace fsc::ast
     auto Function::handleInit() noexcept(false) -> void
     {
         magicType = MagicFunctionType::INIT;
+        functionInfo.CONSTANT_METHOD = false;
         name = classType.getName();
 
         if (getReturnType() != Auto) {
@@ -35,6 +36,7 @@ namespace fsc::ast
     auto Function::handleDestructor() noexcept(false) -> void
     {
         magicType = MagicFunctionType::DEL;
+        functionInfo.CONSTANT_METHOD = false;
         name = fmt::format("~{}", classType.getName());
 
         if (!arguments.empty()) {

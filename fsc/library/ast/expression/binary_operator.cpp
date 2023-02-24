@@ -33,17 +33,53 @@ namespace fsc::ast
 
     auto BinaryOperation::getValueType() -> FscType
     {
-        const auto function_name = OperatorToFunctionName.at(operationType);
-
-        return func::Functions.visitFunction(
-            {std::string{function_name}, {Argument{lhs.get()}, Argument{rhs.get()}}, Void},
-            std::mem_fn(&Function::getReturnType));
+        return getFunction()->getReturnType();
     }
 
-    auto BinaryOperation::analyze() -> void
+    auto BinaryOperation::getFunction() const -> ccl::SharedPtr<ast::Function>
+    {
+        const auto function_name = OperatorToFunctionName.at(operationType);
+
+        return func::Functions.get(
+            {std::string{function_name}, {Argument{lhs.get()}, Argument{rhs.get()}}, Void});
+    }
+
+    auto BinaryOperation::analyze() -> AnalysisReport
     {
         try {
-            [[maybe_unused]] auto make_sure_that_binary_function_exists = getValueType();
+            auto function = getFunction();
+            const auto &function_arguments = function->getArguments();
+            auto [return_type, report] = function->analyzeOnCall({lhs, rhs}, {});
+
+            switch (function_arguments.at(0).getCategory()) {
+            case ArgumentCategory::IN:
+                report.addToRead(lhs);
+                break;
+
+            case ArgumentCategory::OUT:
+            case ArgumentCategory::INOUT:
+                report.addToModified(lhs);
+                break;
+
+            default:
+                std::unreachable();
+            }
+
+            switch (function_arguments.at(1).getCategory()) {
+            case ArgumentCategory::IN:
+                report.addToRead(rhs);
+                break;
+
+            case ArgumentCategory::OUT:
+            case ArgumentCategory::INOUT:
+                report.addToModified(rhs);
+                break;
+
+            default:
+                std::unreachable();
+            }
+
+            return report;
         } catch (const FscException &exception) {
             reportAboutError(exception);
         }

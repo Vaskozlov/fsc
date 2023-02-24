@@ -7,10 +7,11 @@ namespace fsc::ast
       , body{std::move(while_body)}
     {}
 
-    auto While::analyze() -> void
+    auto While::analyze() -> AnalysisReport
     {
-        condition->analyze();
-        body->analyze();
+        auto condition_analysis = condition->analyze();
+        condition_analysis.merge(body->analyze());
+        return condition_analysis;
     }
 
     auto While::codeGen(ccl::codegen::BasicCodeGenerator &output) -> void

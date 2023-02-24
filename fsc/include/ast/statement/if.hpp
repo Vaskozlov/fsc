@@ -1,7 +1,7 @@
 #ifndef FSC_IF_HPP
 #define FSC_IF_HPP
 
-#include "ast/basic_node.hpp"
+#include "ast/analysis_report.hpp"
 #include <ccl/flatmap.hpp>
 
 namespace fsc::ast
@@ -28,7 +28,7 @@ namespace fsc::ast
             return ifType;
         }
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 

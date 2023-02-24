@@ -17,6 +17,11 @@ class S<T>
     }
 }
 
+func f<T>(inout T a)
+{
+    any(a)
+}
+
 func any<T2>(inout T2 a)
 {
     print("{}\n", a.test())
@@ -33,7 +38,7 @@ func main() -> i32
 
     print("{}\n", vec);
 
-    any(t)
+    f(t)
     any(k)
 
     return 0

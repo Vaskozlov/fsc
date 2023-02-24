@@ -1,13 +1,14 @@
 #include "ast/statement/if_stmt.hpp"
 #include "ast/expression/parenthesized.hpp"
+#include "type/antlr-types.hpp"
+#include "visitor.hpp"
 #include <ccl/ccl.hpp>
-#include <type/antlr-types.hpp>
 
 namespace fsc::ast
 {
     using namespace ccl;
 
-    IfStmt::IfStmt(Visitor &visitor, IfStatementContext *ctx)
+    IfStmt::IfStmt(IfStatementContext *ctx)
       : NodeWrapper{ccl::as<BasicContextPtr>(ctx)}
     {
         const auto &children = ctx->children;
@@ -15,22 +16,24 @@ namespace fsc::ast
         auto *elif_context = ccl::as<ElifContext *>(children.at(1));
         auto *else_context = ccl::as<ElseContext *>(children.at(2));
 
-        parseIfStmt(visitor, if_context);
-        parseElifStmt(visitor, elif_context);
-        parseElseStmt(visitor, else_context);
+        parseIfStmt(if_context);
+        parseElifStmt(elif_context);
+        parseElseStmt(else_context);
     }
 
-    auto IfStmt::analyze() -> void
+    auto IfStmt::analyze() -> AnalysisReport
     {
-        ifNode->analyze();
+        auto report = ifNode->analyze();
 
         for (const auto &elif_node : elifNodes) {
-            elif_node->analyze();
+            report.merge(elif_node->analyze());
         }
 
         if (elseNode != nullptr) {
-            elseNode->analyze();
+            report.merge(elseNode->analyze());
         }
+
+        return report;
     }
 
     auto IfStmt::codeGen(codegen::BasicCodeGenerator &output) -> void
@@ -69,35 +72,35 @@ namespace fsc::ast
         }
     }
 
-    auto IfStmt::parseIfStmt(Visitor &visitor, IfContext *ctx) -> void
+    auto IfStmt::parseIfStmt(IfContext *ctx) -> void
     {
         const auto &children = ctx->children;
-        auto expr = visitor.visitAsNode(children.at(1));
-        auto body = visitor.visitAsNode(children.at(3));
+        auto expr = GlobalVisitor->visitAsNode(children.at(1));
+        auto body = GlobalVisitor->visitAsNode(children.at(3));
 
         ifNode = makeShared<If>(IfType::IF, makeShared<Parenthesized>(expr), body);
     }
 
-    auto IfStmt::parseElifStmt(Visitor &visitor, ElifContext *ctx) -> void
+    auto IfStmt::parseElifStmt(ElifContext *ctx) -> void
     {
         for (auto *children_context : ctx->children) {
             const auto &children = children_context->children;
-            auto expr = visitor.visitAsNode(children.at(1));
-            auto body = visitor.visitAsNode(children.at(3));
+            auto expr = GlobalVisitor->visitAsNode(children.at(1));
+            auto body = GlobalVisitor->visitAsNode(children.at(3));
 
             elifNodes.emplace_back(
                 makeShared<If>(IfType::ELIF, makeShared<Parenthesized>(expr), body));
         }
     }
 
-    auto IfStmt::parseElseStmt(Visitor &visitor, ElseContext *ctx) -> void
+    auto IfStmt::parseElseStmt(ElseContext *ctx) -> void
     {
         if (ctx->children.empty()) {
             return;
         }
 
         const auto &children = ctx->children.at(0)->children;
-        auto body = visitor.visitAsNode(children.at(1));
+        auto body = GlobalVisitor->visitAsNode(children.at(1));
 
         elseNode = makeShared<If>(IfType::ELSE, nullptr, body);
     }

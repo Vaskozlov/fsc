@@ -14,7 +14,7 @@ namespace fsc::ast
     public:
         explicit Conversion(NodePtr value_to_convert, FscType fsc_type);
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 

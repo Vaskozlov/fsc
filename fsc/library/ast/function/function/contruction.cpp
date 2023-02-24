@@ -31,11 +31,10 @@ namespace fsc::ast
       , magicType{magic}
     {}
 
-    auto Function::finishConstruction(
-        const FunctionContext *function_context, Visitor &visitor, FscType class_type) -> void
+    auto Function::finishConstruction(const FunctionContext *function_context, FscType class_type)
+        -> void
     {
         functionContext = function_context;
-        visitorPtr = &visitor;
         const auto &children = functionContext->children;
         auto *function_name = children.at(2);
         auto *function_attributes = ccl::as<FunctionAttributeContext *>(children.at(0));
@@ -45,6 +44,7 @@ namespace fsc::ast
         classType = class_type;
         name = function_name->getText();
         functionInfo.IS_METHOD = classType != Void;
+        functionInfo.CONSTANT_METHOD = functionInfo.IS_METHOD;
 
         processAttributes(function_attributes);
 
@@ -59,36 +59,34 @@ namespace fsc::ast
             }};
 
         setReturnType(children);
-        readArguments(parameters, visitor);
+        readArguments(parameters);
 
         processMagicMethod();
         func::Functions.registerFunction(shared_from_this());
 
         if (templates.empty()) {
-            completeBody(visitor);
+            completeBody();
         }
     }
 
-    auto Function::completeBody(Visitor &visitor) -> void
+    auto Function::completeBody() -> void
     {
         const auto &children = functionContext->children;
-        const auto function_scope = visitor.acquireFunctionScope(getReturnType());
+        const auto function_scope = GlobalVisitor->acquireFunctionScope(getReturnType());
         const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::HARD);
 
         for (const auto &arg : arguments) {
             ProgramStack.addVariable(makeShared<ast::Variable>(arg.toVariable()));
         }
 
-        functionBody = visitor.visitAsNode(children.back());
+        functionBody = GlobalVisitor->visitAsNode(children.back());
 
         if (getReturnType() == Auto && templates.empty()) {
-            returnType = visitor.getCurrentFunctionReturnType();
+            returnType = GlobalVisitor->getCurrentFunctionReturnType();
         }
     }
 
-    auto Function::readArguments(
-        const FscParser::ParametersContext *parameters_context,
-        Visitor &visitor) -> void
+    auto Function::readArguments(const FscParser::ParametersContext *parameters_context) -> void
     {
         const auto &children = parameters_context->children;
         auto drop_first_and_last = sv::drop(1) | ccl::views::dropBack(children, 2);
@@ -98,15 +96,13 @@ namespace fsc::ast
 
             for (auto *arg : casted_child->children | sv::filter(CommaFilter)) {
                 auto *argument_context = ccl::as<FscParser::ArgumentContext *>(arg);
-                auto argument = processArgument(argument_context, visitor);
+                auto argument = processArgument(argument_context);
                 arguments.push_back(std::move(argument));
             }
         }
     }
 
-    auto Function::processArgument(
-        const FscParser::ArgumentContext *argument_context,
-        Visitor &visitor) -> Argument
+    auto Function::processArgument(const FscParser::ArgumentContext *argument_context) -> Argument
     {
         const auto &children = argument_context->children;
         auto *argument_definition =
@@ -115,7 +111,8 @@ namespace fsc::ast
         auto *argument_initializer = ccl::as<ExpressionContext *>(children.back());
 
         if (argument_initializer != nullptr) {
-            defaultArguments.emplace(argument.getName(), visitor.visitAsNode(argument_initializer));
+            defaultArguments.emplace(
+                argument.getName(), GlobalVisitor->visitAsNode(argument_initializer));
         }
 
         return argument;

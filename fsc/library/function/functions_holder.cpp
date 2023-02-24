@@ -54,8 +54,8 @@ namespace fsc::func
             auto &similar_function = *similar_function_it;
 
             if (similar_function->getArguments() == function->getArguments()) {
-                throw std::runtime_error(
-                    fmt::format("function with name {} already exists", function->getName()));
+                throw FscException{
+                    fmt::format("function with name {} already exists", function->getName())};
             }
         }
 
@@ -154,7 +154,7 @@ namespace fsc::func
     auto FunctionsHolder::throwUnableToFindFunctionWithGivenName(SignatureView signature) noexcept(
         false) -> void
     {
-        throw std::runtime_error{fmt::format("function with name {} not found", signature.name)};
+        throw FscException{fmt::format("function with name {} not found", signature.name)};
     }
 
     auto FunctionsHolder::throwUnableToFindFunctionWithGivenParameters(

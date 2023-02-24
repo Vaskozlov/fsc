@@ -4,11 +4,7 @@
 #include "type/antlr-types.hpp"
 #include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
-#include <concepts>
-#include <optional>
 #include <ParserRuleContext.h>
-#include <stdexcept>
-#include <typeinfo>
 
 namespace fsc
 {
@@ -20,6 +16,9 @@ namespace fsc::ast
 {
     extern std::string SourceFile;              // NOLINT
     extern ccl::Vector<std::string> SourceLines;// NOLINT
+
+    class Node;
+    using NodePtr = ccl::SharedPtr<Node>;
 
     enum struct SemicolonNeed : bool
     {
@@ -54,6 +53,8 @@ namespace fsc::ast
         NONE,
         FAST
     };
+
+    class AnalysisReport;
 
     template<NodeType TypeOfNode, SemicolonNeed NeedSemicolon, typename Base>
     class NodeWrapper;
@@ -96,7 +97,7 @@ namespace fsc::ast
 
         virtual auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void = 0;
 
-        virtual auto analyze() -> void = 0;
+        virtual auto analyze() -> AnalysisReport = 0;
 
         virtual auto optimize(OptimizationLevel /* unused */) -> void;
 
@@ -121,7 +122,7 @@ namespace fsc::ast
         [[nodiscard]] auto getStop() const noexcept -> ccl::Optional<antlr4::Token *>;
         [[nodiscard]] auto getContext() const noexcept -> ccl::Optional<BasicContextPtr>;
 
-        auto reportAboutError(const std::exception &exception) const -> void;
+        [[noreturn]] auto reportAboutError(const std::exception &exception) const -> void;
 
         [[nodiscard]] virtual auto getValueType() noexcept(false) -> FscType;
 
@@ -201,8 +202,6 @@ namespace fsc::ast
             return TypeOfNode;
         }
     };
-
-    using NodePtr = ccl::SharedPtr<Node>;
 
     auto operator<<(ccl::codegen::BasicCodeGenerator &generator, Node &node)
         -> ccl::codegen::BasicCodeGenerator &;

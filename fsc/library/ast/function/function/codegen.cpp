@@ -53,9 +53,9 @@ namespace fsc::ast
         }
     }
 
-    auto Function::genArguments(codegen::BasicCodeGenerator &output) -> void
+    auto Function::argumentsToString() -> std::string
     {
-        output << ccl::join(
+        return ccl::join(
             arguments,
             [this](Argument &argument) {
                 return argumentToString(argument);
@@ -95,13 +95,15 @@ namespace fsc::ast
             }
         }
 
-        output << '(';
-        genArguments(output);
-        output << ") ";
+        output << '(' << argumentsToString() << ") ";
 
         addConstModifier(output);
         addNoexceptModifier(output);
 
-        output << *functionBody.get();
+        if (functionBody != nullptr) {
+            output << *functionBody.get();
+        } else {
+            output << ';';
+        }
     }
 }// namespace fsc::ast

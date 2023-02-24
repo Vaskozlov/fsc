@@ -20,7 +20,7 @@ namespace fsc::ast
             const ccl::SmallVector<NodePtr> &function_arguments,
             const ccl::SmallVector<FscType> &templates, BasicContextPtr node_context);
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 

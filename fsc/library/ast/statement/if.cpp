@@ -17,10 +17,12 @@ namespace fsc::ast
       , ifType{if_type}
     {}
 
-    auto If::analyze() -> void
+    auto If::analyze() -> AnalysisReport
     {
-        condition->analyze();
-        body->analyze();
+        auto condition_report = condition->analyze();
+        condition_report.merge(body->analyze());
+
+        return condition_report;
     }
 
     auto If::codeGen(codegen::BasicCodeGenerator &output) -> void

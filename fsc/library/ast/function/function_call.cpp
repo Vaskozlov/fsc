@@ -27,10 +27,10 @@ namespace fsc::ast
 
     auto FunctionCall::defaultPrint(const std::string &prefix, bool is_left) const -> void
     {
-        const auto expanded_prefix = expandPrefix(prefix, false);
+        const auto expanded_prefix = expandPrefix(prefix, is_left);
         fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), functionName);
 
-        for (const auto &arg : arguments | ccl::views::dropBack(arguments)) {
+        for (const auto &arg : arguments | ccl::views::dropBack(arguments, 1)) {
             arg->print(expanded_prefix, true);
         }
 
@@ -63,18 +63,57 @@ namespace fsc::ast
                << close_bracket;
     }
 
-    auto FunctionCall::analyze() -> void
+    auto FunctionCall::analyze() -> AnalysisReport
     {
         try {
-            getFunction()->analyzeOnCall(arguments, functionCallTemplates);
+            return attemptToAnalyze();
         } catch (const FscException &e) {
             GlobalVisitor->throwError(getContext().value(), e.what());
         }
     }
 
+    auto FunctionCall::attemptToAnalyze() -> AnalysisReport
+    {
+        auto report = AnalysisReport{};
+        auto function_to_call = getFunction();
+        const auto &function_arguments = function_to_call->getArguments();
+
+        for (auto i = 0ZU; i != arguments.size(); ++i) {
+            report.merge(arguments[i]->analyze());
+
+            if (i >= function_arguments.size()) {
+                report.addToRead(arguments[i]);
+                continue;
+            }
+
+            switch (function_arguments[i].getCategory()) {
+            case ArgumentCategory::IN:
+                report.addToRead(arguments[i]);
+                break;
+
+            case ArgumentCategory::INOUT:
+            case ArgumentCategory::OUT:
+                report.addToModified(arguments[i]);
+                break;
+
+            default:
+                std::unreachable();
+            }
+        }
+
+        auto [type, function_call_report] =
+            function_to_call->analyzeOnCall(arguments, functionCallTemplates);
+
+        report.merge(std::move(function_call_report));
+
+        return report;
+    }
+
     auto FunctionCall::getValueType() -> FscType
     {
-        returnedType = getFunction()->analyzeOnCall(arguments, functionCallTemplates);
+        auto [type, analysis_report] =
+            getFunction()->analyzeOnCall(arguments, functionCallTemplates);
+        returnedType = type;
         return returnedType;
     }
 

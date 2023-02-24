@@ -13,9 +13,9 @@ namespace fsc::ast
       , value{std::move(value_to_return)}
     {}
 
-    auto Return::analyze() -> void
+    auto Return::analyze() -> AnalysisReport
     {
-        value->analyze();
+        return value->analyze();
     }
 
     auto Return::codeGen(ccl::codegen::BasicCodeGenerator &output) -> void

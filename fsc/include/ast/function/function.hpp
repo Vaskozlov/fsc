@@ -59,7 +59,6 @@ namespace fsc::ast
         std::string name;
         FunctionInfo functionInfo{};
         FscType returnType{Void};
-        Visitor *visitorPtr{};
         FscType classType{};
         const FunctionContext *functionContext{};
         MagicFunctionType magicType{};
@@ -75,10 +74,10 @@ namespace fsc::ast
             const ccl::SmallVector<FscType> &function_templates = {},
             MagicFunctionType magic = MagicFunctionType::NONE);
 
-        auto finishConstruction(
-            const FunctionContext *function_context, Visitor &visitor, FscType class_type) -> void;
+        auto finishConstruction(const FunctionContext *function_context, FscType class_type)
+            -> void;
 
-        auto analyze() -> void override;
+        auto analyze() -> AnalysisReport override;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
@@ -136,10 +135,12 @@ namespace fsc::ast
 
         auto analyzeOnCall(
             const ccl::SmallVector<NodePtr> &function_arguments,
-            const ccl::SmallVector<FscType> &on_call_templates) -> FscType;
+            const ccl::SmallVector<FscType> &on_call_templates)
+            -> std::pair<FscType, AnalysisReport>;
 
     protected:
-        auto defaultAnalyze() const -> void;
+        auto defaultAnalyze() -> AnalysisReport;
+        auto analyzeReport(const AnalysisReport &report) -> void;
 
     private:
         auto mapExplicitTemplates(
@@ -155,9 +156,13 @@ namespace fsc::ast
         auto checkFunctionArgumentAfterDeductionMatch(
             const ccl::SmallVector<NodePtr> &function_arguments) const noexcept(false) -> void;
 
-        auto analyzeClassAfterConstruction() -> void;
+        auto analyzeClassAfterConstruction() -> AnalysisReport;
 
-        auto analyzeFunctionAfterTemplatesRemap() -> void;
+        auto analyzeFunctionAfterTemplatesRemap() -> AnalysisReport;
+
+        auto getReportOfUserDefinedFunction() -> AnalysisReport;
+
+        auto modifyBuiltinFunctionReport(AnalysisReport &report) -> void;
 
         auto deduceReturnType(const ccl::SmallVector<std::string> &remap_types_names) const
             -> FscType;
@@ -174,19 +179,17 @@ namespace fsc::ast
 
         auto processTemplates(FscParser::Function_templatesContext *ctx) -> void;
 
-        auto genArguments(ccl::codegen::BasicCodeGenerator &output) -> void;
+        auto argumentsToString() -> std::string;
         auto argumentToString(Argument &arg) const -> std::string;
-        auto readArguments(const FscParser::ParametersContext *parameters_context, Visitor &visitor)
-            -> void;
+        auto readArguments(const FscParser::ParametersContext *parameters_context) -> void;
 
-        auto processArgument(const FscParser::ArgumentContext *argument_context, Visitor &visitor)
-            -> Argument;
+        auto processArgument(const FscParser::ArgumentContext *argument_context) -> Argument;
         static auto defineArgument(const FscParser::Argument_definitionContext *argument_definition)
             -> Argument;
 
         auto setReturnType(const std::vector<antlr4::tree::ParseTree *> &nodes) -> void;
 
-        auto completeBody(Visitor &visitor) -> void;
+        auto completeBody() -> void;
 
         auto addVisibility(ccl::codegen::BasicCodeGenerator &output) const -> void;
         auto addNodiscardModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;

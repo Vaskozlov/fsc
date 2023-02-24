@@ -49,6 +49,9 @@ namespace fsc
             message};
 
         handler.handle(iterator_exception);
+
+        program.print("", true);
+
         std::exit(1);
     }
 

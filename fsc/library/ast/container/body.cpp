@@ -41,16 +41,20 @@ namespace fsc::ast
         output << pop_scope << endl << '}';
     }
 
-    auto Body::analyze() -> void
+    auto Body::analyze() -> AnalysisReport
     {
-        Body::defaultAnalyze();
+        return Body::defaultAnalyze();
     }
 
-    auto Body::defaultAnalyze() const -> void
+    auto Body::defaultAnalyze() const -> AnalysisReport
     {
+        auto report = AnalysisReport{};
+
         for (const auto &node : nodes) {
-            node->analyze();
+            report.merge(node->analyze());
         }
+
+        return report;
     }
 
     auto Body::codeGen(codegen::BasicCodeGenerator &output) -> void
