@@ -9,11 +9,6 @@
 
 namespace fsc
 {
-    namespace ast
-    {
-        class Class;
-    }
-
     struct CCL_TRIVIAL_ABI TypeInfo
     {
         size_t templatesParametersCount = 0;
@@ -120,5 +115,23 @@ struct fmt::formatter<fsc::FscType> : fmt::formatter<std::string>
         return formatter<std::string>::format(fsc_type.getName(), ctx);
     }
 };
+
+namespace fsc
+{
+    auto hashTypes(ccl::Iterable auto &&container) -> ccl::Id
+        requires std::is_same_v<std::remove_cvref_t<decltype(*container.begin())>, FscType>
+    {
+        constexpr static ccl::Id hash_magic = 31;
+
+        auto result = ccl::Id{};
+
+        for (auto elem : container) {
+            result += std::hash<FscType>{}(elem);
+            result *= hash_magic;
+        }
+
+        return result;
+    }
+}// namespace fsc
 
 #endif /* FSC_TYPE_HPP */

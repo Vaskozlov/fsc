@@ -54,6 +54,7 @@ namespace fsc
 
         static ScopeStorage globalStorage;
         ccl::SmallVector<FscType> classScopes;
+        ccl::Set<ccl::Id> functionsScopes;
         std::deque<Scope> scopes;
 
     public:
@@ -61,7 +62,7 @@ namespace fsc
         {
             return ccl::Raii{
                 [this, scope_type]() {
-                    scopes.push_front(Scope{scope_type});
+                    scopes.emplace_front(scope_type);
                 },
                 [this]() {
                     scopes.pop_front();
@@ -81,6 +82,22 @@ namespace fsc
                         classScopes.pop_back();
                     }
                 }};
+        }
+
+        [[nodiscard]] auto acquireFunctionScope(ccl::Id function_id) -> auto
+        {
+            return ccl::Raii{
+                [this, function_id]() {
+                    functionsScopes.emplace(function_id);
+                },
+                [this, function_id]() {
+                    functionsScopes.erase(function_id);
+                }};
+        }
+
+        [[nodiscard]] auto hasFunctionInCallTree(ccl::Id function_id) const -> bool
+        {
+            return functionsScopes.contains(function_id);
         }
 
         [[nodiscard]] auto getCurrentClassScope() const -> FscType

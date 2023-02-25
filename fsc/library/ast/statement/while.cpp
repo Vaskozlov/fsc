@@ -1,4 +1,5 @@
 #include "ast/statement/while.hpp"
+#include "type/builtin_types.hpp"
 
 namespace fsc::ast
 {
@@ -9,6 +10,11 @@ namespace fsc::ast
 
     auto While::analyze() -> AnalysisReport
     {
+        fmt::print("{}\n", condition->getValueType().getName());
+        if (condition->getValueType() != Bool) {
+            throw FscException{"While loop condition must be a boolean!"};
+        }
+
         auto condition_analysis = condition->analyze();
         condition_analysis.merge(body->analyze());
         return condition_analysis;

@@ -1,5 +1,6 @@
 #include "ast/container/class.hpp"
 #include "ast/function/function.hpp"
+#include "stack/stack.hpp"
 
 using namespace ccl;
 
@@ -14,7 +15,21 @@ namespace fsc::ast
 
     auto Function::defaultAnalyze() -> AnalysisReport
     {
+        if (functionInfo.BUILTIN_FUNCTION) {
+            auto report = AnalysisReport{};
+            report.updateConstexpr(functionInfo.CONSTEXPR);
+            report.updateNoexcept(functionInfo.NOEXCEPT);
+            return report;
+        }
+
         if (templates.empty()) {
+            auto uuid = functionUuid;
+
+            if (ProgramStack.hasFunctionInCallTree(uuid)) {
+                return {};
+            }
+
+            const auto function_scope = ProgramStack.acquireFunctionScope(uuid);
             auto report = functionBody->analyze();
             analyzeReport(report);
             return report;
@@ -81,6 +96,14 @@ namespace fsc::ast
         if (!templates.empty()) {
             completeBody();
         }
+
+        auto uuid = functionUuid * std::max(1ZU, hashTypes(templates));
+
+        if (ProgramStack.hasFunctionInCallTree(uuid)) {
+            return {};
+        }
+
+        const auto function_scope = ProgramStack.acquireFunctionScope(uuid);
 
         return functionBody->analyze();
     }

@@ -51,12 +51,16 @@ namespace fsc::ast
       , public std::enable_shared_from_this<Function>
     {
     private:
+        static inline constinit auto functionUuidGenerator = std::atomic<ccl::Id>{0};
+
         ccl::SmallVector<Argument> arguments;
         ccl::SmallVector<FscType> templates;
         ccl::SmallVector<FscType> remapTypes;
+        ccl::Map<ccl::Id, FscType> analyzedHashes{};
         ccl::Map<std::string, NodePtr> defaultArguments;
         NodePtr functionBody;
         std::string name;
+        ccl::Id functionUuid = functionUuidGenerator++;
         FunctionInfo functionInfo{};
         FscType returnType{Void};
         FscType classType{};
@@ -66,7 +70,7 @@ namespace fsc::ast
     public:
         Function() = default;
 
-        Function(BasicContextPtr node_context);
+        explicit Function(BasicContextPtr node_context);
 
         Function(
             FscType class_type, std::string_view function_name, FscType return_type,

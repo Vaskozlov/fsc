@@ -1,6 +1,6 @@
 #include "stack/stack.hpp"
 #include "ast/value/variable.hpp"
-#include <fmt/format.h>
+#include <ccl/ccl.hpp>
 #include <ranges>
 
 namespace fsc
@@ -17,12 +17,12 @@ namespace fsc
             return;
         }
 
-        scopes.back().add(value);
+        scopes.front().add(value);
     }
 
     auto Stack::get(const std::string &name) const -> ast::Variable
     {
-        for (const auto &scope : scopes | sv::reverse) {
+        for (const auto &scope : scopes) {
             if (scope.has(name)) {
                 return *scope.get(name);
             }
@@ -33,7 +33,7 @@ namespace fsc
         }
 
         if (isMemberVariable(name)) {
-            return classScopes.back().getMemberVariable(name)->as<ast::Variable>();
+            return *ccl::as<ast::Variable *>(classScopes.back().getMemberVariable(name).get());
         }
 
         return *getGlobal(name);

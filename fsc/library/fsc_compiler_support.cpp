@@ -13,6 +13,7 @@ namespace fsc
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>

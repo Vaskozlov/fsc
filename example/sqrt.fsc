@@ -1,0 +1,40 @@
+func ownAbs(in f64 value) -> f64
+{
+    if value < 0 as f64
+    {
+        return value * -1.0 as f64
+    }
+
+    return value
+}
+
+func ownSqrt(in f64 x)
+{
+    var left = 0 as f64
+    var right = x
+
+    while true
+    {
+        let midpoint = (left + right) / 2.0 as f64
+        let midpoint_2 = midpoint * midpoint
+
+        if ownAbs(midpoint_2 - x) <= 1.0e-12 as f64
+        {
+            return midpoint
+        }
+
+        if midpoint_2 > x
+        {
+            right = midpoint
+        }
+        else {
+            left = midpoint
+        }
+    }
+}
+
+func main() -> i32
+{
+    print("{} {}\n", sqrt(2 as f64), ownSqrt(2 as f64))
+    return 0
+}

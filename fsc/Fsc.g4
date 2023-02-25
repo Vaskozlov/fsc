@@ -20,8 +20,8 @@ LOGICAL_OR  : '||';
 
 TRUE        :   'true';
 FALSE       :   'false';
-INT         :   [0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
-FLOAT       :   [0-9]*[.][0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
+INT         :   '-'?[0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
+FLOAT       :   '-'?[0-9]*[.][0-9]+('e''-'?[0-9]+)?([a-zA-Z_][a-zA-Z0-9_]*)?;
 CHAR        :   '\'' (~["\\\r\n] | '\\' (. | EOF)) '\'';
 STRING      :   '"' (~["\\\r\n] | '\\' (. | EOF))* '"';
 IDENTIFIER  :   [a-zA-Z_][a-zA-Z0-9_]*;

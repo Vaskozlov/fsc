@@ -71,18 +71,28 @@ namespace fsc::ast
 
     auto Function::completeBody() -> void
     {
-        const auto &children = functionContext->children;
-        const auto function_scope = GlobalVisitor->acquireFunctionScope(getReturnType());
-        const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::HARD);
+        auto hash = hashTypes(templates);
 
-        for (const auto &arg : arguments) {
-            ProgramStack.addVariable(makeShared<ast::Variable>(arg.toVariable()));
-        }
+        if (!analyzedHashes.contains(hash)) {
+            const auto &children = functionContext->children;
+            const auto function_scope = GlobalVisitor->acquireFunctionScope(getReturnType());
+            const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::HARD);
 
-        functionBody = GlobalVisitor->visitAsNode(children.back());
+            for (const auto &arg : arguments) {
+                ProgramStack.addVariable(makeShared<ast::Variable>(arg.toVariable()));
+            }
 
-        if (getReturnType() == Auto && templates.empty()) {
-            returnType = GlobalVisitor->getCurrentFunctionReturnType();
+            functionBody = GlobalVisitor->visitAsNode(children.back());
+
+            if (getReturnType() == Auto && templates.empty()) {
+                returnType = GlobalVisitor->getCurrentFunctionReturnType();
+            }
+
+            analyzedHashes.emplace(hash, returnType);
+        } else {
+            if (getReturnType() == Auto && templates.empty()) {
+                returnType = analyzedHashes.at(hash);
+            }
         }
     }
 

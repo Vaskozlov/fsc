@@ -74,11 +74,11 @@ namespace fsc::ast
 
     auto Function::codeGen(codegen::BasicCodeGenerator &output) -> void
     {
-        generateTemplateParameters(output);
-
         if (isMember()) {
             genVisibility(functionInfo.VISIBILITY, output);
         }
+
+        generateTemplateParameters(output);
 
         if (magicType == MagicFunctionType::INIT || magicType == MagicFunctionType::DEL) {
             addConstexprModifier(output);

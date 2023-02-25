@@ -92,6 +92,7 @@ auto main(int argc, char *argv[]) -> int
             Output = "./" + Output;
         }
 
+        fmt::print("Running program...\n\n");
         std::system(Output.c_str());
     }
 

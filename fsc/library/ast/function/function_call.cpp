@@ -88,6 +88,7 @@ namespace fsc::ast
 
             switch (function_arguments[i].getCategory()) {
             case ArgumentCategory::IN:
+            case ArgumentCategory::COPY:
                 report.addToRead(arguments[i]);
                 break;
 

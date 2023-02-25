@@ -1,4 +1,4 @@
- #ifndef FSC_MAGIC_METHODS_TABLE_HPP
+#ifndef FSC_MAGIC_METHODS_TABLE_HPP
 #define FSC_MAGIC_METHODS_TABLE_HPP
 
 #include "ast/function/function.hpp"
@@ -17,9 +17,9 @@ namespace fsc::ast::magic
             {"__not_equal__", MagicFunctionType::NOT_EQUAL},
             {"__less__", MagicFunctionType::LESS},
             {"__greater__", MagicFunctionType::GREATER},
-            {"__less_eq__", MagicFunctionType::LESS_EQ},
-            {"__greater_eq__", MagicFunctionType::GREATER_EQ},
-            {"__copy__", MagicFunctionType::GREATER_EQ},
+            {"__less_equal__", MagicFunctionType::LESS_EQ},
+            {"__greater_equal__", MagicFunctionType::GREATER_EQ},
+            {"__copy__", MagicFunctionType::ASSIGN},
             {"__init__", MagicFunctionType::INIT},
             {"__del__", MagicFunctionType::DEL}};
 
@@ -33,8 +33,8 @@ namespace fsc::ast::magic
         {MagicFunctionType::NOT_EQUAL, "__not_equal__"},
         {MagicFunctionType::LESS, "__less__"},
         {MagicFunctionType::GREATER, "__greater__"},
-        {MagicFunctionType::LESS_EQ, "__less_eq__"},
-        {MagicFunctionType::GREATER_EQ, "__greater_eq__"},
+        {MagicFunctionType::LESS_EQ, "__less_equal__"},
+        {MagicFunctionType::GREATER_EQ, "__greater_equal__"},
         {MagicFunctionType::ASSIGN, "__copy__"}};
 
     constexpr inline ccl::StaticFlatmap<MagicFunctionType, std::string_view, 12> MagicToRepr = {

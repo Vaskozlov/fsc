@@ -19,10 +19,13 @@ namespace fsc::ast
 
     auto If::analyze() -> AnalysisReport
     {
-        auto condition_report = condition->analyze();
-        condition_report.merge(body->analyze());
+        auto body_report = body->analyze();
 
-        return condition_report;
+        if (condition != nullptr) {
+            body_report.merge(condition->analyze());
+        }
+
+        return body_report;
     }
 
     auto If::codeGen(codegen::BasicCodeGenerator &output) -> void

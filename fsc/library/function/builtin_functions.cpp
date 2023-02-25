@@ -1,59 +1,9 @@
 #include "function/argument.hpp"
 
+#include "ast/function/magic_methods_table.hpp"
 #include "function/functions_holder.hpp"
 #include "type/builtin_types.hpp"
 #include "type/type.hpp"
-
-#define BUILTIN_BINARY_FUNCTION(NAME, RESULT, LHS, RHS, INFO)                                      \
-    {                                                                                              \
-        Void, NAME, FscType{RESULT},                                                               \
-            {                                                                                      \
-                {"lhs", FscType{LHS}, ArgumentCategory::IN},                                       \
-                {"rhs", FscType{RHS}, ArgumentCategory::IN},                                       \
-            },                                                                                     \
-            INFO                                                                                   \
-    }
-
-#define BUILTIN_ADD(RESULT, LHS, RHS, INFO)                                                        \
-    BUILTIN_BINARY_FUNCTION("__add__", RESULT, LHS, RHS, INFO)
-#define BUILTIN_SUB(RESULT, LHS, RHS, INFO)                                                        \
-    BUILTIN_BINARY_FUNCTION("__sub__", RESULT, LHS, RHS, INFO)
-#define BUILTIN_MUL(RESULT, LHS, RHS, INFO)                                                        \
-    BUILTIN_BINARY_FUNCTION("__mul__", RESULT, LHS, RHS, INFO)
-#define BUILTIN_DIV(RESULT, LHS, RHS, INFO)                                                        \
-    BUILTIN_BINARY_FUNCTION("__div__", RESULT, LHS, RHS, INFO)
-#define BUILTIN_LOGICAL_AND(RESULT, LHS, RHS, INFO)                                                \
-    BUILTIN_BINARY_FUNCTION("__logical_and__", RESULT, LHS, RHS, INFO)
-#define BUILTIN_LOGICAL_OR(RESULT, LHS, RHS, INFO)                                                 \
-    BUILTIN_BINARY_FUNCTION("__logical_or__", RESULT, LHS, RHS, INFO)
-#define BUILTIN_EQUAL(RESULT, LHS, RHS, INFO)                                                      \
-    BUILTIN_BINARY_FUNCTION("__equal__", RESULT, LHS, RHS, INFO)
-#define BUILTIN_NOT_EQUAL(RESULT, LHS, RHS, INFO)                                                  \
-    BUILTIN_BINARY_FUNCTION("__not_equal__", RESULT, LHS, RHS, INFO)
-
-#define BUILTIN_LESS(RESULT, LHS, RHS, INFO)                                                       \
-    BUILTIN_BINARY_FUNCTION("__less__", RESULT, LHS, RHS, INFO)
-#define BUILTIN_GREATER(RESULT, LHS, RHS, INFO)                                                    \
-    BUILTIN_BINARY_FUNCTION("__greater__", RESULT, LHS, RHS, INFO)
-#define BUILTIN_LESS_EQ(RESULT, LHS, RHS, INFO)                                                    \
-    BUILTIN_BINARY_FUNCTION("__less_eq__", RESULT, LHS, RHS, INFO)
-#define BUILTIN_GREATER_EQ(RESULT, LHS, RHS, INFO)                                                 \
-    BUILTIN_BINARY_FUNCTION("__greater_eq__", RESULT, LHS, RHS, INFO)
-
-#define BUILTIN_ASSIGN(RESULT, LHS, RHS, INFO)                                                     \
-    {                                                                                              \
-        Void, "__copy__", FscType{RESULT},                                                         \
-            {                                                                                      \
-                {"lhs", FscType{LHS}, ArgumentCategory::OUT},                                      \
-                {"rhs", FscType{RHS}, ArgumentCategory::IN},                                       \
-            },                                                                                     \
-            INFO                                                                                   \
-    }
-
-#define BUILTIN_CONVERT(REPR, TO, FROM, INFO)                                                      \
-    {                                                                                              \
-        Void, #REPR, FscType{TO}, {{"value", FscType{FROM}}}, INFO                                 \
-    }
 
 #define BUILTIN_EMPTY_CONSTRUCTOR(REPR, TYPE, TEMPLATES, INFO)                                     \
     {                                                                                              \
@@ -64,6 +14,50 @@
 namespace fsc
 {
     using namespace ccl;
+    using namespace ast;
+    using namespace ast::magic;
+
+    constexpr static auto BinaryOperatorInfo = FunctionInfo{
+        .NOEXCEPT = true,
+        .IS_METHOD = false,
+        .CONSTANT_METHOD = false,
+        .BUILTIN_FUNCTION = true,
+        .HAVE_PARAMETER_PACK = false,
+        .NODISCARD = true,
+        .CONSTEXPR = true,
+        .VISIBILITY = Visibility::PUBLIC};
+
+    constexpr static auto StringInfoForToNumeric = FunctionInfo{
+        .NOEXCEPT = false,
+        .IS_METHOD = true,
+        .CONSTANT_METHOD = true,
+        .BUILTIN_FUNCTION = true,
+        .CONSTEXPR = true,
+        .VISIBILITY = Visibility::PUBLIC};
+
+    constexpr static auto GetSizeInfo = FunctionInfo{
+        .NOEXCEPT = true,
+        .IS_METHOD = true,
+        .CONSTANT_METHOD = true,
+        .BUILTIN_FUNCTION = true,
+        .CONSTEXPR = true,
+        .VISIBILITY = Visibility::PUBLIC};
+
+    constexpr static auto OperatorAtInfo = FunctionInfo{
+        .NOEXCEPT = false,
+        .IS_METHOD = true,
+        .CONSTANT_METHOD = false,
+        .BUILTIN_FUNCTION = true,
+        .CONSTEXPR = true,
+        .VISIBILITY = Visibility::PUBLIC};
+
+    constexpr static auto MathFunctionInfo = FunctionInfo{
+        .NOEXCEPT = false,
+        .IS_METHOD = false,
+        .CONSTANT_METHOD = false,
+        .BUILTIN_FUNCTION = true,
+        .CONSTEXPR = true,
+        .VISIBILITY = Visibility::PUBLIC};
 
     static auto initializeNumericTypes() -> void
     {
@@ -101,6 +95,83 @@ namespace fsc
         initializeString();
     }
 
+    static auto constructBuiltinBinaryExpression(
+        MagicFunctionType function_type,
+        FscType return_type,
+        FscType lhs,
+        FscType rhs) -> Function
+    {
+        const auto left_argument = Argument{"lhs", lhs, ArgumentCategory::IN};
+        const auto right_argument = Argument{"rhs", rhs, ArgumentCategory::IN};
+
+        return Function{
+            Void,
+            MagicToFscName[function_type],
+            return_type,
+            {left_argument, right_argument},
+            BinaryOperatorInfo};
+    }
+
+    static auto
+        constructAllBuiltinOperators(FscType type, InitializerList<FscType> extra_conversion)
+            -> Vector<Function>
+    {
+        auto add = constructBuiltinBinaryExpression(MagicFunctionType::ADD, type, type, type);
+
+        auto sub = constructBuiltinBinaryExpression(MagicFunctionType::SUB, type, type, type);
+
+        auto mul = constructBuiltinBinaryExpression(MagicFunctionType::MUL, type, type, type);
+
+        auto div = constructBuiltinBinaryExpression(MagicFunctionType::DIV, type, type, type);
+
+        auto less = constructBuiltinBinaryExpression(MagicFunctionType::LESS, Bool, type, type);
+
+        auto less_eq =
+            constructBuiltinBinaryExpression(MagicFunctionType::LESS_EQ, Bool, type, type);
+
+        auto greater =
+            constructBuiltinBinaryExpression(MagicFunctionType::GREATER, Bool, type, type);
+
+        auto greater_eq =
+            constructBuiltinBinaryExpression(MagicFunctionType::GREATER_EQ, Bool, type, type);
+
+        auto equal = constructBuiltinBinaryExpression(MagicFunctionType::EQUAL, Bool, type, type);
+
+        auto not_equal =
+            constructBuiltinBinaryExpression(MagicFunctionType::NOT_EQUAL, Bool, type, type);
+
+        auto assign = constructBuiltinBinaryExpression(MagicFunctionType::ASSIGN, type, type, type);
+
+        auto empty_constructor = Function{
+            type, type.getName(), type, {}, BinaryOperatorInfo, {}, MagicFunctionType::INIT};
+
+        auto operators = Vector<Function>{
+            std::move(add),       std::move(sub),        std::move(mul),
+            std::move(div),       std::move(less),       std::move(less_eq),
+            std::move(greater),   std::move(greater_eq), std::move(equal),
+            std::move(not_equal), std::move(assign),     std::move(empty_constructor)};
+
+        operators.reserve(operators.size() + extra_conversion.size());
+
+        for (auto from : extra_conversion) {
+            operators.emplace_back(Function{
+                type,
+                type.getName(),
+                type,
+                {Argument{"value_to_copy", from, ArgumentCategory::IN}},
+                BinaryOperatorInfo,
+                {},
+                MagicFunctionType::INIT});
+        }
+
+        if (!type.getName().contains('f')) {
+            operators.emplace_back(
+                constructBuiltinBinaryExpression(MagicFunctionType::MOD, type, type, type));
+        }
+
+        return operators;
+    }
+
     auto initializeCompilerBuiltin() -> void
     {
         static bool initialized = false;
@@ -110,175 +181,139 @@ namespace fsc
         }
 
         initializeTypes();
-        constexpr auto info_for_binary_expressions = ast::FunctionInfo{
-            .NOEXCEPT = true,
-            .IS_METHOD = false,
-            .CONSTANT_METHOD = false,
-            .BUILTIN_FUNCTION = true,
-            .HAVE_PARAMETER_PACK = false,
-            .NODISCARD = true,
-            .CONSTEXPR = true,
-            .VISIBILITY = Visibility::PUBLIC};
 
-        auto AddFunctions = Vector<ast::Function>{
-            BUILTIN_ADD(Int32, Int32, Int32, info_for_binary_expressions),
-            BUILTIN_ADD(Int64, Int64, Int64, info_for_binary_expressions),
-            BUILTIN_ADD(Float32, Float32, Float32, info_for_binary_expressions),
-            BUILTIN_ADD(Float64, Float64, Float64, info_for_binary_expressions)};
+        auto i32_operators =
+            constructAllBuiltinOperators(Int32, {Int32, UInt32, UInt64, Int64, Float32, Float64});
 
-        auto SubFunctions = Vector<ast::Function>{
-            BUILTIN_SUB(Int32, Int32, Int32, info_for_binary_expressions),
-            BUILTIN_SUB(Int64, Int64, Int64, info_for_binary_expressions),
-            BUILTIN_SUB(Float32, Float32, Float32, info_for_binary_expressions),
-            BUILTIN_SUB(Float64, Float64, Float64, info_for_binary_expressions)};
+        auto i64_operators =
+            constructAllBuiltinOperators(Int64, {Int32, UInt32, UInt64, Int64, Float32, Float64});
 
-        auto MulFunctions = Vector<ast::Function>{
-            BUILTIN_MUL(Int32, Int32, Int32, info_for_binary_expressions),
-            BUILTIN_MUL(Int64, Int64, Int64, info_for_binary_expressions),
-            BUILTIN_MUL(Float32, Float32, Float32, info_for_binary_expressions),
-            BUILTIN_MUL(Float64, Float64, Float64, info_for_binary_expressions),
-        };
+        auto u32_operators =
+            constructAllBuiltinOperators(UInt32, {Int32, UInt32, UInt64, Int64, Float32, Float64});
 
-        // TODO: check zero division exception
-        auto DivFunctions = Vector<ast::Function>{
-            BUILTIN_DIV(Int32, Int32, Int32, info_for_binary_expressions),
-            BUILTIN_DIV(Int64, Int64, Int64, info_for_binary_expressions),
-            BUILTIN_DIV(Float32, Float32, Float32, info_for_binary_expressions),
-            BUILTIN_DIV(Float64, Float64, Float64, info_for_binary_expressions),
-        };
+        auto u64_operators =
+            constructAllBuiltinOperators(UInt64, {Int32, UInt32, UInt64, Int64, Float32, Float64});
 
-        auto LessFunctions = Vector<ast::Function>{
-            BUILTIN_LESS(Bool, Int32, Int32, info_for_binary_expressions),
-            BUILTIN_LESS(Bool, Int64, Int64, info_for_binary_expressions),
-            BUILTIN_LESS(Bool, Float32, Float32, info_for_binary_expressions),
-            BUILTIN_LESS(Bool, Float64, Float64, info_for_binary_expressions),
-            BUILTIN_LESS(Bool, String, String, info_for_binary_expressions),
-        };
+        auto f32_operators =
+            constructAllBuiltinOperators(Float32, {Int32, UInt32, UInt64, Int64, Float32, Float64});
 
-        auto GreaterFunctions = Vector<ast::Function>{
-            BUILTIN_GREATER(Bool, Int32, Int32, info_for_binary_expressions),
-            BUILTIN_GREATER(Bool, Int64, Int64, info_for_binary_expressions),
-            BUILTIN_GREATER(Bool, Float32, Float32, info_for_binary_expressions),
-            BUILTIN_GREATER(Bool, Float64, Float64, info_for_binary_expressions),
-            BUILTIN_GREATER(Bool, String, String, info_for_binary_expressions),
-        };
+        auto f64_operators =
+            constructAllBuiltinOperators(Float64, {Int32, UInt32, UInt64, Int64, Float32, Float64});
 
-        auto LessEqFunctions = Vector<ast::Function>{
-            BUILTIN_LESS_EQ(Bool, Int32, Int32, info_for_binary_expressions),
-            BUILTIN_LESS_EQ(Bool, Int64, Int64, info_for_binary_expressions),
-            BUILTIN_LESS_EQ(Bool, Float32, Float32, info_for_binary_expressions),
-            BUILTIN_LESS_EQ(Bool, Float64, Float64, info_for_binary_expressions),
-            BUILTIN_LESS_EQ(Bool, String, String, info_for_binary_expressions),
-        };
+        auto logical_and = Vector<Function>{
+            {Void,
+             "__logical_and__",
+             Bool,
+             {Argument{"lhs", Bool, ArgumentCategory::IN},
+              Argument{"rhs", Bool, ArgumentCategory::IN}},
+             BinaryOperatorInfo}};
 
-        auto GreaterEqFunctions = Vector<ast::Function>{
-            BUILTIN_GREATER_EQ(Bool, Int32, Int32, info_for_binary_expressions),
-            BUILTIN_GREATER_EQ(Bool, Int64, Int64, info_for_binary_expressions),
-            BUILTIN_GREATER_EQ(Bool, Float32, Float32, info_for_binary_expressions),
-            BUILTIN_GREATER_EQ(Bool, Float64, Float64, info_for_binary_expressions),
-            BUILTIN_GREATER_EQ(Bool, String, String, info_for_binary_expressions),
-        };
+        auto logical_or = Vector<Function>{
+            {Void,
+             "__logical_or__",
+             Bool,
+             {Argument{"lhs", Bool, ArgumentCategory::IN},
+              Argument{"rhs", Bool, ArgumentCategory::IN}},
+             BinaryOperatorInfo}};
 
-        auto LogicalAndFunctions = Vector<ast::Function>{
-            BUILTIN_LOGICAL_AND(Bool, Bool, Bool, info_for_binary_expressions),
-        };
+        auto constructors = Vector<Function>{
+            BUILTIN_EMPTY_CONSTRUCTOR(bool, Bool, {}, BinaryOperatorInfo),
+            BUILTIN_EMPTY_CONSTRUCTOR(char, Char, {}, BinaryOperatorInfo),
+            BUILTIN_EMPTY_CONSTRUCTOR(String, String, {}, BinaryOperatorInfo),
+            BUILTIN_EMPTY_CONSTRUCTOR(Vector, VectorTemplate, {Template1}, BinaryOperatorInfo)};
 
-        auto LogicalOrFunctions = Vector<ast::Function>{
-            BUILTIN_LOGICAL_OR(Bool, Bool, Bool, info_for_binary_expressions),
-        };
+        auto math_functions = Vector<Function>{
+            {Void,
+             "sqrt",
+             Float32,
+             {Argument{"value", Float32, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "sqrt",
+             Float64,
+             {Argument{"value", Float64, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "log2",
+             Float32,
+             {Argument{"value", Float32, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "log2",
+             Float64,
+             {Argument{"log2", Float64, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "log",
+             Float32,
+             {Argument{"value", Float32, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "log",
+             Float64,
+             {Argument{"value", Float64, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "trunc",
+             Float32,
+             {Argument{"value", Float32, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "trunc",
+             Float64,
+             {Argument{"value", Float64, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "floor",
+             Float32,
+             {Argument{"value", Float32, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "floor",
+             Float64,
+             {Argument{"value", Float64, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "ceil",
+             Float32,
+             {Argument{"value", Float32, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "ceil",
+             Float64,
+             {Argument{"value", Float64, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "round",
+             Float32,
+             {Argument{"value", Float32, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "round",
+             Float64,
+             {Argument{"value", Float64, ArgumentCategory::IN}},
+             MathFunctionInfo}};
 
-        auto EqualFunctions = Vector<ast::Function>{
-            BUILTIN_EQUAL(Bool, Int32, Int32, info_for_binary_expressions),
-            BUILTIN_EQUAL(Bool, Int64, Int64, info_for_binary_expressions),
-            BUILTIN_EQUAL(Bool, Float32, Float32, info_for_binary_expressions),
-            BUILTIN_EQUAL(Bool, Float64, Float64, info_for_binary_expressions),
-        };
-
-        auto NotEqualFunctions = Vector<ast::Function>{
-            BUILTIN_NOT_EQUAL(Bool, Int32, Int32, info_for_binary_expressions),
-            BUILTIN_NOT_EQUAL(Bool, Int64, Int64, info_for_binary_expressions),
-            BUILTIN_NOT_EQUAL(Bool, Float32, Float32, info_for_binary_expressions),
-            BUILTIN_NOT_EQUAL(Bool, Float64, Float64, info_for_binary_expressions),
-        };
-
-        auto AssignFunctions = Vector<ast::Function>{
-            BUILTIN_ASSIGN(Int32, Int32, Int32, info_for_binary_expressions),
-            BUILTIN_ASSIGN(Int64, Int64, Int64, info_for_binary_expressions),
-            BUILTIN_ASSIGN(Float32, Float32, Float32, info_for_binary_expressions),
-            BUILTIN_ASSIGN(Float64, Float64, Float64, info_for_binary_expressions),
-        };
-
-        auto Constructors = Vector<ast::Function>{
-            BUILTIN_EMPTY_CONSTRUCTOR(i32, Int32, {}, info_for_binary_expressions),
-            BUILTIN_EMPTY_CONSTRUCTOR(i64, Int64, {}, info_for_binary_expressions),
-            BUILTIN_EMPTY_CONSTRUCTOR(u32, UInt32, {}, info_for_binary_expressions),
-            BUILTIN_EMPTY_CONSTRUCTOR(u64, UInt64, {}, info_for_binary_expressions),
-            BUILTIN_EMPTY_CONSTRUCTOR(f32, Float32, {}, info_for_binary_expressions),
-            BUILTIN_EMPTY_CONSTRUCTOR(f64, Float64, {}, info_for_binary_expressions),
-            BUILTIN_EMPTY_CONSTRUCTOR(bool, Bool, {}, info_for_binary_expressions),
-            BUILTIN_EMPTY_CONSTRUCTOR(char, Char, {}, info_for_binary_expressions),
-            BUILTIN_EMPTY_CONSTRUCTOR(String, String, {}, info_for_binary_expressions),
-            BUILTIN_EMPTY_CONSTRUCTOR(
-                Vector, VectorTemplate, {Template1}, info_for_binary_expressions),
-            BUILTIN_CONVERT(f32, Float32, Int32, info_for_binary_expressions),
-            BUILTIN_CONVERT(f32, Float32, Float32, info_for_binary_expressions),
-            BUILTIN_CONVERT(f32, Float32, Int64, info_for_binary_expressions),
-            BUILTIN_CONVERT(f32, Float32, UInt32, info_for_binary_expressions),
-            BUILTIN_CONVERT(f32, Float32, UInt64, info_for_binary_expressions),
-            BUILTIN_CONVERT(f32, Float32, Float64, info_for_binary_expressions),
-            BUILTIN_CONVERT(f64, Float64, Float64, info_for_binary_expressions),
-            BUILTIN_CONVERT(f64, Float64, Int32, info_for_binary_expressions),
-            BUILTIN_CONVERT(f64, Float64, Int64, info_for_binary_expressions),
-            BUILTIN_CONVERT(f64, Float64, UInt32, info_for_binary_expressions),
-            BUILTIN_CONVERT(f64, Float64, UInt64, info_for_binary_expressions),
-            BUILTIN_CONVERT(f64, Float64, Float32, info_for_binary_expressions),
-            BUILTIN_CONVERT(i32, Int32, Int64, info_for_binary_expressions),
-            BUILTIN_CONVERT(i32, Int32, Int32, info_for_binary_expressions),
-            BUILTIN_CONVERT(i32, Int32, UInt32, info_for_binary_expressions),
-            BUILTIN_CONVERT(i32, Int32, UInt64, info_for_binary_expressions),
-            BUILTIN_CONVERT(i32, Int32, Float32, info_for_binary_expressions),
-            BUILTIN_CONVERT(i32, Int32, Float64, info_for_binary_expressions),
-            BUILTIN_CONVERT(i64, Int64, Int32, info_for_binary_expressions),
-            BUILTIN_CONVERT(i64, Int64, Int64, info_for_binary_expressions),
-            BUILTIN_CONVERT(i64, Int64, UInt32, info_for_binary_expressions),
-            BUILTIN_CONVERT(i64, Int64, UInt64, info_for_binary_expressions),
-            BUILTIN_CONVERT(i64, Int64, Float32, info_for_binary_expressions),
-            BUILTIN_CONVERT(i64, Int64, Float64, info_for_binary_expressions),
-            BUILTIN_CONVERT(u32, UInt32, Int32, info_for_binary_expressions),
-            BUILTIN_CONVERT(u32, UInt32, UInt32, info_for_binary_expressions),
-            BUILTIN_CONVERT(u32, UInt32, Int64, info_for_binary_expressions),
-            BUILTIN_CONVERT(u32, UInt32, UInt64, info_for_binary_expressions),
-            BUILTIN_CONVERT(u32, UInt32, Float32, info_for_binary_expressions),
-            BUILTIN_CONVERT(u32, UInt32, Float64, info_for_binary_expressions),
-            BUILTIN_CONVERT(u64, UInt64, Int32, info_for_binary_expressions),
-            BUILTIN_CONVERT(u64, UInt64, UInt64, info_for_binary_expressions),
-            BUILTIN_CONVERT(u64, UInt64, Int64, info_for_binary_expressions),
-            BUILTIN_CONVERT(u64, UInt64, UInt32, info_for_binary_expressions),
-            BUILTIN_CONVERT(u64, UInt64, Float32, info_for_binary_expressions),
-            BUILTIN_CONVERT(u64, UInt64, Float64, info_for_binary_expressions),
-        };
-
-        auto InputFunctions = Vector<ast::Function>{
-            {Void, "input", String, {}, ast::FunctionInfo{.NOEXCEPT = false}},
+        auto input = Vector<Function>{
+            {Void, "input", String, {}, FunctionInfo{.NOEXCEPT = false}},
             {Void,
              "input",
              String,
              {{"message", String, ArgumentCategory::IN}},
-             ast::FunctionInfo{
+             FunctionInfo{
                  .NOEXCEPT = false, .CONSTEXPR = false, .VISIBILITY = Visibility::PUBLIC}}};
 
-        auto OutputFunctions = Vector<ast::Function>{
+        auto output = Vector<Function>{
             {Void,
              "putchar",
              Void,
              {{"value", Int32, ArgumentCategory::IN}},
-             ast::FunctionInfo{
-                 .NOEXCEPT = true, .CONSTEXPR = false, .VISIBILITY = Visibility::PUBLIC}},
+             FunctionInfo{.NOEXCEPT = true, .CONSTEXPR = false, .VISIBILITY = Visibility::PUBLIC}},
             {Void,
              "print",
              Void,
              {{"fmt", String, ArgumentCategory::IN}},
-             ast::FunctionInfo{
+             FunctionInfo{
                  .NOEXCEPT = true,
                  .BUILTIN_FUNCTION = true,
                  .HAVE_PARAMETER_PACK = true,
@@ -287,12 +322,12 @@ namespace fsc
              {}},
         };
 
-        auto FormatFunctions = Vector<ast::Function>{
+        auto format = Vector<Function>{
             {Void,
              "format",
              Void,
              {Argument{"fmt", String, ArgumentCategory::IN}},
-             ast::FunctionInfo{
+             FunctionInfo{
                  .NOEXCEPT = false,
                  .BUILTIN_FUNCTION = true,
                  .HAVE_PARAMETER_PACK = true,
@@ -300,80 +335,25 @@ namespace fsc
                  .VISIBILITY = Visibility::PUBLIC},
              {}}};
 
-        auto StringMethods = Vector<ast::Function>{
+        auto string_methods = Vector<Function>{
+            {String, "size", UInt64, {}, GetSizeInfo},
+            {String, "toI32", Int32, {}, StringInfoForToNumeric},
+            {String, "toI64", Int64, {}, StringInfoForToNumeric},
+            {String, "toU64", UInt64, {}, StringInfoForToNumeric},
+            {String, "toF32", Float32, {}, StringInfoForToNumeric},
+            {String, "toF64", Float64, {}, StringInfoForToNumeric},
             {String,
-             "size",
-             UInt64,
-             {},
-             ast::FunctionInfo{
-                 .NOEXCEPT = true,
-                 .IS_METHOD = true,
-                 .CONSTANT_METHOD = true,
-                 .BUILTIN_FUNCTION = true,
-                 .CONSTEXPR = true,
-                 .VISIBILITY = Visibility::PUBLIC}},
-            {String,
-             "toI32",
-             Int32,
-             {},
-             ast::FunctionInfo{
-                 .NOEXCEPT = false,
-                 .IS_METHOD = true,
-                 .CONSTANT_METHOD = true,
-                 .BUILTIN_FUNCTION = true,
-                 .CONSTEXPR = false,
-                 .VISIBILITY = Visibility::PUBLIC}},
-            {String,
-             "toI64",
-             Int64,
-             {},
-             ast::FunctionInfo{
-                 .NOEXCEPT = false,
-                 .IS_METHOD = true,
-                 .CONSTANT_METHOD = true,
-                 .BUILTIN_FUNCTION = true,
-                 .CONSTEXPR = false,
-                 .VISIBILITY = Visibility::PUBLIC}},
-            {String,
-             "toU64",
-             UInt64,
-             {},
-             ast::FunctionInfo{
-                 .NOEXCEPT = false,
-                 .IS_METHOD = true,
-                 .CONSTANT_METHOD = true,
-                 .BUILTIN_FUNCTION = true,
-                 .CONSTEXPR = false,
-                 .VISIBILITY = Visibility::PUBLIC}},
-            {String,
-             "toF32",
-             Float32,
-             {},
-             ast::FunctionInfo{
-                 .NOEXCEPT = false,
-                 .IS_METHOD = true,
-                 .CONSTANT_METHOD = true,
-                 .BUILTIN_FUNCTION = true,
-                 .CONSTEXPR = false,
-                 .VISIBILITY = Visibility::PUBLIC}},
-            {String,
-             "toF64",
-             Float64,
-             {},
-             ast::FunctionInfo{
-                 .NOEXCEPT = false,
-                 .IS_METHOD = true,
-                 .CONSTANT_METHOD = true,
-                 .BUILTIN_FUNCTION = true,
-                 .CONSTEXPR = false,
-                 .VISIBILITY = Visibility::PUBLIC}}};
+             "at",
+             Char,
+             {Argument{"index", UInt64, ArgumentCategory::IN}},
+             OperatorAtInfo}};
 
-        auto VectorMethods = Vector<ast::Function>{
+        auto vector_methods = Vector<Function>{
             {VectorTemplate,
              "Vector",
              VectorTemplate,
              {Argument{"value", Template1, ArgumentCategory::IN}},
-             ast::FunctionInfo{
+             FunctionInfo{
                  .NOEXCEPT = false,
                  .IS_METHOD = true,
                  .CONSTANT_METHOD = false,
@@ -382,23 +362,13 @@ namespace fsc
                  .CONSTEXPR = true,
                  .VISIBILITY = Visibility::PUBLIC},
              {Template1},
-             ast::MagicFunctionType::INIT},
-            {VectorTemplate,
-             "size",
-             UInt64,
-             {},
-             ast::FunctionInfo{
-                 .NOEXCEPT = true,
-                 .IS_METHOD = true,
-                 .CONSTANT_METHOD = true,
-                 .BUILTIN_FUNCTION = true,
-                 .CONSTEXPR = true,
-                 .VISIBILITY = Visibility::PUBLIC}},
+             MagicFunctionType::INIT},
+            {VectorTemplate, "size", UInt64, {}, GetSizeInfo},
             {VectorTemplate,
              "push_back",
              Void,
              {Argument{"value", Template1, ArgumentCategory::IN}},
-             ast::FunctionInfo{
+             FunctionInfo{
                  .NOEXCEPT = false,
                  .IS_METHOD = true,
                  .CONSTANT_METHOD = false,
@@ -409,29 +379,21 @@ namespace fsc
              "at",
              Template1,
              {Argument{"index", UInt64, ArgumentCategory::IN}},
-             ast::FunctionInfo{
-                 .NOEXCEPT = false,
-                 .IS_METHOD = true,
-                 .CONSTANT_METHOD = true,
-                 .BUILTIN_FUNCTION = true,
-                 .CONSTEXPR = true,
-                 .VISIBILITY = Visibility::PUBLIC}}};
+             OperatorAtInfo}};
 
-        auto MemoryAllocation = Vector<ast::Function>{
+        auto memory_allocation = Vector<Function>{
             {Void,
              "construct",
              Template1,
              {{"number", UInt32, ArgumentCategory::IN}},
-             ast::FunctionInfo{
+             FunctionInfo{
                  .NOEXCEPT = false, .BUILTIN_FUNCTION = true, .VISIBILITY = Visibility::PUBLIC},
              {Template1}}};
 
         func::Functions.registerFunctions(
-            {Constructors,       AddFunctions,        SubFunctions,       MulFunctions,
-             DivFunctions,       LessFunctions,       GreaterFunctions,   LessEqFunctions,
-             GreaterEqFunctions, LogicalAndFunctions, LogicalOrFunctions, EqualFunctions,
-             NotEqualFunctions,  AssignFunctions,     InputFunctions,     OutputFunctions,
-             FormatFunctions,    VectorMethods,       StringMethods,      MemoryAllocation});
+            {i32_operators, i64_operators, u32_operators, u64_operators, f32_operators,
+             f64_operators, math_functions, constructors, logical_and, logical_or, input, output,
+             format, vector_methods, string_methods, memory_allocation});
 
         initialized = true;
     }

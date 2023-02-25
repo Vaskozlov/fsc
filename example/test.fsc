@@ -7,6 +7,10 @@ class S<T>
         return x
     }
 
+    public func test2(in i32 a)
+    {
+    }
+
     public func __init__(in T a)
     {
         x = a
@@ -27,7 +31,6 @@ func any<T2>(inout T2 a)
     print("{}\n", a.test())
 }
 
-
 func main() -> i32
 {
     var t = S<i32>(10)
@@ -40,6 +43,14 @@ func main() -> i32
 
     f(t)
     any(k)
+
+    var i = 0
+
+    while i != 10
+    {
+        print("{}\n", i)
+        i = i + 1
+    }
 
     return 0
 }
