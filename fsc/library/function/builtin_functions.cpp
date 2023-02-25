@@ -7,7 +7,7 @@
 
 #define BUILTIN_EMPTY_CONSTRUCTOR(REPR, TYPE, TEMPLATES, INFO)                                     \
     {                                                                                              \
-        FscType{TYPE}, #REPR, FscType{TYPE}, {}, INFO, TEMPLATES,                                  \
+        FscType{TYPE}, #REPR, "", FscType{TYPE}, {}, INFO, TEMPLATES,                              \
             fsc::ast::MagicFunctionType::INIT                                                      \
     }
 
@@ -104,12 +104,8 @@ namespace fsc
         const auto left_argument = Argument{"lhs", lhs, ArgumentCategory::IN};
         const auto right_argument = Argument{"rhs", rhs, ArgumentCategory::IN};
 
-        return Function{
-            Void,
-            MagicToFscName[function_type],
-            return_type,
-            {left_argument, right_argument},
-            BinaryOperatorInfo};
+        return Function{Void,        MagicToFscName[function_type],   "",
+                        return_type, {left_argument, right_argument}, BinaryOperatorInfo};
     }
 
     static auto
@@ -142,8 +138,8 @@ namespace fsc
 
         auto assign = constructBuiltinBinaryExpression(MagicFunctionType::ASSIGN, type, type, type);
 
-        auto empty_constructor = Function{
-            type, type.getName(), type, {}, BinaryOperatorInfo, {}, MagicFunctionType::INIT};
+        auto empty_constructor = Function{type, type.getName(),     "", type,
+                                          {},   BinaryOperatorInfo, {}, MagicFunctionType::INIT};
 
         auto operators = Vector<Function>{
             std::move(add),       std::move(sub),        std::move(mul),
@@ -157,6 +153,7 @@ namespace fsc
             operators.emplace_back(Function{
                 type,
                 type.getName(),
+                "",
                 type,
                 {Argument{"value_to_copy", from, ArgumentCategory::IN}},
                 BinaryOperatorInfo,
@@ -203,6 +200,7 @@ namespace fsc
         auto logical_and = Vector<Function>{
             {Void,
              "__logical_and__",
+             "",
              Bool,
              {Argument{"lhs", Bool, ArgumentCategory::IN},
               Argument{"rhs", Bool, ArgumentCategory::IN}},
@@ -211,6 +209,7 @@ namespace fsc
         auto logical_or = Vector<Function>{
             {Void,
              "__logical_or__",
+             "",
              Bool,
              {Argument{"lhs", Bool, ArgumentCategory::IN},
               Argument{"rhs", Bool, ArgumentCategory::IN}},
@@ -225,79 +224,118 @@ namespace fsc
         auto math_functions = Vector<Function>{
             {Void,
              "sqrt",
+             "std::sqrt",
              Float32,
              {Argument{"value", Float32, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "sqrt",
+             "std::sqrt",
              Float64,
              {Argument{"value", Float64, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "log2",
+             "std::log2",
              Float32,
              {Argument{"value", Float32, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "log2",
+             "std::log2",
              Float64,
              {Argument{"log2", Float64, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "log",
+             "std::log",
              Float32,
              {Argument{"value", Float32, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "log",
+             "std::log",
              Float64,
              {Argument{"value", Float64, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "trunc",
+             "std::trunc",
              Float32,
              {Argument{"value", Float32, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "trunc",
+             "std::trunc",
              Float64,
              {Argument{"value", Float64, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "floor",
+             "std::floor",
              Float32,
              {Argument{"value", Float32, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "floor",
+             "std::floor",
              Float64,
              {Argument{"value", Float64, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "ceil",
+             "std::ceil",
              Float32,
              {Argument{"value", Float32, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "ceil",
+             "std::ceil",
              Float64,
              {Argument{"value", Float64, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "round",
+             "std::round",
              Float32,
              {Argument{"value", Float32, ArgumentCategory::IN}},
              MathFunctionInfo},
             {Void,
              "round",
+             "std::round",
+             Float64,
+             {Argument{"value", Float64, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "abs",
+             "std::abs",
+             Int32,
+             {Argument{"value", Int32, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "abs",
+             "std::abs",
+             Int64,
+             {Argument{"value", Int64, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "abs",
+             "std::abs",
+             Float32,
+             {Argument{"value", Float32, ArgumentCategory::IN}},
+             MathFunctionInfo},
+            {Void,
+             "abs",
+             "std::abs",
              Float64,
              {Argument{"value", Float64, ArgumentCategory::IN}},
              MathFunctionInfo}};
 
         auto input = Vector<Function>{
-            {Void, "input", String, {}, FunctionInfo{.NOEXCEPT = false}},
+            {Void, "input", "", String, {}, FunctionInfo{.NOEXCEPT = false}},
             {Void,
              "input",
+             "",
              String,
              {{"message", String, ArgumentCategory::IN}},
              FunctionInfo{
@@ -306,11 +344,13 @@ namespace fsc
         auto output = Vector<Function>{
             {Void,
              "putchar",
+             "std::putchar",
              Void,
              {{"value", Int32, ArgumentCategory::IN}},
              FunctionInfo{.NOEXCEPT = true, .CONSTEXPR = false, .VISIBILITY = Visibility::PUBLIC}},
             {Void,
              "print",
+             "",
              Void,
              {{"fmt", String, ArgumentCategory::IN}},
              FunctionInfo{
@@ -325,6 +365,7 @@ namespace fsc
         auto format = Vector<Function>{
             {Void,
              "format",
+             "",
              Void,
              {Argument{"fmt", String, ArgumentCategory::IN}},
              FunctionInfo{
@@ -336,14 +377,15 @@ namespace fsc
              {}}};
 
         auto string_methods = Vector<Function>{
-            {String, "size", UInt64, {}, GetSizeInfo},
-            {String, "toI32", Int32, {}, StringInfoForToNumeric},
-            {String, "toI64", Int64, {}, StringInfoForToNumeric},
-            {String, "toU64", UInt64, {}, StringInfoForToNumeric},
-            {String, "toF32", Float32, {}, StringInfoForToNumeric},
-            {String, "toF64", Float64, {}, StringInfoForToNumeric},
+            {String, "size", "", UInt64, {}, GetSizeInfo},
+            {String, "toI32", "", Int32, {}, StringInfoForToNumeric},
+            {String, "toI64", "", Int64, {}, StringInfoForToNumeric},
+            {String, "toU64", "", UInt64, {}, StringInfoForToNumeric},
+            {String, "toF32", "", Float32, {}, StringInfoForToNumeric},
+            {String, "toF64", "", Float64, {}, StringInfoForToNumeric},
             {String,
              "at",
+             "",
              Char,
              {Argument{"index", UInt64, ArgumentCategory::IN}},
              OperatorAtInfo}};
@@ -351,6 +393,7 @@ namespace fsc
         auto vector_methods = Vector<Function>{
             {VectorTemplate,
              "Vector",
+             "",
              VectorTemplate,
              {Argument{"value", Template1, ArgumentCategory::IN}},
              FunctionInfo{
@@ -363,9 +406,10 @@ namespace fsc
                  .VISIBILITY = Visibility::PUBLIC},
              {Template1},
              MagicFunctionType::INIT},
-            {VectorTemplate, "size", UInt64, {}, GetSizeInfo},
+            {VectorTemplate, "size", "", UInt64, {}, GetSizeInfo},
             {VectorTemplate,
              "push_back",
+             "",
              Void,
              {Argument{"value", Template1, ArgumentCategory::IN}},
              FunctionInfo{
@@ -377,6 +421,7 @@ namespace fsc
                  .VISIBILITY = Visibility::PUBLIC}},
             {VectorTemplate,
              "at",
+             "",
              Template1,
              {Argument{"index", UInt64, ArgumentCategory::IN}},
              OperatorAtInfo}};
@@ -384,6 +429,7 @@ namespace fsc
         auto memory_allocation = Vector<Function>{
             {Void,
              "construct",
+             "",
              Template1,
              {{"number", UInt32, ArgumentCategory::IN}},
              FunctionInfo{

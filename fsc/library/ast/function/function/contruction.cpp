@@ -19,12 +19,14 @@ namespace fsc::ast
     {}
 
     Function::Function(
-        FscType class_type, std::string_view function_name, FscType return_type,
-        InitializerList<Argument> function_arguments, FunctionInfo function_info,
-        const ccl::SmallVector<FscType> &function_templates, MagicFunctionType magic)
+        FscType class_type, std::string_view function_name, std::string_view codegen_name,
+        FscType return_type, InitializerList<Argument> function_arguments,
+        FunctionInfo function_info, const ccl::SmallVector<FscType> &function_templates,
+        MagicFunctionType magic)
       : arguments{function_arguments}
       , templates{function_templates}
       , name{function_name}
+      , codegenName{codegen_name}
       , functionInfo{function_info}
       , returnType{return_type}
       , classType{class_type}

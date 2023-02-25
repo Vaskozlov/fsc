@@ -27,7 +27,7 @@ namespace fsc::ast
 
     auto Function::addNodiscardModifier(codegen::BasicCodeGenerator &output) const -> void
     {
-        if (getReturnType().getName() != "void" && name != "main" && functionInfo.NODISCARD) {
+        if (getReturnType() != Void && name != "main" && functionInfo.NODISCARD) {
             output << "[[nodiscard]] ";
         }
     }

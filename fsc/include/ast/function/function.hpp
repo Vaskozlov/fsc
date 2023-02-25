@@ -60,6 +60,7 @@ namespace fsc::ast
         ccl::Map<std::string, NodePtr> defaultArguments;
         NodePtr functionBody;
         std::string name;
+        std::string codegenName;
         ccl::Id functionUuid = functionUuidGenerator++;
         FunctionInfo functionInfo{};
         FscType returnType{Void};
@@ -73,9 +74,9 @@ namespace fsc::ast
         explicit Function(BasicContextPtr node_context);
 
         Function(
-            FscType class_type, std::string_view function_name, FscType return_type,
-            ccl::InitializerList<Argument> function_arguments, FunctionInfo function_info,
-            const ccl::SmallVector<FscType> &function_templates = {},
+            FscType class_type, std::string_view function_name, std::string_view codegen_name,
+            FscType return_type, ccl::InitializerList<Argument> function_arguments,
+            FunctionInfo function_info, const ccl::SmallVector<FscType> &function_templates = {},
             MagicFunctionType magic = MagicFunctionType::NONE);
 
         auto finishConstruction(const FunctionContext *function_context, FscType class_type)
@@ -92,6 +93,11 @@ namespace fsc::ast
         auto memberize(FscType type_id) noexcept -> void
         {
             classType = type_id;
+        }
+
+        [[nodiscard]] auto getCodegenName() const -> std::string
+        {
+            return codegenName.empty() ? name : codegenName;
         }
 
         [[nodiscard]] auto isMember() const noexcept -> bool

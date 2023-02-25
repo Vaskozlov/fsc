@@ -42,7 +42,9 @@ namespace fsc::ast
 
     auto FunctionCall::defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void
     {
-        output << functionName;
+        auto function_to_gen = getFunction();
+        auto codegen_name = function_to_gen->getCodegenName();
+        output << codegen_name;
 
         if (!functionCallTemplates.empty()) {
             fmt::format_to(
