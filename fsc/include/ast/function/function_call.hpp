@@ -37,6 +37,8 @@ namespace fsc::ast
         auto defaultPrint(const std::string &prefix, bool is_left) const -> void;
         auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void;
         auto getFunction() const -> ccl::SharedPtr<Function>;
+
+        auto generateFunctionName(ccl::codegen::BasicCodeGenerator &output) -> void;
     };
 }// namespace fsc::ast
 

@@ -95,7 +95,7 @@ namespace fsc::ast
             classType = type_id;
         }
 
-        [[nodiscard]] auto getCodegenName() const -> std::string
+        [[nodiscard]] auto getCodegenName() const -> const std::string &
         {
             return codegenName.empty() ? name : codegenName;
         }

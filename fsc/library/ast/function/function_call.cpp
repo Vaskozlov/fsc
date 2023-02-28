@@ -42,9 +42,7 @@ namespace fsc::ast
 
     auto FunctionCall::defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void
     {
-        auto function_to_gen = getFunction();
-        auto codegen_name = function_to_gen->getCodegenName();
-        output << codegen_name;
+        generateFunctionName(output);
 
         if (!functionCallTemplates.empty()) {
             fmt::format_to(
@@ -63,6 +61,18 @@ namespace fsc::ast
                       },
                       ", ")
                << close_bracket;
+    }
+
+    auto FunctionCall::generateFunctionName(ccl::codegen::BasicCodeGenerator &output) -> void
+    {
+        try {
+            auto function_to_gen = getFunction();
+            const auto &codegen_name = function_to_gen->getCodegenName();
+            output << codegen_name;
+        } catch (const FscException & /* unused */) {
+            // sometimes function can not be found, because it's templates constructor
+            output << functionName;
+        }
     }
 
     auto FunctionCall::analyze() -> AnalysisReport
