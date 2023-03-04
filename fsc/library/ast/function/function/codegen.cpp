@@ -106,4 +106,15 @@ namespace fsc::ast
             output << ';';
         }
     }
+
+    auto Function::optimize(OptimizationLevel level) -> void
+    {
+        if (!templates.empty()) {
+            return;// with current model it is impossible to optimize templated functions
+        }
+
+        if (functionBody != nullptr) {
+            functionBody->optimize(level);
+        }
+    }
 }// namespace fsc::ast

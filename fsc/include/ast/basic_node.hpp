@@ -122,8 +122,6 @@ namespace fsc::ast
         [[nodiscard]] auto getStop() const noexcept -> ccl::Optional<antlr4::Token *>;
         [[nodiscard]] auto getContext() const noexcept -> ccl::Optional<BasicContextPtr>;
 
-        [[noreturn]] auto reportAboutError(const std::exception &exception) const -> void;
-
         [[nodiscard]] virtual auto getValueType() noexcept(false) -> FscType;
 
         [[nodiscard]] auto getNodeType() const noexcept -> NodeType
@@ -174,13 +172,13 @@ namespace fsc::ast
         static_assert(std::derived_from<Base, Node>);
 
     public:
-        NodeWrapper(BasicContextPtr node_context = nullptr) noexcept(
+        explicit NodeWrapper(BasicContextPtr node_context = nullptr) noexcept(
             std::is_nothrow_constructible_v<Base, NodeType>)
             requires(std::is_same_v<Base, Node>)
           : Base{classof(), NeedSemicolon, node_context}
         {}
 
-        NodeWrapper(BasicContextPtr node_context = nullptr) noexcept(
+        explicit NodeWrapper(BasicContextPtr node_context = nullptr) noexcept(
             std::is_nothrow_constructible_v<Base>)
             requires(!std::is_same_v<Base, Node>)
         {

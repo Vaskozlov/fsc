@@ -17,10 +17,11 @@ public:
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
     T__26 = 27, AS = 28, ADD = 29, SUB = 30, MUL = 31, DIV = 32, MOD = 33, 
-    DOT = 34, ASSIGN = 35, LESS = 36, GREATER = 37, LESS_EQ = 38, GREATER_EQ = 39, 
-    EQUALITY = 40, INEQUALITY = 41, LOGICAL_AND = 42, LOGICAL_OR = 43, TRUE = 44, 
-    FALSE = 45, INT = 46, FLOAT = 47, CHAR = 48, STRING = 49, IDENTIFIER = 50, 
-    LAYOUT = 51
+    DOT = 34, ASSIGN_ADD = 35, ASSIGN_SUB = 36, ASSIGN_MUL = 37, ASSIGN_DIV = 38, 
+    ASSIGN_MOD = 39, ASSIGN = 40, LESS = 41, GREATER = 42, LESS_EQ = 43, 
+    GREATER_EQ = 44, EQUALITY = 45, INEQUALITY = 46, LOGICAL_AND = 47, LOGICAL_OR = 48, 
+    TRUE = 49, FALSE = 50, INT = 51, FLOAT = 52, CHAR = 53, STRING = 54, 
+    IDENTIFIER = 55, LAYOUT = 56
   };
 
   enum {
@@ -586,6 +587,11 @@ public:
     antlr4::tree::TerminalNode *LOGICAL_AND();
     antlr4::tree::TerminalNode *LOGICAL_OR();
     antlr4::tree::TerminalNode *ASSIGN();
+    antlr4::tree::TerminalNode *ASSIGN_ADD();
+    antlr4::tree::TerminalNode *ASSIGN_SUB();
+    antlr4::tree::TerminalNode *ASSIGN_MUL();
+    antlr4::tree::TerminalNode *ASSIGN_DIV();
+    antlr4::tree::TerminalNode *ASSIGN_MOD();
     Member_variable_accessContext *member_variable_access();
     Method_callContext *method_call();
     antlr4::tree::TerminalNode *AS();

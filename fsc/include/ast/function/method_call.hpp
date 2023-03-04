@@ -22,7 +22,11 @@ namespace fsc::ast
 
         auto analyze() -> AnalysisReport final;
 
+        [[nodiscard]] auto getValueType() -> FscType final;
+
         auto print(const std::string &prefix, bool is_left) const -> void final;
+
+        auto optimize(OptimizationLevel level) -> void final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
     };

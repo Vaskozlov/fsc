@@ -1,6 +1,6 @@
 class S<T>
 {
-    public var x : T = T()
+    public var x : T = 0 as T
 
     public func test() -> T
     {
@@ -14,10 +14,6 @@ class S<T>
     public func __init__(in T a)
     {
         x = a
-    }
-
-    public func __del__()
-    {
     }
 }
 
@@ -49,7 +45,7 @@ func main() -> i32
     while i != 10
     {
         print("{}\n", i)
-        i = i + 1
+        i += 1
     }
 
     return 0

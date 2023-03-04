@@ -4,16 +4,12 @@ namespace fsc
 {
     using namespace std::string_view_literals;
 
-    constexpr std::string_view CompilerFlags = "-std=c++2b -DFMT_HEADER_ONLY=1";
+    constexpr std::string_view CompilerFlags =
+        "-std=c++2b -DFMT_HEADER_ONLY=1 -fmodules -fbuiltin-module-map -fimplicit-module-maps "
+        "-fprebuilt-implicit-modules -stdlib=libc++";
 
     constexpr std::string_view FscProgramsHeader = R"cpp(
-#include <cinttypes>
-#include <concepts>
-#include <cstddef>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <cmath>
+import std;
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -26,7 +22,70 @@ using f32 = float;
 using f64 = double;
 
 template<typename T>
-using Vector = std::vector<T>;
+class Vector : public std::vector<T>
+{
+public:
+    using std::vector<T>::at;
+    using std::vector<T>::size;
+    using std::vector<T>::empty;
+
+    template<typename... Ts>
+    constexpr Vector(Ts &&...initial_value)// NOLINT
+        requires(std::constructible_from<std::vector<T>, Ts...>)
+      : std::vector<T>{std::forward<Ts>(initial_value)...}
+    {}
+
+    constexpr Vector(const std::initializer_list<T> &initializer)// NOLINT
+      : std::vector<T>{initializer}
+    {}
+
+    constexpr auto max() const -> const T &
+    {
+        if (empty()) {
+            throw std::logic_error{
+                fmt::format("Vector<{}>::max vector is empty", typeid(T).name())};
+        }
+
+        return *std::ranges::max_element(*this);
+    }
+
+    constexpr auto min() const -> const T &
+    {
+        if (empty()) {
+            throw std::logic_error{
+                fmt::format("Vector<{}>::min vector is empty", typeid(T).name())};
+        }
+
+        return *std::ranges::min_element(*this);
+    }
+
+    constexpr auto max(const T &default_value) const -> const T &
+    {
+        if (empty()) {
+            return default_value;
+        }
+
+        return *std::ranges::max_element(*this);
+    }
+
+    constexpr auto min(const T &default_value) const -> const T &
+    {
+        if (empty()) {
+            return default_value;
+        }
+
+        return *std::ranges::min_element(*this);
+    }
+
+    constexpr auto swap(size_t first, size_t second) -> void
+    {
+        if (std::max(first, second) >= size()) {
+            throw std::out_of_range{fmt::format("Vector<{}>::swap", typeid(T).name())};
+        }
+
+        std::swap(this->at(first), this->at(second));
+    }
+};
 
 class String : public std::string
 {

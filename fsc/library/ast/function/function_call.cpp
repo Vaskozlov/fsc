@@ -135,6 +135,15 @@ namespace fsc::ast
         defaultCodegen(output);
     }
 
+    auto FunctionCall::optimize(OptimizationLevel level) -> void
+    {
+        for (auto &argument : arguments) {
+            argument->optimize(level);
+        }
+
+        getFunction()->optimize(level);
+    }
+
     auto FunctionCall::print(const std::string &prefix, bool is_left) const -> void
     {
         defaultPrint(prefix, is_left);

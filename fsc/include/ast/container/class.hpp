@@ -11,13 +11,17 @@ namespace fsc::ast
 {
     class Class final : public NodeWrapper<NodeType::CLASS, SemicolonNeed::DO_NOT_NEED, Body>
     {
-        ccl::Map<std::string, FscType> constructionMemberVariables;
+        ccl::Map<std::string, FscType> memberVariables;
         ccl::SmallVector<FscType> templates;
         std::string name;
         FscType fscType{Void};
 
     public:
         explicit Class(std::string class_name);
+
+        explicit Class(
+            FscType fsc_type, std::string class_name, ccl::InitializerList<FscType> class_templates,
+            const ccl::Map<std::string, FscType> &member_variables = {});
 
         auto finishClass(BodyContext *body_context, TemplateContext *template_context) -> void;
 
@@ -26,6 +30,8 @@ namespace fsc::ast
         auto analyzeOnConstruction() const -> AnalysisReport;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
+
+        auto optimize(OptimizationLevel level) -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 

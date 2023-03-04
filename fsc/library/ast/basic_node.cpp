@@ -88,33 +88,6 @@ namespace fsc::ast
         return result;
     }
 
-    auto Node::reportAboutError(const std::exception &exception) const -> void
-    {
-        if (start == nullptr || stop == nullptr) {
-            throw exception;
-        }
-
-        const auto line = start->getLine();
-        const auto begin_column = start->getCharPositionInLine();
-        const auto end_column = stop->getCharPositionInLine();
-
-        auto &handler = ccl::handler::Cmd::instance();
-        auto location = ccl::text::Location{SourceFile, line, begin_column};
-        auto length = end_column - begin_column + stop->getText().size();
-
-        auto iterator_exception = ccl::text::TextIteratorException{
-            ccl::ExceptionCriticality::PANIC,
-            ccl::AnalysisStage::PARSING,
-            location,
-            length,
-            SourceLines.at(location.getLine() - 1),
-            exception.what(),
-            ""};
-
-        handler.handle(iterator_exception);
-        std::exit(1);// NOLINT
-    }
-
     auto Node::getValueType() noexcept(false) -> FscType
     {
         throw std::runtime_error{"getValueType() is not implemented"};

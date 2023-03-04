@@ -24,12 +24,24 @@ namespace fsc::ast
         return expression_analysis;
     }
 
+    auto MethodCall::getValueType() -> FscType
+    {
+        return TypeManager::getInstantiatedTemplate(
+            expression->getValueType(), FunctionCall::getValueType());
+    }
+
     auto MethodCall::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print(
             "{}Method call {}\n", getPrintingPrefix(prefix, is_left),
             expression->getValueType().getName());
         FunctionCall::defaultPrint(expandPrefix(prefix, is_left), false);
+    }
+
+    auto MethodCall::optimize(OptimizationLevel level) -> void
+    {
+        expression->optimize(level);
+        FunctionCall::optimize(level);
     }
 
     auto MethodCall::codeGen(codegen::BasicCodeGenerator &output) -> void

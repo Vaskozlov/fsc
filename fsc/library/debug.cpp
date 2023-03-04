@@ -58,7 +58,7 @@ namespace fsc
             fmt::print("{} is not a valid file\n", fsc_filename);
         }
 
-        return compileCppProgram(fsc::compile(fsc_filename, stream));
+        return compileCppProgram(fsc::compile(fsc_filename, stream, ast::OptimizationLevel::NONE));
     }
 
     auto compareProgramsOutput(std::string_view fsc_program, std::string_view cpp_program) -> bool

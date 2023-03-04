@@ -17,10 +17,8 @@ namespace fsc::ast
 
     public:
         FunctionCall(
-            std::string function_name,
-            const ccl::SmallVector<Argument> &typed_arguments,
-            FscType class_id,
-            const ccl::SmallVector<NodePtr> &function_arguments,
+            std::string function_name, const ccl::SmallVector<Argument> &typed_arguments,
+            FscType class_id, const ccl::SmallVector<NodePtr> &function_arguments,
             const ccl::SmallVector<FscType> &templates, BasicContextPtr node_context);
 
         auto analyze() -> AnalysisReport;
@@ -29,7 +27,9 @@ namespace fsc::ast
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void override;
 
-        [[nodiscard]] auto getValueType() -> FscType final;
+        auto optimize(OptimizationLevel level) -> void override;
+
+        [[nodiscard]] auto getValueType() -> FscType override;
 
     protected:
         auto attemptToAnalyze() -> AnalysisReport;

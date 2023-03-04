@@ -53,4 +53,13 @@ namespace fsc::ast
 
         body->print(expanded_prefix, false);
     }
+
+    auto If::optimize(OptimizationLevel level) -> void
+    {
+        if (condition != nullptr) {
+            condition->optimize(level);
+        }
+
+        body->optimize(level);
+    }
 }// namespace fsc::ast

@@ -19,12 +19,84 @@
         {}                                                                                         \
     };                                                                                             \
                                                                                                    \
-    constexpr inline auto TypeName = Fsc##TypeName{};
+    inline auto TypeName = Fsc##TypeName{};
 
 namespace fsc
 {
     template<ccl::ConstString String, typename T>
     struct FscTypeWrapper;
+
+    template<typename T>
+    class ReprOrValue
+    {
+    private:
+        using StoredVariant = std::variant<T, std::string>;
+
+        StoredVariant value{};
+
+    public:
+        ReprOrValue() = default;
+
+        template<typename... Ts>
+        constexpr explicit ReprOrValue(Ts &&...args)
+            requires std::constructible_from<T, Ts...>
+          : value{std::in_place_index<0>, std::forward<Ts>(args)...} {};
+
+        template<typename... Ts>
+        constexpr explicit ReprOrValue(Ts &&...args)
+            requires std::constructible_from<std::string, Ts...>
+          : value{std::in_place_index<1>, std::forward<Ts>(args)...} {};
+
+        CCL_DECL auto storesValue() const noexcept -> bool
+        {
+            return value.index() == 0;
+        }
+
+        CCL_DECL auto storesString() const noexcept -> bool
+        {
+            return !storesValue();
+        }
+
+        CCL_DECL auto getValue() const noexcept
+            -> std::conditional_t<std::is_trivial_v<T>, T, const T &>
+        {
+            return std::get<0>(value);
+        }
+
+        CCL_DECL auto getString() const noexcept -> const std::string &
+        {
+            return std::get<1>(value);
+        }
+
+        CCL_DECL auto toString() const noexcept -> std::string
+        {
+            if (storesValue()) {
+                return fmt::to_string(getValue());
+            }
+
+            return getString();
+        }
+
+        auto setValue(T &&new_value) noexcept -> void
+        {
+            value = std::move(new_value);
+        }
+
+        auto setValue(const T &new_value) noexcept -> void
+        {
+            value = std::move(new_value);
+        }
+
+        auto setValue(std::string &&new_value) noexcept -> void
+        {
+            value = std::move(new_value);
+        }
+
+        auto setValue(const std::string &new_value) noexcept -> void
+        {
+            value = new_value;
+        }
+    };
 
     template<ccl::ConstString String>
     struct FscTypeWrapper<String, void>
@@ -84,8 +156,8 @@ namespace fsc
     FSC_WRAP_TYPE(UInt32, "u32", ccl::u32);
     FSC_WRAP_TYPE(Int64, "i64", ccl::i64);
     FSC_WRAP_TYPE(UInt64, "u64", ccl::u64);
-    FSC_WRAP_TYPE(Float32, "f32", ccl::f32);
-    FSC_WRAP_TYPE(Float64, "f64", ccl::f64);
+    FSC_WRAP_TYPE(Float32, "f32", ReprOrValue<ccl::f32>);
+    FSC_WRAP_TYPE(Float64, "f64", ReprOrValue<ccl::f64>);
 
     FSC_WRAP_TYPE(Char, "char", char);
     FSC_WRAP_TYPE(String, "String", std::string);

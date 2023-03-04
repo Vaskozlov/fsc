@@ -19,6 +19,8 @@ namespace fsc::ast
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
+        auto optimize(OptimizationLevel level) -> void final;
+
         [[nodiscard]] auto getValueType() -> FscType final;
     };
 }// namespace fsc::ast

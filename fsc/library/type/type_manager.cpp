@@ -6,6 +6,33 @@ using namespace ccl;
 
 namespace fsc
 {
+    static auto checkTemplatePackCorrect(const std::string &template_name) -> SmallVector<FscType>
+    {
+        auto result = SmallVector<FscType>{};
+
+        for (auto template_typename : template_name | std::views::split(',')) {
+            auto converted_name_view = ccl::string_view{std::string_view{template_typename}};
+
+            while (converted_name_view[0] == ' ') {
+                converted_name_view = {converted_name_view.begin() + 1, converted_name_view.end()};
+            }
+
+            auto converted_name = std::string{converted_name_view};
+
+            while (converted_name.back() == ' ') {
+                converted_name.pop_back();
+            }
+
+            if (!TypeManager::exists(converted_name)) {
+                throw std::invalid_argument{fmt::format("{} is not a valid type", template_name)};
+            }
+
+            result.emplace_back(std::move(converted_name));
+        }
+
+        return result;
+    }
+
     auto TypeManager::getFrame() noexcept -> TypeManagerFrame &
     {
         static auto type_manager_frame = TypeManagerFrame{};
@@ -41,6 +68,12 @@ namespace fsc
     auto TypeManager::getRemapTypes() noexcept -> UnorderedMap<ccl::Id, FscType> &
     {
         return getFrame().remapTypes;
+    }
+
+    auto TypeManager::getInstantiatedTemplates() noexcept
+        -> ccl::UnorderedMap<FscType, ccl::Map<FscType, FscType>> &
+    {
+        return getFrame().instantiatedTemplates;
     }
 
     auto TypeManager::getFscClasses() noexcept -> UnorderedMap<FscType, ast::NodePtr> &
@@ -100,33 +133,6 @@ namespace fsc
     {
         if (!exactTypeExists(base_name)) {
             throw std::invalid_argument{fmt::format("{} is not a valid type", base_name)};
-        }
-
-        for (auto template_typename : template_name | std::views::split(',')) {
-            auto converted_name_view = ccl::string_view{std::string_view{template_typename}};
-
-            while (converted_name_view[0] == ' ') {
-                converted_name_view = {converted_name_view.begin() + 1, converted_name_view.end()};
-            }
-
-            auto converted_name = std::string{converted_name_view};
-
-            while (converted_name.back() == ' ') {
-                converted_name.pop_back();
-            }
-
-            if (!exists(converted_name)) {
-                throw std::invalid_argument{fmt::format("{} is not a valid type", template_name)};
-            }
-        }
-
-        const auto templates_count = std::ranges::count(template_name, ',') + 1;
-        const auto base_type = FscType{base_name};
-
-        if (getTypeInfo().at(base_type).templatesParametersCount !=
-            ccl::as<size_t>(templates_count)) {
-            throw FscException{
-                fmt::format("{} can not hold {} templates parameters", base_name, templates_count)};
         }
 
         return createFromName(fmt::format("{}<{}>", base_name, template_name));
@@ -268,6 +274,20 @@ namespace fsc
         return fsc_classes.at(type);
     }
 
+    auto TypeManager::getInstantiatedTemplate(FscType fsc_class, FscType type) -> FscType
+    {
+        fsc_class = getTrueType(fsc_class);
+        type = getTrueType(type);
+
+        const auto &instantiated_templates = getInstantiatedTemplates().at(fsc_class);
+
+        if (instantiated_templates.contains(type)) {
+            return instantiated_templates.at(type);
+        }
+
+        return type;
+    }
+
     auto TypeManager::getMemberVariable(FscType type, const std::string &member_variable_name)
         -> ast::NodePtr
     {
@@ -343,7 +363,16 @@ namespace fsc
                     "{} can not hold {} templates parameters", base_name, templates_count)};
             }
 
+            auto templates = checkTemplatePackCorrect(template_name);
+            auto class_node = getFscClass(base_type);
+            const auto &fsc_class = class_node->as<ast::Class>();
+            const auto &class_templates = fsc_class.getTemplates();
             const auto new_type = createNewType(type_name, {});
+            auto &instantiated_templates_map = getInstantiatedTemplates()[new_type];
+
+            for (auto i = 0ZU; i != templates.size(); ++i) {
+                instantiated_templates_map.emplace(class_templates[i], templates[i]);
+            }
 
             func::Functions.map(FscType{base_name}, new_type);
             return new_type;

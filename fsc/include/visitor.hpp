@@ -17,9 +17,9 @@ namespace fsc
     class Visitor : public FscBaseVisitor
     {
     private:
-        ast::Program program;
-        ccl::Vector<FscType> functionReturnStack;
-        std::string filename;
+        ast::Program program{};
+        ccl::Vector<FscType> functionReturnStack{};
+        std::string filename{};
         antlr4::ANTLRInputStream &inputStream;
         ccl::Vector<std::string> inputAsLines{};
 
@@ -28,6 +28,7 @@ namespace fsc
 
         auto codeGen() -> std::string;
         auto analyze() -> void;
+        auto optimize(ast::OptimizationLevel level) -> void;
 
         auto print() const -> void
         {
@@ -134,6 +135,16 @@ namespace fsc
     };
 
     inline constinit Visitor *GlobalVisitor{nullptr};
+
+    template<std::derived_from<ast::Node> T>
+    auto preparerToCatchError(ccl::Invocable auto &&function, T &node) -> decltype(auto)
+    {
+        try {
+            return function();
+        } catch (const FscException &e) {
+            GlobalVisitor->throwError(node.getContext().value(), e.what());
+        }
+    }
 }// namespace fsc
 
 #endif /* FSC_VISITOR_HPP */

@@ -77,6 +77,13 @@ namespace fsc::ast
         }
     }
 
+    auto Body::optimize(OptimizationLevel level) -> void
+    {
+        for (auto &node : nodes) {
+            node->optimize(level);
+        }
+    }
+
     auto Body::print(const std::string &prefix, bool is_left) const -> void
     {
         Body::defaultBodyPrint(prefix, is_left);

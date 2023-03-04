@@ -8,6 +8,11 @@ DIV         : [/];
 MOD         : [%];
 DOT         : [.];
 
+ASSIGN_ADD  : '+=';
+ASSIGN_SUB  : '-=';
+ASSIGN_MUL  : '*=';
+ASSIGN_DIV  : '/=';
+ASSIGN_MOD  : '%=';
 ASSIGN      : '=';
 LESS        : '<';
 GREATER     : '>';
@@ -31,14 +36,14 @@ LAYOUT  : [ \t] -> skip;
 program: (stmt)*;
 
 type:   IDENTIFIER
-    |   IDENTIFIER LESS templated_types GREATER;
+    |   IDENTIFIER '<' templated_types '>';
 
 templated_types: type (',' type)*;
 
 stmt:   function
     |   expr stmt_end
     |   class stmt_end
-    |   'return' expr stmt_end
+    |   'return' expr? stmt_end
     |   if_stmt stmt_end
     |   while_loop stmt_end
     |   stmt_end
@@ -104,6 +109,11 @@ expr:   expr member_variable_access
     |   expr LOGICAL_AND expr
     |   expr LOGICAL_OR expr
     |   expr ASSIGN expr
+    |   expr ASSIGN_ADD expr
+    |   expr ASSIGN_SUB expr
+    |   expr ASSIGN_MUL expr
+    |   expr ASSIGN_DIV expr
+    |   expr ASSIGN_MOD expr
     |   function_call
     |   variable_definition
     |   auto_variable_definition

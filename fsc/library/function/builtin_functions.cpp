@@ -1,9 +1,11 @@
 #include "function/argument.hpp"
 
+#include "ast/container/class.hpp"
 #include "ast/function/magic_methods_table.hpp"
 #include "function/functions_holder.hpp"
 #include "type/builtin_types.hpp"
 #include "type/type.hpp"
+#include <ccl/flatmap.hpp>
 
 #define BUILTIN_EMPTY_CONSTRUCTOR(REPR, TYPE, TEMPLATES, INFO)                                     \
     {                                                                                              \
@@ -59,6 +61,27 @@ namespace fsc
         .CONSTEXPR = true,
         .VISIBILITY = Visibility::PUBLIC};
 
+    constexpr static auto CategoryForLhsArgument =
+        StaticFlatmap<MagicFunctionType, ArgumentCategory, 17>{
+            {MagicFunctionType::ADD, ArgumentCategory::IN},
+            {MagicFunctionType::SUB, ArgumentCategory::IN},
+            {MagicFunctionType::MUL, ArgumentCategory::IN},
+            {MagicFunctionType::MOD, ArgumentCategory::IN},
+            {MagicFunctionType::DIV, ArgumentCategory::IN},
+            {MagicFunctionType::EQUAL, ArgumentCategory::IN},
+            {MagicFunctionType::NOT_EQUAL, ArgumentCategory::IN},
+            {MagicFunctionType::LESS, ArgumentCategory::IN},
+            {MagicFunctionType::GREATER, ArgumentCategory::IN},
+            {MagicFunctionType::LESS_EQ, ArgumentCategory::IN},
+            {MagicFunctionType::GREATER_EQ, ArgumentCategory::IN},
+            {MagicFunctionType::COPY_ASSIGN, ArgumentCategory::OUT},
+            {MagicFunctionType::IADD, ArgumentCategory::OUT},
+            {MagicFunctionType::ISUB, ArgumentCategory::OUT},
+            {MagicFunctionType::IMUL, ArgumentCategory::OUT},
+            {MagicFunctionType::IDIV, ArgumentCategory::OUT},
+            {MagicFunctionType::IMOD, ArgumentCategory::OUT},
+        };
+
     static auto initializeNumericTypes() -> void
     {
         FscBool::initialize({.isTriviallyCopyable = true}, CreationType::DEFAULT);
@@ -101,53 +124,63 @@ namespace fsc
         FscType lhs,
         FscType rhs) -> Function
     {
-        const auto left_argument = Argument{"lhs", lhs, ArgumentCategory::IN};
+        const auto left_argument = Argument{"lhs", lhs, CategoryForLhsArgument.at(function_type)};
         const auto right_argument = Argument{"rhs", rhs, ArgumentCategory::IN};
 
         return Function{Void,        MagicToFscName[function_type],   "",
                         return_type, {left_argument, right_argument}, BinaryOperatorInfo};
     }
 
-    static auto
-        constructAllBuiltinOperators(FscType type, InitializerList<FscType> extra_conversion)
-            -> Vector<Function>
+    static auto constructBasicBuiltinOperators(FscType lhs, FscType rhs) -> Vector<Function>
     {
-        auto add = constructBuiltinBinaryExpression(MagicFunctionType::ADD, type, type, type);
-
-        auto sub = constructBuiltinBinaryExpression(MagicFunctionType::SUB, type, type, type);
-
-        auto mul = constructBuiltinBinaryExpression(MagicFunctionType::MUL, type, type, type);
-
-        auto div = constructBuiltinBinaryExpression(MagicFunctionType::DIV, type, type, type);
-
-        auto less = constructBuiltinBinaryExpression(MagicFunctionType::LESS, Bool, type, type);
-
-        auto less_eq =
-            constructBuiltinBinaryExpression(MagicFunctionType::LESS_EQ, Bool, type, type);
-
-        auto greater =
-            constructBuiltinBinaryExpression(MagicFunctionType::GREATER, Bool, type, type);
-
-        auto greater_eq =
-            constructBuiltinBinaryExpression(MagicFunctionType::GREATER_EQ, Bool, type, type);
-
-        auto equal = constructBuiltinBinaryExpression(MagicFunctionType::EQUAL, Bool, type, type);
-
-        auto not_equal =
-            constructBuiltinBinaryExpression(MagicFunctionType::NOT_EQUAL, Bool, type, type);
-
-        auto assign = constructBuiltinBinaryExpression(MagicFunctionType::ASSIGN, type, type, type);
-
-        auto empty_constructor = Function{type, type.getName(),     "", type,
-                                          {},   BinaryOperatorInfo, {}, MagicFunctionType::INIT};
-
         auto operators = Vector<Function>{
-            std::move(add),       std::move(sub),        std::move(mul),
-            std::move(div),       std::move(less),       std::move(less_eq),
-            std::move(greater),   std::move(greater_eq), std::move(equal),
-            std::move(not_equal), std::move(assign),     std::move(empty_constructor)};
+            constructBuiltinBinaryExpression(MagicFunctionType::ADD, lhs, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::SUB, lhs, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::MUL, lhs, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::DIV, lhs, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::IADD, lhs, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::ISUB, lhs, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::IMUL, lhs, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::IDIV, lhs, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::LESS, Bool, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::LESS_EQ, Bool, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::GREATER, Bool, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::GREATER_EQ, Bool, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::EQUAL, Bool, lhs, rhs),
+            constructBuiltinBinaryExpression(MagicFunctionType::NOT_EQUAL, Bool, lhs, rhs),
+        };
 
-        operators.reserve(operators.size() + extra_conversion.size());
+        if (!lhs.getName().contains('f')) {
+            operators.emplace_back(
+                constructBuiltinBinaryExpression(MagicFunctionType::MOD, lhs, lhs, rhs));
+            operators.emplace_back(
+                constructBuiltinBinaryExpression(MagicFunctionType::IMOD, lhs, lhs, rhs));
+        }
+
+        return operators;
+    }
+
+    static auto constructAllBuiltinOperators(
+        FscType type,
+        InitializerList<FscType>
+            extra_conversion,
+        InitializerList<FscType> extra_operable_types = {}) -> Vector<Function>
+    {
+        auto operators = constructBasicBuiltinOperators(type, type);
+
+        for (auto extra_binary_type : extra_operable_types) {
+            auto extra_operators = constructBasicBuiltinOperators(type, extra_binary_type);
+            operators.insert(operators.end(), extra_operators.begin(), extra_operators.end());
+        }
+
+        operators.emplace_back(
+            constructBuiltinBinaryExpression(MagicFunctionType::COPY_ASSIGN, type, type, type));
+
+        operators.emplace_back(
+            constructBuiltinBinaryExpression(MagicFunctionType::COPY_ASSIGN, type, type, type));
+
+        operators.emplace_back(Function{
+            type, type.getName(), "", type, {}, BinaryOperatorInfo, {}, MagicFunctionType::INIT});
 
         for (auto from : extra_conversion) {
             operators.emplace_back(Function{
@@ -159,11 +192,6 @@ namespace fsc
                 BinaryOperatorInfo,
                 {},
                 MagicFunctionType::INIT});
-        }
-
-        if (!type.getName().contains('f')) {
-            operators.emplace_back(
-                constructBuiltinBinaryExpression(MagicFunctionType::MOD, type, type, type));
         }
 
         return operators;
@@ -182,20 +210,20 @@ namespace fsc
         auto i32_operators =
             constructAllBuiltinOperators(Int32, {Int32, UInt32, UInt64, Int64, Float32, Float64});
 
-        auto i64_operators =
-            constructAllBuiltinOperators(Int64, {Int32, UInt32, UInt64, Int64, Float32, Float64});
+        auto i64_operators = constructAllBuiltinOperators(
+            Int64, {Int32, UInt32, UInt64, Int64, Float32, Float64}, {Int32});
 
         auto u32_operators =
             constructAllBuiltinOperators(UInt32, {Int32, UInt32, UInt64, Int64, Float32, Float64});
 
-        auto u64_operators =
-            constructAllBuiltinOperators(UInt64, {Int32, UInt32, UInt64, Int64, Float32, Float64});
+        auto u64_operators = constructAllBuiltinOperators(
+            UInt64, {Int32, UInt32, UInt64, Int64, Float32, Float64}, {UInt32});
 
         auto f32_operators =
             constructAllBuiltinOperators(Float32, {Int32, UInt32, UInt64, Int64, Float32, Float64});
 
-        auto f64_operators =
-            constructAllBuiltinOperators(Float64, {Int32, UInt32, UInt64, Int64, Float32, Float64});
+        auto f64_operators = constructAllBuiltinOperators(
+            Float64, {Int32, UInt32, UInt64, Int64, Float32, Float64}, {Float32});
 
         auto logical_and = Vector<Function>{
             {Void,
@@ -420,10 +448,37 @@ namespace fsc
                  .CONSTEXPR = true,
                  .VISIBILITY = Visibility::PUBLIC}},
             {VectorTemplate,
+             "swap",
+             "",
+             Void,
+             {Argument{"first", UInt64, ArgumentCategory::IN},
+              Argument{"second", UInt64, ArgumentCategory::IN}},
+             FunctionInfo{
+                 .NOEXCEPT = false,
+                 .IS_METHOD = true,
+                 .CONSTANT_METHOD = false,
+                 .BUILTIN_FUNCTION = true,
+                 .CONSTEXPR = true,
+                 .VISIBILITY = Visibility::PUBLIC}},
+            {VectorTemplate,
              "at",
              "",
              Template1,
              {Argument{"index", UInt64, ArgumentCategory::IN}},
+             OperatorAtInfo},
+            {VectorTemplate, "max", "", Template1, {}, OperatorAtInfo},
+            {VectorTemplate, "min", "", Template1, {}, OperatorAtInfo},
+            {VectorTemplate,
+             "max",
+             "",
+             Template1,
+             {Argument{"default", Template1, ArgumentCategory::IN}},
+             OperatorAtInfo},
+            {VectorTemplate,
+             "min",
+             "",
+             Template1,
+             {Argument{"default", Template1, ArgumentCategory::IN}},
              OperatorAtInfo}};
 
         auto memory_allocation = Vector<Function>{
@@ -440,6 +495,9 @@ namespace fsc
             {i32_operators, i64_operators, u32_operators, u64_operators, f32_operators,
              f64_operators, math_functions, constructors, logical_and, logical_or, input, output,
              format, vector_methods, string_methods, memory_allocation});
+
+        TypeManager::addFscClass(
+            makeShared<ast::Class>(VectorTemplate, "Vector", InitializerList<FscType>{Template1}));
 
         initialized = true;
     }

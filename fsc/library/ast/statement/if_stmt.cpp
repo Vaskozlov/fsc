@@ -51,6 +51,20 @@ namespace fsc::ast
         }
     }
 
+    auto IfStmt::optimize(OptimizationLevel level) -> void
+    {
+        ifNode->optimize(level);
+
+
+        for (auto &elif_node : elifNodes) {
+            elif_node->optimize(level);
+        }
+
+        if (elseNode != nullptr) {
+            elseNode->optimize(level);
+        }
+    }
+
     auto IfStmt::print(const std::string &prefix, bool is_left) const -> void
     {
         const auto expanded_prefix = expandPrefix(prefix, is_left);

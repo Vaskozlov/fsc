@@ -1,6 +1,8 @@
 #include "ast/expression/conversion.hpp"
+#include "ast/value/value.hpp"
 #include "function/argument.hpp"
 #include "function/functions_holder.hpp"
+#include "type/builtin_types_impl.hpp"
 #include "type/type.hpp"
 #include <ccl/core/types.hpp>
 
@@ -38,5 +40,18 @@ namespace fsc::ast
     {
         fmt::print("{} Conversion to {}\n", getPrintingPrefix(prefix, is_left), type);
         value->print(expandPrefix(prefix, is_left), false);
+    }
+
+    auto Conversion::optimize(OptimizationLevel level) -> void
+    {
+        if (type == Float64 && value->is(NodeType::VALUE) && value->getValueType() == Float32) {
+            const auto &as_f32 = value->as<Value>();
+            auto new_value = makeUnique<FscBuiltinType<ReprOrValue<f64>>>(
+                Float64, as_f32.getValue()->toString());
+
+            value = makeShared<Value>(std::move(new_value), as_f32.getContext().value());
+        }
+
+        value->optimize(level);
     }
 }// namespace fsc::ast

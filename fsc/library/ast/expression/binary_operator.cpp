@@ -9,13 +9,14 @@ namespace fsc::ast
 {
     using namespace std::string_view_literals;
 
-    constexpr static ccl::StaticFlatmap<std::string_view, std::string_view, 13>
+    constexpr static ccl::StaticFlatmap<std::string_view, std::string_view, 18>
         OperatorToFunctionName = {
-            {"+", "__add__"},          {"-", "__sub__"},         {"*", "__mul__"},
-            {"/", "__div__"},          {"%", "__mod__"},         {"<", "__less__"},
-            {">", "__greater__"},      {"<=", "__less_equal__"}, {">", "__greater_equal__"},
-            {"&&", "__logical_and__"}, {"==", "__equal__"},      {"!=", "__not_equal__"},
-            {"=", "__copy__"}};
+            {"+", "__add__"},         {"-", "__sub__"},           {"*", "__mul__"},
+            {"/", "__div__"},         {"%", "__mod__"},           {"+=", "__iadd__"},
+            {"-=", "__isub__"},       {"*=", "__imul__"},         {"/=", "__idiv__"},
+            {"%=", "__imod__"},       {"<", "__less__"},          {">", "__greater__"},
+            {"<=", "__less_equal__"}, {">", "__greater_equal__"}, {"&&", "__logical_and__"},
+            {"==", "__equal__"},      {"!=", "__not_equal__"},    {"=", "__copy__"}};
 
     BinaryOperation::BinaryOperation(
         FscParser::ExprContext *ctx,
@@ -40,54 +41,64 @@ namespace fsc::ast
     {
         const auto function_name = OperatorToFunctionName.at(operationType);
 
-        return func::Functions.get(
-            {std::string{function_name}, {Argument{lhs.get()}, Argument{rhs.get()}}, Void});
+        return preparerToCatchError(
+            [this, &function_name]() {
+                return func::Functions.get(
+                    {std::string{function_name}, {Argument{lhs.get()}, Argument{rhs.get()}}, Void});
+            },
+            *this);
     }
 
     auto BinaryOperation::analyze() -> AnalysisReport
     {
-        try {
-            auto function = getFunction();
-            const auto &function_arguments = function->getArguments();
-            auto [return_type, report] = function->analyzeOnCall({lhs, rhs}, {});
+        return preparerToCatchError(
+            [this]() {
+                auto function = getFunction();
+                const auto &function_arguments = function->getArguments();
+                auto [return_type, report] = function->analyzeOnCall({lhs, rhs}, {});
 
-            switch (function_arguments.at(0).getCategory()) {
-            case ArgumentCategory::IN:
-                report.addToRead(lhs);
-                break;
+                switch (function_arguments.at(0).getCategory()) {
+                case ArgumentCategory::IN:
+                    report.addToRead(lhs);
+                    break;
 
-            case ArgumentCategory::OUT:
-            case ArgumentCategory::INOUT:
-                report.addToModified(lhs);
-                break;
+                case ArgumentCategory::OUT:
+                case ArgumentCategory::INOUT:
+                    report.addToModified(lhs);
+                    break;
 
-            default:
-                std::unreachable();
-            }
+                default:
+                    std::unreachable();
+                }
 
-            switch (function_arguments.at(1).getCategory()) {
-            case ArgumentCategory::IN:
-                report.addToRead(rhs);
-                break;
+                switch (function_arguments.at(1).getCategory()) {
+                case ArgumentCategory::IN:
+                    report.addToRead(rhs);
+                    break;
 
-            case ArgumentCategory::OUT:
-            case ArgumentCategory::INOUT:
-                report.addToModified(rhs);
-                break;
+                case ArgumentCategory::OUT:
+                case ArgumentCategory::INOUT:
+                    report.addToModified(rhs);
+                    break;
 
-            default:
-                std::unreachable();
-            }
+                default:
+                    std::unreachable();
+                }
 
-            return report;
-        } catch (const FscException &exception) {
-            reportAboutError(exception);
-        }
+                return report;
+            },
+            *this);
     }
 
     auto BinaryOperation::codeGen(ccl::codegen::BasicCodeGenerator &output) -> void
     {
         output << *lhs << " " << operationType << " " << *rhs;
+    }
+
+    auto BinaryOperation::optimize(OptimizationLevel level) -> void
+    {
+        lhs->optimize(level);
+        rhs->optimize(level);
     }
 
     auto BinaryOperation::print(const std::string &prefix, bool is_left) const -> void

@@ -8,7 +8,9 @@ using namespace ccl;
 
 namespace fsc
 {
-    auto compile(std::string_view filename, std::ifstream &stream, bool print_tree) -> std::string
+    auto compile(
+        std::string_view filename, std::ifstream &stream, ast::OptimizationLevel optimization_level,
+        bool print_tree) -> std::string
     {
         initializeCompilerBuiltin();
 
@@ -25,6 +27,7 @@ namespace fsc
         visitor.visit(tree);
 
         visitor.analyze();
+        visitor.optimize(optimization_level);
 
         if (print_tree) {
             visitor.print();

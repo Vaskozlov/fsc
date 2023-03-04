@@ -1,5 +1,6 @@
 #include "ast/statement/while.hpp"
 #include "type/builtin_types.hpp"
+#include "visitor.hpp"
 
 namespace fsc::ast
 {
@@ -10,9 +11,9 @@ namespace fsc::ast
 
     auto While::analyze() -> AnalysisReport
     {
-        fmt::print("{}\n", condition->getValueType().getName());
         if (condition->getValueType() != Bool) {
-            throw FscException{"While loop condition must be a boolean!"};
+            GlobalVisitor->throwError(
+                condition->getContext().value(), "While loop condition must be a boolean!");
         }
 
         auto condition_analysis = condition->analyze();
@@ -33,6 +34,12 @@ namespace fsc::ast
         }
 
         output << endl << *body;
+    }
+
+    auto While::optimize(OptimizationLevel level) -> void
+    {
+        condition->optimize(level);
+        body->optimize(level);
     }
 
     auto While::print(const std::string &prefix, bool is_left) const -> void

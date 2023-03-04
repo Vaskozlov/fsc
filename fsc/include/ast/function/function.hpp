@@ -31,7 +31,12 @@ namespace fsc::ast
         GREATER,
         LESS_EQ,
         GREATER_EQ,
-        ASSIGN
+        COPY_ASSIGN,
+        IADD,
+        ISUB,
+        IMUL,
+        IDIV,
+        IMOD
     };
 
     struct FunctionInfo
@@ -87,6 +92,8 @@ namespace fsc::ast
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
+
+        auto optimize(OptimizationLevel level) -> void final;
 
         [[nodiscard]] auto operator==(SignatureView other) const noexcept -> bool;
 
@@ -174,7 +181,7 @@ namespace fsc::ast
 
         auto modifyBuiltinFunctionReport(AnalysisReport &report) -> void;
 
-        auto deduceReturnType(const ccl::SmallVector<std::string> &remap_types_names) const
+        virtual auto deduceReturnType(const ccl::SmallVector<std::string> &remap_types_names) const
             -> FscType;
 
         auto generateTemplateParameters(ccl::codegen::BasicCodeGenerator &output) const -> void;

@@ -57,12 +57,20 @@ namespace fsc::ast
         const auto initializer_type = initializer->getValueType();
 
         if (value_type != initializer_type) {
-            throw FscException(
+            GlobalVisitor->throwError(
+                initializer->getContext().value(),
                 "unable to assign variable, because type of variable does not match with the "
                 "initializer return type");
         }
 
         return initializer->analyze();
+    }
+
+    auto VariableDefinition::optimize(OptimizationLevel level) -> void
+    {
+        if (initializer != nullptr) {
+            initializer->optimize(level);
+        }
     }
 
     auto VariableDefinition::print(const std::string &prefix, bool is_left) const -> void
@@ -118,10 +126,8 @@ namespace fsc::ast
         auto attributes = ccl::as<FscParser::Variable_attributesContext *>(ctx->children.at(0));
         auto declaration_type = ctx->children.at(1)->getText();
 
-        if (declaration_type == "let") {
-            flags.constant = true;
-        }
-
+        flags.constant = declaration_type == "let";
+        
         if (auto visibility = attributes->visibility(); visibility != nullptr) {
             flags.visibility = VisibilityByStr.at(visibility->getText());
         }

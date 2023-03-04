@@ -169,4 +169,9 @@ namespace fsc
     {
         program.analyze();
     }
+
+    auto Visitor::optimize(ast::OptimizationLevel level) -> void
+    {
+        program.optimize(level);
+    }
 }// namespace fsc

@@ -1,6 +1,7 @@
 #include "ast/return.hpp"
+#include "ast/value/value.hpp"
 #include "type/builtin_types.hpp"
-#include <ast/basic_node.hpp>
+#include "type/builtin_types_impl.hpp"
 #include <fmt/format.h>
 #include <stdexcept>
 
@@ -15,22 +16,46 @@ namespace fsc::ast
 
     auto Return::analyze() -> AnalysisReport
     {
+        if (value == nullptr) {
+            return {};
+        }
+
         return value->analyze();
     }
 
     auto Return::codeGen(ccl::codegen::BasicCodeGenerator &output) -> void
     {
-        output << "return " << *value;
+        output << "return ";
+
+        if (value != nullptr) {
+            output << *value;
+        }
     }
 
     auto Return::getValueType() -> FscType
     {
+        if (value == nullptr) {
+            return Void;
+        }
+
         return value->getValueType();
+    }
+
+    auto Return::optimize(OptimizationLevel level) -> void
+    {
+        if (value == nullptr) {
+            return;
+        }
+
+        value->optimize(level);
     }
 
     auto Return::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}return \n", getPrintingPrefix(prefix, is_left));
-        value->print(expandPrefix(prefix, is_left), false);
+
+        if (value != nullptr) {
+            value->print(expandPrefix(prefix, is_left), false);
+        }
     }
 }// namespace fsc::ast

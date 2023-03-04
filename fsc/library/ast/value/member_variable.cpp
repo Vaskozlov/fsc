@@ -18,6 +18,11 @@ namespace fsc::ast
         output << *node << '.' << name;
     }
 
+    auto MemberVariable::optimize(OptimizationLevel level) -> void
+    {
+        node->optimize(level);
+    }
+
     auto MemberVariable::analyze() -> AnalysisReport
     {
         if (!canAccessMember()) {

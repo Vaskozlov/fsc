@@ -17,9 +17,10 @@ namespace fsc
 
     static auto isBinaryOperator(ExpressionContext *ctx) -> bool
     {
-        static constexpr auto binary_expressions = StaticFlatmap<std::string_view, bool, 14>{
-            {"+", true},  {"-", true},  {"*", true},  {"/", true}, {"%", true},
-            {"==", true}, {"!=", true}, {"<", true},  {">", true}, {"<=", true},
+        static constexpr auto binary_expressions = StaticFlatmap<std::string_view, bool, 19>{
+            {"+", true},  {"-", true},  {"*", true},  {"/", true},  {"%", true},
+            {"+=", true}, {"-=", true}, {"*=", true}, {"/=", true}, {"%=", true},
+            {"==", true}, {"!=", true}, {"<", true},  {">", true},  {"<=", true},
             {">=", true}, {"||", true}, {"&&", true}, {"=", true},
         };
 

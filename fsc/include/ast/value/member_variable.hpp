@@ -20,6 +20,8 @@ namespace fsc::ast
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
+        auto optimize(OptimizationLevel level) -> void final;
+
         [[nodiscard]] auto getValueType() -> FscType final;
 
     private:

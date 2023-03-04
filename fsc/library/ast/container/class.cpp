@@ -28,6 +28,15 @@ namespace fsc::ast
       , fscType{TypeManager::createNewType(name, {.isTriviallyCopyable = false})}
     {}
 
+    Class::Class(
+        FscType fsc_type, std::string class_name, InitializerList<FscType> class_templates,
+        const ccl::Map<std::string, FscType> &member_variables)
+      : memberVariables{member_variables}
+      , templates{class_templates}
+      , name{std::move(class_name)}
+      , fscType{fsc_type}
+    {}
+
     auto Class::finishClass(BodyContext *body_context, TemplateContext *template_context) -> void
     {
         const auto templates_map = ccl::Raii{
@@ -99,8 +108,13 @@ namespace fsc::ast
         generateTemplateParameters(output);
 
         output << "class " << name;
-        Body::defaultCodegen(output);
+        Body::codeGen(output);
         output << ';';
+    }
+
+    auto Class::optimize(OptimizationLevel level) -> void
+    {
+        Body::optimize(level);
     }
 
     auto Class::generateTemplateParameters(codegen::BasicCodeGenerator &output) const -> void

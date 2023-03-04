@@ -32,7 +32,7 @@ auto doCompilation() -> void
         return;
     }
 
-    auto code = fsc::compile(Source, stream, PrintTree);
+    auto code = fsc::compile(Source, stream, fsc::ast::OptimizationLevel::NONE, PrintTree);
 
     if (PrintCode) {
         fmt::print("{}\n", code);

@@ -20,6 +20,11 @@ namespace fsc::ast
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
+        [[nodiscard]] auto getValue() const -> const FscTypeInterface *
+        {
+            return value.get();
+        }
+
         [[nodiscard]] auto getValueType() -> FscType final;
     };
 }// namespace fsc::ast

@@ -7,7 +7,7 @@ namespace fsc::converter
 
     auto toBoolean(const std::string &repr, BasicContextPtr value_context) -> SharedPtr<ast::Value>
     {
-        auto fsc_value = makeUnique<FscBuiltinType<FscBool>>(repr == "true");
+        auto fsc_value = makeUnique<FscBuiltinType<FscBool>>(Bool, repr == "true");
         return makeShared<ast::Value>(std::move(fsc_value), value_context);
     }
 }// namespace fsc::converter

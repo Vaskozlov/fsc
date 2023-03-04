@@ -6,7 +6,7 @@ namespace fsc::converter
 
     auto toString(const std::string &repr, BasicContextPtr value_context) -> SharedPtr<ast::Value>
     {
-        auto fsc_value = makeUnique<FscBuiltinType<FscString>>(repr);
+        auto fsc_value = makeUnique<FscBuiltinType<FscString>>(String, repr);
         return makeShared<ast::Value>(std::move(fsc_value), value_context);
     }
 }// namespace fsc::converter

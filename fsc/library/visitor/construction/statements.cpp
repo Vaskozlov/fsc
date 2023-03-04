@@ -13,7 +13,11 @@ namespace fsc
     {
         const auto &children = ctx->children;
 
-        return makeShared<ast::Return>(visitAsNode(children.at(1)), ctx);
+        if (auto expr = ctx->expr(); expr != nullptr) {
+            return makeShared<ast::Return>(visitAsNode(expr), ctx);
+        }
+
+        return makeShared<ast::Return>(nullptr, ctx);
     }
 
     auto Visitor::constructIf(IfStatementContext *ctx) -> ast::NodePtr
