@@ -29,6 +29,9 @@ public:
     using std::vector<T>::size;
     using std::vector<T>::empty;
 
+    using std::vector<T>::begin;
+    using std::vector<T>::end;
+
     template<typename... Ts>
     constexpr Vector(Ts &&...initial_value)// NOLINT
         requires(std::constructible_from<std::vector<T>, Ts...>)
@@ -39,42 +42,52 @@ public:
       : std::vector<T>{initializer}
     {}
 
-    constexpr auto max() const -> const T &
+    [[nodiscard]] constexpr auto operator[](size_t index) -> T &
+    {
+        return this->at(index);
+    }
+
+    [[nodiscard]] constexpr auto operator[](size_t index) const -> const T &
+    {
+        return this->at(index);
+    }
+
+    [[nodiscard]] constexpr auto max() const -> const T &
     {
         if (empty()) {
             throw std::logic_error{
                 fmt::format("Vector<{}>::max vector is empty", typeid(T).name())};
         }
 
-        return *std::ranges::max_element(*this);
+        return *std::max_element(begin(), end());
     }
 
-    constexpr auto min() const -> const T &
+    [[nodiscard]] constexpr auto min() const -> const T &
     {
         if (empty()) {
             throw std::logic_error{
                 fmt::format("Vector<{}>::min vector is empty", typeid(T).name())};
         }
 
-        return *std::ranges::min_element(*this);
+        return *std::min_element(begin(), end());
     }
 
-    constexpr auto max(const T &default_value) const -> const T &
+    [[nodiscard]] constexpr auto max(const T &default_value) const -> const T &
     {
         if (empty()) {
             return default_value;
         }
 
-        return *std::ranges::max_element(*this);
+        return *std::max_element(begin(), end());
     }
 
-    constexpr auto min(const T &default_value) const -> const T &
+    [[nodiscard]] constexpr auto min(const T &default_value) const -> const T &
     {
         if (empty()) {
             return default_value;
         }
 
-        return *std::ranges::min_element(*this);
+        return *std::min_element(begin(), end());
     }
 
     constexpr auto swap(size_t first, size_t second) -> void
@@ -95,6 +108,16 @@ public:
         requires(std::constructible_from<std::string, Ts...>)
       : std::string{std::forward<Ts>(initial_value)...}
     {}
+
+    [[nodiscard]] constexpr auto operator[](size_t index) -> char &
+    {
+        return this->at(index);
+    }
+
+    [[nodiscard]] constexpr auto operator[](size_t index) const -> const char &
+    {
+        return this->at(index);
+    }
 
     [[nodiscard]] constexpr auto toI32() const -> i32
     {
@@ -142,6 +165,5 @@ constexpr auto format(const String &fmt, auto &&...args) -> String
 {
     return fmt::format(fmt::runtime(fmt), std::forward<decltype(args)>(args)...);
 }
-
 )cpp";
 }// namespace fsc
