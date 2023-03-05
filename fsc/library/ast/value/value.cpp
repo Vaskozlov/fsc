@@ -28,6 +28,7 @@ namespace fsc::ast
 
     auto Value::print(const std::string &prefix, bool is_left) const -> void
     {
-        fmt::print("{}{}\n", getPrintingPrefix(prefix, is_left), value->toString());
+        fmt::print(
+            "{}{}: {}\n", getPrintingPrefix(prefix, is_left), FscType{*value}, value->toString());
     }
 }// namespace fsc::ast

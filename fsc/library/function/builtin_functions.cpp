@@ -45,17 +45,17 @@ namespace fsc
         .CONSTEXPR = true,
         .VISIBILITY = Visibility::PUBLIC};
 
-    constexpr static auto OperatorAtInfo = FunctionInfo{
+    constexpr static auto MathFunctionInfo = FunctionInfo{
         .NOEXCEPT = false,
-        .IS_METHOD = true,
+        .IS_METHOD = false,
         .CONSTANT_METHOD = false,
         .BUILTIN_FUNCTION = true,
         .CONSTEXPR = true,
         .VISIBILITY = Visibility::PUBLIC};
 
-    constexpr static auto MathFunctionInfo = FunctionInfo{
+    constexpr static auto NonConstMethod = FunctionInfo{
         .NOEXCEPT = false,
-        .IS_METHOD = false,
+        .IS_METHOD = true,
         .CONSTANT_METHOD = false,
         .BUILTIN_FUNCTION = true,
         .CONSTEXPR = true,
@@ -199,7 +199,14 @@ namespace fsc
 
     auto initializeCompilerBuiltin() -> void
     {
-        static bool initialized = false;
+        static auto initialized = false;
+        static auto initialization_lock = std::mutex();
+
+        if (initialized) {
+            return;
+        }
+
+        auto lock = std::scoped_lock{initialization_lock};
 
         if (initialized) {
             return;
@@ -416,7 +423,7 @@ namespace fsc
              "",
              Char,
              {Argument{"index", UInt64, ArgumentCategory::IN}},
-             OperatorAtInfo}};
+             NonConstMethod}};
 
         auto vector_methods = Vector<Function>{
             {VectorTemplate,
@@ -440,13 +447,8 @@ namespace fsc
              "",
              Void,
              {Argument{"value", Template1, ArgumentCategory::IN}},
-             FunctionInfo{
-                 .NOEXCEPT = false,
-                 .IS_METHOD = true,
-                 .CONSTANT_METHOD = false,
-                 .BUILTIN_FUNCTION = true,
-                 .CONSTEXPR = true,
-                 .VISIBILITY = Visibility::PUBLIC}},
+             NonConstMethod},
+            {VectorTemplate, "sort", "", Void, {}, NonConstMethod},
             {VectorTemplate,
              "swap",
              "",
@@ -465,21 +467,21 @@ namespace fsc
              "",
              Template1,
              {Argument{"index", UInt64, ArgumentCategory::IN}},
-             OperatorAtInfo},
-            {VectorTemplate, "max", "", Template1, {}, OperatorAtInfo},
-            {VectorTemplate, "min", "", Template1, {}, OperatorAtInfo},
+             NonConstMethod},
+            {VectorTemplate, "max", "", Template1, {}, NonConstMethod},
+            {VectorTemplate, "min", "", Template1, {}, NonConstMethod},
             {VectorTemplate,
              "max",
              "",
              Template1,
              {Argument{"default", Template1, ArgumentCategory::IN}},
-             OperatorAtInfo},
+             NonConstMethod},
             {VectorTemplate,
              "min",
              "",
              Template1,
              {Argument{"default", Template1, ArgumentCategory::IN}},
-             OperatorAtInfo}};
+             NonConstMethod}};
 
         auto memory_allocation = Vector<Function>{
             {Void,

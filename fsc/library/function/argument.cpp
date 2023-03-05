@@ -33,7 +33,7 @@ namespace fsc
         return {name, type, variable_flags};
     }
 
-    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, Argument &argument)
+    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const Argument &argument)
         -> ccl::codegen::BasicCodeGenerator &
     {
         const auto category = argument.getCategory();

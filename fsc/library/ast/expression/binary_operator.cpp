@@ -104,7 +104,11 @@ namespace fsc::ast
     auto BinaryOperation::print(const std::string &prefix, bool is_left) const -> void
     {
         const auto expanded_prefix = expandPrefix(prefix, is_left);
-        fmt::print("{}{}\n", getPrintingPrefix(prefix, is_left), operationType);
+        fmt::print(
+            "{}{} ( {} )\n",
+            getPrintingPrefix(prefix, is_left),
+            operationType,
+            OperatorToFunctionName.at(operationType));
 
         lhs->print(expanded_prefix, true);
         rhs->print(expanded_prefix, false);

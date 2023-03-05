@@ -22,7 +22,9 @@ namespace fsc::ast
 
     auto FunctionCall::getFunction() const -> ccl::SharedPtr<Function>
     {
-        return func::Functions.get({functionName, typedArguments, classId});
+        return func::Functions.get(
+            {functionName, typedArguments,
+             TypeManager::getBaseTypeOfInstantiatedTemplate(classId)});
     }
 
     auto FunctionCall::defaultPrint(const std::string &prefix, bool is_left) const -> void

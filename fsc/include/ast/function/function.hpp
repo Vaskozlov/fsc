@@ -196,8 +196,9 @@ namespace fsc::ast
 
         auto processTemplates(FscParser::Function_templatesContext *ctx) -> void;
 
-        auto argumentsToString() -> std::string;
-        auto argumentToString(Argument &arg) const -> std::string;
+        auto argumentsToString() const -> std::string;
+        auto argumentToString(const Argument &arg) const -> std::string;
+
         auto readArguments(const FscParser::ParametersContext *parameters_context) -> void;
 
         auto processArgument(const FscParser::ArgumentContext *argument_context) -> Argument;

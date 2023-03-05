@@ -3,6 +3,7 @@
 #include "function/argument.hpp"
 #include "type/builtin_types.hpp"
 #include "visibility.hpp"
+#include <ccl/join.hpp>
 #include <Parser.h>
 
 using namespace ccl;
@@ -10,6 +11,11 @@ using namespace std::string_view_literals;
 
 namespace fsc::ast
 {
+    static auto argumentToPrettyString(const Argument &arg) -> std::string
+    {
+        return fmt::format("{} {} {}", arg.getCategory(), arg.getType(), arg.getName());
+    }
+
     auto Function::checkFunctionArgumentAfterDeductionMatch(
         const SmallVector<NodePtr> &function_arguments) const noexcept(false) -> void
     {
@@ -34,16 +40,20 @@ namespace fsc::ast
 
     auto Function::print(const std::string &prefix, bool is_left) const -> void
     {
-        fmt::print(
-            "{}Function: {}, noexcept: {}, constexpr: {}\n", getPrintingPrefix(prefix, is_left),
-            name, functionInfo.NOEXCEPT, functionInfo.CONSTEXPR);
+        fmt::print("{}Function: {}; ", getPrintingPrefix(prefix, is_left), name);
+
+        if (!arguments.empty()) {
+            fmt::print("arguments: {}; ", ccl::join(arguments, argumentToPrettyString, ", "));
+        }
+
+        fmt::print("noexcept: {}; constexpr: {}\n", functionInfo.NOEXCEPT, functionInfo.CONSTEXPR);
 
         if (functionBody != nullptr) {
             functionBody->print(expandPrefix(prefix, is_left));
         }
     }
 
-    auto Function::argumentToString(Argument &arg) const -> std::string
+    auto Function::argumentToString(const Argument &arg) const -> std::string
     {
         auto tmp_codegen = codegen::BasicCodeGenerator{};
         const auto &argument_name = arg.getName();

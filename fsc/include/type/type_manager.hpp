@@ -21,6 +21,7 @@ namespace fsc
             ccl::UnorderedMap<ccl::Id, FscType> remapTypes;
             ccl::UnorderedMap<FscType, ast::NodePtr> fscClasses;
             ccl::UnorderedMap<FscType, ccl::Map<FscType, FscType>> instantiatedTemplates;
+            ccl::UnorderedMap<FscType, FscType> instantiatedTypeToBase;
         };
 
         [[nodiscard]] static auto getFrame() noexcept -> TypeManagerFrame &;
@@ -42,6 +43,9 @@ namespace fsc
 
         [[nodiscard]] static auto getInstantiatedTemplates() noexcept
             -> ccl::UnorderedMap<FscType, ccl::Map<FscType, FscType>> &;
+
+        [[nodiscard]] static auto getInstantiatedTypeToBase() noexcept
+            -> ccl::UnorderedMap<FscType, FscType> &;
 
         [[nodiscard]] static auto getFscClasses() noexcept
             -> ccl::UnorderedMap<FscType, ast::NodePtr> &;
@@ -78,6 +82,8 @@ namespace fsc
 
         [[nodiscard]] static auto getInstantiatedTemplate(FscType fsc_class, FscType type)
             -> FscType;
+
+        [[nodiscard]] static auto getBaseTypeOfInstantiatedTemplate(FscType type) -> FscType;
 
         [[nodiscard]] static auto
             getMemberVariable(FscType type, const std::string &member_variable_name)

@@ -26,6 +26,6 @@ namespace fsc::ast
 
     auto Variable::print(const std::string &prefix, bool is_left) const -> void
     {
-        fmt::print("{}{}\n", getPrintingPrefix(prefix, is_left), name);
+        fmt::print("{}{}: {}\n", getPrintingPrefix(prefix, is_left), name, getValueType());
     }
 }// namespace fsc::ast

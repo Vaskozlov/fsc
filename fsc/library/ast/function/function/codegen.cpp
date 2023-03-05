@@ -53,11 +53,11 @@ namespace fsc::ast
         }
     }
 
-    auto Function::argumentsToString() -> std::string
+    auto Function::argumentsToString() const -> std::string
     {
         return ccl::join(
             arguments,
-            [this](Argument &argument) {
+            [this](const Argument &argument) {
                 return argumentToString(argument);
             },
             ", ");

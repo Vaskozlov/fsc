@@ -76,6 +76,11 @@ namespace fsc
         return getFrame().instantiatedTemplates;
     }
 
+    auto TypeManager::getInstantiatedTypeToBase() noexcept -> ccl::UnorderedMap<FscType, FscType> &
+    {
+        return getFrame().instantiatedTypeToBase;
+    }
+
     auto TypeManager::getFscClasses() noexcept -> UnorderedMap<FscType, ast::NodePtr> &
     {
         return getFrame().fscClasses;
@@ -254,6 +259,8 @@ namespace fsc
 
     auto TypeManager::hasMemberVariable(FscType type, const std::string &variable_name) -> bool
     {
+        type = getBaseTypeOfInstantiatedTemplate(type);
+
         const auto &member_variables_map = getTypesMemberVariables();
         type = getTrueType(type);
 
@@ -288,9 +295,22 @@ namespace fsc
         return type;
     }
 
+    auto TypeManager::getBaseTypeOfInstantiatedTemplate(FscType type) -> FscType
+    {
+        type = getTrueType(type);
+
+        if (getInstantiatedTypeToBase().contains(type)) {
+            type = getInstantiatedTypeToBase().at(type);
+        }
+
+        return type;
+    }
+    
     auto TypeManager::getMemberVariable(FscType type, const std::string &member_variable_name)
         -> ast::NodePtr
     {
+        type = getBaseTypeOfInstantiatedTemplate(type);
+
         if (!hasMemberVariable(type, member_variable_name)) {
             throw FscException{fmt::format(
                 "{} does not have {} member variable", getTypename(type), member_variable_name)};
@@ -374,6 +394,7 @@ namespace fsc
                 instantiated_templates_map.emplace(class_templates[i], templates[i]);
             }
 
+            getInstantiatedTypeToBase().emplace(new_type, base_type);
             func::Functions.map(FscType{base_name}, new_type);
             return new_type;
         }

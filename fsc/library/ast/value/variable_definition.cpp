@@ -75,7 +75,10 @@ namespace fsc::ast
 
     auto VariableDefinition::print(const std::string &prefix, bool is_left) const -> void
     {
-        fmt::print("{}Definition of {}\n", getPrintingPrefix(prefix, is_left), getName());
+        fmt::print(
+            "{}Definition of `{}`, type: {}, const: {}, reference: {}\n",
+            getPrintingPrefix(prefix, is_left), getName(), getValueType(), isConstant(),
+            isReference());
 
         if (initializer != nullptr) {
             initializer->print(expandPrefix(prefix, is_left), false);
@@ -127,7 +130,7 @@ namespace fsc::ast
         auto declaration_type = ctx->children.at(1)->getText();
 
         flags.constant = declaration_type == "let";
-        
+
         if (auto visibility = attributes->visibility(); visibility != nullptr) {
             flags.visibility = VisibilityByStr.at(visibility->getText());
         }

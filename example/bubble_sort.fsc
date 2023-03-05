@@ -1,16 +1,19 @@
 func bubbleSort(inout Vector<i32> vec)
 {
     var i = u64()
-    var j = u64()
     let n = vec.size()
 
-    if n == 0U {
+    if n == 0
+    {
         return
     }
 
     while i < n - 1U
     {
-        while j < n - i - 1U {
+        var j = u64()
+
+        while j < n - i - 1U
+        {
             let next_index = j + 1U
 
             if vec[j] > vec[next_index] {
@@ -26,13 +29,14 @@ func bubbleSort(inout Vector<i32> vec)
 
 func main() -> i32
 {
-    var vec = Vector<i32>(10, -10, 0, 20)
+    var vec1 = Vector<i32>(10, -10, 0, 20, 100, 200, -175)
+    var vec2 = Vector<i32>(10, -10, 0, 20, 100, 200, -175)
 
-    bubbleSort(vec)
+    bubbleSort(vec1)
+    vec2.sort()
 
-    print("{}\n", vec)
-    print("{}\n", vec.min())
-    print("{}\n", vec.max())
+    print("{}\n", vec1)
+    print("{}\n", vec2)
 
     return 0
 }

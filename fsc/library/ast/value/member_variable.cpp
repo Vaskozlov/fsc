@@ -35,7 +35,7 @@ namespace fsc::ast
     auto MemberVariable::print(const std::string &prefix, bool is_left) const -> void
     {
         node->print(prefix, is_left);
-        fmt::print("{}.{}\n", expandPrefix(prefix, is_left), name);
+        fmt::print("{}Member variable: {}\n", expandPrefix(prefix, is_left), name);
     }
 
     auto MemberVariable::getValueType() -> FscType

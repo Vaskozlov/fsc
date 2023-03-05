@@ -33,7 +33,10 @@ auto doCompilation() -> int
         return 1;
     }
 
-    auto code = fsc::compile(Source, stream, fsc::ast::OptimizationLevel::NONE, PrintTree);
+    const auto optimization_level = OptimizationLevel == 0 ? fsc::ast::OptimizationLevel::NONE
+                                                           : fsc::ast::OptimizationLevel::FAST;
+
+    const auto code = fsc::compile(Source, stream, optimization_level, PrintTree);
 
     if (PrintCode) {
         fmt::print("{}\n", code);
@@ -59,7 +62,7 @@ auto doCompilation() -> int
     } else if (OptimizationLevel == 1) {
         system_command += "-fsanitize-minimal-runtime -g -fno-omit-frame-pointer -O2";
     } else {
-        system_command += "-O2";
+        system_command += "-Ofast";
     }
 
     return std::system(system_command.c_str());
@@ -69,14 +72,24 @@ auto parseOptionsAndCompile(int argc, char *argv[]) -> void
 {
     po::options_description desc("Allowed options");
 
-    desc.add_options()("help,h", "Produce help message")(
-        "source,s", po::value(&Source), "Fsc file, which will be compiled")(
-        "output,o", po::value(&Output), "Name of generated file")(
+    desc.add_options()("help,h", "Produce help message");
+
+    desc.add_options()("source,s", po::value(&Source), "Fsc file, which will be compiled");
+
+    desc.add_options()("output,o", po::value(&Output), "Name of generated file");
+
+    desc.add_options()(
         "optimization,O", po::value(&OptimizationLevel),
-        "Optimization level from 0 to 2 (for optimized builds -O1 is recommended)")(
-        "cxx", po::value(&CppCompiler), "C++ compiler")(
-        "cxx-flags", po::value(&CppFlags), "C++ additional flags (by default is clang++)")(
-        "run", "Run compiled program")("print-code", "Prints translated version of fsc program")(
+        "Optimization level from 0 to 2 (for optimized builds -O1 is recommended)");
+
+    desc.add_options()("cxx", po::value(&CppCompiler), "C++ compiler");
+
+    desc.add_options()(
+        "cxx-flags", po::value(&CppFlags), "C++ additional flags (by default is clang++)");
+
+    desc.add_options()("run", "Run compiled program");
+
+    desc.add_options()("print-code", "Prints translated version of fsc program")(
         "print-tree", "Prints fsc program's tree");
 
     po::variables_map vm;
@@ -115,12 +128,10 @@ auto main(int argc, char *argv[]) -> int
 {
     try {
         parseOptionsAndCompile(argc, argv);
-        return 0;
     } catch (const std::exception &exception) {
         fmt::print(std::cerr, "{}\n", exception.what());
-    } catch (...) {
-        fmt::print(std::cerr, "Unknown error\n");
+        return 1;
     }
 
-    return 1;
+    return 0;
 }

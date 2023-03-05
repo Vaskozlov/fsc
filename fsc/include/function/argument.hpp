@@ -24,6 +24,13 @@ namespace fsc
         {"out", ArgumentCategory::OUT},
         {"copy", ArgumentCategory::COPY}};
 
+    constexpr inline ccl::StaticFlatmap<ArgumentCategory, std::string_view, 4>
+        ArgumentCategoryToString{
+            {ArgumentCategory::IN, "in"},
+            {ArgumentCategory::INOUT, "inout"},
+            {ArgumentCategory::OUT, "out"},
+            {ArgumentCategory::COPY, "copy"}};
+
     class Argument
     {
     private:
@@ -75,8 +82,17 @@ namespace fsc
         FscType classType;
     };
 
-    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, Argument &argument)
+    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const Argument &argument)
         -> ccl::codegen::BasicCodeGenerator &;
 }// namespace fsc
+
+template<>
+struct fmt::formatter<fsc::ArgumentCategory> : fmt::formatter<std::string_view>
+{
+    auto format(fsc::ArgumentCategory category, format_context &ctx) const
+    {
+        return formatter<std::string_view>::format(fsc::ArgumentCategoryToString.at(category), ctx);
+    }
+};
 
 #endif /* FSC_ARGUMENT_HPP */

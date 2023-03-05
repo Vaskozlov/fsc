@@ -31,6 +31,11 @@ namespace fsc::ast
 
         [[nodiscard]] auto getValueType() -> FscType override;
 
+        [[nodiscard]] auto getFunctionName() const noexcept -> const std::string &
+        {
+            return functionName;
+        }
+
     protected:
         auto attemptToAnalyze() -> AnalysisReport;
 

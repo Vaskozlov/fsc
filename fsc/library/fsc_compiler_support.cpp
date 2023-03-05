@@ -94,6 +94,11 @@ public:
     {
         std::swap(at(first), at(second));
     }
+
+    constexpr auto sort() -> void
+    {
+        std::ranges::sort(*this);
+    }
 };
 
 class String : public std::string

@@ -33,6 +33,8 @@ func main() -> i32
     var k = S<f32>(15.34)
     var vec = Vector<i32>(10, 20)
 
+    print("{}\n", t.x)
+
     vec.push_back(10)
 
     print("{}\n", vec);

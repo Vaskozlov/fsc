@@ -57,6 +57,11 @@ namespace fsc::ast
             return type.get();
         }
 
+        [[nodiscard]] auto getValueType() const -> FscType
+        {
+            return type.get();
+        }
+
         [[nodiscard]] auto isMemberOfClass() const noexcept -> bool
         {
             return flags.memberVariable;
