@@ -44,12 +44,12 @@ public:
 
     [[nodiscard]] constexpr auto operator[](size_t index) -> T &
     {
-        return this->at(index);
+        return at(index);
     }
 
     [[nodiscard]] constexpr auto operator[](size_t index) const -> const T &
     {
-        return this->at(index);
+        return at(index);
     }
 
     [[nodiscard]] constexpr auto max() const -> const T &
@@ -92,11 +92,7 @@ public:
 
     constexpr auto swap(size_t first, size_t second) -> void
     {
-        if (std::max(first, second) >= size()) {
-            throw std::out_of_range{fmt::format("Vector<{}>::swap", typeid(T).name())};
-        }
-
-        std::swap(this->at(first), this->at(second));
+        std::swap(at(first), at(second));
     }
 };
 

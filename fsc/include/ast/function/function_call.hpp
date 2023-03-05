@@ -21,7 +21,7 @@ namespace fsc::ast
             FscType class_id, const ccl::SmallVector<NodePtr> &function_arguments,
             const ccl::SmallVector<FscType> &templates, BasicContextPtr node_context);
 
-        auto analyze() -> AnalysisReport;
+        auto analyze() -> AnalysisReport override;
 
         auto print(const std::string &prefix, bool is_left) const -> void override;
 
@@ -35,10 +35,14 @@ namespace fsc::ast
         auto attemptToAnalyze() -> AnalysisReport;
 
         auto defaultPrint(const std::string &prefix, bool is_left) const -> void;
+        auto generateIndexOperator(ccl::codegen::BasicCodeGenerator &output) -> void;
         auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void;
-        auto getFunction() const -> ccl::SharedPtr<Function>;
+        [[nodiscard]] auto getFunction() const -> ccl::SharedPtr<Function>;
 
         auto generateFunctionName(ccl::codegen::BasicCodeGenerator &output) -> void;
+
+    private:
+        [[nodiscard]] auto argumentToString() const -> std::string;
     };
 }// namespace fsc::ast
 

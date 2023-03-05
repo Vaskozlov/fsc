@@ -40,6 +40,11 @@ namespace fsc::ast
         }
     }
 
+    auto FunctionCall::generateIndexOperator(ccl::codegen::BasicCodeGenerator &output) -> void
+    {
+        output << argumentToString() << ']';
+    }
+
     auto FunctionCall::defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void
     {
         generateFunctionName(output);
@@ -53,14 +58,7 @@ namespace fsc::ast
         const auto open_bracket = is_constructor ? '{' : '(';
         const auto close_bracket = is_constructor ? '}' : ')';
 
-        output << open_bracket
-               << ccl::join(
-                      arguments,
-                      [](const SharedPtr<Node> &argument) {
-                          return argument->toString();
-                      },
-                      ", ")
-               << close_bracket;
+        output << open_bracket << argumentToString() << close_bracket;
     }
 
     auto FunctionCall::generateFunctionName(ccl::codegen::BasicCodeGenerator &output) -> void
@@ -147,5 +145,15 @@ namespace fsc::ast
     auto FunctionCall::print(const std::string &prefix, bool is_left) const -> void
     {
         defaultPrint(prefix, is_left);
+    }
+
+    auto FunctionCall::argumentToString() const -> std::string
+    {
+        return ccl::join(
+            arguments,
+            [](const SharedPtr<Node> &argument) {
+                return argument->toString();
+            },
+            ", ");
     }
 }// namespace fsc::ast

@@ -46,7 +46,14 @@ namespace fsc::ast
 
     auto MethodCall::codeGen(codegen::BasicCodeGenerator &output) -> void
     {
-        output << *expression << '.';
-        FunctionCall::defaultCodegen(output);
+        auto function = getFunction();
+
+        if (function->getName() == "__at__") {
+            output << *expression << '[';
+            FunctionCall::generateIndexOperator(output);
+        } else {
+            output << *expression << '.';
+            FunctionCall::defaultCodegen(output);
+        }
     }
 };// namespace fsc::ast

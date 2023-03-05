@@ -11,8 +11,6 @@ namespace fsc
 
     auto Visitor::constructReturn(StatementContext *ctx) -> ast::NodePtr
     {
-        const auto &children = ctx->children;
-
         if (auto expr = ctx->expr(); expr != nullptr) {
             return makeShared<ast::Return>(visitAsNode(expr), ctx);
         }

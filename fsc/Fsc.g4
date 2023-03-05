@@ -1,32 +1,34 @@
 grammar Fsc;
 
-AS          : 'as';
-ADD         : [+];
-SUB         : [-];
-MUL         : [*];
-DIV         : [/];
-MOD         : [%];
-DOT         : [.];
+AS : 'as';
+ADD : [+];
+SUB : [-];
+MUL : [*];
+DIV : [/];
+MOD : [%];
+DOT : [.];
+ANGLE_OPENING: '[';
+ANGLE_CLOSING: ']';
 
-ASSIGN_ADD  : '+=';
-ASSIGN_SUB  : '-=';
-ASSIGN_MUL  : '*=';
-ASSIGN_DIV  : '/=';
-ASSIGN_MOD  : '%=';
-ASSIGN      : '=';
-LESS        : '<';
-GREATER     : '>';
-LESS_EQ     : '<=';
-GREATER_EQ  : '>=';
-EQUALITY    : '==';
-INEQUALITY  : '!=';
+ASSIGN_ADD : '+=';
+ASSIGN_SUB : '-=';
+ASSIGN_MUL : '*=';
+ASSIGN_DIV : '/=';
+ASSIGN_MOD : '%=';
+ASSIGN : '=';
+LESS : '<';
+GREATER : '>';
+LESS_EQ : '<=';
+GREATER_EQ : '>=';
+EQUALITY : '==';
+INEQUALITY : '!=';
 LOGICAL_AND : '&&';
-LOGICAL_OR  : '||';
+LOGICAL_OR : '||';
 
-TRUE        :   'true';
-FALSE       :   'false';
-INT         :   '-'?[0-9]+([a-zA-Z_][a-zA-Z0-9_]*)?;
-FLOAT       :   '-'?[0-9]*[.][0-9]+('e''-'?[0-9]+)?([a-zA-Z_][a-zA-Z0-9_]*)?;
+TRUE        : 'true';
+FALSE       : 'false';
+INT         : '-' ? [0-9] + ([a-zA-Z_][a-zA-Z0-9_] *) ? ;
+FLOAT       : '-' ? [0-9] *[.][0-9]+('e' '-' ? [0-9] +)? ([a-zA-Z_][a-zA-Z0-9_] *) ? ;
 CHAR        :   '\'' (~["\\\r\n] | '\\' (. | EOF)) '\'';
 STRING      :   '"' (~["\\\r\n] | '\\' (. | EOF))* '"';
 IDENTIFIER  :   [a-zA-Z_][a-zA-Z0-9_]*;
@@ -94,6 +96,7 @@ method_call:  '.' function_call;
 
 expr:   expr member_variable_access
     |   expr method_call
+    |   expr ANGLE_OPENING expr ANGLE_CLOSING
     |   expr AS IDENTIFIER
     |   expr MUL expr
     |   expr DIV expr

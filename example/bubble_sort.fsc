@@ -1,15 +1,7 @@
-func swapArrayValues<T>(inout T array, in u64 first, in u64 second)
-{
-    let tmp = array.at(first)
-
-    array.at(first) = array.at(second)
-    array.at(second) = tmp
-}
-
 func bubbleSort(inout Vector<i32> vec)
 {
-    var i : u64
-    var j : u64
+    var i = u64()
+    var j = u64()
     let n = vec.size()
 
     if n == 0U {
@@ -21,11 +13,11 @@ func bubbleSort(inout Vector<i32> vec)
         while j < n - i - 1U {
             let next_index = j + 1U
 
-            if vec.at(j) > vec.at(next_index) {
+            if vec[j] > vec[next_index] {
                 vec.swap(j, next_index)
             }
 
-            j += 1 as u64
+            j += 1U
         }
 
         i += 1U
@@ -39,7 +31,9 @@ func main() -> i32
     bubbleSort(vec)
 
     print("{}\n", vec)
+    print("{}\n", vec.min())
     print("{}\n", vec.max())
 
     return 0
 }
+

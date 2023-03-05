@@ -5,16 +5,15 @@ func ownSqrt(in f64 x)
 
     while true
     {
-        let midpoint = (left + right) / 2.0 as f64
+        let midpoint = (left + right) / 2.0
         let midpoint_2 = midpoint * midpoint
 
-        if abs(midpoint_2 - x) <= 1.0e-12 as f64
+        if abs(midpoint_2 - x) <= 1.0e-12
         {
             return midpoint
         }
 
-        if midpoint_2 > x
-        {
+        if midpoint_2 > x {
             right = midpoint
         }
         else {

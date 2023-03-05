@@ -26,12 +26,17 @@ namespace fsc
 
         writeToFile(cpp_filename, fsc::FscProgramsHeader, cpp_program);
 
-        const auto compiler_command =
-            fmt::format("clang++ {} {} -o {}", CompilerFlags, cpp_filename, compiled_filename);
+        const auto compiler_command = fmt::format(
+            "UBSAN_OPTIONS=print_stacktrace=1 clang++ {} -fsanitize=address,undefined,leak -g "
+            "-fno-omit-frame-pointer -O0 {} -o {}",
+            CompilerFlags, cpp_filename, compiled_filename);
 
         const auto run_command = fmt::format("{} > {}", compiled_filename, output_filename);
 
-        std::system(compiler_command.c_str());
+        if (std::system(compiler_command.c_str()) != 0) {
+            throw std::runtime_error{fmt::format("Unable to compile {} program", cpp_filename)};
+        }
+
         std::system(run_command.c_str());
 
         return readFile(output_filename);

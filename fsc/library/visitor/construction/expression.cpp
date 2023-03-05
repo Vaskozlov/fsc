@@ -1,6 +1,7 @@
 #include "ast/expression/binary_operator.hpp"
 #include "ast/expression/conversion.hpp"
 #include "ast/expression/parenthesized.hpp"
+#include "ast/function/method_call.hpp"
 #include "converters/bool.hpp"
 #include "converters/float.hpp"
 #include "converters/int.hpp"
@@ -42,6 +43,18 @@ namespace fsc
 
         if (ctx->AS() != nullptr) {
             node = constructConversion(ctx);
+        }
+
+        else if (ctx->ANGLE_OPENING() != nullptr) {
+            auto expr = visitAsNode(children.at(0));
+            auto index_expr = visitAsNode(children.at(2));
+
+            node = makeShared<ast::MethodCall>(
+                expr, "__at__",
+                ccl::SmallVector<Argument>{
+                    Argument{"index", index_expr->getValueType(), ArgumentCategory::IN}},
+                expr->getValueType(), ccl::SmallVector<ast::NodePtr>{index_expr},
+                ccl::SmallVector<FscType>{}, ctx);
         }
 
         else if (ctx->INT() != nullptr) {
