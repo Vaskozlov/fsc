@@ -1,5 +1,6 @@
 #include "ast/function/function.hpp"
 #include "ast/function/magic_methods_table.hpp"
+#include "stack/stack.hpp"
 #include <ccl/join.hpp>
 
 using namespace ccl;
@@ -112,6 +113,14 @@ namespace fsc::ast
         if (!templates.empty()) {
             return;// with current model it is impossible to optimize templated functions
         }
+
+        auto uuid = functionUuid;
+
+        if (ProgramStack.hasFunctionInCallTree(uuid)) {
+            return;
+        }
+
+        const auto function_scope = ProgramStack.acquireFunctionScope(uuid);
 
         if (functionBody != nullptr) {
             functionBody->optimize(level);

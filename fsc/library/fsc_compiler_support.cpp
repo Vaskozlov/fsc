@@ -21,6 +21,18 @@ using u64 = uint64_t;
 using f32 = float;
 using f64 = double;
 
+static auto operator*(const std::string &str, size_t repeat) -> std::string
+{
+    auto result = std::string{};
+    result.reserve(str.size() * repeat);
+
+    for (size_t i = 0; i != repeat; ++i) {
+        result.append(str);
+    }
+
+    return result;
+}
+
 template<typename T>
 class Vector : public std::vector<T>
 {
@@ -34,7 +46,7 @@ public:
 
     template<typename... Ts>
     constexpr Vector(Ts &&...initial_value)// NOLINT
-        requires(std::constructible_from<std::vector<T>, Ts...>)
+        requires std::constructible_from<std::vector<T>, Ts...>
       : std::vector<T>{std::forward<Ts>(initial_value)...}
     {}
 
@@ -106,7 +118,7 @@ class String : public std::string
 public:
     template<typename... Ts>
     constexpr String(Ts &&...initial_value)// NOLINT
-        requires(std::constructible_from<std::string, Ts...>)
+        requires std::constructible_from<std::string, Ts...>
       : std::string{std::forward<Ts>(initial_value)...}
     {}
 
@@ -157,12 +169,32 @@ auto input(String str = {}) -> String
     return result;
 }
 
-auto print(const String &fmt, auto &&...args) -> void
+template<typename T, typename... Ts>
+auto forcePrint(T &&arg, Ts &&...args) -> void
 {
-    fmt::print(fmt::runtime(fmt), std::forward<decltype(args)>(args)...);
+    fmt::print(
+        fmt::runtime(std::string("{}") + std::string(" {}") * (sizeof...(Ts)) + '\n'), std::forward<T>(arg),
+        std::forward<Ts>(args)...);
 }
 
-constexpr auto format(const String &fmt, auto &&...args) -> String
+template<typename... Ts>
+auto print(std::string_view fmt, Ts &&...args) -> void
+{
+    if (!fmt.contains('{')) {
+        forcePrint(fmt, std::forward<Ts>(args)...);
+    } else {
+       fmt::print(fmt::runtime(fmt), std::forward<Ts>(args)...);
+    }
+}
+
+template<typename T, typename... Ts>
+auto print(T &&arg, Ts &&...args) -> void
+    requires (!std::is_same_v<std::remove_cvref_t<T>, String>)
+{
+   forcePrint(std::forward<T>(arg), std::forward<Ts>(args)...);
+}
+
+constexpr auto format(std::string_view fmt, auto &&...args) -> String
 {
     return fmt::format(fmt::runtime(fmt), std::forward<decltype(args)>(args)...);
 }

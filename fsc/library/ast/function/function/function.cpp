@@ -25,7 +25,7 @@ namespace fsc::ast
                 [](auto lhs, auto rhs) {
                     return lhs == rhs->getValueType();
                 })) {
-            throw FscException{fmt::format("function argument do not match")};
+            throw FscException{fmt::format("function arguments do not match")};
         }
     }
 

@@ -105,7 +105,7 @@ namespace fsc::ast
     {
         const auto expanded_prefix = expandPrefix(prefix, is_left);
         fmt::print(
-            "{}{} ( {} )\n",
+            "{} {} ( {} )\n",
             getPrintingPrefix(prefix, is_left),
             operationType,
             OperatorToFunctionName.at(operationType));

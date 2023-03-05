@@ -387,7 +387,7 @@ namespace fsc
              "print",
              "",
              Void,
-             {{"fmt", String, ArgumentCategory::IN}},
+             {},
              FunctionInfo{
                  .NOEXCEPT = true,
                  .BUILTIN_FUNCTION = true,
@@ -423,7 +423,9 @@ namespace fsc
              "",
              Char,
              {Argument{"index", UInt64, ArgumentCategory::IN}},
-             NonConstMethod}};
+             NonConstMethod},
+            constructBuiltinBinaryExpression(MagicFunctionType::ADD, String, String, String),
+            constructBuiltinBinaryExpression(MagicFunctionType::IADD, String, String, String)};
 
         auto vector_methods = Vector<Function>{
             {VectorTemplate,
