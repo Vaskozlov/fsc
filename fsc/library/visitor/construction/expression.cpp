@@ -73,6 +73,10 @@ namespace fsc
             node = converter::toString(ctx->getText(), ctx);
         }
 
+        else if (ctx->CHAR() != nullptr) {
+            node = converter::toChar(ctx->getText(), ctx);
+        }
+
         else if (children.size() == 3 && children.at(0)->getText() == "("sv) {
             node = constructParenthesized(ctx);
         }

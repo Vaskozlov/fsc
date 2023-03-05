@@ -3,16 +3,20 @@
 #include <boost/program_options.hpp>
 #include <boost/program_options/option.hpp>
 #include <boost/program_options/parsers.hpp>
-#include <ccl/lex/analyzer_generator/analyzer_generator.hpp>
 #include <ccl/raii.hpp>
+#include <chrono>
 #include <iostream>
 
 namespace po = boost::program_options;
+using namespace std::chrono_literals;
 
 bool PrintCode = false;
 bool PrintTree = false;
 
 unsigned OptimizationLevel = 0;
+long long FrontendTime = 0.0;
+long long BackendTime = 0.0;
+
 std::string Source;
 std::string Output;
 std::string CppCompiler = "clang++";
@@ -36,7 +40,11 @@ auto doCompilation() -> int
     const auto optimization_level = OptimizationLevel == 0 ? fsc::ast::OptimizationLevel::NONE
                                                            : fsc::ast::OptimizationLevel::FAST;
 
+    auto begin = std::chrono::high_resolution_clock::now();
+
     const auto code = fsc::compile(Source, stream, optimization_level, PrintTree);
+
+    FrontendTime = (std::chrono::high_resolution_clock::now() - begin) / 1ms;
 
     if (PrintCode) {
         fmt::print("{}\n", code);
@@ -65,7 +73,13 @@ auto doCompilation() -> int
         system_command += "-Ofast";
     }
 
-    return std::system(system_command.c_str());
+    begin = std::chrono::high_resolution_clock::now();
+
+    auto returned_code = std::system(system_command.c_str());
+
+    BackendTime = (std::chrono::high_resolution_clock::now() - begin) / 1ms;
+
+    return returned_code;
 }
 
 auto parseOptionsAndCompile(int argc, char *argv[]) -> void
@@ -119,7 +133,9 @@ auto parseOptionsAndCompile(int argc, char *argv[]) -> void
             Output = "./" + Output;
         }
 
-        fmt::print("Running program...\n\n");
+        fmt::print(
+            "Frontend time: {} ms, backend time: {} ms, running program...\n\n", FrontendTime,
+            BackendTime);
         std::system(Output.c_str());
     }
 }

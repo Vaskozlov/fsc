@@ -13,7 +13,7 @@ func main() -> i32
 
     while i != 20
     {
-        print(10, fibonacci(i))
+        print("{}: {}\n", i, fibonacci(i))
         i += 1
     }
 

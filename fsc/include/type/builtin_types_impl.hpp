@@ -41,6 +41,8 @@ namespace fsc
                 fmt::format_to(output.getBackInserter(), "float({})", value.toString());
             } else if constexpr (std::is_same_v<ReprOrValue<ccl::f64>, T>) {
                 fmt::format_to(output.getBackInserter(), "double({})", value.toString());
+            } else if constexpr (std::is_same_v<FscChar, T>) {
+                fmt::format_to(output.getBackInserter(), "'{}'", value.value);
             } else if constexpr (std::is_same_v<FscString, T>) {
                 fmt::format_to(output.getBackInserter(), "String{{{}}}", value.value);
             } else {
