@@ -109,7 +109,7 @@ public:
 
     constexpr auto sort() -> void
     {
-        std::ranges::sort(*this);
+        std::sort(begin(), end());
     }
 };
 
