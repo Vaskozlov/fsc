@@ -26,34 +26,25 @@ func bubbleSort<T>(inout T vec)
     }
 }
 
-func sortVectorOfInt()
+
+func sortVector<T>(inout T vec)
 {
-    var vec1 = Vector<i32>(10, -10, 0, 20, 100, 200, -175)
-    var vec2 = Vector<i32>(10, -10, 0, 20, 100, 200, -175)
+    var vec_copy = vec
 
-    bubbleSort(vec1)
-    vec2.sort()
+    bubbleSort(vec)
+    vec_copy.sort()
 
-    print("Bubble sort: {}\n", vec1)
-    print("Builtin sort: {}\n", vec2)
-}
-
-func sortVectorOfFloat32()
-{
-    var vec1 = Vector<f32>(10.4145, -10.4151123, 0.4152, 20.4125, 100.40, 100.43, -3143.4)
-    var vec2 = Vector<f32>(10.4145, -10.4151123, 0.4152, 20.4125, 100.40, 100.43, -3143.4)
-
-    bubbleSort(vec1)
-    vec2.sort()
-
-    print("Bubble sort: {}\n", vec1)
-    print("Builtin sort: {}\n", vec2)
+    print("Bubble sort: {}\n", vec)
+    print("Builtin sort: {}\n", vec_copy)
 }
 
 func main() -> i32
 {
-    sortVectorOfInt()
-    sortVectorOfFloat32()
+    var vector_of_int = Vector<i32>(10, -10, 0, 20, 100, 200, -175)
+    var vector_of_float = Vector<f32>(10.4145, -10.4151123, 0.4152, 20.4125, 100.40, 100.43, -3143.4)
+
+    sortVector(vector_of_int)
+    sortVector(vector_of_float)
 
     return 0
 }
