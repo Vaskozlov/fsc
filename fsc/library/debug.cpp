@@ -1,9 +1,9 @@
 #include "debug/debug.hpp"
 #include "compiler.hpp"
 #include "io.hpp"
+#include <ccl/future.hpp>
 #include <ccl/raii.hpp>
 #include <fstream>
-#include <future>
 
 namespace fsc
 {
@@ -68,11 +68,11 @@ namespace fsc
 
     auto compareProgramsOutput(std::string_view fsc_program, std::string_view cpp_program) -> bool
     {
-        auto fsc_result = std::async(std::launch::async, [fsc_program]() {
+        auto fsc_result = ccl::async([fsc_program]() {
             return compileFscProgram(fsc_program);
         });
 
-        auto cpp_result = std::async(std::launch::async, [cpp_program]() {
+        auto cpp_result = ccl::async([cpp_program]() {
             return compileCppProgram(cpp_program);
         });
 
