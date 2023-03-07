@@ -9,7 +9,18 @@ namespace fsc
         "-fprebuilt-implicit-modules -stdlib=libc++";
 
     constexpr std::string_view FscProgramsHeader = R"cpp(
+
+#if __clang_major__ >= 15
 import std;
+#else
+#include <cinttypes>
+#include <concepts>
+#include <cstddef>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cmath>
+#endif
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
