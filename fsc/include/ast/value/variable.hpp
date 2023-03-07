@@ -28,7 +28,7 @@ namespace fsc::ast
         ccl::Id uuid{variableUuid++};
 
     public:
-        Variable(
+        Variable(BasicContextPtr ctx,
             std::string variable_name, ccl::Lazy<FscType> &&fsc_type, VariableFlags variable_flags);
 
         auto analyze() -> AnalysisReport override;

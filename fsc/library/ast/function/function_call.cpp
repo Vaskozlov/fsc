@@ -1,5 +1,6 @@
 #include "ast/function/function_call.hpp"
 #include "function/functions_holder.hpp"
+#include "visitor.hpp"
 #include <ccl/join.hpp>
 #include <ranges>
 
@@ -27,40 +28,9 @@ namespace fsc::ast
              TypeManager::getBaseTypeOfInstantiatedTemplate(classId)});
     }
 
-    auto FunctionCall::defaultPrint(const std::string &prefix, bool is_left) const -> void
-    {
-        const auto expanded_prefix = expandPrefix(prefix, is_left);
-        fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), functionName);
-
-        for (const auto &arg : arguments | ccl::views::dropBack(arguments, 1)) {
-            arg->print(expanded_prefix, true);
-        }
-
-        if (!arguments.empty()) {
-            const auto &node = arguments.back();
-            node->print(expanded_prefix, false);
-        }
-    }
-
     auto FunctionCall::generateIndexOperator(ccl::codegen::BasicCodeGenerator &output) -> void
     {
-        output << argumentToString() << ']';
-    }
-
-    auto FunctionCall::defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void
-    {
-        generateFunctionName(output);
-
-        if (!functionCallTemplates.empty()) {
-            fmt::format_to(
-                output.getBackInserter(), "<{}>", fmt::join(functionCallTemplates, ", "));
-        }
-
-        const auto is_constructor = TypeManager::exists(functionName);
-        const auto open_bracket = is_constructor ? '{' : '(';
-        const auto close_bracket = is_constructor ? '}' : ')';
-
-        output << open_bracket << argumentToString() << close_bracket;
+        output << argumentToString();
     }
 
     auto FunctionCall::generateFunctionName(ccl::codegen::BasicCodeGenerator &output) -> void
@@ -77,11 +47,11 @@ namespace fsc::ast
 
     auto FunctionCall::analyze() -> AnalysisReport
     {
-        try {
-            return attemptToAnalyze();
-        } catch (const FscException &e) {
-            GlobalVisitor->throwError(getContext().value(), e.what());
-        }
+        return preparerToCatchError(
+            [this]() {
+                return attemptToAnalyze();
+            },
+            *this);
     }
 
     auto FunctionCall::attemptToAnalyze() -> AnalysisReport
@@ -132,7 +102,18 @@ namespace fsc::ast
 
     auto FunctionCall::codeGen(codegen::BasicCodeGenerator &output) -> void
     {
-        defaultCodegen(output);
+        generateFunctionName(output);
+
+        if (!functionCallTemplates.empty()) {
+            fmt::format_to(
+                output.getBackInserter(), "<{}>", fmt::join(functionCallTemplates, ", "));
+        }
+
+        const auto is_constructor = TypeManager::exists(functionName);
+        const auto open_bracket = is_constructor ? '{' : '(';
+        const auto close_bracket = is_constructor ? '}' : ')';
+
+        output << open_bracket << argumentToString() << close_bracket;
     }
 
     auto FunctionCall::optimize(OptimizationLevel level) -> void
@@ -146,7 +127,17 @@ namespace fsc::ast
 
     auto FunctionCall::print(const std::string &prefix, bool is_left) const -> void
     {
-        defaultPrint(prefix, is_left);
+        const auto expanded_prefix = expandPrefix(prefix, is_left);
+        fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), functionName);
+
+        for (const auto &arg : arguments | ccl::views::dropBack(arguments, 1)) {
+            arg->print(expanded_prefix, true);
+        }
+
+        if (!arguments.empty()) {
+            const auto &node = arguments.back();
+            node->print(expanded_prefix, false);
+        }
     }
 
     auto FunctionCall::argumentToString() const -> std::string

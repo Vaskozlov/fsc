@@ -15,16 +15,16 @@ namespace fsc::ast
 
     public:
         VariableDefinition(
-            std::string variable_name, ccl::Lazy<FscType> &&fsc_type, VariableFlags variable_flags,
-            NodePtr variable_initializer);
+            BasicContextPtr ctx, std::string variable_name, ccl::Lazy<FscType> &&fsc_type,
+            VariableFlags variable_flags, NodePtr variable_initializer);
 
         VariableDefinition(
-            std::string variable_name, FscType fsc_type, VariableFlags variable_flags,
-            NodePtr variable_initializer);
+            BasicContextPtr ctx, std::string variable_name, FscType fsc_type,
+            VariableFlags variable_flags, NodePtr variable_initializer);
 
         VariableDefinition(
-            std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags,
-            BasicContextPtr ctx);
+            BasicContextPtr ctx, std::string variable_name, NodePtr variable_initializer,
+            VariableFlags variable_flags);
 
         explicit VariableDefinition(VariableDefinitionContext *ctx);
 

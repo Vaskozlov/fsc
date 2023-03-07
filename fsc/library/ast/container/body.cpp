@@ -1,5 +1,5 @@
 #include "ast/container/body.hpp"
-#include "type/type.hpp"
+#include "ast/value/variable_definition.hpp"
 #include <ranges>
 
 namespace fsc::ast
@@ -17,7 +17,36 @@ namespace fsc::ast
         return nodes.back()->getValueType();
     }
 
-    auto Body::defaultCodegen(codegen::BasicCodeGenerator &output) -> void
+    auto Body::analyze() -> AnalysisReport
+    {
+        auto report = AnalysisReport{};
+
+        for (const auto &node : nodes) {
+            report.merge(node->analyze());
+        }
+
+        analyzeReport(report);
+
+        return report;
+    }
+
+    auto Body::analyzeReport(const AnalysisReport &report) const -> void
+    {
+        for (const auto &variable_definition_node : variableDefinition) {
+            const auto *variable_definition =
+                ccl::as<const VariableDefinition *>(variable_definition_node.get());
+
+            if (!report.hasBeenModified(variable_definition) &&
+                !variable_definition->isConstant()) {
+                GlobalVisitor->throwError(
+                    ccl::ExceptionCriticality::SUGGESTION,
+                    variable_definition->getContext().value(),
+                    fmt::format("variable `{}` can be constant", variable_definition->getName()));
+            }
+        }
+    }
+
+    auto Body::codeGen(codegen::BasicCodeGenerator &output) -> void
     {
         using namespace codegen;
 
@@ -41,28 +70,14 @@ namespace fsc::ast
         output << pop_scope << endl << '}';
     }
 
-    auto Body::analyze() -> AnalysisReport
+    auto Body::optimize(OptimizationLevel level) -> void
     {
-        return Body::defaultAnalyze();
-    }
-
-    auto Body::defaultAnalyze() const -> AnalysisReport
-    {
-        auto report = AnalysisReport{};
-
-        for (const auto &node : nodes) {
-            report.merge(node->analyze());
+        for (auto &node : nodes) {
+            node->optimize(level);
         }
-
-        return report;
     }
 
-    auto Body::codeGen(codegen::BasicCodeGenerator &output) -> void
-    {
-        Body::defaultCodegen(output);
-    }
-
-    auto Body::defaultBodyPrint(const std::string &prefix, bool is_left) const -> void
+    auto Body::print(const std::string &prefix, bool is_left) const -> void
     {
         const auto expanded_prefix = expandPrefix(prefix, is_left);
         fmt::print("{}Body\n", getPrintingPrefix(prefix, is_left));
@@ -77,20 +92,17 @@ namespace fsc::ast
         }
     }
 
-    auto Body::optimize(OptimizationLevel level) -> void
-    {
-        for (auto &node : nodes) {
-            node->optimize(level);
-        }
-    }
-
-    auto Body::print(const std::string &prefix, bool is_left) const -> void
-    {
-        Body::defaultBodyPrint(prefix, is_left);
-    }
-
     auto Body::addNode(NodePtr node) -> void
     {
         emplaceNode(std::move(node));
+    }
+
+    auto Body::emplaceNode(NodePtr node) -> void
+    {
+        if (ccl::as<VariableDefinition *>(node.get()) != nullptr) {
+            variableDefinition.emplace_back(node);
+        }
+
+        nodes.emplace_back(std::move(node));
     }
 }// namespace fsc::ast

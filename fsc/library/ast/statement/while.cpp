@@ -13,7 +13,8 @@ namespace fsc::ast
     {
         if (condition->getValueType() != Bool) {
             GlobalVisitor->throwError(
-                condition->getContext().value(), "While loop condition must be a boolean!");
+                ccl::ExceptionCriticality::PANIC, condition->getContext().value(),
+                "While loop condition must be a boolean!");
         }
 
         auto condition_analysis = condition->analyze();

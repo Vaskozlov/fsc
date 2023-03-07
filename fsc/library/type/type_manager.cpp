@@ -305,7 +305,7 @@ namespace fsc
 
         return type;
     }
-    
+
     auto TypeManager::getMemberVariable(FscType type, const std::string &member_variable_name)
         -> ast::NodePtr
     {
@@ -318,7 +318,8 @@ namespace fsc
 
         if (member_variable_name == "this") {
             // TODO: check for const reference
-            return makeShared<ast::Variable>("*this", type, ast::VariableFlags{.reference = true});
+            return makeShared<ast::Variable>(
+                nullptr, "*this", type, ast::VariableFlags{.reference = true});
         }
 
         return getTypesMemberVariables().at(type).at(member_variable_name);

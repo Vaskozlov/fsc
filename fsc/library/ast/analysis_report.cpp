@@ -13,9 +13,9 @@ namespace fsc::ast
         return !header.has_value() || header->isConstexpr;
     }
 
-    auto AnalysisReport::hasBeenRead(const NodePtr &node) const noexcept -> bool
+    auto AnalysisReport::hasBeenRead(const Node *node) const noexcept -> bool
     {
-        const auto *variable = dynamic_cast<Variable *>(node.get());
+        const auto *variable = ccl::as<const Variable *>(node);
 
         if (variable == nullptr) {
             return false;
@@ -24,9 +24,9 @@ namespace fsc::ast
         return header.has_value() && header->readVariables.contains(variable->getUuid());
     }
 
-    auto AnalysisReport::hasBeenModified(const NodePtr &node) const noexcept -> bool
+    auto AnalysisReport::hasBeenModified(const Node *node) const noexcept -> bool
     {
-        const auto *variable = dynamic_cast<Variable *>(node.get());
+        const auto *variable = ccl::as<const Variable *>(node);
 
         if (variable == nullptr) {
             return false;

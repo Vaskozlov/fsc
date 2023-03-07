@@ -30,7 +30,7 @@ namespace fsc
         const auto variable_flags =
             VariableFlags{.constant = should_be_constant, .reference = should_be_reference};
 
-        return {name, type, variable_flags};
+        return {nullptr, name, type, variable_flags};
     }
 
     auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const Argument &argument)

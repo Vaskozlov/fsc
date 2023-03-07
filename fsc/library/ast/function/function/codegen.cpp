@@ -120,7 +120,7 @@ namespace fsc::ast
             return;
         }
 
-        const auto function_scope = ProgramStack.acquireFunctionScope(uuid);
+        const auto function_scope = ProgramStack.acquireAnalysisScope(uuid);
 
         if (functionBody != nullptr) {
             functionBody->optimize(level);

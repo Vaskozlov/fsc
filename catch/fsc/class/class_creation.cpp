@@ -30,12 +30,12 @@ class S
 public:
     S()
     {
-        fmt::print("S has been constructed");
+        fmt::print("S has been constructed\n");
     }
 
     ~S()
     {
-        fmt::print("S has been deleted");
+        fmt::print("S has been deleted\n");
     }
 };
 

@@ -45,6 +45,12 @@ static auto operator*(const std::string &str, size_t repeat) -> std::string
 }
 
 template<typename T>
+static auto log(T argument, T base) -> T
+{
+    return std::log(argument) / std::log(base);
+}
+
+template<typename T>
 class Vector : public std::vector<T>
 {
 public:

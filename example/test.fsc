@@ -46,7 +46,7 @@ func main() -> i32
 
     while i != 10
     {
-        print("{}\n", i)
+        print(i)
         i += 1
     }
 

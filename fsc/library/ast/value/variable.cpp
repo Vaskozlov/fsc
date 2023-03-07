@@ -6,8 +6,10 @@ namespace fsc::ast
     using namespace ccl;
 
     Variable::Variable(
-        std::string variable_name, ccl::Lazy<FscType> &&fsc_type, VariableFlags variable_flags)
-      : name{std::move(variable_name)}
+        BasicContextPtr ctx, std::string variable_name, ccl::Lazy<FscType> &&fsc_type,
+        VariableFlags variable_flags)
+      : NodeWrapper{ctx}
+      , name{std::move(variable_name)}
       , type{std::move(fsc_type)}
       , flags{variable_flags}
     {

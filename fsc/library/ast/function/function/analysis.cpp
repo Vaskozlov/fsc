@@ -8,12 +8,12 @@ namespace fsc::ast
 {
     auto Function::analyze() -> AnalysisReport
     {
-        auto report = Function::defaultAnalyze();
+        auto report = Function::constructAnalysisReport();
         analyzeReport(report);
         return report;
     }
 
-    auto Function::defaultAnalyze() -> AnalysisReport
+    auto Function::constructAnalysisReport() -> AnalysisReport
     {
         if (functionInfo.BUILTIN_FUNCTION) {
             auto report = AnalysisReport{};
@@ -29,7 +29,7 @@ namespace fsc::ast
                 return {};
             }
 
-            const auto function_scope = ProgramStack.acquireFunctionScope(uuid);
+            const auto function_scope = ProgramStack.acquireAnalysisScope(uuid);
             auto report = functionBody->analyze();
             analyzeReport(report);
             return report;
@@ -51,7 +51,7 @@ namespace fsc::ast
             const auto &member_variables = TypeManager::getMemberVariables(classType);
 
             for (const auto &[variable_name, variable_node] : member_variables) {
-                if (report.hasBeenModified(variable_node)) {
+                if (report.hasBeenModified(variable_node.get())) {
                     functionInfo.CONSTANT_METHOD = false;
                     break;
                 }
@@ -87,7 +87,7 @@ namespace fsc::ast
     auto Function::analyzeClassAfterConstruction() -> AnalysisReport
     {
         const auto &class_node = classType.getClass();
-        const auto &fsc_class = class_node->as<ast::Class>();
+        auto &fsc_class = class_node->as<ast::Class>();
         return fsc_class.analyzeOnConstruction();
     }
 
@@ -103,7 +103,7 @@ namespace fsc::ast
             return {};
         }
 
-        const auto function_scope = ProgramStack.acquireFunctionScope(uuid);
+        const auto function_scope = ProgramStack.acquireAnalysisScope(uuid);
 
         return functionBody->analyze();
     }

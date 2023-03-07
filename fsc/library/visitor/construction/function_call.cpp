@@ -16,8 +16,8 @@ namespace
     }
 }// namespace
 
-auto fsc::Visitor::parseFunction(FunctionCallContext *ctx) -> std::tuple<
-    std::string, SmallVector<FscType>, SmallVector<Argument>, SmallVector<ast::NodePtr>>
+auto fsc::Visitor::parseFunction(FunctionCallContext *ctx) -> std::
+    tuple<std::string, SmallVector<FscType>, SmallVector<Argument>, SmallVector<ast::NodePtr>>
 {
     const auto &children = ctx->children;
     const auto name = children.at(0)->getText();
@@ -40,16 +40,16 @@ auto fsc::Visitor::parseFunction(FunctionCallContext *ctx) -> std::tuple<
 
 auto fsc::Visitor::constructFunctionCall(FunctionCallContext *ctx) -> ast::NodePtr
 {
-    try {
-        auto [name, templates, arguments, values] = parseFunction(ctx);
+    return preparerToCatchError(
+        [this, ctx]() {
+            auto [name, templates, arguments, values] = parseFunction(ctx);
 
-        auto function_call =
-            makeShared<ast::Node, ast::FunctionCall>(name, arguments, Void, values, templates, ctx);
-        function_call->setContext(ctx);
-        return function_call;
-    } catch (const FscException &e) {
-        throwError(ctx, e.what());
-    }
+            auto function_call = makeShared<ast::Node, ast::FunctionCall>(
+                name, arguments, Void, values, templates, ctx);
+            function_call->setContext(ctx);
+            return function_call;
+        },
+        ctx);
 }
 
 auto fsc::Visitor::constructMethodCall(ExpressionContext *ctx) -> ast::NodePtr

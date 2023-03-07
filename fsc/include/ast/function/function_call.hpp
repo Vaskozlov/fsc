@@ -39,9 +39,7 @@ namespace fsc::ast
     protected:
         auto attemptToAnalyze() -> AnalysisReport;
 
-        auto defaultPrint(const std::string &prefix, bool is_left) const -> void;
         auto generateIndexOperator(ccl::codegen::BasicCodeGenerator &output) -> void;
-        auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void;
         [[nodiscard]] auto getFunction() const -> ccl::SharedPtr<Function>;
 
         auto generateFunctionName(ccl::codegen::BasicCodeGenerator &output) -> void;

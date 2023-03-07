@@ -144,22 +144,15 @@ namespace fsc::ast
             return functionBody;
         }
 
-        [[nodiscard]] auto getDefaultArguments() const noexcept
-            -> const ccl::Map<std::string, ccl::SharedPtr<ast::Node>> &
-        {
-            return defaultArguments;
-        }
-
         auto analyzeOnCall(
             const ccl::SmallVector<NodePtr> &function_arguments,
             const ccl::SmallVector<FscType> &on_call_templates)
             -> std::pair<FscType, AnalysisReport>;
 
-    protected:
-        auto defaultAnalyze() -> AnalysisReport;
+    private:
+        auto constructAnalysisReport() -> AnalysisReport;
         auto analyzeReport(const AnalysisReport &report) -> void;
 
-    private:
         auto mapExplicitTemplates(
             ccl::SmallVector<std::string> &remap_types_names,
             ccl::SmallVector<AcquireTypeMapType> &remap_types_lock,

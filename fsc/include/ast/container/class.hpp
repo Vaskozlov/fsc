@@ -27,7 +27,7 @@ namespace fsc::ast
 
         auto analyze() -> AnalysisReport final;
 
-        auto analyzeOnConstruction() const -> AnalysisReport;
+        auto analyzeOnConstruction() -> AnalysisReport;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 

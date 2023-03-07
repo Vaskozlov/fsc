@@ -24,6 +24,6 @@ func ownSqrt(in f64 x)
 
 func main() -> i32
 {
-    print("{} {}\n", sqrt(2 as f64), ownSqrt(2 as f64))
+    print(sqrt(2 as f64), ownSqrt(2 as f64))
     return 0
 }

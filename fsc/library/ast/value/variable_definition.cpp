@@ -11,40 +11,41 @@ namespace fsc::ast
     using namespace std::string_view_literals;
 
     VariableDefinition::VariableDefinition(
-        std::string variable_name, Lazy<FscType> &&fsc_type, VariableFlags variable_flags,
-        NodePtr variable_initializer)
-      : NodeWrapper{std::move(variable_name), std::move(fsc_type), variable_flags}
+        BasicContextPtr ctx, std::string variable_name, Lazy<FscType> &&fsc_type,
+        VariableFlags variable_flags, NodePtr variable_initializer)
+      : NodeWrapper{ctx, std::move(variable_name), std::move(fsc_type), variable_flags}
       , initializer{std::move(variable_initializer)}
     {}
 
     VariableDefinition::VariableDefinition(
-        std::string variable_name, FscType fsc_type, VariableFlags variable_flags,
-        NodePtr variable_initializer)
+        BasicContextPtr ctx, std::string variable_name, FscType fsc_type,
+        VariableFlags variable_flags, NodePtr variable_initializer)
       : VariableDefinition{
-            std::move(variable_name), toLazy(fsc_type), variable_flags,
+            ctx, std::move(variable_name), toLazy(fsc_type), variable_flags,
             std::move(variable_initializer)}
     {}
 
     VariableDefinition::VariableDefinition(
-        std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags,
-        BasicContextPtr ctx)
+        BasicContextPtr ctx, std::string variable_name, NodePtr variable_initializer,
+        VariableFlags variable_flags)
       : VariableDefinition{
-            std::move(variable_name), toLazy([variable_initializer, ctx]() {
-                try {
-                    return variable_initializer->getValueType();
-                } catch (const FscException &e) {
-                    GlobalVisitor->throwError(ctx, e.what());
-                }
+            ctx, std::move(variable_name), toLazy([variable_initializer]() {
+                return preparerToCatchError(
+                    [variable_initializer]() {
+                        return variable_initializer->getValueType();
+                    },
+                    *variable_initializer);
             }),
             variable_flags, std::move(variable_initializer)}
     {}
 
     VariableDefinition::VariableDefinition(VariableDefinitionContext *ctx)
-      : VariableDefinition{readName(ctx), Lazy{readType(ctx)}, readFlags(ctx), readInitializer(ctx)}
+      : VariableDefinition{
+            ctx, readName(ctx), Lazy{readType(ctx)}, readFlags(ctx), readInitializer(ctx)}
     {}
 
     VariableDefinition::VariableDefinition(AutoVariableDefinitionContext *ctx)
-      : VariableDefinition{readName(ctx), readInitializer(ctx), readFlags(ctx), ctx}
+      : VariableDefinition{ctx, readName(ctx), readInitializer(ctx), readFlags(ctx)}
     {}
 
     auto VariableDefinition::analyze() -> AnalysisReport
@@ -58,6 +59,7 @@ namespace fsc::ast
 
         if (value_type != initializer_type) {
             GlobalVisitor->throwError(
+                ccl::ExceptionCriticality::CRITICAL,
                 initializer->getContext().value(),
                 "unable to assign variable, because type of variable does not match with the "
                 "initializer return type");

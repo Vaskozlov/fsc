@@ -90,17 +90,17 @@ namespace fsc::ast
     auto Class::analyze() -> AnalysisReport
     {
         if (templates.empty()) {
-            return Body::defaultAnalyze();
+            return Body::analyze();
         }
 
         return {};
     }
 
-    auto Class::analyzeOnConstruction() const -> AnalysisReport
+    auto Class::analyzeOnConstruction() -> AnalysisReport
     {
         const auto class_scope = ProgramStack.acquireClassScope(fscType);
         const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
-        return Body::defaultAnalyze();
+        return Body::analyze();
     }
 
     auto Class::codeGen(ccl::codegen::BasicCodeGenerator &output) -> void
@@ -129,7 +129,7 @@ namespace fsc::ast
     auto Class::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}Class: {}\n", getPrintingPrefix(prefix, is_left), name);
-        defaultBodyPrint(expandPrefix(prefix, is_left), false);
+        Body::print(expandPrefix(prefix, is_left), false);
     }
 
     auto Class::addNode(NodePtr node) -> void

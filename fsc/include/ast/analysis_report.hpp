@@ -20,8 +20,8 @@ namespace fsc::ast
     public:
         [[nodiscard]] auto isNoexcept() const noexcept -> bool;
         [[nodiscard]] auto isConstexpr() const noexcept -> bool;
-        [[nodiscard]] auto hasBeenRead(const NodePtr &node) const noexcept -> bool;
-        [[nodiscard]] auto hasBeenModified(const NodePtr &node) const noexcept -> bool;
+        [[nodiscard]] auto hasBeenRead(const Node *node) const noexcept -> bool;
+        [[nodiscard]] auto hasBeenModified(const Node *node) const noexcept -> bool;
 
         auto updateConstexpr(bool is_constexpr) -> void;
         auto updateNoexcept(bool is_noexcept) -> void;

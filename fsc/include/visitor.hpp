@@ -9,6 +9,7 @@
 #include "type/type.hpp"
 #include <ANTLRInputStream.h>
 #include <ccl/raii.hpp>
+#include <ccl/text/iterator_exception.hpp>
 #include <FscParser.h>
 #include <tuple>
 
@@ -57,7 +58,9 @@ namespace fsc
             return castToNode(visit(node));
         }
 
-        [[noreturn]] auto throwError(BasicContextPtr ctx, std::string_view message) -> void;
+        auto throwError(
+            ccl::ExceptionCriticality exception_criticality, BasicContextPtr ctx,
+            std::string_view message) -> void;
 
     private:
         CCL_PERFECT_FORWARDING(T, std::any)
@@ -142,7 +145,17 @@ namespace fsc
         try {
             return function();
         } catch (const FscException &e) {
-            GlobalVisitor->throwError(node.getContext().value(), e.what());
+            GlobalVisitor->throwError(
+                ccl::ExceptionCriticality::CRITICAL, node.getContext().value(), e.what());
+        }
+    }
+
+    auto preparerToCatchError(ccl::Invocable auto &&function, BasicContextPtr ctx) -> decltype(auto)
+    {
+        try {
+            return function();
+        } catch (const FscException &e) {
+            GlobalVisitor->throwError(ccl::ExceptionCriticality::CRITICAL, ctx, e.what());
         }
     }
 }// namespace fsc

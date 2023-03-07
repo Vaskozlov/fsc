@@ -35,7 +35,7 @@ namespace fsc::ast
         fmt::print(
             "{}Method call {}\n", getPrintingPrefix(prefix, is_left),
             expression->getValueType().getName());
-        FunctionCall::defaultPrint(expandPrefix(prefix, is_left), false);
+        FunctionCall::print(expandPrefix(prefix, is_left), false);
     }
 
     auto MethodCall::optimize(OptimizationLevel level) -> void
@@ -49,9 +49,10 @@ namespace fsc::ast
         if (getFunctionName() == "__at__") {
             output << *expression << '[';
             FunctionCall::generateIndexOperator(output);
+            output << ']';
         } else {
             output << *expression << '.';
-            FunctionCall::defaultCodegen(output);
+            FunctionCall::codeGen(output);
         }
     }
 };// namespace fsc::ast

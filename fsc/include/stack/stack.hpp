@@ -84,7 +84,7 @@ namespace fsc
                 }};
         }
 
-        [[nodiscard]] auto acquireFunctionScope(ccl::Id function_id) -> auto
+        [[nodiscard]] auto acquireAnalysisScope(ccl::Id function_id) -> auto
         {
             return ccl::Raii{
                 [this, function_id]() {
