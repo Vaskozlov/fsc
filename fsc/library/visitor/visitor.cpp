@@ -56,7 +56,7 @@ namespace fsc
         if (exception_criticality != ccl::ExceptionCriticality::WARNING &&
             exception_criticality != ccl::ExceptionCriticality::SUGGESTION) {
             program.print("", true);
-            std::exit(1);
+            std::terminate();
         }
     }
 
