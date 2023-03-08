@@ -11,8 +11,37 @@ namespace fsc::converter
     constexpr static auto OctalBegin = "0o"sv;
     constexpr static auto HexadecimalBegin = "0x"sv;
 
-    auto toInt(const std::string &repr) -> SharedPtr<ast::Value>
+    static auto toUInt(std::string repr, BasicContextPtr value_context) -> SharedPtr<ast::Value>
     {
+        repr.pop_back();
+
+        auto result = 0ZU;
+
+        if (repr.starts_with(BinaryBegin)) {
+            result = std::stoull(repr.substr(BinaryBegin.size()), nullptr, 2);
+        } else if (repr.starts_with(OctalBegin)) {
+            result = std::stoull(repr.substr(OctalBegin.size()), nullptr, 8);
+        } else if (repr.starts_with(HexadecimalBegin)) {
+            result = std::stoull(repr.substr(HexadecimalBegin.size()), nullptr, 16);
+        } else {
+            result = std::stoull(repr);
+        }
+
+        if (std::in_range<uint32_t>(result)) {
+            auto fsc_value = makeUnique<FscBuiltinType<FscUInt32>>(UInt32, as<uint32_t>(result));
+            return makeShared<ast::Value>(std::move(fsc_value), value_context);
+        }
+
+        auto fsc_value = makeUnique<FscBuiltinType<FscUInt64>>(UInt64, result);
+        return makeShared<ast::Value>(std::move(fsc_value), value_context);
+    }
+
+    auto toInt(const std::string &repr, BasicContextPtr value_context) -> SharedPtr<ast::Value>
+    {
+        if (repr.back() == 'U') {
+            return toUInt(repr, value_context);
+        }
+
         auto result = 0Z;
 
         if (repr.starts_with(BinaryBegin)) {
@@ -26,11 +55,11 @@ namespace fsc::converter
         }
 
         if (std::in_range<int32_t>(result)) {
-            auto fsc_value = makeUnique<FscBuiltinType<FscInt32>>(as<int32_t>(result));
-            return makeShared<ast::Value>(std::move(fsc_value));
+            auto fsc_value = makeUnique<FscBuiltinType<FscInt32>>(Int32, as<int32_t>(result));
+            return makeShared<ast::Value>(std::move(fsc_value), value_context);
         }
 
-        auto fsc_value = makeUnique<FscBuiltinType<FscInt64>>(result);
-        return makeShared<ast::Value>(std::move(fsc_value));
+        auto fsc_value = makeUnique<FscBuiltinType<FscInt64>>(Int64, result);
+        return makeShared<ast::Value>(std::move(fsc_value), value_context);
     }
 }// namespace fsc::converter

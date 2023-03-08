@@ -1,0 +1,36 @@
+func fibonacci(in i32 x)
+{
+    if x <= 2 {
+        return 1
+    }
+
+    return fibonacci(x - 1) + fibonacci(x - 2)
+}
+
+
+func test2()
+{
+    print(test1())
+}
+
+func test1()
+{
+    return "Hello, from test1"
+}
+
+func main()
+{
+    test2()
+    var i = 1;
+
+    while i != 20
+    {
+        var result = fibonacci(i)
+        print("{}: {}\n", i, result)
+        i += 1
+    }
+
+    return 0
+}
+
+

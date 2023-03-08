@@ -17,10 +17,15 @@ namespace fsc::ast
       , ifType{if_type}
     {}
 
-    auto If::analyze() -> void
+    auto If::analyze() -> AnalysisReport
     {
-        condition->analyze();
-        body->analyze();
+        auto body_report = body->analyze();
+
+        if (condition != nullptr) {
+            body_report.merge(condition->analyze());
+        }
+
+        return body_report;
     }
 
     auto If::codeGen(codegen::BasicCodeGenerator &output) -> void
@@ -47,5 +52,14 @@ namespace fsc::ast
         }
 
         body->print(expanded_prefix, false);
+    }
+
+    auto If::optimize(OptimizationLevel level) -> void
+    {
+        if (condition != nullptr) {
+            condition->optimize(level);
+        }
+
+        body->optimize(level);
     }
 }// namespace fsc::ast

@@ -1,7 +1,7 @@
 #ifndef FSC_MEMBER_ACCESS_HPP
 #define FSC_MEMBER_ACCESS_HPP
 
-#include "ast/basic_node.hpp"
+#include "ast/analysis_report.hpp"
 
 namespace fsc::ast
 {
@@ -14,11 +14,13 @@ namespace fsc::ast
     public:
         MemberVariable(NodePtr node_to_access, std::string variable_name);
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
+
+        auto optimize(OptimizationLevel level) -> void final;
 
         [[nodiscard]] auto getValueType() -> FscType final;
 

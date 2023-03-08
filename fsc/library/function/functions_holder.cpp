@@ -2,9 +2,9 @@
 #include "ast/function/function.hpp"
 #include "ast/function/magic_methods_table.hpp"
 #include "function/argument.hpp"
+#include "stack/stack.hpp"
 #include <algorithm>
 #include <ccl/ccl.hpp>
-#include <fmt/format.h>
 #include <ranges>
 
 namespace fsc::func
@@ -49,10 +49,14 @@ namespace fsc::func
         auto &functions_with_similar_class_id = functions[class_type];
         auto &functions_with_similar_name = functions_with_similar_class_id[function->getName()];
 
-        if (std::ranges::find(functions_with_similar_name, function) !=
-            functions_with_similar_name.end()) {
-            throw std::runtime_error(
-                fmt::format("function with name {} already exists", function->getName()));
+        if (auto similar_function_it = std::ranges::find(functions_with_similar_name, function);
+            similar_function_it != functions_with_similar_name.end()) {
+            auto &similar_function = *similar_function_it;
+
+            if (similar_function->getArguments() == function->getArguments()) {
+                throw FscException{
+                    fmt::format("function with name {} already exists", function->getName())};
+            }
         }
 
         functions_with_similar_name.push_back(function);
@@ -73,13 +77,15 @@ namespace fsc::func
     auto FunctionsHolder::findFunction(SignatureView signature) const ->
         typename FunctionsList::const_iterator
     {
-        if (FscType::exists(signature.name) && FscType{signature.name}.isTemplate()) {
+        if (TypeManager::exists(signature.name) &&
+            FscType{signature.name}.getName() != signature.name) {
             const auto function_to_fsc_type = FscType{signature.name};
-            const auto true_type = function_to_fsc_type.getTrueType();
-            const auto real_function_name = true_type.getName();
+            const auto real_function_name = function_to_fsc_type.getName();
 
             return findFunction({real_function_name, signature.arguments, signature.classType});
         }
+
+        signature.classType = cleanupType(signature.classType);
 
         if (!functions.contains(signature.classType)) {
             return checkMagicFunctionOrReturnFailure(
@@ -96,8 +102,8 @@ namespace fsc::func
         const auto &functions_with_similar_name =
             functions_with_similar_class_id.at(signature.name);
 
-        const auto function_it =
-            std::ranges::find_if(functions_with_similar_name, [&signature](const auto &function) {
+        const auto function_it = std::ranges::find_if(
+            functions_with_similar_name, [&signature](const SharedPtr<ast::Function> &function) {
                 return *function == signature;
             });
 
@@ -131,6 +137,11 @@ namespace fsc::func
     {
         if (signature.classType == Void && isMagicFunction(signature)) {
             return findMagicFunction(signature);
+        }
+
+        if (signature.classType == Void && ProgramStack.getCurrentClassScope() != Void) {
+            return findFunction(
+                {signature.name, signature.arguments, ProgramStack.getCurrentClassScope()});
         }
 
         if (failure_type == FunctionFindFailure::NO_FUNCTIONS_WITH_THE_SAME_NAME) {

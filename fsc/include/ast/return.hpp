@@ -6,18 +6,20 @@
 
 namespace fsc::ast
 {
-    class Return : public NodeWrapper<NodeType::RETURN, SemicolonNeed::NEED>
+    class Return final : public NodeWrapper<NodeType::RETURN, SemicolonNeed::NEED>
     {
         NodePtr value;
 
     public:
-        explicit Return(NodePtr value_to_return);
+        explicit Return(NodePtr value_to_return, BasicContextPtr node_context);
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
+
+        auto optimize(OptimizationLevel level) -> void final;
 
         [[nodiscard]] auto getValueType() -> FscType final;
     };

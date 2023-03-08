@@ -1,7 +1,7 @@
 #ifndef FSC_WHILE_HPP
 #define FSC_WHILE_HPP
 
-#include "ast/basic_node.hpp"
+#include "ast/analysis_report.hpp"
 
 namespace fsc::ast
 {
@@ -14,9 +14,11 @@ namespace fsc::ast
     public:
         While(NodePtr while_condition, NodePtr while_body);
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
+
+        auto optimize(OptimizationLevel level) -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
     };

@@ -4,104 +4,44 @@
 #include "ast/basic_node.hpp"
 #include "exception.hpp"
 #include "visibility.hpp"
-#include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
 #include <compare>
-#include <concepts>
 
 namespace fsc
 {
-    namespace ast
+    struct CCL_TRIVIAL_ABI TypeInfo
     {
-        class Class;
-    }
-
-    struct TypeFlags
-    {
+        size_t templatesParametersCount = 0;
         bool isTriviallyCopyable = false;
     };
 
     enum struct CreationType : ccl::u16
     {
         DEFAULT,
-        STRONG_TEMPLATE,
-        WEAK_TEMPLATE
+        TEMPLATE_KEEP_NAME,
+        TEMPLATE_HIDE_NAME
     };
 
     template<ccl::ConstString String, typename T>
     struct FscTypeWrapper;
 
-    class CCL_TRIVIAL_ABI FscType// NOLINT (non virtual destructor)
+    class TypeManager;
+
+    class CCL_TRIVIAL_ABI FscType
     {
     private:
-        using TypenameByIdStorage = ccl::Map<ccl::Id, std::string>;
-        using IdByTypenameStorage = ccl::Map<std::string, ccl::Id>;
-        using TypeFlagsStorage = ccl::Map<FscType, TypeFlags>;
-        using TypesMemberVariablesStorage = ccl::Map<FscType, ccl::Map<std::string, ast::NodePtr>>;
-        using TemplatedTypesStorage = ccl::Set<FscType>;
-        using RemapTypesStorage = ccl::Map<FscType, FscType>;
-        using FscClasses = ccl::Map<FscType, ast::NodePtr>;
-
-        struct FscTypeVariables
-        {
-            TypenameByIdStorage typenameById;
-            IdByTypenameStorage idByTypename;
-            TypeFlagsStorage typeFlags;
-            TypesMemberVariablesStorage typeMemberVariables;
-            TemplatedTypesStorage templateTypes;
-            RemapTypesStorage remapTypes;
-            FscClasses fscClasses;
-        };
-
-        static auto getVariables() -> FscTypeVariables &;
-
-        static auto getTypenameById() -> TypenameByIdStorage &
-        {
-            return getVariables().typenameById;
-        }
-
-        static auto getIdByTypename() -> IdByTypenameStorage &
-        {
-            return getVariables().idByTypename;
-        }
-
-        static auto getTypeFlags() -> TypeFlagsStorage &
-        {
-            return getVariables().typeFlags;
-        }
-
-        static auto getTypesMemberVariables() -> TypesMemberVariablesStorage &
-        {
-            return getVariables().typeMemberVariables;
-        }
-
-        static auto getTemplatedTypes() -> TemplatedTypesStorage &
-        {
-            return getVariables().templateTypes;
-        }
-
-        static auto getRemapTypes() -> RemapTypesStorage &
-        {
-            return getVariables().remapTypes;
-        }
-
-        static auto getFscClasses() -> FscClasses &
-        {
-            return getVariables().fscClasses;
-        }
+        friend TypeManager;
 
         ccl::Id typeId{};
+
+        explicit FscType(ccl::Id type_id, std::in_place_t /* unused */)
+          : typeId{type_id}
+        {}
 
     public:
         FscType() = default;
 
-        explicit FscType(ccl::Id type_id) noexcept(false)
-          : typeId{type_id}
-        {
-            if (!exists(typeId)) [[unlikely]] {
-                throw FscException{"Type not found"};
-            }
-        }
+        explicit FscType(ccl::Id type_id) noexcept(false);
 
         template<ccl::ConstString String, typename T>
         // NOLINTNEXTLINE
@@ -111,10 +51,8 @@ namespace fsc
 
         explicit FscType(const std::string &type_name) noexcept(false);
 
-        auto operator<=>(const FscType &other) const noexcept -> std::weak_ordering = default;
-
-        auto map(FscType target_type) const -> void;
-        auto unmap() const noexcept -> void;
+        [[nodiscard]] auto operator==(FscType other) const noexcept -> bool;
+        [[nodiscard]] auto operator<=>(FscType other) const noexcept -> std::weak_ordering;
 
         [[nodiscard]] auto getId() const noexcept -> ccl::Id
         {
@@ -123,11 +61,11 @@ namespace fsc
 
         [[nodiscard]] auto isTemplate() const noexcept -> bool;
 
+        [[nodiscard]] auto isRemapTemplate() const noexcept -> bool;
+
         [[nodiscard]] auto getName() const -> std::string;
 
         [[nodiscard]] auto getMemberVariable(const std::string &name) const -> ast::NodePtr;
-
-        [[nodiscard]] auto getTrueType() const noexcept -> FscType;
 
         [[nodiscard]] auto hasMemberVariables(const std::string &name) const -> bool;
 
@@ -136,24 +74,6 @@ namespace fsc
         auto addMemberVariable(ast::NodePtr variable) const -> void;
 
         [[nodiscard]] auto isTriviallyCopyable() const noexcept -> bool;
-
-        [[nodiscard]] static auto exists(ccl::Id type_id) -> bool;
-
-        [[nodiscard]] static auto exists(const std::string &type_name) -> bool;
-
-        static auto ensureTypeExists(const std::string &type_name) -> void;
-
-        static auto weakFreeTemplateType(const std::string &type_name) -> void;
-
-        static auto registerNewType(
-            const std::string &name, TypeFlags flags,
-            CreationType creation_type = CreationType::DEFAULT,
-            bool add_to_builtin = true) noexcept(false) -> ccl::Id;
-
-        static auto registerFscClass(ast::NodePtr new_fsc_class) -> void;
-
-    private:
-        static auto addTypeToBuiltinFunctions(FscType type) -> void;
     };
 
     class FscTypeInterface : public FscType
@@ -182,6 +102,12 @@ namespace fsc
 }// namespace fsc
 
 template<>
+struct std::hash<fsc::FscType>
+{
+    auto operator()(fsc::FscType type) const noexcept -> std::size_t;
+};
+
+template<>
 struct fmt::formatter<fsc::FscType> : fmt::formatter<std::string>
 {
     auto format(fsc::FscType fsc_type, format_context &ctx) const
@@ -190,5 +116,22 @@ struct fmt::formatter<fsc::FscType> : fmt::formatter<std::string>
     }
 };
 
+namespace fsc
+{
+    auto hashTypes(ccl::Iterable auto &&container) -> ccl::Id
+        requires std::is_same_v<std::remove_cvref_t<decltype(*container.begin())>, FscType>
+    {
+        constexpr static ccl::Id hash_magic = 31;
+
+        auto result = ccl::Id{};
+
+        for (auto elem : container) {
+            result += std::hash<FscType>{}(elem);
+            result *= hash_magic;
+        }
+
+        return result;
+    }
+}// namespace fsc
 
 #endif /* FSC_TYPE_HPP */

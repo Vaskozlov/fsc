@@ -1,26 +1,54 @@
-class S
+class S<T>
 {
-    public func __init__()
+    public var x : T = 0 as T
+
+    public func test()
     {
-        print("S constructed\n");
+        return x
     }
 
-    public func __del__()
+    public func test2(in i32 a)
     {
-        print("S destructed\n");
+    }
+
+    public func __init__(in T a)
+    {
+        x = a
     }
 }
 
-func test(in Vector<f32> vec) -> void
+func f<T>(inout T a)
 {
-    print("{}\n", vec.at(u32(0)));
+    any(a)
 }
 
-func main() -> i32
+func any<T2>(inout T2 a)
 {
-    var x = Vector<f32>()
-    x.push_back(10.24)
-    test(x)
+    print("{}\n", a.test())
+}
+
+func main()
+{
+    var t = S<i32>(10)
+    var k = S<f32>(15.34)
+    var vec = Vector<i32>(10, 20)
+
+    print("{}\n", t.x)
+
+    vec.push_back(10)
+
+    print("{}\n", vec);
+
+    f(t)
+    any(k)
+
+    var i = 0
+
+    while i != 10
+    {
+        print(i)
+        i += 1
+    }
 
     return 0
 }

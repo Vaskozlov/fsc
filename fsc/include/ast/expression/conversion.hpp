@@ -14,11 +14,13 @@ namespace fsc::ast
     public:
         explicit Conversion(NodePtr value_to_convert, FscType fsc_type);
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
+
+        auto optimize(OptimizationLevel level) -> void final;
 
         [[nodiscard]] auto getValueType() -> FscType final;
     };

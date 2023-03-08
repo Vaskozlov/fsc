@@ -9,33 +9,45 @@
 
 namespace fsc::ast
 {
-    class Class : public NodeWrapper<NodeType::CLASS, SemicolonNeed::DO_NOT_NEED, Body>
+    class Class final : public NodeWrapper<NodeType::CLASS, SemicolonNeed::DO_NOT_NEED, Body>
     {
-        ccl::Map<std::string, FscType> constructionMemberVariables;
-        ccl::SmallVector<std::string> templates;
+        ccl::Map<std::string, FscType> memberVariables;
+        ccl::SmallVector<FscType> templates;
         std::string name;
+        FscType fscType{Void};
 
     public:
+        explicit Class(std::string class_name);
+
         explicit Class(
-            std::string class_name, Visitor &visitor, BodyContext *body_context,
-            TemplateContext *template_context);
+            FscType fsc_type, std::string class_name, ccl::InitializerList<FscType> class_templates,
+            const ccl::Map<std::string, FscType> &member_variables = {});
 
-        auto analyze() -> void final;
+        auto finishClass(BodyContext *body_context, TemplateContext *template_context) -> void;
 
-        auto analyzeOnConstruction() const -> void;
+        auto analyze() -> AnalysisReport final;
+
+        auto analyzeOnConstruction() -> AnalysisReport;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
+
+        auto optimize(OptimizationLevel level) -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
         auto addNode(NodePtr node) -> void final;
+
+        [[nodiscard]] auto getType() const noexcept -> FscType
+        {
+            return fscType;
+        }
 
         [[nodiscard]] auto getName() const noexcept -> const std::string &
         {
             return name;
         }
 
-        [[nodiscard]] auto getTemplates() const noexcept -> const ccl::SmallVector<std::string> &
+        [[nodiscard]] auto getTemplates() const noexcept -> const ccl::SmallVector<FscType> &
         {
             return templates;
         }
@@ -48,7 +60,6 @@ namespace fsc::ast
 
         auto generateTemplateParameters(ccl::codegen::BasicCodeGenerator &output) const -> void;
 
-        auto mapTemplates() const -> void;
         auto unmapTemplates() const -> void;
     };
 }// namespace fsc::ast

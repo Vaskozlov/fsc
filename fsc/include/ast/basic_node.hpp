@@ -4,11 +4,7 @@
 #include "type/antlr-types.hpp"
 #include <ccl/ccl.hpp>
 #include <ccl/codegen/basic_codegen.hpp>
-#include <concepts>
-#include <optional>
 #include <ParserRuleContext.h>
-#include <stdexcept>
-#include <typeinfo>
 
 namespace fsc
 {
@@ -20,6 +16,9 @@ namespace fsc::ast
 {
     extern std::string SourceFile;              // NOLINT
     extern ccl::Vector<std::string> SourceLines;// NOLINT
+
+    class Node;
+    using NodePtr = ccl::SharedPtr<Node>;
 
     enum struct SemicolonNeed : bool
     {
@@ -36,7 +35,6 @@ namespace fsc::ast
         FUNCTION,
         METHOD_CALL,
         FUNCTION_CALL,
-        CONSTRUCTOR,
         BODY,
         BINARY_OPERATOR,
         PROGRAM,
@@ -56,6 +54,8 @@ namespace fsc::ast
         FAST
     };
 
+    class AnalysisReport;
+
     template<NodeType TypeOfNode, SemicolonNeed NeedSemicolon, typename Base>
     class NodeWrapper;
 
@@ -67,6 +67,7 @@ namespace fsc::ast
 
         antlr4::Token *start{nullptr};
         antlr4::Token *stop{nullptr};
+        BasicContextPtr context{nullptr};
         NodeType nodeType;
         SemicolonNeed needSemicolon{SemicolonNeed::NEED};
 
@@ -80,7 +81,9 @@ namespace fsc::ast
                 -> std::string;
 
     public:
-        explicit Node(NodeType node_type, SemicolonNeed need_semicolon) noexcept;
+        explicit Node(
+            NodeType node_type, SemicolonNeed need_semicolon,
+            BasicContextPtr node_context) noexcept;
 
         Node(const Node &node) = default;
         Node(Node &&) noexcept = default;
@@ -94,10 +97,11 @@ namespace fsc::ast
 
         virtual auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void = 0;
 
-        virtual auto analyze() -> void = 0;
+        virtual auto analyze() -> AnalysisReport = 0;
 
-        virtual auto optimize(OptimizationLevel /* unused */) -> void
-        {}
+        virtual auto optimize(OptimizationLevel /* unused */) -> void;
+
+        [[nodiscard]] auto toString() -> std::string;
 
         auto setStart(antlr4::Token *rule_start) noexcept -> void
         {
@@ -109,25 +113,14 @@ namespace fsc::ast
             stop = rule_stop;
         }
 
-        [[nodiscard]] auto getStart() const noexcept -> ccl::Optional<antlr4::Token *>
+        auto setContext(BasicContextPtr node_context) noexcept -> void
         {
-            if (start == nullptr) {
-                return std::nullopt;
-            }
-
-            return start;
+            context = node_context;
         }
 
-        [[nodiscard]] auto getStop() const noexcept -> ccl::Optional<antlr4::Token *>
-        {
-            if (stop == nullptr) {
-                return std::nullopt;
-            }
-
-            return stop;
-        }
-
-        auto reportAboutError(const std::exception &exception) const -> void;
+        [[nodiscard]] auto getStart() const noexcept -> ccl::Optional<antlr4::Token *>;
+        [[nodiscard]] auto getStop() const noexcept -> ccl::Optional<antlr4::Token *>;
+        [[nodiscard]] auto getContext() const noexcept -> ccl::Optional<BasicContextPtr>;
 
         [[nodiscard]] virtual auto getValueType() noexcept(false) -> FscType;
 
@@ -179,16 +172,19 @@ namespace fsc::ast
         static_assert(std::derived_from<Base, Node>);
 
     public:
-        NodeWrapper() noexcept(std::is_nothrow_constructible_v<Base, NodeType>)
+        explicit NodeWrapper(BasicContextPtr node_context = nullptr) noexcept(
+            std::is_nothrow_constructible_v<Base, NodeType>)
             requires(std::is_same_v<Base, Node>)
-          : Base{classof(), NeedSemicolon}
+          : Base{classof(), NeedSemicolon, node_context}
         {}
 
-        NodeWrapper() noexcept(std::is_nothrow_constructible_v<Base>)
+        explicit NodeWrapper(BasicContextPtr node_context = nullptr) noexcept(
+            std::is_nothrow_constructible_v<Base>)
             requires(!std::is_same_v<Base, Node>)
         {
             this->setNodeType(classof());
             this->setSemicolonNeed(NeedSemicolon);
+            this->setContext(node_context);
         }
 
         template<typename... Ts>
@@ -205,10 +201,9 @@ namespace fsc::ast
         }
     };
 
-    using NodePtr = ccl::SharedPtr<Node>;
-
     auto operator<<(ccl::codegen::BasicCodeGenerator &generator, Node &node)
         -> ccl::codegen::BasicCodeGenerator &;
 }// namespace fsc::ast
+
 
 #endif /* FSC_BASIC_NODE_HPP */

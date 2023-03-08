@@ -11,14 +11,16 @@ namespace fsc
 
     auto Visitor::constructReturn(StatementContext *ctx) -> ast::NodePtr
     {
-        const auto &children = ctx->children;
+        if (auto expr = ctx->expr(); expr != nullptr) {
+            return makeShared<ast::Return>(visitAsNode(expr), ctx);
+        }
 
-        return makeShared<ast::Return>(visitAsNode(children.at(1)));
+        return makeShared<ast::Return>(nullptr, ctx);
     }
 
     auto Visitor::constructIf(IfStatementContext *ctx) -> ast::NodePtr
     {
-        return makeShared<ast::IfStmt>(*this, ctx);
+        return makeShared<ast::IfStmt>(ctx);
     }
 
     auto Visitor::constructWhile(WhileContext *ctx) -> ast::NodePtr

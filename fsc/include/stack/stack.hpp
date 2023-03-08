@@ -54,14 +54,16 @@ namespace fsc
 
         static ScopeStorage globalStorage;
         ccl::SmallVector<FscType> classScopes;
+        ccl::Set<ccl::Id> functionsScopes;
         std::deque<Scope> scopes;
+        ccl::Vector<ast::NodePtr> functionOnAnalysis;
 
     public:
         [[nodiscard]] auto acquireStackScope(ScopeType scope_type) -> auto
         {
             return ccl::Raii{
                 [this, scope_type]() {
-                    scopes.push_front(Scope{scope_type});
+                    scopes.emplace_front(scope_type);
                 },
                 [this]() {
                     scopes.pop_front();
@@ -83,10 +85,33 @@ namespace fsc
                 }};
         }
 
+        [[nodiscard]] auto acquireAnalysisScope(ccl::Id function_id, ast::NodePtr function) -> auto
+        {
+            return ccl::Raii{
+                [this, function_id, function]() {
+                    functionsScopes.emplace(function_id);
+                    functionOnAnalysis.emplace_back(function);
+                },
+                [this, function_id]() {
+                    functionsScopes.erase(function_id);
+                    functionOnAnalysis.pop_back();
+                }};
+        }
+
+        [[nodiscard]] auto getCurrentFunctionOnAnalysis() const -> ast::NodePtr
+        {
+            return functionOnAnalysis.back();
+        }
+
+        [[nodiscard]] auto hasFunctionInCallTree(ccl::Id function_id) const -> bool
+        {
+            return functionsScopes.contains(function_id);
+        }
+
         [[nodiscard]] auto getCurrentClassScope() const -> FscType
         {
             if (classScopes.empty()) {
-                return {};
+                return Void;
             }
 
             return classScopes.back();

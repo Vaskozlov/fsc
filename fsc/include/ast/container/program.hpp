@@ -5,7 +5,7 @@
 
 namespace fsc::ast
 {
-    class Program : public NodeWrapper<NodeType::PROGRAM, SemicolonNeed::DO_NOT_NEED, Body>
+    class Program final : public NodeWrapper<NodeType::PROGRAM, SemicolonNeed::DO_NOT_NEED, Body>
     {
     public:
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;

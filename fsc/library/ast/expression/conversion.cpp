@@ -1,6 +1,8 @@
 #include "ast/expression/conversion.hpp"
+#include "ast/value/value.hpp"
 #include "function/argument.hpp"
 #include "function/functions_holder.hpp"
+#include "type/builtin_types_impl.hpp"
 #include "type/type.hpp"
 #include <ccl/core/types.hpp>
 
@@ -14,19 +16,19 @@ namespace fsc::ast
       , type{fsc_type}
     {}
 
-    auto Conversion::analyze() -> void
+    auto Conversion::analyze() -> AnalysisReport
     {
         const auto &function_name = type.getName();
         const auto arguments = SmallVector<Argument>{Argument{value.get()}};
         const auto signature_view = SignatureView{function_name, arguments, Void};
+        auto function = func::Functions.get(signature_view);
 
-        [[maybe_unused]] auto make_sure_that_conversion_exists =
-            func::Functions.visitFunction(signature_view, std::mem_fn(&Function::getReturnType));
+        return function->analyze();
     }
 
     auto Conversion::codeGen(codegen::BasicCodeGenerator &output) -> void
     {
-        output << type.getName() << '{' << *value << '}';
+        output << "static_cast<" << type.getName() << ">(" << *value << ')';
     }
 
     auto Conversion::getValueType() -> FscType
@@ -38,5 +40,18 @@ namespace fsc::ast
     {
         fmt::print("{} Conversion to {}\n", getPrintingPrefix(prefix, is_left), type);
         value->print(expandPrefix(prefix, is_left), false);
+    }
+
+    auto Conversion::optimize(OptimizationLevel level) -> void
+    {
+        if (type == Float64 && value->is(NodeType::VALUE) && value->getValueType() == Float32) {
+            const auto &as_f32 = value->as<Value>();
+            auto new_value = makeUnique<FscBuiltinType<ReprOrValue<f64>>>(
+                Float64, as_f32.getValue()->toString());
+
+            value = makeShared<Value>(std::move(new_value), as_f32.getContext().value());
+        }
+
+        value->optimize(level);
     }
 }// namespace fsc::ast

@@ -31,52 +31,81 @@ namespace fsc::ast
         GREATER,
         LESS_EQ,
         GREATER_EQ,
-        ASSIGN
+        COPY_ASSIGN,
+        IADD,
+        ISUB,
+        IMUL,
+        IDIV,
+        IMOD
     };
 
+    struct FunctionInfo
+    {
+        bool NOEXCEPT = true;
+        bool IS_METHOD = false;
+        bool CONSTANT_METHOD = false;
+        bool STATIC_METHOD = false;
+        bool BUILTIN_FUNCTION = false;
+        bool HAVE_PARAMETER_PACK = false;
+        bool NODISCARD = true;
+        bool CONSTEXPR = true;
+        Visibility VISIBILITY = Visibility::FILE_PRIVATE;
+    };
 
     class Function
       : public NodeWrapper<NodeType::FUNCTION, SemicolonNeed::DO_NOT_NEED>
       , public std::enable_shared_from_this<Function>
     {
     private:
-        ccl::Map<std::string, NodePtr> defaultArguments;
+        static inline constinit auto functionUuidGenerator = std::atomic<ccl::Id>{0};
+
         ccl::SmallVector<Argument> arguments;
-        ccl::SmallVector<std::string> templates;
-        ccl::SmallVector<FscType> remapTypes{};
+        ccl::SmallVector<FscType> templates;
+        ccl::SmallVector<FscType> remapTypes;
+        ccl::Map<ccl::Id, FscType> analyzedHashes{};
+        ccl::Map<std::string, NodePtr> defaultArguments;
         NodePtr functionBody;
         std::string name;
-        Visibility visibility{};
-        std::variant<FscType, std::string> returnType{Void};
+        std::string codegenName;
+        ccl::Id functionUuid = functionUuidGenerator++;
+        FunctionInfo functionInfo{};
+        FscType returnType{Void};
         FscType classType{};
         const FunctionContext *functionContext{};
         MagicFunctionType magicType{};
-        bool endsWithParameterPack{};
-        bool builtinFunction{};
 
     public:
-        Function();
+        Function() = default;
+
+        explicit Function(BasicContextPtr node_context);
 
         Function(
-            FscType class_type, std::string_view function_name, FscType return_type,
-            ccl::InitializerList<Argument> function_arguments,
-            const ccl::SmallVector<std::string> &function_templates = {},
-            bool ends_with_parameter_pack = false);
+            FscType class_type, std::string_view function_name, std::string_view codegen_name,
+            FscType return_type, ccl::InitializerList<Argument> function_arguments,
+            FunctionInfo function_info, const ccl::SmallVector<FscType> &function_templates = {},
+            MagicFunctionType magic = MagicFunctionType::NONE);
 
-        auto finishConstruction(
-            const FunctionContext *function_context, Visitor &visitor, FscType class_type) -> void;
+        auto finishConstruction(const FunctionContext *function_context, FscType class_type)
+            -> void;
 
-        auto analyze() -> void override;
+        auto analyze() -> AnalysisReport override;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
+
+        auto optimize(OptimizationLevel level) -> void final;
 
         [[nodiscard]] auto operator==(SignatureView other) const noexcept -> bool;
 
         auto memberize(FscType type_id) noexcept -> void
         {
             classType = type_id;
+        }
+
+        [[nodiscard]] auto getCodegenName() const -> const std::string &
+        {
+            return codegenName.empty() ? name : codegenName;
         }
 
         [[nodiscard]] auto isMember() const noexcept -> bool
@@ -106,58 +135,75 @@ namespace fsc::ast
 
         [[nodiscard]] auto getReturnType() const -> FscType;
 
-        [[nodiscard]] auto getVisibility() const noexcept -> Visibility
-        {
-            return visibility;
-        }
+        auto analyzeOnCall(
+            const ccl::SmallVector<NodePtr> &function_arguments,
+            const ccl::SmallVector<FscType> &on_call_templates)
+            -> std::pair<FscType, AnalysisReport>;
 
-        [[nodiscard]] auto getBody() const noexcept -> NodePtr
-        {
-            return functionBody;
-        }
-
-        [[nodiscard]] auto getDefaultArguments() const noexcept
-            -> const ccl::Map<std::string, ccl::SharedPtr<ast::Node>> &
-        {
-            return defaultArguments;
-        }
-
-        auto analyzeOnCall(const ccl::SmallVector<NodePtr> &function_arguments) const -> FscType;
-
-    protected:
-        auto defaultAnalyze() const -> void;
+        auto updateReturnType(FscType new_return_type) -> void;
 
     private:
-        [[nodiscard]] auto getReturnTypeAsString() const -> std::string;
+        auto constructAnalysisReport() -> AnalysisReport;
+        auto analyzeReport(const AnalysisReport &report) -> void;
+
+        auto mapExplicitTemplates(
+            ccl::SmallVector<std::string> &remap_types_names,
+            ccl::SmallVector<AcquireTypeMapType> &remap_types_lock,
+            const ccl::SmallVector<FscType> &on_call_templates) -> void;
+
+        auto mapImplicitTemplates(
+            ccl::SmallVector<std::string> &remap_types_names,
+            ccl::SmallVector<AcquireTypeMapType> &remap_types_lock,
+            const ccl::SmallVector<NodePtr> &function_arguments) -> void;
+
+        auto checkFunctionArgumentAfterDeductionMatch(
+            const ccl::SmallVector<NodePtr> &function_arguments) const noexcept(false) -> void;
+
+        auto analyzeClassAfterConstruction() -> AnalysisReport;
+
+        auto analyzeFunctionAfterTemplatesRemap() -> AnalysisReport;
+
+        auto getReportOfUserDefinedFunction() -> AnalysisReport;
+
+        auto modifyBuiltinFunctionReport(AnalysisReport &report) const noexcept -> void;
+
+        virtual auto deduceReturnType(const ccl::SmallVector<std::string> &remap_types_names) const
+            -> FscType;
 
         auto generateTemplateParameters(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto generateFunctionDefinition(
+            ccl::codegen::BasicCodeGenerator &output, ccl::Id stream_id,
+            bool include_default_arguments) const -> void;
 
         auto processMagicMethod() -> void;
 
-        auto processInitMethod() noexcept(false) -> void;
-        auto processDelMethod() noexcept(false) -> void;
-        auto processBinaryOperatorMethod(MagicFunctionType binary_operator) noexcept(false) -> void;
+        auto handleInit() noexcept(false) -> void;
+        auto handleDestructor() noexcept(false) -> void;
+        auto handleBinaryExpression(MagicFunctionType binary_operator) noexcept(false) -> void;
 
         auto processAttributes(FunctionAttributeContext *ctx) -> void;
 
         auto processTemplates(FscParser::Function_templatesContext *ctx) -> void;
 
-        auto genArguments(ccl::codegen::BasicCodeGenerator &output) -> void;
-        auto argumentToString(ccl::codegen::BasicCodeGenerator &output, Argument &arg) -> void;
-        auto readArguments(const FscParser::ParametersContext *parameters_context, Visitor &visitor)
-            -> void;
+        auto argumentsToString(bool include_default) const -> std::string;
+        auto argumentToString(const Argument &arg, bool include_default) const -> std::string;
 
-        auto processArgument(const FscParser::ArgumentContext *argument_context, Visitor &visitor)
-            -> Argument;
+        auto readArguments(const FscParser::ParametersContext *parameters_context) -> void;
+
+        auto processArgument(const FscParser::ArgumentContext *argument_context) -> Argument;
         static auto defineArgument(const FscParser::Argument_definitionContext *argument_definition)
             -> Argument;
 
         auto setReturnType(const std::vector<antlr4::tree::ParseTree *> &nodes) -> void;
 
-        auto completeBody(Visitor &visitor) -> void;
+        auto completeBody() -> void;
 
+        auto addVisibility(ccl::codegen::BasicCodeGenerator &output) const -> void;
         auto addNodiscardModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
         auto addConstexprModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto addStaticModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto addConstModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto addNoexceptModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
     };
 }// namespace fsc::ast
 

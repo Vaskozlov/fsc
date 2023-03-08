@@ -15,21 +15,24 @@ namespace fsc::ast
 
     public:
         VariableDefinition(
-            std::string variable_name, ccl::Lazy<FscType> &&fsc_type, VariableFlags variable_flags,
-            NodePtr variable_initializer);
+            BasicContextPtr ctx, std::string variable_name, ccl::Lazy<FscType> &&fsc_type,
+            VariableFlags variable_flags, NodePtr variable_initializer);
 
         VariableDefinition(
-            std::string variable_name, FscType fsc_type, VariableFlags variable_flags,
-            NodePtr variable_initializer);
+            BasicContextPtr ctx, std::string variable_name, FscType fsc_type,
+            VariableFlags variable_flags, NodePtr variable_initializer);
 
         VariableDefinition(
-            std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags);
+            BasicContextPtr ctx, std::string variable_name, NodePtr variable_initializer,
+            VariableFlags variable_flags);
 
-        VariableDefinition(Visitor &visitor, VariableDefinitionContext *ctx);
+        explicit VariableDefinition(VariableDefinitionContext *ctx);
 
-        VariableDefinition(Visitor &visitor, AutoVariableDefinitionContext *ctx);
+        explicit VariableDefinition(AutoVariableDefinitionContext *ctx);
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
+
+        auto optimize(OptimizationLevel level) -> void final;
 
         auto print(const std::string &prefix, bool is_left) const -> void final;
 
@@ -44,7 +47,7 @@ namespace fsc::ast
         static auto readType(FscParser::Variable_definitionContext *ctx) -> FscType;
         static auto readName(auto *ctx) -> std::string;
         static auto readFlags(auto *ctx) -> VariableFlags;
-        static auto readInitializer(Visitor &visitor, auto *ctx) -> NodePtr;
+        static auto readInitializer(auto *ctx) -> NodePtr;
     };
 }// namespace fsc::ast
 

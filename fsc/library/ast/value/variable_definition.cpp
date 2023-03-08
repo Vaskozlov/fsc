@@ -11,59 +11,76 @@ namespace fsc::ast
     using namespace std::string_view_literals;
 
     VariableDefinition::VariableDefinition(
-        std::string variable_name, Lazy<FscType> &&fsc_type, VariableFlags variable_flags,
-        NodePtr variable_initializer)
-      : NodeWrapper{std::move(variable_name), std::move(fsc_type), variable_flags}
+        BasicContextPtr ctx, std::string variable_name, Lazy<FscType> &&fsc_type,
+        VariableFlags variable_flags, NodePtr variable_initializer)
+      : NodeWrapper{ctx, std::move(variable_name), std::move(fsc_type), variable_flags}
       , initializer{std::move(variable_initializer)}
     {}
 
     VariableDefinition::VariableDefinition(
-        std::string variable_name, FscType fsc_type, VariableFlags variable_flags,
-        NodePtr variable_initializer)
+        BasicContextPtr ctx, std::string variable_name, FscType fsc_type,
+        VariableFlags variable_flags, NodePtr variable_initializer)
       : VariableDefinition{
-            std::move(variable_name), toLazy(fsc_type), variable_flags,
+            ctx, std::move(variable_name), toLazy(fsc_type), variable_flags,
             std::move(variable_initializer)}
     {}
 
     VariableDefinition::VariableDefinition(
-        std::string variable_name, NodePtr variable_initializer, VariableFlags variable_flags)
+        BasicContextPtr ctx, std::string variable_name, NodePtr variable_initializer,
+        VariableFlags variable_flags)
       : VariableDefinition{
-            std::move(variable_name), toLazy([variable_initializer]() {
-                return variable_initializer->getValueType();
+            ctx, std::move(variable_name), toLazy([variable_initializer]() {
+                return preparerToCatchError(
+                    [variable_initializer]() {
+                        return variable_initializer->getValueType();
+                    },
+                    *variable_initializer);
             }),
             variable_flags, std::move(variable_initializer)}
     {}
 
-    VariableDefinition::VariableDefinition(Visitor &visitor, VariableDefinitionContext *ctx)
+    VariableDefinition::VariableDefinition(VariableDefinitionContext *ctx)
       : VariableDefinition{
-            readName(ctx), Lazy{readType(ctx)}, readFlags(ctx), readInitializer(visitor, ctx)}
+            ctx, readName(ctx), Lazy{readType(ctx)}, readFlags(ctx), readInitializer(ctx)}
     {}
 
-    VariableDefinition::VariableDefinition(Visitor &visitor, AutoVariableDefinitionContext *ctx)
-      : VariableDefinition{readName(ctx), readInitializer(visitor, ctx), readFlags(ctx)}
+    VariableDefinition::VariableDefinition(AutoVariableDefinitionContext *ctx)
+      : VariableDefinition{ctx, readName(ctx), readInitializer(ctx), readFlags(ctx)}
     {}
 
-    auto VariableDefinition::analyze() -> void
+    auto VariableDefinition::analyze() -> AnalysisReport
     {
         if (initializer == nullptr) {
-            return;
+            return {};
         }
 
         const auto value_type = getValueType();
         const auto initializer_type = initializer->getValueType();
 
-        if (value_type.getTrueType() != initializer_type.getTrueType()) {
-            throw FscException(
+        if (value_type != initializer_type) {
+            GlobalVisitor->throwError(
+                ccl::ExceptionCriticality::CRITICAL,
+                initializer->getContext().value(),
                 "unable to assign variable, because type of variable does not match with the "
                 "initializer return type");
         }
 
-        initializer->analyze();
+        return initializer->analyze();
+    }
+
+    auto VariableDefinition::optimize(OptimizationLevel level) -> void
+    {
+        if (initializer != nullptr) {
+            initializer->optimize(level);
+        }
     }
 
     auto VariableDefinition::print(const std::string &prefix, bool is_left) const -> void
     {
-        fmt::print("{}Definition of {}\n", getPrintingPrefix(prefix, is_left), getName());
+        fmt::print(
+            "{}Definition of `{}`, type: {}, const: {}, reference: {}\n",
+            getPrintingPrefix(prefix, is_left), getName(), getValueType(), isConstant(),
+            isReference());
 
         if (initializer != nullptr) {
             initializer->print(expandPrefix(prefix, is_left), false);
@@ -114,9 +131,7 @@ namespace fsc::ast
         auto attributes = ccl::as<FscParser::Variable_attributesContext *>(ctx->children.at(0));
         auto declaration_type = ctx->children.at(1)->getText();
 
-        if (declaration_type == "let") {
-            flags.constant = true;
-        }
+        flags.constant = declaration_type == "let";
 
         if (auto visibility = attributes->visibility(); visibility != nullptr) {
             flags.visibility = VisibilityByStr.at(visibility->getText());
@@ -125,12 +140,12 @@ namespace fsc::ast
         return flags;
     }
 
-    auto VariableDefinition::readInitializer(Visitor &visitor, auto *ctx) -> NodePtr
+    auto VariableDefinition::readInitializer(auto *ctx) -> NodePtr
     {
         const auto *expr = ccl::as<ExpressionContext *>(ctx->children.back());
 
         if (expr != nullptr) {
-            return visitor.visitAsNode(ctx->children.back());
+            return GlobalVisitor->visitAsNode(ctx->children.back());
         }
 
         return nullptr;

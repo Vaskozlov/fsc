@@ -9,6 +9,7 @@
 #include "type/type.hpp"
 #include <ANTLRInputStream.h>
 #include <ccl/raii.hpp>
+#include <ccl/text/iterator_exception.hpp>
 #include <FscParser.h>
 #include <tuple>
 
@@ -17,9 +18,9 @@ namespace fsc
     class Visitor : public FscBaseVisitor
     {
     private:
-        ast::Program program;
-        ccl::Vector<FscType> functionReturnStack;
-        std::string filename;
+        ast::Program program{};
+        ccl::Vector<FscType> functionReturnStack{};
+        std::string filename{};
         antlr4::ANTLRInputStream &inputStream;
         ccl::Vector<std::string> inputAsLines{};
 
@@ -28,6 +29,12 @@ namespace fsc
 
         auto codeGen() -> std::string;
         auto analyze() -> void;
+        auto optimize(ast::OptimizationLevel level) -> void;
+
+        auto print() const -> void
+        {
+            program.print("", false);
+        }
 
         [[nodiscard]] auto getCurrentFunctionReturnType() const -> FscType
         {
@@ -46,15 +53,14 @@ namespace fsc
             };
         }
 
-        auto updateFunctionReturnType(FscType new_type) -> void
-        {
-            functionReturnStack.back() = new_type;
-        }
-
         [[nodiscard]] auto visitAsNode(auto *node) -> ccl::SharedPtr<ast::Node>
         {
             return castToNode(visit(node));
         }
+
+        auto throwError(
+            ccl::ExceptionCriticality exception_criticality, BasicContextPtr ctx,
+            std::string_view message, std::string_view suggestion = {}) -> void;
 
     private:
         CCL_PERFECT_FORWARDING(T, std::any)
@@ -129,10 +135,29 @@ namespace fsc
         auto parseFunction(FunctionCallContext *ctx) -> std::tuple<
             std::string, ccl::SmallVector<FscType>, ccl::SmallVector<Argument>,
             ccl::SmallVector<ast::NodePtr>>;
-
-        [[noreturn]] auto throwError(antlr4::ParserRuleContext *ctx, std::string_view message)
-            -> void;
     };
+
+    inline constinit Visitor *GlobalVisitor{nullptr};
+
+    template<std::derived_from<ast::Node> T>
+    auto preparerToCatchError(ccl::Invocable auto &&function, T &node) -> decltype(auto)
+    {
+        try {
+            return function();
+        } catch (const FscException &e) {
+            GlobalVisitor->throwError(
+                ccl::ExceptionCriticality::CRITICAL, node.getContext().value(), e.what());
+        }
+    }
+
+    auto preparerToCatchError(ccl::Invocable auto &&function, BasicContextPtr ctx) -> decltype(auto)
+    {
+        try {
+            return function();
+        } catch (const FscException &e) {
+            GlobalVisitor->throwError(ccl::ExceptionCriticality::CRITICAL, ctx, e.what());
+        }
+    }
 }// namespace fsc
 
 #endif /* FSC_VISITOR_HPP */

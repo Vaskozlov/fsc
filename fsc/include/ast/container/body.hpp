@@ -1,14 +1,15 @@
 #ifndef FSC_BODY_HPP
 #define FSC_BODY_HPP
 
-#include "ast/basic_node.hpp"
-#include "ccl/codegen/basic_codegen.hpp"
+#include "ast/analysis_report.hpp"
+#include <ccl/codegen/basic_codegen.hpp>
 
 namespace fsc::ast
 {
     class Body : public NodeWrapper<NodeType::BODY, SemicolonNeed::DO_NOT_NEED>
     {
         ccl::Vector<NodePtr> nodes;
+        ccl::Vector<NodePtr> variableDefinition;
 
     public:
         [[nodiscard]] auto begin() const noexcept -> auto
@@ -21,25 +22,23 @@ namespace fsc::ast
             return nodes.end();
         }
 
-        auto analyze() -> void override;
+        auto analyze() -> AnalysisReport override;
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void override;
 
         auto print(const std::string &prefix, bool is_left) const -> void override;
+
+        auto optimize(OptimizationLevel level) -> void override;
 
         [[nodiscard]] auto getValueType() -> FscType final;
 
         virtual auto addNode(NodePtr node) -> void;
 
     protected:
-        auto emplaceNode(NodePtr node) -> void
-        {
-            nodes.emplace_back(std::move(node));
-        }
+        auto emplaceNode(NodePtr node) -> void;
 
-        auto defaultAnalyze() const -> void;
-        auto defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void;
-        auto defaultBodyPrint(const std::string &prefix, bool is_left) const -> void;
+    private:
+        auto analyzeReport(const AnalysisReport &report) const -> void;
     };
 }// namespace fsc::ast
 

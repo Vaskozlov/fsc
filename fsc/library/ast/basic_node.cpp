@@ -9,23 +9,25 @@ using namespace std::string_view_literals;
 
 namespace fsc::ast
 {
-    std::string SourceFile;              // NOLINT
-    ccl::Vector<std::string> SourceLines;// NOLINT
+    std::string SourceFile;
+    ccl::Vector<std::string> SourceLines;
 
     static auto operator*(std::string_view str, size_t repeat) -> std::string
     {
         auto result = std::string{};
         result.reserve(str.size() * repeat);
 
-        for (auto i = as<size_t>(0); i != repeat; ++i) {
+        for (auto i = 0ZU; i != repeat; ++i) {
             result.append(str);
         }
 
         return result;
     }
 
-    Node::Node(NodeType node_type, SemicolonNeed need_semicolon) noexcept
-      : nodeType{node_type}
+    Node::Node(
+        NodeType node_type, SemicolonNeed need_semicolon, BasicContextPtr node_context) noexcept
+      : context{node_context}
+      , nodeType{node_type}
       , needSemicolon{need_semicolon}
     {}
 
@@ -37,6 +39,33 @@ namespace fsc::ast
     auto Node::setSemicolonNeed(SemicolonNeed need_semicolon) noexcept -> void
     {
         needSemicolon = need_semicolon;
+    }
+
+    auto Node::getStart() const noexcept -> ccl::Optional<antlr4::Token *>
+    {
+        if (start == nullptr) {
+            return std::nullopt;
+        }
+
+        return start;
+    }
+
+    auto Node::getStop() const noexcept -> ccl::Optional<antlr4::Token *>
+    {
+        if (stop == nullptr) {
+            return std::nullopt;
+        }
+
+        return stop;
+    }
+
+    auto Node::getContext() const noexcept -> ccl::Optional<BasicContextPtr>
+    {
+        if (context == nullptr) {
+            return std::nullopt;
+        }
+
+        return context;
     }
 
     auto Node::getPrintingPrefix(const std::string &prefix, bool is_left) -> std::string
@@ -59,36 +88,19 @@ namespace fsc::ast
         return result;
     }
 
-    auto Node::reportAboutError(const std::exception &exception) const -> void
-    {
-        if (start == nullptr || stop == nullptr) {
-            throw exception;
-        }
-
-        const auto line = start->getLine();
-        const auto begin_column = start->getCharPositionInLine();
-        const auto end_column = stop->getCharPositionInLine();
-
-        auto &handler = ccl::handler::Cmd::instance();
-        auto location = ccl::text::Location{SourceFile, line, begin_column};
-        auto length = end_column - begin_column + stop->getText().size();
-
-        auto iterator_exception = ccl::text::TextIteratorException{
-            ccl::ExceptionCriticality::PANIC,
-            ccl::AnalysisStage::PARSING,
-            location,
-            length,
-            SourceLines.at(location.getLine() - 1),
-            exception.what(),
-            ""};
-
-        handler.handle(iterator_exception);
-        std::exit(1);// NOLINT
-    }
-
     auto Node::getValueType() noexcept(false) -> FscType
     {
         throw std::runtime_error{"getValueType() is not implemented"};
+    }
+
+    auto Node::optimize(OptimizationLevel /* unused */) -> void
+    {}
+
+    auto Node::toString() -> std::string
+    {
+        auto tmp_codegen = codegen::BasicCodeGenerator{};
+        tmp_codegen << *this;
+        return tmp_codegen.getCode();
     }
 
     auto operator<<(codegen::BasicCodeGenerator &generator, Node &node)

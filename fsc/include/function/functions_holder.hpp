@@ -2,10 +2,10 @@
 #define FSC_FUNCTIONS_HPP
 
 #include "ast/function/function.hpp"
+#include "function/argument.hpp"
+#include "type/type.hpp"
 #include <ccl/core/types.hpp>
-#include <function/argument.hpp>
 #include <list>
-#include <type/type.hpp>
 
 namespace fsc::func
 {
@@ -15,6 +15,8 @@ namespace fsc::func
         NO_FUNCTIONS_WITH_THE_SAME_PARAMETERS
     };
 
+    inline constinit bool ReinitializeOnCompilation = false;
+
     class FunctionsHolder
     {
     private:
@@ -23,11 +25,26 @@ namespace fsc::func
         using FunctionByClassIdMap = ccl::Map<FscType, FunctionsByNameMap>;
 
         FunctionByClassIdMap functions;
+        ccl::Map<FscType, FscType> superclassFromSelf;
 
     public:
         FunctionsHolder();
 
         FunctionsHolder(ccl::InitializerList<ccl::Vector<ast::Function>> functions_);
+
+        auto map(FscType base, FscType derived) -> void
+        {
+            superclassFromSelf.emplace(derived, base);
+        }
+
+        [[nodiscard]] auto cleanupType(FscType type) const -> FscType
+        {
+            if (superclassFromSelf.contains(type)) {
+                return superclassFromSelf.at(type);
+            }
+
+            return type;
+        }
 
         auto registerFunction(ccl::SharedPtr<ast::Function> function) -> void;
 
@@ -47,11 +64,7 @@ namespace fsc::func
             }
         }
 
-        [[nodiscard]] auto visitFunction(SignatureView signature, auto &&function) const
-            -> decltype(auto)
-        {
-            return function(findFunction(signature)->get());
-        }
+        auto erase(SignatureView signature) -> void;
 
         [[nodiscard]] auto get(SignatureView signature) const -> ccl::SharedPtr<ast::Function>;
 

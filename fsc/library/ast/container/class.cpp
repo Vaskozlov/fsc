@@ -1,10 +1,10 @@
 #include "ast/container/class.hpp"
 #include "ast/function/function.hpp"
 #include "ast/value/variable_definition.hpp"
+#include "filter.hpp"
 #include "stack/stack.hpp"
 #include "type/type.hpp"
 #include <ccl/raii.hpp>
-#include <ranges>
 
 namespace fsc::ast
 {
@@ -12,28 +12,25 @@ namespace fsc::ast
     using namespace std::string_view_literals;
     namespace sv = std::views;
 
-    static constexpr auto CommaFilter(antlr4::tree::ParseTree *elem)
-    {
-        return elem->getText() != ",";
-    }
-
-    static constexpr auto NewLineFilter(antlr4::tree::ParseTree *elem) -> bool
-    {
-        const auto text = elem->getText();
-        return !text.empty() && text[0] != '\n';
-    }
+    Class::Class(std::string class_name)
+      : name{std::move(class_name)}
+      , fscType{TypeManager::createNewType(name, {.isTriviallyCopyable = false})}
+    {}
 
     Class::Class(
-        std::string class_name, Visitor &visitor, BodyContext *body_context,
-        TemplateContext *template_context)
-      : name{std::move(class_name)}
-    {
-        FscType::registerNewType(name, {.isTriviallyCopyable = false});
-        parseTemplates(template_context);
+        FscType fsc_type, std::string class_name, InitializerList<FscType> class_templates,
+        const ccl::Map<std::string, FscType> &member_variables)
+      : memberVariables{member_variables}
+      , templates{class_templates}
+      , name{std::move(class_name)}
+      , fscType{fsc_type}
+    {}
 
+    auto Class::finishClass(BodyContext *body_context, TemplateContext *template_context) -> void
+    {
         const auto templates_map = ccl::Raii{
-            [this]() {
-                mapTemplates();
+            [this, template_context]() {
+                parseTemplates(template_context);
             },
             [this]() {
                 unmapTemplates();
@@ -45,25 +42,17 @@ namespace fsc::ast
         const auto class_scope = ProgramStack.acquireClassScope(id_for_class_scope);
         const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
 
-        const auto modifiers =
-            sv::drop(1) | views::dropBack(body_children, 2) | sv::filter(NewLineFilter);
+        const auto modifiers = sv::drop(1) | views::dropBack(body_children, 2) | filter::newline;
 
         for (auto *child : body_children | modifiers) {
-            addNode(visitor.visitAsNode(child));
-        }
-    }
-
-    auto Class::mapTemplates() const -> void
-    {
-        for (const auto &template_to_map : templates) {
-            FscType::registerNewType(template_to_map, {}, CreationType::STRONG_TEMPLATE);
+            addNode(GlobalVisitor->visitAsNode(child));
         }
     }
 
     auto Class::unmapTemplates() const -> void
     {
-        for (const auto &template_name : templates) {
-            FscType::weakFreeTemplateType(template_name);
+        for (const auto &class_template : templates) {
+            TypeManager::hideTemplate(class_template.getName());
         }
     }
 
@@ -75,45 +64,63 @@ namespace fsc::ast
 
         const auto &children = template_context->children.at(1)->children;
 
-        for (auto *function_template : children | sv::filter(CommaFilter)) {
-            templates.emplace_back(function_template->getText());
+        for (auto *function_template : children | filter::comma) {
+            templates.emplace_back(TypeManager::createNewType(
+                function_template->getText(), {}, CreationType::TEMPLATE_KEEP_NAME));
         }
+
+        auto type_info = TypeManager::getInfoAboutType(fscType);
+        type_info.templatesParametersCount = templates.size();
+
+        TypeManager::updateTypeInfo(fscType, type_info);
     }
 
-    auto Class::analyze() -> void
+    auto Class::analyze() -> AnalysisReport
     {
         if (templates.empty()) {
-            Body::defaultAnalyze();
+            return Body::analyze();
         }
+
+        return {};
     }
 
-    auto Class::analyzeOnConstruction() const -> void
+    auto Class::analyzeOnConstruction() -> AnalysisReport
     {
-        Body::defaultAnalyze();
+        const auto class_scope = ProgramStack.acquireClassScope(fscType);
+        const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
+        return Body::analyze();
     }
 
     auto Class::codeGen(ccl::codegen::BasicCodeGenerator &output) -> void
     {
+        auto stream_id = fscType.getId() * 2;
+        output << codegen::setStream(stream_id);
+
         generateTemplateParameters(output);
 
         output << "class " << name;
-        Body::defaultCodegen(output);
+        Body::codeGen(output);
         output << ';';
+    }
+
+    auto Class::optimize(OptimizationLevel level) -> void
+    {
+        Body::optimize(level);
     }
 
     auto Class::generateTemplateParameters(codegen::BasicCodeGenerator &output) const -> void
     {
         if (!templates.empty()) {
-            output << "template<typename ";
-            fmt::format_to(output.getBackInserter(), "{}", fmt::join(templates, ", typename "));
-            output << ">\n";
+            fmt::format_to(
+                output.getBackInserter(), "template<typename {}>\n",
+                fmt::join(templates, ", typename "));
         }
     }
 
     auto Class::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}Class: {}\n", getPrintingPrefix(prefix, is_left), name);
-        defaultBodyPrint(expandPrefix(prefix, is_left), false);
+        Body::print(expandPrefix(prefix, is_left), false);
     }
 
     auto Class::addNode(NodePtr node) -> void

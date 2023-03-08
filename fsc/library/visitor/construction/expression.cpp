@@ -1,6 +1,7 @@
 #include "ast/expression/binary_operator.hpp"
 #include "ast/expression/conversion.hpp"
 #include "ast/expression/parenthesized.hpp"
+#include "ast/function/method_call.hpp"
 #include "converters/bool.hpp"
 #include "converters/float.hpp"
 #include "converters/int.hpp"
@@ -17,9 +18,10 @@ namespace fsc
 
     static auto isBinaryOperator(ExpressionContext *ctx) -> bool
     {
-        static constexpr auto binary_expressions = StaticFlatmap<std::string_view, bool, 14>{
-            {"+", true},  {"-", true},  {"*", true},  {"/", true}, {"%", true},
-            {"==", true}, {"!=", true}, {"<", true},  {">", true}, {"<=", true},
+        static constexpr auto binary_expressions = StaticFlatmap<std::string_view, bool, 19>{
+            {"+", true},  {"-", true},  {"*", true},  {"/", true},  {"%", true},
+            {"+=", true}, {"-=", true}, {"*=", true}, {"/=", true}, {"%=", true},
+            {"==", true}, {"!=", true}, {"<", true},  {">", true},  {"<=", true},
             {">=", true}, {"||", true}, {"&&", true}, {"=", true},
         };
 
@@ -43,20 +45,36 @@ namespace fsc
             node = constructConversion(ctx);
         }
 
+        else if (ctx->ANGLE_OPENING() != nullptr) {
+            auto expr = visitAsNode(children.at(0));
+            auto index_expr = visitAsNode(children.at(2));
+
+            node = makeShared<ast::MethodCall>(
+                expr, "__at__",
+                ccl::SmallVector<Argument>{
+                    Argument{"index", index_expr->getValueType(), ArgumentCategory::IN}},
+                expr->getValueType(), ccl::SmallVector<ast::NodePtr>{index_expr},
+                ccl::SmallVector<FscType>{}, ctx);
+        }
+
         else if (ctx->INT() != nullptr) {
-            node = converter::toInt(ctx->getText());
+            node = converter::toInt(ctx->getText(), ctx);
         }
 
         else if (ctx->FLOAT() != nullptr) {
-            node = converter::toFloat(ctx->getText());
+            node = converter::toFloat(ctx->getText(), ctx);
         }
 
         else if (ctx->TRUE() != nullptr) {
-            node = converter::toBoolean(ctx->getText());
+            node = converter::toBoolean(ctx->getText(), ctx);
         }
 
         else if (ctx->STRING() != nullptr) {
-            node = converter::toString(ctx->getText());
+            node = converter::toString(ctx->getText(), ctx);
+        }
+
+        else if (ctx->CHAR() != nullptr) {
+            node = converter::toChar(ctx->getText(), ctx);
         }
 
         else if (children.size() == 3 && children.at(0)->getText() == "("sv) {

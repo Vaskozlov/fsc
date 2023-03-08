@@ -1,0 +1,50 @@
+func bubbleSort<T>(inout T vec)
+{
+    var i = u64()
+    let n = vec.size()
+
+    if n == 0U {
+        return
+    }
+
+    while i < n - 1U
+    {
+        var j = u64()
+
+        while j < n - i - 1U
+        {
+            let next_index = j + 1U
+
+            if vec[j] > vec[next_index] {
+                vec.swap(j, next_index)
+            }
+
+            j += 1U
+        }
+
+        i += 1U
+    }
+}
+
+func sortVector<T>(inout T vec)
+{
+    var vec_copy = vec
+
+    bubbleSort(vec)
+    vec_copy.sort()
+
+    print("Bubble sort:", vec)
+    print("Builtin sort:", vec_copy)
+}
+
+func main() -> i32
+{
+    var vector_of_int = Vector<i32>(10, -10, 0, 20, 100, 200, -175)
+    var vector_of_float = Vector<f32>(10.4145, -10.4151123, 0.4152, 20.4125, 100.40, 100.43, -3143.4)
+
+    sortVector(vector_of_int)
+    sortVector(vector_of_float)
+
+    return 0
+}
+

@@ -1,10 +1,10 @@
 #include "visitor.hpp"
 #include "ast/container/body.hpp"
+#include "function/functions_holder.hpp"
 #include <ccl/handler/cmd_handler.hpp>
 #include <ccl/text/iterator_exception.hpp>
 #include <ccl/text/location.hpp>
 #include <cstdlib>
-#include <ranges>
 #include <type/antlr-types.hpp>
 
 using namespace std::string_view_literals;
@@ -32,7 +32,9 @@ namespace fsc
         ast::SourceLines = inputAsLines;
     }
 
-    auto Visitor::throwError(antlr4::ParserRuleContext *ctx, std::string_view message) -> void
+    auto Visitor::throwError(
+        ccl::ExceptionCriticality exception_criticality, BasicContextPtr ctx,
+        std::string_view message, std::string_view suggestion) -> void
     {
         auto &handler = ccl::handler::Cmd::instance();
         auto location = ccl::text::Location{
@@ -41,118 +43,124 @@ namespace fsc
                       ctx->stop->getText().size();
 
         auto iterator_exception = ccl::text::TextIteratorException{
-            ccl::ExceptionCriticality::PANIC,
+            exception_criticality,
             ccl::AnalysisStage::PARSING,
             location,
             length,
             inputAsLines.at(location.getLine() - 1),
-            message};
+            message,
+            suggestion};
 
         handler.handle(iterator_exception);
-        std::exit(1);
+
+        if (exception_criticality != ccl::ExceptionCriticality::WARNING &&
+            exception_criticality != ccl::ExceptionCriticality::SUGGESTION) {
+            program.print("", true);
+            std::exit(1);
+        }
     }
 
     auto Visitor::visitProgram(FscParser::ProgramContext *ctx) -> std::any
     {
-        try {
-            constructProgram(ctx);
-        } catch (const FscException &e) {
-            throwError(ctx, e.what());
-        }
+        preparerToCatchError(
+            [this, ctx]() {
+                constructProgram(ctx);
+            },
+            ctx);
 
         return {};
     }
 
     auto Visitor::visitStmt(FscParser::StmtContext *const ctx) -> std::any
     {
-        try {
-            return constructStatement(ctx);
-        } catch (const FscException &e) {
-            throwError(ctx, e.what());
-        }
+        return preparerToCatchError(
+            [this, ctx]() {
+                return constructStatement(ctx);
+            },
+            ctx);
     }
 
     auto Visitor::visitWhile_loop(FscParser::While_loopContext *ctx) -> std::any
     {
-        try {
-            return constructWhile(ctx);
-        } catch (const FscException &e) {
-            throwError(ctx, e.what());
-        }
+        return preparerToCatchError(
+            [this, ctx]() {
+                return constructWhile(ctx);
+            },
+            ctx);
     }
 
     auto Visitor::visitExpr(ExpressionContext *ctx) -> std::any
     {
-        try {
-            return constructExpression(ctx);
-        } catch (const FscException &e) {
-            throwError(ctx, e.what());
-        }
+        return preparerToCatchError(
+            [this, ctx]() {
+                return constructExpression(ctx);
+            },
+            ctx);
     }
 
     auto Visitor::visitIf_stmt(FscParser::If_stmtContext *ctx) -> std::any
     {
-        try {
-            return constructIf(ctx);
-        } catch (const FscException &e) {
-            throwError(ctx, e.what());
-        }
+        return preparerToCatchError(
+            [this, ctx]() {
+                return constructIf(ctx);
+            },
+            ctx);
     }
 
     auto Visitor::visitFunction(FunctionContext *ctx) -> std::any
     {
-        try {
-            return constructFunction(ctx);
-        } catch (const FscException &e) {
-            throwError(ctx, e.what());
-        }
+        return preparerToCatchError(
+            [this, ctx]() {
+                return constructFunction(ctx);
+            },
+            ctx);
     }
 
     auto Visitor::visitVariable_definition(FscParser::Variable_definitionContext *const ctx)
         -> std::any
     {
-        try {
-            return visitChildren(ctx);
-        } catch (const FscException &e) {
-            throwError(ctx, e.what());
-        }
+        return preparerToCatchError(
+            [this, ctx]() {
+                return visitChildren(ctx);
+            },
+            ctx);
     }
 
     auto Visitor::visitAuto_variable_definition(
         FscParser::Auto_variable_definitionContext *const ctx) -> std::any
     {
-        try {
-            return visitChildren(ctx);
-        } catch (const FscException &e) {
-            throwError(ctx, e.what());
-        }
+        return preparerToCatchError(
+            [this, ctx]() {
+                return visitChildren(ctx);
+            },
+            ctx);
     }
 
     auto Visitor::visitClass(FscParser::ClassContext *ctx) -> std::any
     {
-        try {
-            return constructClass(ctx);
-        } catch (const FscException &e) {
-            throwError(ctx, e.what());
-        }
+        return preparerToCatchError(
+            [this, ctx]() {
+                return constructClass(ctx);
+            },
+            ctx);
     }
 
     auto Visitor::visitBody(FscParser::BodyContext *const ctx) -> std::any
     {
-        try {
-            return constructBody(ctx);
-        } catch (const FscException &e) {
-            throwError(ctx, e.what());
-        }
+        return preparerToCatchError(
+            [this, ctx]() {
+                return constructBody(ctx);
+            },
+            ctx);
     }
 
     auto Visitor::visitFunction_call(FscParser::Function_callContext *ctx) -> std::any
     {
-        try {
-            return constructFunctionCall(ctx);
-        } catch (const FscException &e) {
-            throwError(ctx, e.what());
-        }
+        return preparerToCatchError(
+            [this, ctx]() {
+                return constructFunctionCall(ctx);
+            },
+            ctx);
     }
 
     auto Visitor::codeGen() -> std::string
@@ -164,6 +172,13 @@ namespace fsc
 
     auto Visitor::analyze() -> void
     {
+        auto main_func = func::Functions.get(SignatureView{"main", {}, Void});
+        main_func->analyzeOnCall({}, {});
         program.analyze();
+    }
+
+    auto Visitor::optimize(ast::OptimizationLevel level) -> void
+    {
+        program.optimize(level);
     }
 }// namespace fsc

@@ -1,6 +1,7 @@
 #include "ast/function/function_call.hpp"
 #include "function/functions_holder.hpp"
-#include <ranges>
+#include "visitor.hpp"
+#include <ccl/join.hpp>
 
 using namespace ccl;
 using namespace std::string_view_literals;
@@ -10,8 +11,9 @@ namespace fsc::ast
     FunctionCall::FunctionCall(
         std::string function_name, const ccl::SmallVector<Argument> &typed_arguments,
         FscType class_id, const SmallVector<NodePtr> &function_arguments,
-        const ccl::SmallVector<FscType> &templates)
-      : arguments{function_arguments}
+        const ccl::SmallVector<FscType> &templates, BasicContextPtr node_context)
+      : NodeWrapper{node_context}
+      , arguments{function_arguments}
       , functionCallTemplates{templates}
       , functionName{std::move(function_name)}
       , typedArguments{typed_arguments}
@@ -20,32 +22,114 @@ namespace fsc::ast
 
     auto FunctionCall::getFunction() const -> ccl::SharedPtr<Function>
     {
-        // TODO: change way how template classes are stored
+        return func::Functions.get(
+            {functionName, typedArguments,
+             TypeManager::getBaseTypeOfInstantiatedTemplate(classId)});
+    }
+
+    auto FunctionCall::generateIndexOperator(ccl::codegen::BasicCodeGenerator &output) -> void
+    {
+        output << argumentToString();
+    }
+
+    auto FunctionCall::generateFunctionName(ccl::codegen::BasicCodeGenerator &output) -> void
+    {
         try {
-            return func::Functions.get({functionName, typedArguments, classId});
-        } catch (const std::exception &) {
-            if (functionCallTemplates.empty()) {
-                throw;
-            }
-
-            auto full_name = fmt::format("{}<", functionName);
-
-            for (auto function_template :
-                 functionCallTemplates | ccl::views::dropBack(functionCallTemplates)) {
-                full_name.append(fmt::format("{}, ", function_template.getName()));
-            }
-
-            full_name.append(functionCallTemplates.back().getName() + ">");
-            return func::Functions.get({full_name, typedArguments, classId});
+            auto function_to_gen = getFunction();
+            const auto &codegen_name = function_to_gen->getCodegenName();
+            output << codegen_name;
+        } catch (const FscException & /* unused */) {
+            // sometimes function can not be found, because it's templates constructor
+            output << functionName;
         }
     }
 
-    auto FunctionCall::defaultPrint(const std::string &prefix, bool is_left) const -> void
+    auto FunctionCall::analyze() -> AnalysisReport
     {
-        const auto expanded_prefix = expandPrefix(prefix, false);
+        return preparerToCatchError(
+            [this]() {
+                return attemptToAnalyze();
+            },
+            *this);
+    }
+
+    auto FunctionCall::attemptToAnalyze() -> AnalysisReport
+    {
+        auto report = AnalysisReport{};
+        auto function_to_call = getFunction();
+        const auto &function_arguments = function_to_call->getArguments();
+
+        for (auto i = 0ZU; i != arguments.size(); ++i) {
+            report.merge(arguments[i]->analyze());
+
+            if (i >= function_arguments.size()) {
+                report.addToRead(arguments[i]);
+                continue;
+            }
+
+            switch (function_arguments[i].getCategory()) {
+            case ArgumentCategory::IN:
+            case ArgumentCategory::COPY:
+                report.addToRead(arguments[i]);
+                break;
+
+            case ArgumentCategory::INOUT:
+            case ArgumentCategory::OUT:
+                report.addToModified(arguments[i]);
+                break;
+
+            default:
+                std::unreachable();
+            }
+        }
+
+        auto [type, function_call_report] =
+            function_to_call->analyzeOnCall(arguments, functionCallTemplates);
+
+        report.merge(std::move(function_call_report));
+
+        return report;
+    }
+
+    auto FunctionCall::getValueType() -> FscType
+    {
+        auto [type, analysis_report] =
+            getFunction()->analyzeOnCall(arguments, functionCallTemplates);
+        returnedType = type;
+        return returnedType;
+    }
+
+    auto FunctionCall::codeGen(codegen::BasicCodeGenerator &output) -> void
+    {
+        generateFunctionName(output);
+
+        if (!functionCallTemplates.empty()) {
+            fmt::format_to(
+                output.getBackInserter(), "<{}>", fmt::join(functionCallTemplates, ", "));
+        }
+
+        const auto is_constructor = TypeManager::exists(functionName);
+        const auto open_bracket = is_constructor ? '{' : '(';
+        const auto close_bracket = is_constructor ? '}' : ')';
+
+        output << open_bracket << argumentToString() << close_bracket;
+    }
+
+    auto FunctionCall::optimize(OptimizationLevel level) -> void
+    {
+        for (auto &argument : arguments) {
+            argument->optimize(level);
+        }
+
+        getFunction()->optimize(level);
+    }
+
+    auto FunctionCall::print(const std::string &prefix, bool is_left) const -> void
+    {
+        const auto expanded_prefix = expandPrefix(prefix, is_left);
         fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), functionName);
 
-        for (const auto &arg : arguments | ccl::views::dropBack(arguments)) {
+        for (const auto &arg : arguments | ccl::views::dropBack(arguments, 1)) {
             arg->print(expanded_prefix, true);
         }
 
@@ -55,50 +139,13 @@ namespace fsc::ast
         }
     }
 
-    auto FunctionCall::defaultCodegen(ccl::codegen::BasicCodeGenerator &output) -> void
+    auto FunctionCall::argumentToString() const -> std::string
     {
-        output << functionName;
-
-        if (!functionCallTemplates.empty()) {
-            output << "<";
-            fmt::format_to(output.getBackInserter(), "{}", fmt::join(functionCallTemplates, ", "));
-            output << ">";
-        }
-
-        output << '(';
-
-        for (const auto &argument : arguments | ccl::views::dropBack(arguments)) {
-            output << *argument << ", ";
-        }
-
-        if (!arguments.empty()) {
-            output << *arguments.back();
-        }
-
-        output << ')';
-    }
-
-    auto FunctionCall::analyze() -> void
-    {
-        auto fn = getFunction();
-        returnedType = fn->analyzeOnCall(arguments);
-    }
-
-    auto FunctionCall::getValueType() -> FscType
-    {
-        auto fn = getFunction();
-        returnedType = fn->analyzeOnCall(arguments);
-
-        return returnedType;
-    }
-
-    auto FunctionCall::codeGen(codegen::BasicCodeGenerator &output) -> void
-    {
-        defaultCodegen(output);
-    }
-
-    auto FunctionCall::print(const std::string &prefix, bool is_left) const -> void
-    {
-        defaultPrint(prefix, is_left);
+        return ccl::join(
+            arguments,
+            [](const SharedPtr<Node> &argument) {
+                return argument->toString();
+            },
+            ", ");
     }
 }// namespace fsc::ast

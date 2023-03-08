@@ -5,7 +5,8 @@
 
 namespace fsc::converter
 {
-    auto toFloat(const std::string &repr) -> ccl::SharedPtr<ast::Value>;
+    auto toFloat(const std::string &repr, BasicContextPtr value_context)
+        -> ccl::SharedPtr<ast::Value>;
 }
 
 #endif /* FSC_FLOAT_HPP */

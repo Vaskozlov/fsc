@@ -1,8 +1,7 @@
 #include "type/type.hpp"
-#include "ast/container/class.hpp"
 #include "ast/value/variable.hpp"
-#include "function/functions_holder.hpp"
 #include "type/builtin_types.hpp"
+#include "type/type_manager.hpp"
 #include <mutex>
 
 namespace fsc
@@ -10,185 +9,73 @@ namespace fsc
     using namespace ccl;
     using namespace std::string_literals;
 
-    static constinit std::atomic<ccl::Id> TypeUuidCreator{0};
-
-    auto FscType::getVariables() -> FscTypeVariables &
+    FscType::FscType(Id type_id) noexcept(false)
+      : typeId{type_id}
     {
-        static auto variables = FscTypeVariables{};
-        return variables;
+        if (!TypeManager::exists(typeId)) [[unlikely]] {
+            throw FscException{"Type not found"};
+        }
     }
 
     FscType::FscType(const std::string &type_name) noexcept(false)
     {
-        if (!exists(type_name)) {
-            throw FscException("Type not found");
-        }
+        *this = TypeManager::createFromName(type_name);
+    }
 
-        typeId = getIdByTypename().at(type_name);
+    auto FscType::operator==(FscType other) const noexcept -> bool
+    {
+        const auto lhs_true_type = TypeManager::getTrueType(*this);
+        const auto rhs_true_type = TypeManager::getTrueType(other);
+
+        return lhs_true_type.getId() == rhs_true_type.getId();
+    }
+
+    auto FscType::operator<=>(FscType other) const noexcept -> std::weak_ordering
+    {
+        const auto lhs_true_type = TypeManager::getTrueType(*this);
+        const auto rhs_true_type = TypeManager::getTrueType(other);
+
+        return lhs_true_type.getId() <=> rhs_true_type.getId();
     }
 
     auto FscType::isTemplate() const noexcept -> bool
     {
-        return getVariables().templateTypes.contains(*this);
+        return TypeManager::isTemplate(*this);
     }
 
-    auto FscType::exists(Id type_id) -> bool
+    auto FscType::isRemapTemplate() const noexcept -> bool
     {
-        return getTypenameById().contains(type_id);
-    }
-
-    auto FscType::exists(const std::string &type_name) -> bool
-    {
-        return getIdByTypename().contains(type_name);
-    }
-
-    auto FscType::ensureTypeExists(const std::string &type_name) -> void
-    {
-        if (exists(type_name)) {
-            return;
-        }
-
-        throw FscException(fmt::format("Type {} not found", type_name));
-    }
-
-    auto FscType::weakFreeTemplateType(const std::string &type_name) -> void
-    {
-        getIdByTypename().erase(type_name);
-    }
-
-    auto FscType::registerNewType(
-        const std::string &name, TypeFlags flags, CreationType creation_type,
-        bool add_to_builtin) noexcept(false) -> Id
-    {
-        static std::mutex type_registration_mutex;
-
-        if (exists(name)) {
-            throw std::invalid_argument(fmt::format("Type {} already registered", name));
-        }
-
-        auto type_id = TypeUuidCreator.fetch_add(1U, std::memory_order_relaxed);
-
-        {
-            auto scope_lock = std::scoped_lock{type_registration_mutex};
-
-            getTypenameById().emplace(type_id, name);
-            getIdByTypename().emplace(name, type_id);
-            getTypeFlags().emplace(type_id, flags);
-
-            if (creation_type != CreationType::DEFAULT) {
-                getTemplatedTypes().emplace(name);
-            }
-
-            if (creation_type == CreationType::WEAK_TEMPLATE) {
-                weakFreeTemplateType(name);
-            }
-        }
-
-        if (add_to_builtin) {
-            addTypeToBuiltinFunctions(FscType{type_id});
-        }
-
-        return type_id;
-    }
-
-    auto FscType::registerFscClass(ast::NodePtr new_fsc_class) -> void
-    {
-        auto fsc_class = new_fsc_class->as<ast::Class>();
-        auto value_type = FscType{fsc_class.getName()};
-
-        getFscClasses().emplace(value_type, std::move(new_fsc_class));
-    }
-
-    auto FscType::addTypeToBuiltinFunctions(FscType type) -> void
-    {
-        auto vector_name = fmt::format("Vector<{}>", type.getName());
-        auto vector_id = FscType{registerNewType(vector_name, {}, CreationType::DEFAULT, false)};
-
-        func::Functions.registerFunction(ast::Function(Void, vector_name, vector_id, {}));
-        func::Functions.registerFunction(
-            ast::Function(vector_id, "at", type, {{"index", UInt32, ArgumentCategory::IN}}));
-        func::Functions.registerFunction(
-            ast::Function(vector_id, "push_back", Void, {{"value", type, ArgumentCategory::IN}}));
+        return TypeManager::isRemapTemplate(*this);
     }
 
     auto FscType::isTriviallyCopyable() const noexcept -> bool
     {
-        return getTypeFlags().at(*this).isTriviallyCopyable;
+        return TypeManager::isTriviallyCopyable(*this);
     }
 
     auto FscType::addMemberVariable(ast::NodePtr variable) const -> void
     {
-        auto type = getTrueType();
-
-        getTypesMemberVariables()[type].emplace(
-            ccl::as<ast::Variable *>(variable.get())->getName(), variable);
+        TypeManager::addMemberVariable(*this, std::move(variable));
     }
 
     auto FscType::hasMemberVariables(const std::string &name) const -> bool
     {
-        auto type = getTrueType();
-
-        return getTypesMemberVariables().contains(type) &&
-               getTypesMemberVariables().at(type).contains(name);
+        return TypeManager::hasMemberVariable(*this, name);
     }
 
     auto FscType::getClass() const noexcept(false) -> ast::NodePtr
     {
-        auto type = getTrueType();
-
-        if (!getFscClasses().contains(type)) {
-            throw std::runtime_error("Bad attempt to get class");
-        }
-
-        return getFscClasses().at(type);
+        return TypeManager::getFscClass(*this);
     }
 
     auto FscType::getName() const -> std::string
     {
-        return getTypenameById().at(typeId);
+        return TypeManager::getTypename(*this);
     }
 
     auto FscType::getMemberVariable(const std::string &name) const -> ast::NodePtr
     {
-        auto type = getTrueType();
-
-        if (name == "this") {
-            return makeShared<ast::Variable>("*this", type, ast::VariableFlags{.reference = true});
-        }
-
-        return getTypesMemberVariables().at(type).at(name);
-    }
-
-    auto FscType::getTrueType() const noexcept -> FscType
-    {
-        auto true_type = *this;
-
-        while (getRemapTypes().contains(true_type)) {
-            true_type = getRemapTypes()[true_type];
-        }
-
-        return true_type;
-    }
-
-    auto FscType::unmap() const noexcept -> void
-    {
-        if (getRemapTypes().contains(*this)) {
-            getRemapTypes().erase(*this);
-            getIdByTypename().erase(getName());
-        }
-    }
-
-    auto FscType::map(FscType target_type) const -> void
-    {
-        const auto already_map = getRemapTypes().contains(*this);
-
-        if (!already_map) {
-            getRemapTypes().emplace(*this, target_type.typeId);
-        } else {
-            throw std::invalid_argument{fmt::format("Type {} already remapped", typeId)};
-        }
-
-        getIdByTypename().emplace(getName(), typeId);
+        return TypeManager::getMemberVariable(*this, name);
     }
 
     auto operator<<(codegen::BasicCodeGenerator &generator, FscTypeInterface &fsc_type)
@@ -208,3 +95,9 @@ namespace fsc
         throw std::logic_error("FscType::codeGen is not implemented for FscType base class");
     }
 }// namespace fsc
+
+
+auto std::hash<fsc::FscType>::operator()(fsc::FscType type) const noexcept -> std::size_t
+{
+    return fsc::TypeManager::hash(type);
+}

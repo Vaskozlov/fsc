@@ -1,7 +1,6 @@
 #include "ast/function/method_call.hpp"
 #include "ast/function/function_call.hpp"
 #include "type/type.hpp"
-#include <cmath>
 
 namespace fsc::ast
 {
@@ -11,14 +10,24 @@ namespace fsc::ast
     MethodCall::MethodCall(
         NodePtr expression_for_call, std::string function_name,
         const ccl::SmallVector<Argument> &typed_arguments, FscType class_id,
-        const SmallVector<NodePtr> &function_arguments, const ccl::SmallVector<FscType> &templates)
-      : NodeWrapper{std::move(function_name), typed_arguments, class_id, function_arguments, templates}
+        const SmallVector<NodePtr> &function_arguments, const ccl::SmallVector<FscType> &templates,
+        BasicContextPtr node_context)
+      : NodeWrapper{std::move(function_name), typed_arguments, class_id,
+                    function_arguments,       templates,       node_context}
       , expression{std::move(expression_for_call)}
     {}
 
-    auto MethodCall::analyze() -> void
+    auto MethodCall::analyze() -> AnalysisReport
     {
-        expression->analyze();
+        auto expression_analysis = expression->analyze();
+        expression_analysis.merge(FunctionCall::analyze());
+        return expression_analysis;
+    }
+
+    auto MethodCall::getValueType() -> FscType
+    {
+        return TypeManager::getInstantiatedTemplate(
+            expression->getValueType(), FunctionCall::getValueType());
     }
 
     auto MethodCall::print(const std::string &prefix, bool is_left) const -> void
@@ -26,12 +35,24 @@ namespace fsc::ast
         fmt::print(
             "{}Method call {}\n", getPrintingPrefix(prefix, is_left),
             expression->getValueType().getName());
-        FunctionCall::defaultPrint(expandPrefix(prefix, false), false);
+        FunctionCall::print(expandPrefix(prefix, is_left), false);
+    }
+
+    auto MethodCall::optimize(OptimizationLevel level) -> void
+    {
+        expression->optimize(level);
+        FunctionCall::optimize(level);
     }
 
     auto MethodCall::codeGen(codegen::BasicCodeGenerator &output) -> void
     {
-        output << *expression << '.';
-        FunctionCall::defaultCodegen(output);
+        if (getFunctionName() == "__at__") {
+            output << *expression << '[';
+            FunctionCall::generateIndexOperator(output);
+            output << ']';
+        } else {
+            output << *expression << '.';
+            FunctionCall::codeGen(output);
+        }
     }
 };// namespace fsc::ast

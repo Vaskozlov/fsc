@@ -7,8 +7,8 @@ namespace fsc
 {
     auto Visitor::constructFunction(FunctionContext *ctx) -> ast::NodePtr
     {
-        auto function = ccl::makeShared<ast::Function>();
-        function->finishConstruction(ctx, *this, ProgramStack.getCurrentClassScope());
+        auto function = ccl::makeShared<ast::Function>(ctx);
+        function->finishConstruction(ctx, ProgramStack.getCurrentClassScope());
         return function;
     }
 }// namespace fsc

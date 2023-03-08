@@ -1,8 +1,7 @@
 #ifndef FSC_PARENTHESIZED_HPP
 #define FSC_PARENTHESIZED_HPP
 
-#include "ast/basic_node.hpp"
-#include <ccl/codegen/basic_codegen.hpp>
+#include "ast/analysis_report.hpp"
 
 namespace fsc::ast
 {
@@ -15,7 +14,7 @@ namespace fsc::ast
 
         [[nodiscard]] auto getValueType() -> FscType final;
 
-        auto analyze() -> void final;
+        auto analyze() -> AnalysisReport final;
 
         auto optimize(OptimizationLevel optimization) -> void final;
 

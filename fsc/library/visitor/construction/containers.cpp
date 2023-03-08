@@ -39,9 +39,10 @@ namespace fsc
         auto scope = ProgramStack.acquireStackScope(ScopeType::HARD);
         auto *body_context = as<BodyContext *>(children.back());
 
-        auto constructed_class =
-            makeShared<ast::Class>(std::move(name), *this, body_context, templates);
-        FscType::registerFscClass(constructed_class);
+        auto constructed_class = makeShared<ast::Class>(std::move(name));
+        TypeManager::addFscClass(constructed_class);
+
+        constructed_class->finishClass(body_context, templates);
 
         return constructed_class;
     }

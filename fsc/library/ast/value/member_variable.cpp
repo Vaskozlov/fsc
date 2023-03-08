@@ -1,4 +1,5 @@
 #include "ast/value/member_variable.hpp"
+#include "ast/value/variable.hpp"
 #include "type/type.hpp"
 #include <ccl/ccl.hpp>
 
@@ -17,19 +18,24 @@ namespace fsc::ast
         output << *node << '.' << name;
     }
 
-    auto MemberVariable::analyze() -> void
+    auto MemberVariable::optimize(OptimizationLevel level) -> void
+    {
+        node->optimize(level);
+    }
+
+    auto MemberVariable::analyze() -> AnalysisReport
     {
         if (!canAccessMember()) {
             throw std::runtime_error{"unable to construct member access"};
         }
 
-        node->analyze();
+        return node->analyze();
     }
 
     auto MemberVariable::print(const std::string &prefix, bool is_left) const -> void
     {
         node->print(prefix, is_left);
-        fmt::print("{}.{}\n", expandPrefix(prefix, is_left), name);
+        fmt::print("{}Member variable: {}\n", expandPrefix(prefix, is_left), name);
     }
 
     auto MemberVariable::getValueType() -> FscType

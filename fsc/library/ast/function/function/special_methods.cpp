@@ -1,7 +1,7 @@
 #include "ast/function/function.hpp"
 #include "ast/function/magic_methods_table.hpp"
-#include <type/builtin_types.hpp>
-#include <type/type.hpp>
+#include "type/builtin_types.hpp"
+#include "type/type.hpp"
 
 using namespace fsc::ast::magic;
 
@@ -11,35 +11,36 @@ namespace fsc::ast
     {
         if (classType != Void) {
             if (name == "__init__") {
-                processInitMethod();
+                handleInit();
             } else if (name == "__del__") {
-                processDelMethod();
+                handleDestructor();
             } else if (SpecialFunctionsMagic.contains(name)) {
-                processBinaryOperatorMethod(SpecialFunctionsMagic[name]);
+                handleBinaryExpression(SpecialFunctionsMagic[name]);
             }
         }
     }
 
-    auto Function::processInitMethod() noexcept(false) -> void
+    auto Function::handleInit() noexcept(false) -> void
     {
         magicType = MagicFunctionType::INIT;
+        functionInfo.CONSTANT_METHOD = false;
         name = classType.getName();
 
         if (getReturnType() != Auto) {
-            throw std::runtime_error("You are not allowed to set return type of __init__ method");
+            throw FscException{"you are not allowed to set return type of __init__ method"};
         }
 
         returnType = classType;
     }
 
-    auto Function::processDelMethod() noexcept(false) -> void
+    auto Function::handleDestructor() noexcept(false) -> void
     {
         magicType = MagicFunctionType::DEL;
+        functionInfo.CONSTANT_METHOD = false;
         name = fmt::format("~{}", classType.getName());
 
         if (!arguments.empty()) {
-            throw std::runtime_error(
-                "You are not allowed to set pass any arguments to __del__ method");
+            throw FscException{"You are not allowed to set pass any arguments to __del__ method"};
         }
 
         if (getReturnType() != Auto) {
@@ -49,8 +50,7 @@ namespace fsc::ast
         returnType = Void;
     }
 
-    auto Function::processBinaryOperatorMethod(MagicFunctionType binary_operator) noexcept(false)
-        -> void
+    auto Function::handleBinaryExpression(MagicFunctionType binary_operator) noexcept(false) -> void
     {
         magicType = binary_operator;
         name = MagicToFscName.at(binary_operator);

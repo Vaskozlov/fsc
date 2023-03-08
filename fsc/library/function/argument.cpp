@@ -30,10 +30,10 @@ namespace fsc
         const auto variable_flags =
             VariableFlags{.constant = should_be_constant, .reference = should_be_reference};
 
-        return {name, type, variable_flags};
+        return {nullptr, name, type, variable_flags};
     }
 
-    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, Argument &argument)
+    auto operator<<(ccl::codegen::BasicCodeGenerator &generator, const Argument &argument)
         -> ccl::codegen::BasicCodeGenerator &
     {
         const auto category = argument.getCategory();
@@ -42,7 +42,7 @@ namespace fsc
         const auto type = argument.getType();
         const auto is_trivially_copiable = type.isTriviallyCopyable();
 
-        if (category == ArgumentCategory::IN || category == ArgumentCategory::INOUT) {
+        if (category == ArgumentCategory::IN) {
             generator << "const ";
         }
 

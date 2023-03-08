@@ -1,4 +1,6 @@
 #include "ast/statement/while.hpp"
+#include "type/builtin_types.hpp"
+#include "visitor.hpp"
 
 namespace fsc::ast
 {
@@ -7,10 +9,17 @@ namespace fsc::ast
       , body{std::move(while_body)}
     {}
 
-    auto While::analyze() -> void
+    auto While::analyze() -> AnalysisReport
     {
-        condition->analyze();
-        body->analyze();
+        if (condition->getValueType() != Bool) {
+            GlobalVisitor->throwError(
+                ccl::ExceptionCriticality::PANIC, condition->getContext().value(),
+                "While loop condition must be a boolean!");
+        }
+
+        auto condition_analysis = condition->analyze();
+        condition_analysis.merge(body->analyze());
+        return condition_analysis;
     }
 
     auto While::codeGen(ccl::codegen::BasicCodeGenerator &output) -> void
@@ -26,6 +35,12 @@ namespace fsc::ast
         }
 
         output << endl << *body;
+    }
+
+    auto While::optimize(OptimizationLevel level) -> void
+    {
+        condition->optimize(level);
+        body->optimize(level);
     }
 
     auto While::print(const std::string &prefix, bool is_left) const -> void

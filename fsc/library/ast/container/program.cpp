@@ -1,5 +1,4 @@
 #include "ast/container/program.hpp"
-#include <ast/basic_node.hpp>
 #include <ranges>
 
 namespace fsc::ast
@@ -22,6 +21,6 @@ namespace fsc::ast
     auto Program::print(const std::string &prefix, bool is_left) const -> void
     {
         fmt::print("{}Program\n", getPrintingPrefix(prefix, is_left));
-        defaultBodyPrint(expandPrefix(prefix, is_left), false);
+        Body::print(expandPrefix(prefix, is_left), false);
     }
 }// namespace fsc::ast
