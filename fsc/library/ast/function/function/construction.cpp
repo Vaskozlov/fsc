@@ -1,18 +1,12 @@
 #include "ast/function/function.hpp"
+#include "filter.hpp"
 #include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
-#include <type/type.hpp>
-#include <utility>
 
 namespace fsc::ast
 {
     using namespace ccl;
     namespace sv = std::views;
-
-    static constexpr auto commaFilter(antlr4::tree::ParseTree *elem)
-    {
-        return elem->getText() != ",";
-    }
 
     Function::Function(BasicContextPtr node_context)
       : NodeWrapper{node_context}
@@ -113,7 +107,7 @@ namespace fsc::ast
         for (auto *child : children | drop_first_and_last) {
             auto *casted_child = ccl::as<FscParser::Typed_arguments_listContext *>(child);
 
-            for (auto *arg : casted_child->children | sv::filter(commaFilter)) {
+            for (auto *arg : casted_child->children | filter::comma) {
                 auto *argument_context = ccl::as<FscParser::ArgumentContext *>(arg);
                 auto argument = processArgument(argument_context);
                 arguments.push_back(std::move(argument));
@@ -145,7 +139,7 @@ namespace fsc::ast
 
         const auto &children = ctx->children.at(1)->children;
 
-        for (auto *function_template : children | sv::filter(commaFilter)) {
+        for (auto *function_template : children | filter::comma) {
             templates.emplace_back(TypeManager::createNewType(
                 function_template->getText(), {}, CreationType::TEMPLATE_KEEP_NAME));
         }
