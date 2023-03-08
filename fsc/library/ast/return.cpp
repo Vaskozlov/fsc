@@ -1,7 +1,9 @@
 #include "ast/return.hpp"
+#include "ast/function/function.hpp"
 #include "ast/value/value.hpp"
-#include "type/builtin_types.hpp"
+#include "stack/stack.hpp"
 #include "type/builtin_types_impl.hpp"
+#include "visitor.hpp"
 #include <fmt/format.h>
 #include <stdexcept>
 
@@ -19,6 +21,11 @@ namespace fsc::ast
         if (value == nullptr) {
             return {};
         }
+
+        auto current_function =
+            std::dynamic_pointer_cast<ast::Function>(ProgramStack.getCurrentFunctionOnAnalysis());
+
+        current_function->updateReturnType(value->getValueType());
 
         return value->analyze();
     }

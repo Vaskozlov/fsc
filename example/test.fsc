@@ -2,7 +2,7 @@ class S<T>
 {
     public var x : T = 0 as T
 
-    public func test() -> T
+    public func test()
     {
         return x
     }
@@ -27,7 +27,7 @@ func any<T2>(inout T2 a)
     print("{}\n", a.test())
 }
 
-func main() -> i32
+func main()
 {
     var t = S<i32>(10)
     var k = S<f32>(15.34)

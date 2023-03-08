@@ -9,7 +9,7 @@ namespace fsc::ast
     using namespace ccl;
     namespace sv = std::views;
 
-    static constexpr auto CommaFilter(antlr4::tree::ParseTree *elem)
+    static constexpr auto commaFilter(antlr4::tree::ParseTree *elem)
     {
         return elem->getText() != ",";
     }
@@ -47,6 +47,7 @@ namespace fsc::ast
         name = function_name->getText();
         functionInfo.IS_METHOD = classType != Void;
         functionInfo.CONSTANT_METHOD = functionInfo.IS_METHOD;
+        functionInfo.STATIC_METHOD = functionInfo.IS_METHOD;
 
         processAttributes(function_attributes);
 
@@ -66,7 +67,13 @@ namespace fsc::ast
         processMagicMethod();
         func::Functions.registerFunction(shared_from_this());
 
-        if (templates.empty()) {
+        if (classType != Void) {
+            if (!templates.empty()) {
+                GlobalVisitor->throwError(
+                    ExceptionCriticality::PANIC, getContext().value(),
+                    "methods are not allowed to have templates in current implementation");
+            }
+
             completeBody();
         }
     }
@@ -106,7 +113,7 @@ namespace fsc::ast
         for (auto *child : children | drop_first_and_last) {
             auto *casted_child = ccl::as<FscParser::Typed_arguments_listContext *>(child);
 
-            for (auto *arg : casted_child->children | sv::filter(CommaFilter)) {
+            for (auto *arg : casted_child->children | sv::filter(commaFilter)) {
                 auto *argument_context = ccl::as<FscParser::ArgumentContext *>(arg);
                 auto argument = processArgument(argument_context);
                 arguments.push_back(std::move(argument));
@@ -138,7 +145,7 @@ namespace fsc::ast
 
         const auto &children = ctx->children.at(1)->children;
 
-        for (auto *function_template : children | sv::filter(CommaFilter)) {
+        for (auto *function_template : children | sv::filter(commaFilter)) {
             templates.emplace_back(TypeManager::createNewType(
                 function_template->getText(), {}, CreationType::TEMPLATE_KEEP_NAME));
         }

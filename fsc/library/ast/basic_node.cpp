@@ -17,7 +17,7 @@ namespace fsc::ast
         auto result = std::string{};
         result.reserve(str.size() * repeat);
 
-        for (size_t i = 0; i != repeat; ++i) {
+        for (auto i = 0ZU; i != repeat; ++i) {
             result.append(str);
         }
 

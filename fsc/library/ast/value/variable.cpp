@@ -18,7 +18,9 @@ namespace fsc::ast
 
     auto Variable::analyze() -> AnalysisReport
     {
-        return {};
+        auto report = AnalysisReport{};
+        report.addToRead(shared_from_this());
+        return report;
     }
 
     auto Variable::codeGen(codegen::BasicCodeGenerator &output) -> void

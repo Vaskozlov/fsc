@@ -17,7 +17,9 @@ namespace fsc::ast
         bool compileTimeAvailable{false};
     };
 
-    class Variable : public NodeWrapper<NodeType::VARIABLE, SemicolonNeed::NEED>
+    class Variable
+      : public NodeWrapper<NodeType::VARIABLE, SemicolonNeed::NEED>
+      , public std::enable_shared_from_this<Variable>
     {
     private:
         static inline constinit std::atomic<ccl::Id> variableUuid{0};
@@ -28,8 +30,9 @@ namespace fsc::ast
         ccl::Id uuid{variableUuid++};
 
     public:
-        Variable(BasicContextPtr ctx,
-            std::string variable_name, ccl::Lazy<FscType> &&fsc_type, VariableFlags variable_flags);
+        Variable(
+            BasicContextPtr ctx, std::string variable_name, ccl::Lazy<FscType> &&fsc_type,
+            VariableFlags variable_flags);
 
         auto analyze() -> AnalysisReport override;
 

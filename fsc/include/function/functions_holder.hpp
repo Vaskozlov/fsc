@@ -15,6 +15,8 @@ namespace fsc::func
         NO_FUNCTIONS_WITH_THE_SAME_PARAMETERS
     };
 
+    inline constinit bool ReinitializeOnCompilation = false;
+
     class FunctionsHolder
     {
     private:
@@ -62,11 +64,7 @@ namespace fsc::func
             }
         }
 
-        [[nodiscard]] auto visitFunction(SignatureView signature, auto &&function) const
-            -> decltype(auto)
-        {
-            return function(findFunction(signature)->get());
-        }
+        auto erase(SignatureView signature) -> void;
 
         [[nodiscard]] auto get(SignatureView signature) const -> ccl::SharedPtr<ast::Function>;
 

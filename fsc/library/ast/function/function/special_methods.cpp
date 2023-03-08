@@ -27,7 +27,7 @@ namespace fsc::ast
         name = classType.getName();
 
         if (getReturnType() != Auto) {
-            throw FscException{"You are not allowed to set return type of __init__ method"};
+            throw FscException{"you are not allowed to set return type of __init__ method"};
         }
 
         returnType = classType;

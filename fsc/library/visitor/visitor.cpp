@@ -1,10 +1,10 @@
 #include "visitor.hpp"
 #include "ast/container/body.hpp"
+#include "function/functions_holder.hpp"
 #include <ccl/handler/cmd_handler.hpp>
 #include <ccl/text/iterator_exception.hpp>
 #include <ccl/text/location.hpp>
 #include <cstdlib>
-#include <ranges>
 #include <type/antlr-types.hpp>
 
 using namespace std::string_view_literals;
@@ -34,7 +34,7 @@ namespace fsc
 
     auto Visitor::throwError(
         ccl::ExceptionCriticality exception_criticality, BasicContextPtr ctx,
-        std::string_view message) -> void
+        std::string_view message, std::string_view suggestion) -> void
     {
         auto &handler = ccl::handler::Cmd::instance();
         auto location = ccl::text::Location{
@@ -48,7 +48,8 @@ namespace fsc
             location,
             length,
             inputAsLines.at(location.getLine() - 1),
-            message};
+            message,
+            suggestion};
 
         handler.handle(iterator_exception);
 
@@ -171,6 +172,8 @@ namespace fsc
 
     auto Visitor::analyze() -> void
     {
+        auto main_func = func::Functions.get(SignatureView{"main", {}, Void});
+        main_func->analyzeOnCall({}, {});
         program.analyze();
     }
 

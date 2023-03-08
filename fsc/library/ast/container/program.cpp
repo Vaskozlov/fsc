@@ -1,5 +1,4 @@
 #include "ast/container/program.hpp"
-#include <ast/basic_node.hpp>
 #include <ranges>
 
 namespace fsc::ast

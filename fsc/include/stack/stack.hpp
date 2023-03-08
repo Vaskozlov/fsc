@@ -56,6 +56,7 @@ namespace fsc
         ccl::SmallVector<FscType> classScopes;
         ccl::Set<ccl::Id> functionsScopes;
         std::deque<Scope> scopes;
+        ccl::Vector<ast::NodePtr> functionOnAnalysis;
 
     public:
         [[nodiscard]] auto acquireStackScope(ScopeType scope_type) -> auto
@@ -84,15 +85,22 @@ namespace fsc
                 }};
         }
 
-        [[nodiscard]] auto acquireAnalysisScope(ccl::Id function_id) -> auto
+        [[nodiscard]] auto acquireAnalysisScope(ccl::Id function_id, ast::NodePtr function) -> auto
         {
             return ccl::Raii{
-                [this, function_id]() {
+                [this, function_id, function]() {
                     functionsScopes.emplace(function_id);
+                    functionOnAnalysis.emplace_back(function);
                 },
                 [this, function_id]() {
                     functionsScopes.erase(function_id);
+                    functionOnAnalysis.pop_back();
                 }};
+        }
+
+        [[nodiscard]] auto getCurrentFunctionOnAnalysis() const -> ast::NodePtr
+        {
+            return functionOnAnalysis.back();
         }
 
         [[nodiscard]] auto hasFunctionInCallTree(ccl::Id function_id) const -> bool

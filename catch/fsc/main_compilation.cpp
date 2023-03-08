@@ -6,7 +6,6 @@ using namespace std::literals;
 DEBUG_VAR constexpr static FscProgram = R"(
 func main() -> i32
 {
-
     return 0
 }
 )"sv;

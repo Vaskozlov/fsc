@@ -1,12 +1,10 @@
 #include "stack/stack.hpp"
 #include "ast/value/variable.hpp"
 #include <ccl/ccl.hpp>
-#include <ranges>
 
 namespace fsc
 {
     using namespace ccl;
-    namespace sv = std::views;
 
     Stack::ScopeStorage Stack::globalStorage{};// NOLINT
 

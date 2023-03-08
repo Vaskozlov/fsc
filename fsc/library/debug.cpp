@@ -1,5 +1,6 @@
 #include "debug/debug.hpp"
 #include "compiler.hpp"
+#include "function/functions_holder.hpp"
 #include "io.hpp"
 #include <ccl/future.hpp>
 #include <ccl/raii.hpp>
@@ -68,6 +69,9 @@ namespace fsc
 
     auto compareProgramsOutput(std::string_view fsc_program, std::string_view cpp_program) -> bool
     {
+        func::ReinitializeOnCompilation = true;
+        auto function_holder_save = func::Functions;
+
         auto fsc_result = ccl::async([fsc_program]() {
             return compileFscProgram(fsc_program);
         });
@@ -76,6 +80,10 @@ namespace fsc
             return compileCppProgram(cpp_program);
         });
 
-        return fsc_result.get() == cpp_result.get();
+        auto result = fsc_result.get() == cpp_result.get();
+
+        func::Functions = function_holder_save;
+
+        return result;
     }
 }// namespace fsc

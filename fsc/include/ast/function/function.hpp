@@ -44,6 +44,7 @@ namespace fsc::ast
         bool NOEXCEPT = true;
         bool IS_METHOD = false;
         bool CONSTANT_METHOD = false;
+        bool STATIC_METHOD = false;
         bool BUILTIN_FUNCTION = false;
         bool HAVE_PARAMETER_PACK = false;
         bool NODISCARD = true;
@@ -134,20 +135,12 @@ namespace fsc::ast
 
         [[nodiscard]] auto getReturnType() const -> FscType;
 
-        [[nodiscard]] auto getVisibility() const noexcept -> Visibility
-        {
-            return functionInfo.VISIBILITY;
-        }
-
-        [[nodiscard]] auto getBody() const noexcept -> NodePtr
-        {
-            return functionBody;
-        }
-
         auto analyzeOnCall(
             const ccl::SmallVector<NodePtr> &function_arguments,
             const ccl::SmallVector<FscType> &on_call_templates)
             -> std::pair<FscType, AnalysisReport>;
+
+        auto updateReturnType(FscType new_return_type) -> void;
 
     private:
         auto constructAnalysisReport() -> AnalysisReport;
@@ -172,12 +165,15 @@ namespace fsc::ast
 
         auto getReportOfUserDefinedFunction() -> AnalysisReport;
 
-        auto modifyBuiltinFunctionReport(AnalysisReport &report) -> void;
+        auto modifyBuiltinFunctionReport(AnalysisReport &report) const noexcept -> void;
 
         virtual auto deduceReturnType(const ccl::SmallVector<std::string> &remap_types_names) const
             -> FscType;
 
         auto generateTemplateParameters(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto generateFunctionDefinition(
+            ccl::codegen::BasicCodeGenerator &output, ccl::Id stream_id,
+            bool include_default_arguments) const -> void;
 
         auto processMagicMethod() -> void;
 
@@ -189,8 +185,8 @@ namespace fsc::ast
 
         auto processTemplates(FscParser::Function_templatesContext *ctx) -> void;
 
-        auto argumentsToString() const -> std::string;
-        auto argumentToString(const Argument &arg) const -> std::string;
+        auto argumentsToString(bool include_default) const -> std::string;
+        auto argumentToString(const Argument &arg, bool include_default) const -> std::string;
 
         auto readArguments(const FscParser::ParametersContext *parameters_context) -> void;
 
@@ -205,6 +201,7 @@ namespace fsc::ast
         auto addVisibility(ccl::codegen::BasicCodeGenerator &output) const -> void;
         auto addNodiscardModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
         auto addConstexprModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
+        auto addStaticModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
         auto addConstModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
         auto addNoexceptModifier(ccl::codegen::BasicCodeGenerator &output) const -> void;
     };

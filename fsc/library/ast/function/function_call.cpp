@@ -2,7 +2,6 @@
 #include "function/functions_holder.hpp"
 #include "visitor.hpp"
 #include <ccl/join.hpp>
-#include <ranges>
 
 using namespace ccl;
 using namespace std::string_view_literals;

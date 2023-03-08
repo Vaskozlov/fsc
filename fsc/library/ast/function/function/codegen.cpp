@@ -40,9 +40,16 @@ namespace fsc::ast
         }
     }
 
+    auto Function::addStaticModifier(ccl::codegen::BasicCodeGenerator &output) const -> void
+    {
+        if (functionInfo.IS_METHOD && functionInfo.STATIC_METHOD) {
+            output << "static ";
+        }
+    }
+
     auto Function::addConstModifier(ccl::codegen::BasicCodeGenerator &output) const -> void
     {
-        if (functionInfo.IS_METHOD && functionInfo.CONSTANT_METHOD) {
+        if (functionInfo.IS_METHOD && functionInfo.CONSTANT_METHOD && !functionInfo.STATIC_METHOD) {
             output << "const ";
         }
     }
@@ -54,12 +61,12 @@ namespace fsc::ast
         }
     }
 
-    auto Function::argumentsToString() const -> std::string
+    auto Function::argumentsToString(bool include_default) const -> std::string
     {
         return ccl::join(
             arguments,
-            [this](const Argument &argument) {
-                return argumentToString(argument);
+            [this, include_default](const Argument &argument) {
+                return argumentToString(argument, include_default);
             },
             ", ");
     }
@@ -73,8 +80,12 @@ namespace fsc::ast
         }
     }
 
-    auto Function::codeGen(codegen::BasicCodeGenerator &output) -> void
+    auto Function::generateFunctionDefinition(
+        ccl::codegen::BasicCodeGenerator &output, Id stream_id,
+        bool include_default_arguments) const -> void
     {
+        output << ccl::codegen::setStream(stream_id);
+
         if (isMember()) {
             genVisibility(functionInfo.VISIBILITY, output);
         }
@@ -87,6 +98,7 @@ namespace fsc::ast
         } else {
             addNodiscardModifier(output);
             addConstexprModifier(output);
+            addStaticModifier(output);
             addVisibility(output);
 
             if (magicType != MagicFunctionType::NONE) {
@@ -96,10 +108,24 @@ namespace fsc::ast
             }
         }
 
-        output << '(' << argumentsToString() << ") ";
+        output << '(' << argumentsToString(include_default_arguments) << ") ";
 
         addConstModifier(output);
         addNoexceptModifier(output);
+    }
+
+    auto Function::codeGen(codegen::BasicCodeGenerator &output) -> void
+    {
+        if (classType == Void) {
+            generateFunctionDefinition(output, classType.getId() * 2, true);
+
+            output << ';' << codegen::endl << codegen::endl;
+        }
+
+        auto stream_id =
+            classType == Void ? std::numeric_limits<u32>::max() : classType.getId() * 2 + 1;
+
+        generateFunctionDefinition(output, stream_id, false);
 
         if (functionBody != nullptr) {
             output << *functionBody.get();
@@ -120,7 +146,7 @@ namespace fsc::ast
             return;
         }
 
-        const auto function_scope = ProgramStack.acquireAnalysisScope(uuid);
+        const auto function_scope = ProgramStack.acquireAnalysisScope(uuid, shared_from_this());
 
         if (functionBody != nullptr) {
             functionBody->optimize(level);

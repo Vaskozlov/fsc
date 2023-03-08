@@ -37,11 +37,15 @@ namespace fsc::ast
                 ccl::as<const VariableDefinition *>(variable_definition_node.get());
 
             if (!report.hasBeenModified(variable_definition) &&
-                !variable_definition->isConstant()) {
+                !variable_definition->isConstant() &&
+                (!variable_definition->isMemberOfClass() ||
+                 (variable_definition->isMemberOfClass() &&
+                  variable_definition->getVisibility() == Visibility::PRIVATE))) {
                 GlobalVisitor->throwError(
                     ccl::ExceptionCriticality::SUGGESTION,
                     variable_definition->getContext().value(),
-                    fmt::format("variable `{}` can be constant", variable_definition->getName()));
+                    fmt::format("variable `{}` is never modified", variable_definition->getName()),
+                    "consider making it constant");
             }
         }
     }

@@ -53,13 +53,13 @@ namespace fsc::ast
         }
     }
 
-    auto Function::argumentToString(const Argument &arg) const -> std::string
+    auto Function::argumentToString(const Argument &arg, bool include_default) const -> std::string
     {
         auto tmp_codegen = codegen::BasicCodeGenerator{};
         const auto &argument_name = arg.getName();
         tmp_codegen << arg;
 
-        if (defaultArguments.contains(argument_name)) {
+        if (include_default && defaultArguments.contains(argument_name)) {
             tmp_codegen << " = " << *defaultArguments.at(argument_name);
         }
 

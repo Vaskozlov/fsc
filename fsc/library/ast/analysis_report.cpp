@@ -49,7 +49,7 @@ namespace fsc::ast
 
     auto AnalysisReport::addToRead(const NodePtr &node) -> void
     {
-        const auto *variable = dynamic_cast<Variable *>(node.get());
+        const auto variable = std::dynamic_pointer_cast<Variable>(node);
 
         if (variable == nullptr) {
             return;
@@ -62,7 +62,7 @@ namespace fsc::ast
 
     auto AnalysisReport::addToModified(const NodePtr &node) -> void
     {
-        const auto *variable = dynamic_cast<Variable *>(node.get());
+        const auto variable = std::dynamic_pointer_cast<Variable>(node);
 
         if (variable == nullptr) {
             return;
@@ -72,7 +72,6 @@ namespace fsc::ast
 
         header->modifiedVariables.emplace(variable->getUuid());
     }
-
 
     auto AnalysisReport::merge(AnalysisReport &&other) -> void
     {

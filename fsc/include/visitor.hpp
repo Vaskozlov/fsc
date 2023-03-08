@@ -60,7 +60,7 @@ namespace fsc
 
         auto throwError(
             ccl::ExceptionCriticality exception_criticality, BasicContextPtr ctx,
-            std::string_view message) -> void;
+            std::string_view message, std::string_view suggestion = {}) -> void;
 
     private:
         CCL_PERFECT_FORWARDING(T, std::any)

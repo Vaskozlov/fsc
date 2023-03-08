@@ -22,7 +22,7 @@ func ownSqrt(in f64 x)
     }
 }
 
-func main() -> i32
+func main()
 {
     print(sqrt(2 as f64), ownSqrt(2 as f64))
     return 0

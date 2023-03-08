@@ -1,7 +1,6 @@
-#include "function/argument.hpp"
-
 #include "ast/container/class.hpp"
 #include "ast/function/magic_methods_table.hpp"
+#include "function/argument.hpp"
 #include "function/functions_holder.hpp"
 #include "type/builtin_types.hpp"
 #include "type/type.hpp"
@@ -202,17 +201,19 @@ namespace fsc
         static auto initialized = false;
         static auto initialization_lock = std::mutex();
 
-        if (initialized) {
+        if (initialized && !func::ReinitializeOnCompilation) {
             return;
         }
 
         auto lock = std::scoped_lock{initialization_lock};
 
-        if (initialized) {
+        if (initialized && !func::ReinitializeOnCompilation) {
             return;
         }
 
-        initializeTypes();
+        if (!initialized) {
+            initializeTypes();
+        }
 
         auto i32_operators =
             constructAllBuiltinOperators(Int32, {Int32, UInt32, UInt64, Int64, Float32, Float64});

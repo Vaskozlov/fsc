@@ -1,27 +1,16 @@
 #include "ast/container/class.hpp"
 #include "ast/function/function.hpp"
 #include "ast/value/variable_definition.hpp"
+#include "filter.hpp"
 #include "stack/stack.hpp"
 #include "type/type.hpp"
 #include <ccl/raii.hpp>
-#include <ranges>
 
 namespace fsc::ast
 {
     using namespace ccl;
     using namespace std::string_view_literals;
     namespace sv = std::views;
-
-    static constexpr auto CommaFilter(antlr4::tree::ParseTree *elem)
-    {
-        return elem->getText() != ",";
-    }
-
-    static constexpr auto NewLineFilter(antlr4::tree::ParseTree *elem) -> bool
-    {
-        const auto text = elem->getText();
-        return !text.empty() && text[0] != '\n';
-    }
 
     Class::Class(std::string class_name)
       : name{std::move(class_name)}
@@ -53,8 +42,7 @@ namespace fsc::ast
         const auto class_scope = ProgramStack.acquireClassScope(id_for_class_scope);
         const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
 
-        const auto modifiers =
-            sv::drop(1) | views::dropBack(body_children, 2) | sv::filter(NewLineFilter);
+        const auto modifiers = sv::drop(1) | views::dropBack(body_children, 2) | filter::newline;
 
         for (auto *child : body_children | modifiers) {
             addNode(GlobalVisitor->visitAsNode(child));
@@ -76,7 +64,7 @@ namespace fsc::ast
 
         const auto &children = template_context->children.at(1)->children;
 
-        for (auto *function_template : children | sv::filter(CommaFilter)) {
+        for (auto *function_template : children | filter::comma) {
             templates.emplace_back(TypeManager::createNewType(
                 function_template->getText(), {}, CreationType::TEMPLATE_KEEP_NAME));
         }
@@ -105,6 +93,9 @@ namespace fsc::ast
 
     auto Class::codeGen(ccl::codegen::BasicCodeGenerator &output) -> void
     {
+        auto stream_id = fscType.getId() * 2;
+        output << codegen::setStream(stream_id);
+
         generateTemplateParameters(output);
 
         output << "class " << name;

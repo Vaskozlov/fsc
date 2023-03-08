@@ -1,20 +1,12 @@
 #include "ast/function/function_call.hpp"
 #include "ast/function/method_call.hpp"
 #include "ast/value/variable.hpp"
+#include "filter.hpp"
 #include "FscParser.h"
 #include "visitor.hpp"
 
 using namespace ccl;
 namespace sv = std::views;
-
-namespace
-{
-    auto CommaFilter(antlr4::tree::ParseTree *elem) -> bool
-    {
-        const auto text = elem->getText();
-        return !text.empty() && text[0] != ',';
-    }
-}// namespace
 
 auto fsc::Visitor::parseFunction(FunctionCallContext *ctx) -> std::
     tuple<std::string, SmallVector<FscType>, SmallVector<Argument>, SmallVector<ast::NodePtr>>
@@ -30,7 +22,7 @@ auto fsc::Visitor::parseFunction(FunctionCallContext *ctx) -> std::
     if (!template_context->children.empty()) {
         const auto &templates_children = template_context->children.at(1)->children;
 
-        for (auto *function_template : templates_children | sv::filter(CommaFilter)) {
+        for (auto *function_template : templates_children | filter::comma) {
             templates.emplace_back(function_template->getText());
         }
     }
@@ -73,7 +65,7 @@ auto fsc::Visitor::processFunctionArguments(FunctionParameterContext *ctx)
     auto &[arguments, nodes] = result;
 
     if (argument_list != nullptr) {
-        for (auto *parameter : argument_list->children | sv::filter(CommaFilter)) {
+        for (auto *parameter : argument_list->children | filter::comma) {
             auto [argument, node] =
                 constructFunctionArgument(as<FunctionArgumentContext *>(parameter));
             arguments.push_back(argument);

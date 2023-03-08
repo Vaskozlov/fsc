@@ -14,7 +14,7 @@ namespace fsc::ast
         for (auto i = 0ZU; i != explicit_templates_to_remap; ++i) {
             remap_types_lock.emplace_back(
                 TypeManager::acquireTypeMap(templates[i], on_call_templates[i]));
-            remap_types_names.emplace_back(TypeManager::getTypename(templates[i]));
+            remap_types_names.emplace_back(templates[i].getName());
         }
     }
 
@@ -29,7 +29,7 @@ namespace fsc::ast
             if (argument_type.isTemplate() && !argument_type.isRemapTemplate()) {
                 remap_types_lock.emplace_back(TypeManager::acquireTypeMap(
                     argument_type, function_arguments.at(i)->getValueType()));
-                remap_types_names.emplace_back(TypeManager::getTypename(argument_type));
+                remap_types_names.emplace_back(argument_type.getName());
             }
         }
     }

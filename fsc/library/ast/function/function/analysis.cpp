@@ -22,14 +22,14 @@ namespace fsc::ast
             return report;
         }
 
-        if (templates.empty()) {
-            auto uuid = functionUuid;
+        if (classType != Void) {
+            auto uuid = functionUuid * std::max(1ZU, hashTypes(templates));
 
             if (ProgramStack.hasFunctionInCallTree(uuid)) {
                 return {};
             }
 
-            const auto function_scope = ProgramStack.acquireAnalysisScope(uuid);
+            const auto function_scope = ProgramStack.acquireAnalysisScope(uuid, shared_from_this());
             auto report = functionBody->analyze();
             analyzeReport(report);
             return report;
@@ -53,7 +53,12 @@ namespace fsc::ast
             for (const auto &[variable_name, variable_node] : member_variables) {
                 if (report.hasBeenModified(variable_node.get())) {
                     functionInfo.CONSTANT_METHOD = false;
+                    functionInfo.STATIC_METHOD = false;
                     break;
+                }
+
+                if (report.hasBeenRead(variable_node.get())) {
+                    functionInfo.STATIC_METHOD = false;
                 }
             }
         }
@@ -84,6 +89,15 @@ namespace fsc::ast
         return {deduceReturnType(remap_types_names), report};
     }
 
+    auto Function::updateReturnType(FscType new_return_type) -> void
+    {
+        if (returnType != Auto && returnType != new_return_type) {
+            throw FscException("function has two different return types");
+        }
+
+        returnType = new_return_type;
+    }
+
     auto Function::analyzeClassAfterConstruction() -> AnalysisReport
     {
         const auto &class_node = classType.getClass();
@@ -93,22 +107,20 @@ namespace fsc::ast
 
     auto Function::analyzeFunctionAfterTemplatesRemap() -> AnalysisReport
     {
-        if (!templates.empty()) {
-            completeBody();
-        }
-
         auto uuid = functionUuid * std::max(1ZU, hashTypes(templates));
 
         if (ProgramStack.hasFunctionInCallTree(uuid)) {
             return {};
         }
 
-        const auto function_scope = ProgramStack.acquireAnalysisScope(uuid);
+        completeBody();
+
+        const auto function_scope = ProgramStack.acquireAnalysisScope(uuid, shared_from_this());
 
         return functionBody->analyze();
     }
 
-    auto Function::modifyBuiltinFunctionReport(AnalysisReport &report) -> void
+    auto Function::modifyBuiltinFunctionReport(AnalysisReport &report) const noexcept -> void
     {
         report.updateNoexcept(functionInfo.NOEXCEPT);
         report.updateConstexpr(functionInfo.CONSTEXPR);
