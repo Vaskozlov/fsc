@@ -36,6 +36,7 @@ namespace fsc::ast
         METHOD_CALL,
         FUNCTION_CALL,
         BODY,
+        UNARY_OPERATOR,
         BINARY_OPERATOR,
         PROGRAM,
         CONVERSION,

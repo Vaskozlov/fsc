@@ -7,6 +7,8 @@ MUL : [*];
 DIV : [/];
 MOD : [%];
 DOT : [.];
+INVERT: [~];
+LOGICAL_NOT: [!];
 ANGLE_OPENING: '[';
 ANGLE_CLOSING: ']';
 
@@ -96,6 +98,8 @@ method_call:  '.' function_call;
 
 expr:   expr member_variable_access
     |   expr method_call
+    |   INVERT expr
+    |   LOGICAL_NOT expr
     |   expr ANGLE_OPENING expr ANGLE_CLOSING
     |   expr AS IDENTIFIER
     |   expr MUL expr

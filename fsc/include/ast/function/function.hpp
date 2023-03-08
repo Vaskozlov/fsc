@@ -36,7 +36,9 @@ namespace fsc::ast
         ISUB,
         IMUL,
         IDIV,
-        IMOD
+        IMOD,
+        INVERT,
+        LOGICAL_NOT
     };
 
     struct FunctionInfo

@@ -61,7 +61,7 @@ namespace fsc
         .VISIBILITY = Visibility::PUBLIC};
 
     constexpr static auto CategoryForLhsArgument =
-        StaticFlatmap<MagicFunctionType, ArgumentCategory, 17>{
+        StaticFlatmap<MagicFunctionType, ArgumentCategory, 19>{
             {MagicFunctionType::ADD, ArgumentCategory::IN},
             {MagicFunctionType::SUB, ArgumentCategory::IN},
             {MagicFunctionType::MUL, ArgumentCategory::IN},
@@ -73,6 +73,8 @@ namespace fsc
             {MagicFunctionType::GREATER, ArgumentCategory::IN},
             {MagicFunctionType::LESS_EQ, ArgumentCategory::IN},
             {MagicFunctionType::GREATER_EQ, ArgumentCategory::IN},
+            {MagicFunctionType::INVERT, ArgumentCategory::IN},
+            {MagicFunctionType::LOGICAL_NOT, ArgumentCategory::IN},
             {MagicFunctionType::COPY_ASSIGN, ArgumentCategory::OUT},
             {MagicFunctionType::IADD, ArgumentCategory::OUT},
             {MagicFunctionType::ISUB, ArgumentCategory::OUT},
@@ -130,6 +132,17 @@ namespace fsc
                         return_type, {left_argument, right_argument}, BinaryOperatorInfo};
     }
 
+    static auto constructBuiltinUnaryExpression(
+        MagicFunctionType function_type,
+        FscType return_type,
+        FscType value) -> Function
+    {
+        const auto argument = Argument{"value", value, CategoryForLhsArgument.at(function_type)};
+
+        return Function{
+            Void, MagicToFscName[function_type], "", return_type, {argument}, BinaryOperatorInfo};
+    }
+
     static auto constructBasicBuiltinOperators(FscType lhs, FscType rhs) -> Vector<Function>
     {
         auto operators = Vector<Function>{
@@ -154,6 +167,8 @@ namespace fsc
                 constructBuiltinBinaryExpression(MagicFunctionType::MOD, lhs, lhs, rhs));
             operators.emplace_back(
                 constructBuiltinBinaryExpression(MagicFunctionType::IMOD, lhs, lhs, rhs));
+            operators.emplace_back(
+                constructBuiltinUnaryExpression(MagicFunctionType::INVERT, lhs, rhs));
         }
 
         return operators;
@@ -233,16 +248,20 @@ namespace fsc
         auto f64_operators = constructAllBuiltinOperators(
             Float64, {Int32, UInt32, UInt64, Int64, Float32, Float64}, {Float32});
 
-        auto logical_and = Vector<Function>{
+        auto logical_functions = Vector<Function>{
+            {Void,
+             "__logical_not__",
+             "",
+             Bool,
+             {Argument{"lhs", Bool, ArgumentCategory::IN}},
+             BinaryOperatorInfo},
             {Void,
              "__logical_and__",
              "",
              Bool,
              {Argument{"lhs", Bool, ArgumentCategory::IN},
               Argument{"rhs", Bool, ArgumentCategory::IN}},
-             BinaryOperatorInfo}};
-
-        auto logical_or = Vector<Function>{
+             BinaryOperatorInfo},
             {Void,
              "__logical_or__",
              "",
@@ -250,6 +269,7 @@ namespace fsc
              {Argument{"lhs", Bool, ArgumentCategory::IN},
               Argument{"rhs", Bool, ArgumentCategory::IN}},
              BinaryOperatorInfo}};
+
 
         auto constructors = Vector<Function>{
             BUILTIN_EMPTY_CONSTRUCTOR(bool, Bool, {}, BinaryOperatorInfo),
@@ -512,8 +532,8 @@ namespace fsc
 
         func::Functions.registerFunctions(
             {i32_operators, i64_operators, u32_operators, u64_operators, f32_operators,
-             f64_operators, math_functions, constructors, logical_and, logical_or, input, output,
-             format, vector_methods, string_methods, memory_allocation});
+             f64_operators, math_functions, constructors, logical_functions, input, output, format,
+             vector_methods, string_methods, memory_allocation});
 
         TypeManager::addFscClass(
             makeShared<ast::Class>(VectorTemplate, "Vector", InitializerList<FscType>{Template1}));

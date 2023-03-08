@@ -17,11 +17,12 @@ public:
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
     T__26 = 27, AS = 28, ADD = 29, SUB = 30, MUL = 31, DIV = 32, MOD = 33, 
-    DOT = 34, ANGLE_OPENING = 35, ANGLE_CLOSING = 36, ASSIGN_ADD = 37, ASSIGN_SUB = 38, 
-    ASSIGN_MUL = 39, ASSIGN_DIV = 40, ASSIGN_MOD = 41, ASSIGN = 42, LESS = 43, 
-    GREATER = 44, LESS_EQ = 45, GREATER_EQ = 46, EQUALITY = 47, INEQUALITY = 48, 
-    LOGICAL_AND = 49, LOGICAL_OR = 50, TRUE = 51, FALSE = 52, INT = 53, 
-    FLOAT = 54, CHAR = 55, STRING = 56, IDENTIFIER = 57, LAYOUT = 58
+    DOT = 34, INVERT = 35, LOGICAL_NOT = 36, ANGLE_OPENING = 37, ANGLE_CLOSING = 38, 
+    ASSIGN_ADD = 39, ASSIGN_SUB = 40, ASSIGN_MUL = 41, ASSIGN_DIV = 42, 
+    ASSIGN_MOD = 43, ASSIGN = 44, LESS = 45, GREATER = 46, LESS_EQ = 47, 
+    GREATER_EQ = 48, EQUALITY = 49, INEQUALITY = 50, LOGICAL_AND = 51, LOGICAL_OR = 52, 
+    TRUE = 53, FALSE = 54, INT = 55, FLOAT = 56, CHAR = 57, STRING = 58, 
+    IDENTIFIER = 59, LAYOUT = 60
   };
 
   enum {
@@ -560,11 +561,13 @@ public:
   public:
     ExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *INVERT();
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+    antlr4::tree::TerminalNode *LOGICAL_NOT();
     Function_callContext *function_call();
     Variable_definitionContext *variable_definition();
     Auto_variable_definitionContext *auto_variable_definition();
-    std::vector<ExprContext *> expr();
-    ExprContext* expr(size_t i);
     BodyContext *body();
     antlr4::tree::TerminalNode *INT();
     antlr4::tree::TerminalNode *FLOAT();

@@ -120,6 +120,8 @@ namespace fsc
 
         auto constructParenthesized(ExpressionContext *expr_context) -> ast::NodePtr;
 
+        auto constructUnaryExpression(ExpressionContext *ctx) -> ast::NodePtr;
+
         auto constructBinaryExpression(ExpressionContext *ctx) -> ast::NodePtr;
 
         auto constructFunctionCall(FunctionCallContext *ctx) -> ast::NodePtr;
