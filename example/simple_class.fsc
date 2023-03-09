@@ -10,6 +10,6 @@ class S<T>
 
 func main()
 {
-
+    print("{}", toString(1))
     return 0
 }

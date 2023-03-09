@@ -196,6 +196,15 @@ namespace fsc
         operators.emplace_back(Function{
             type, type.getName(), "", type, {}, BinaryOperatorInfo, {}, MagicFunctionType::INIT});
 
+        operators.emplace_back(Function{
+            Void,
+            "toString",
+            "fmt::to_string",
+            String,
+            {Argument{"value_to_format", type, ArgumentCategory::IN}},
+            BinaryOperatorInfo,
+            {}});
+
         for (auto from : extra_conversion) {
             operators.emplace_back(Function{
                 type,
