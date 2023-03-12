@@ -10,6 +10,6 @@ class S<T>
 
 func main()
 {
-    print("{}", toString(1))
+    print(10 / 10, 10.0 as i32, 10.0 + 151.5, sqrt(25.0))
     return 0
 }

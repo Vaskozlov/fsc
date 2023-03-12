@@ -9,12 +9,12 @@ namespace fsc::converter
     {
         if (repr.ends_with("F64")) {
             auto value = ReprOrValue<ccl::f64>{repr.substr(0, repr.size() - 3)};
-            auto fsc_value = makeUnique<FscBuiltinType<ReprOrValue<ccl::f64>>>(Float64, value);
+            auto fsc_value = makeUnique<FscBuiltinType<ReprOrValue<ccl::f64>>>(value);
             return makeShared<ast::Value>(std::move(fsc_value), value_context);
         }
 
         auto value = ReprOrValue<f32>(repr);
-        auto fsc_value = makeUnique<FscBuiltinType<ReprOrValue<ccl::f32>>>(Float32, value);
+        auto fsc_value = makeUnique<FscBuiltinType<ReprOrValue<ccl::f32>>>(value);
 
         return makeShared<ast::Value>(std::move(fsc_value), value_context);
     }

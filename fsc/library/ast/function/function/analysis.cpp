@@ -138,4 +138,38 @@ namespace fsc::ast
 
         return returned_type;
     }
+
+    auto Function::evalCall(const ccl::SmallVector<NodePtr> &passed_arguments)
+        -> ccl::Optional<NodePtr>
+    {
+        if (!functionInfo.CONSTEXPR) {
+            return std::nullopt;
+        }
+
+        auto function_scope = ProgramStack.acquireStackScope(ScopeType::HARD);
+        for (auto i = 0ZU; i != arguments.size(); ++i) {
+            auto variable = makeShared<Variable>(arguments[i].toVariable());
+
+            if (auto value = std::dynamic_pointer_cast<Value>(passed_arguments[i]);
+                value != nullptr) {
+                variable->setValue(std::move(value));
+            }
+
+            else if (auto argument_as_variable =
+                         std::dynamic_pointer_cast<Variable>(passed_arguments[i]);
+                     argument_as_variable != nullptr) {
+                variable->setValue(argument_as_variable->getStoredValue());
+            }
+
+            ProgramStack.addVariable(variable);
+        }
+
+        if (functionInfo.BUILTIN_FUNCTION && comiletimeVersionOfBuiltinFunction != nullptr) {
+            return comiletimeVersionOfBuiltinFunction();
+        } else if (!functionInfo.BUILTIN_FUNCTION) {
+            // add compile time call
+        }
+
+        return std::nullopt;
+    }
 }// namespace fsc::ast

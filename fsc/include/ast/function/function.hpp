@@ -67,6 +67,7 @@ namespace fsc::ast
         ccl::Map<ccl::Id, FscType> analyzedHashes{};
         ccl::Map<std::string, NodePtr> defaultArguments;
         NodePtr functionBody;
+        ccl::Optional<NodePtr> (*comiletimeVersionOfBuiltinFunction)() = nullptr;
         std::string name;
         std::string codegenName;
         ccl::Id functionUuid = functionUuidGenerator++;
@@ -85,7 +86,8 @@ namespace fsc::ast
             FscType class_type, std::string_view function_name, std::string_view codegen_name,
             FscType return_type, ccl::InitializerList<Argument> function_arguments,
             FunctionInfo function_info, const ccl::SmallVector<FscType> &function_templates = {},
-            MagicFunctionType magic = MagicFunctionType::NONE);
+            MagicFunctionType magic = MagicFunctionType::NONE,
+            ccl::Optional<NodePtr> (*compile_time_function)() = nullptr);
 
         auto finishConstruction(const FunctionContext *function_context, FscType class_type)
             -> void;
@@ -97,6 +99,8 @@ namespace fsc::ast
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final;
 
         auto optimize(OptimizationLevel level) -> void final;
+
+        auto evalCall(const ccl::SmallVector<NodePtr> &passed_arguments) -> ccl::Optional<NodePtr>;
 
         [[nodiscard]] auto operator==(SignatureView other) const noexcept -> bool;
 

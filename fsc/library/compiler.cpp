@@ -12,7 +12,7 @@ namespace fsc
         std::string_view filename, std::ifstream &stream, ast::OptimizationLevel optimization_level,
         bool print_tree) -> std::string
     {
-        initializeCompilerBuiltin();
+        builtin::initializeCompilerBuiltin();
 
         auto input = antlr4::ANTLRInputStream{stream};
         auto lexer = FscLexer{&input};

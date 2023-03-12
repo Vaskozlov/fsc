@@ -15,7 +15,11 @@ namespace fsc::ast
         VariableFlags variable_flags, NodePtr variable_initializer)
       : NodeWrapper{ctx, std::move(variable_name), std::move(fsc_type), variable_flags}
       , initializer{std::move(variable_initializer)}
-    {}
+    {
+        if (auto value = std::dynamic_pointer_cast<Value>(initializer)) {
+            Variable::setValue(value);
+        }
+    }
 
     VariableDefinition::VariableDefinition(
         BasicContextPtr ctx, std::string variable_name, FscType fsc_type,
@@ -72,6 +76,11 @@ namespace fsc::ast
     {
         if (initializer != nullptr) {
             initializer->optimize(level);
+
+            if (auto initializer_eval_result = initializer->eval();
+                initializer_eval_result.has_value()) {
+                initializer = *initializer_eval_result;
+            }
         }
     }
 

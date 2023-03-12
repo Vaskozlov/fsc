@@ -94,6 +94,7 @@ namespace fsc
         auto operator=(FscTypeInterface &&) noexcept -> FscTypeInterface & = default;
 
         [[nodiscard]] virtual auto toString() const -> std::string;
+        [[nodiscard]] virtual auto getValue() const -> std::any = 0;
         virtual auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void;
     };
 

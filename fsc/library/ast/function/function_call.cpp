@@ -119,9 +119,28 @@ namespace fsc::ast
     {
         for (auto &argument : arguments) {
             argument->optimize(level);
+
+            if (auto evaluated_argument = evaluateArgument(argument.get());
+                evaluated_argument.has_value()) {
+                argument = *evaluated_argument;
+            }
         }
 
         getFunction()->optimize(level);
+    }
+
+    auto FunctionCall::eval() -> Optional<NodePtr>
+    {
+        return getFunction()->evalCall(arguments);
+    }
+
+    auto FunctionCall::evaluateArgument(Node *argument) const -> ccl::Optional<NodePtr>
+    {
+        if (functionCallTemplates.empty()) {
+            return argument->eval();
+        }
+
+        return std::nullopt;
     }
 
     auto FunctionCall::print(const std::string &prefix, bool is_left) const -> void

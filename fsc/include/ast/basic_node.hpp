@@ -102,6 +102,8 @@ namespace fsc::ast
 
         virtual auto optimize(OptimizationLevel /* unused */) -> void;
 
+        virtual auto eval() -> ccl::Optional<NodePtr>;
+
         [[nodiscard]] auto toString() -> std::string;
 
         auto setStart(antlr4::Token *rule_start) noexcept -> void

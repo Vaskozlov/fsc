@@ -1,7 +1,7 @@
 #ifndef FSC_VARIABLE_HPP
 #define FSC_VARIABLE_HPP
 
-#include "ast/analysis_report.hpp"
+#include "ast/value/value.hpp"
 #include "type/type.hpp"
 #include "visibility.hpp"
 #include <ccl/lazy.hpp>
@@ -27,6 +27,7 @@ namespace fsc::ast
         std::string name{};
         ccl::Lazy<FscType> type;
         VariableFlags flags{};
+        ccl::SharedPtr<Value> storedValue;
         ccl::Id uuid{variableUuid++};
 
     public:
@@ -43,6 +44,11 @@ namespace fsc::ast
         auto memberize() noexcept -> void
         {
             flags.memberVariable = true;
+        }
+
+        auto setValue(ccl::SharedPtr<Value> new_value) -> void
+        {
+            storedValue = std::move(new_value);
         }
 
         [[nodiscard]] auto getUuid() const noexcept -> ccl::Id
@@ -63,6 +69,11 @@ namespace fsc::ast
         [[nodiscard]] auto getValueType() const -> FscType
         {
             return type.get();
+        }
+
+        [[nodiscard]] auto getStoredValue() const -> ccl::SharedPtr<Value>
+        {
+            return storedValue;
         }
 
         [[nodiscard]] auto isMemberOfClass() const noexcept -> bool
