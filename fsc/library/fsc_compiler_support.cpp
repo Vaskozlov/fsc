@@ -61,6 +61,9 @@ public:
     using std::vector<T>::begin;
     using std::vector<T>::end;
 
+    using std::vector<T>::rbegin;
+    using std::vector<T>::rend;
+
     template<typename... Ts>
     constexpr Vector(Ts &&...initial_value)// NOLINT
         requires std::constructible_from<std::vector<T>, Ts...>
@@ -124,9 +127,15 @@ public:
         std::swap(at(first), at(second));
     }
 
-    constexpr auto sort() -> void
+    constexpr auto sort(bool reverse = false) -> void
     {
-        std::sort(begin(), end());
+        if (reverse)
+        {
+            std::sort(rbegin(), rend());
+        }
+        else {
+           std::sort(begin(), end());
+        }
     }
 };
 

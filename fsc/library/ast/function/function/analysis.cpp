@@ -91,11 +91,17 @@ namespace fsc::ast
 
     auto Function::updateReturnType(FscType new_return_type) -> void
     {
-        if (returnType != Auto && returnType != new_return_type) {
+        const auto is_template = std::ranges::any_of(templates, [this](auto elem) {
+            return elem == returnType;
+        });
+
+        if (returnType != Auto && returnType != new_return_type && !is_template) {
             throw FscException("function has two different return types");
         }
 
-        returnType = new_return_type;
+        if (!is_template && templates.empty()) {
+            returnType = new_return_type;
+        }
     }
 
     auto Function::analyzeClassAfterConstruction() -> AnalysisReport

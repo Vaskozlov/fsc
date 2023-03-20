@@ -7,12 +7,10 @@ func bubbleSort<T>(inout T vec)
         return
     }
 
-    while i < n - 1U
-    {
+    while i < n - 1U {
         var j = u64()
 
-        while j < n - i - 1U
-        {
+        while j < n - i - 1U {
             let next_index = j + 1U
 
             if vec[j] > vec[next_index] {
@@ -39,8 +37,8 @@ func sortVector<T>(inout T vec)
 
 func main() -> i32
 {
-    var vector_of_int = Vector<i32>(10, -10, 0, 20, 100, 200, -175)
-    var vector_of_float = Vector<f32>(10.4145, -10.4151123, 0.4152, 20.4125, 100.40, 100.43, -3143.4)
+    var vector_of_int = Vector(10, -10, 0, 20, 100, 200, -175)
+    var vector_of_float = Vector(10.4145, -10.4151123, 0.4152, 20.4125, 100.40, 100.43, -3143.4)
 
     sortVector(vector_of_int)
     sortVector(vector_of_float)

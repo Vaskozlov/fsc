@@ -8,8 +8,18 @@ class S<T>
     }
 }
 
+func pow2<T>(in T x)
+{
+    return x * x
+}
+
+
 func main()
 {
+    pow2<i32>(10)
+    pow2<f32>(10.0)
+
     print(10 / 10, 10.0 as i32, 10.0 + 151.5, sqrt(25.0))
+    print("ab" + "cd" * 2 as u64, sqrt(1.0 + 1.0), atan2(1.0, 1.0))
     return 0
 }
