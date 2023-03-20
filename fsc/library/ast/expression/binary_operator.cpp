@@ -1,8 +1,8 @@
 #include "ast/expression/binary_operator.hpp"
+#include "ast/value/value.hpp"
 #include "function/argument.hpp"
 #include "function/functions_holder.hpp"
 #include <ccl/flatmap.hpp>
-#include <exception>
 #include <ranges>
 
 namespace fsc::ast
@@ -98,7 +98,25 @@ namespace fsc::ast
     auto BinaryOperation::optimize(OptimizationLevel level) -> void
     {
         lhs->optimize(level);
+
+        if (auto lhs_eval_result = lhs->eval(); lhs_eval_result.has_value()) {
+            lhs = *lhs_eval_result;
+        }
+
         rhs->optimize(level);
+
+        if (auto rhs_eval_result = rhs->eval(); rhs_eval_result) {
+            rhs = *rhs_eval_result;
+        }
+    }
+
+    auto BinaryOperation::eval() -> ccl::Optional<NodePtr>
+    {
+        if (lhs->is(NodeType::VALUE) && rhs->is(NodeType::VALUE)) {
+            return getFunction()->evalCall({lhs, rhs});
+        }
+
+        return std::nullopt;
     }
 
     auto BinaryOperation::print(const std::string &prefix, bool is_left) const -> void

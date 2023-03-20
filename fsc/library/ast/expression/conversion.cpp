@@ -46,8 +46,8 @@ namespace fsc::ast
     {
         if (type == Float64 && value->is(NodeType::VALUE) && value->getValueType() == Float32) {
             const auto &as_f32 = value->as<Value>();
-            auto new_value = makeUnique<FscBuiltinType<ReprOrValue<f64>>>(
-                Float64, as_f32.getValue()->toString());
+            auto new_value =
+                makeUnique<FscBuiltinType<ReprOrValue<f64>>>(as_f32.getValue()->toString());
 
             value = makeShared<Value>(std::move(new_value), as_f32.getContext().value());
         }

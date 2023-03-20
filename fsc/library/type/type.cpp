@@ -90,9 +90,9 @@ namespace fsc
         throw std::logic_error("FscType::toString is not implemented for FscType base class");
     }
 
-    auto FscTypeInterface::codeGen(codegen::BasicCodeGenerator & /* unused */) -> void
+    auto FscTypeInterface::codeGen(codegen::BasicCodeGenerator & output) -> void
     {
-        throw std::logic_error("FscType::codeGen is not implemented for FscType base class");
+        output << toString();
     }
 }// namespace fsc
 

@@ -1,18 +1,13 @@
 #include "ast/container/class.hpp"
+#include "filter.hpp"
 #include "stack/stack.hpp"
+#include "type/type.hpp"
 #include <type/antlr-types.hpp>
-#include <type/type.hpp>
 
 namespace fsc
 {
     using namespace ccl;
     namespace sv = std::views;
-
-    static auto NewLineFilter(antlr4::tree::ParseTree *elem) -> bool
-    {
-        const auto text = elem->getText();
-        return !text.empty() && text[0] != '\n';
-    }
 
     auto Visitor::constructBody(BodyContext *ctx) -> ast::NodePtr
     {
@@ -20,8 +15,7 @@ namespace fsc
         auto body = makeShared<ast::Body>();
 
         const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
-        const auto modifiers =
-            sv::drop(1) | views::dropBack(ctx->children, 2) | sv::filter(NewLineFilter);
+        const auto modifiers = sv::drop(1) | views::dropBack(ctx->children, 2) | filter::newline;
 
         for (auto *child : children | modifiers) {
             body->addNode(visitAsNode(child));

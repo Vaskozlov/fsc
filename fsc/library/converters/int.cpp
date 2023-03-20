@@ -28,11 +28,11 @@ namespace fsc::converter
         }
 
         if (std::in_range<uint32_t>(result)) {
-            auto fsc_value = makeUnique<FscBuiltinType<FscUInt32>>(UInt32, as<uint32_t>(result));
+            auto fsc_value = makeUnique<FscBuiltinType<FscUInt32>>(as<uint32_t>(result));
             return makeShared<ast::Value>(std::move(fsc_value), value_context);
         }
 
-        auto fsc_value = makeUnique<FscBuiltinType<FscUInt64>>(UInt64, result);
+        auto fsc_value = makeUnique<FscBuiltinType<FscUInt64>>(result);
         return makeShared<ast::Value>(std::move(fsc_value), value_context);
     }
 
@@ -55,11 +55,11 @@ namespace fsc::converter
         }
 
         if (std::in_range<int32_t>(result)) {
-            auto fsc_value = makeUnique<FscBuiltinType<FscInt32>>(Int32, as<int32_t>(result));
+            auto fsc_value = makeUnique<FscBuiltinType<FscInt32>>(as<int32_t>(result));
             return makeShared<ast::Value>(std::move(fsc_value), value_context);
         }
 
-        auto fsc_value = makeUnique<FscBuiltinType<FscInt64>>(Int64, result);
+        auto fsc_value = makeUnique<FscBuiltinType<FscInt64>>(result);
         return makeShared<ast::Value>(std::move(fsc_value), value_context);
     }
 }// namespace fsc::converter

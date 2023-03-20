@@ -96,6 +96,11 @@ namespace fsc::ast
     auto Node::optimize(OptimizationLevel /* unused */) -> void
     {}
 
+    auto Node::eval() -> Optional<NodePtr>
+    {
+        return std::nullopt;
+    }
+
     auto Node::toString() -> std::string
     {
         auto tmp_codegen = codegen::BasicCodeGenerator{};

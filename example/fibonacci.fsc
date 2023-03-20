@@ -7,20 +7,8 @@ func fibonacci(in i32 x)
     return fibonacci(x - 1) + fibonacci(x - 2)
 }
 
-
-func test2()
-{
-    print(test1())
-}
-
-func test1()
-{
-    return "Hello, from test1"
-}
-
 func main()
 {
-    test2()
     var i = 1;
 
     while i != 20

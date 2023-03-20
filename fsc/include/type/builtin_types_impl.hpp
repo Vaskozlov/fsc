@@ -8,63 +8,120 @@
 namespace fsc
 {
     template<typename T>
-    concept HasToString = requires(const T &object) { object.toString(); };
+    concept FscIntegral = ccl::IsSameToAny<T, FscBool, FscInt32, FscInt64, FscUInt32, FscUInt64>;
 
     template<typename T>
-    class FscBuiltinType : public FscTypeInterface
+    concept FscFloatingPoint = ccl::IsSameToAny<T, FscFloat32, FscFloat64>;
+
+    template<typename T>
+    class FscBuiltinType;
+
+    template<FscIntegral Int>
+    class FscBuiltinType<Int> : public FscTypeInterface
     {
-        [[no_unique_address]] T value;
+    private:
+        Int value;
 
     public:
-        template<typename... Ts>
-        explicit FscBuiltinType(FscType type, Ts &&...args)
-          : FscTypeInterface{type.getId()}
-          , value{std::forward<Ts>(args)...}
+        explicit FscBuiltinType(Int initializer)
+          : FscTypeInterface{Int::typeId}
+          , value{initializer}
         {}
 
         [[nodiscard]] auto toString() const -> std::string final
         {
-            if constexpr (std::is_same_v<VoidType, T>) {
-                return "void";
-            } else if constexpr (!HasToString<T>) {
-                return fmt::format("{}", value.value);
-            } else {
-                return fmt::format("{}", value.toString());
-            }
+            return fmt::format("{}", value.value);
         }
 
         auto codeGen(ccl::codegen::BasicCodeGenerator &output) -> void final
         {
-            if constexpr (std::is_same_v<VoidType, T>) {
-                fmt::format_to(output.getBackInserter(), "void");
-            } else if constexpr (std::is_same_v<ReprOrValue<ccl::f32>, T>) {
-                fmt::format_to(output.getBackInserter(), "float({})", value.toString());
-            } else if constexpr (std::is_same_v<ReprOrValue<ccl::f64>, T>) {
-                fmt::format_to(output.getBackInserter(), "double({})", value.toString());
-            } else if constexpr (std::is_same_v<FscChar, T>) {
-                fmt::format_to(output.getBackInserter(), "'{}'", value.value);
-            } else if constexpr (std::is_same_v<FscString, T>) {
-                fmt::format_to(output.getBackInserter(), "String{{{}}}", value.value);
-            } else {
-                output << value.value;
-            }
+            output << value.value;
+        }
+
+        [[nodiscard]] auto getValue() const -> std::any final
+        {
+            return std::any{value};
         }
     };
 
-    extern template class FscBuiltinType<VoidType>;
+    template<>
+    class FscBuiltinType<ReprOrValue<ccl::f32>> : public FscTypeInterface
+    {
+        ReprOrValue<ccl::f32> value;
 
-    extern template class FscBuiltinType<FscInt32>;
-    extern template class FscBuiltinType<FscInt64>;
+    public:
+        explicit FscBuiltinType(ReprOrValue<ccl::f32> initializer);
 
-    extern template class FscBuiltinType<FscUInt32>;
-    extern template class FscBuiltinType<FscUInt64>;
+        [[nodiscard]] auto toString() const -> std::string final;
+        [[nodiscard]] auto getValue() const -> std::any final;
+    };
 
-    extern template class FscBuiltinType<ReprOrValue<ccl::f32>>;
-    extern template class FscBuiltinType<ReprOrValue<ccl::f64>>;
+    template<>
+    class FscBuiltinType<ReprOrValue<ccl::f64>> : public FscTypeInterface
+    {
+        ReprOrValue<ccl::f64> value;
 
-    extern template class FscBuiltinType<FscBool>;
+    public:
+        explicit FscBuiltinType(ReprOrValue<ccl::f64> initializer);
 
-    extern template class FscBuiltinType<FscString>;
+        [[nodiscard]] auto toString() const -> std::string final;
+        [[nodiscard]] auto getValue() const -> std::any final;
+    };
+
+    template<>
+    class FscBuiltinType<VoidType> : public FscTypeInterface
+    {
+    public:
+        explicit FscBuiltinType()
+          : FscTypeInterface{VoidType::typeId}
+        {}
+
+        [[nodiscard]] auto toString() const -> std::string final
+        {
+            return "void";
+        }
+
+        [[nodiscard]] auto getValue() const -> std::any final
+        {
+            return {};
+        }
+    };
+
+    template<>
+    class FscBuiltinType<FscChar> : public FscTypeInterface
+    {
+        FscChar value;
+
+    public:
+        explicit FscBuiltinType(FscChar initializer);
+
+        [[nodiscard]] auto toString() const -> std::string final;
+        [[nodiscard]] auto getValue() const -> std::any final;
+    };
+
+    template<>
+    class FscBuiltinType<FscString> : public FscTypeInterface
+    {
+        FscString value;
+
+    public:
+        explicit FscBuiltinType(FscString initializer);
+
+        [[nodiscard]] auto toString() const -> std::string final;
+        [[nodiscard]] auto getValue() const -> std::any final;
+    };
+
+    template<>
+    class FscBuiltinType<FscBool> : public FscTypeInterface
+    {
+        FscBool value;
+
+    public:
+        explicit FscBuiltinType(FscBool initializer);
+
+        [[nodiscard]] auto toString() const -> std::string final;
+        [[nodiscard]] auto getValue() const -> std::any final;
+    };
 }// namespace fsc
 
 #endif /* FSC_BUILTIN_TYPES_IMPL_HPP */

@@ -29,6 +29,8 @@ namespace fsc::ast
 
         auto optimize(OptimizationLevel level) -> void override;
 
+        auto eval() -> ccl::Optional<NodePtr> override;
+
         [[nodiscard]] auto getValueType() -> FscType override;
 
         [[nodiscard]] auto getFunctionName() const noexcept -> const std::string &
@@ -46,6 +48,7 @@ namespace fsc::ast
 
     private:
         [[nodiscard]] auto argumentToString() const -> std::string;
+        [[nodiscard]] auto evaluateArgument(Node *argument) const -> ccl::Optional<NodePtr>;
     };
 }// namespace fsc::ast
 

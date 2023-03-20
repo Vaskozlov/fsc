@@ -78,6 +78,10 @@ namespace fsc::ast
     {
         for (auto &node : nodes) {
             node->optimize(level);
+
+            if (auto node_eval_result = node->eval(); node_eval_result.has_value()) {
+                node = *node_eval_result;
+            }
         }
     }
 

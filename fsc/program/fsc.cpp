@@ -106,8 +106,11 @@ auto parseOptionsAndCompile(int argc, char *argv[]) -> void
     desc.add_options()("print-code", "Prints translated version of fsc program")(
         "print-tree", "Prints fsc program's tree");
 
+    po::positional_options_description po;
+    po.add("source", -1);
+
     po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::store(po::command_line_parser(argc, argv).options(desc).positional(po).run(), vm);
     po::notify(vm);
 
     if (vm.count("help") == 1) {
@@ -142,12 +145,7 @@ auto parseOptionsAndCompile(int argc, char *argv[]) -> void
 
 auto main(int argc, char *argv[]) -> int
 {
-    try {
-        parseOptionsAndCompile(argc, argv);
-    } catch (const std::exception &exception) {
-        fmt::print(std::cerr, "{}\n", exception.what());
-        return 1;
-    }
+    parseOptionsAndCompile(argc, argv);
 
     return 0;
 }

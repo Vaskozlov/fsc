@@ -38,12 +38,12 @@ namespace fsc
         ReprOrValue() = default;
 
         template<typename... Ts>
-        constexpr explicit ReprOrValue(Ts &&...args)
+        constexpr ReprOrValue(Ts &&...args)// NOLINT
             requires std::constructible_from<T, Ts...>
           : value{std::in_place_index<0>, std::forward<Ts>(args)...} {};
 
         template<typename... Ts>
-        constexpr explicit ReprOrValue(Ts &&...args)
+        constexpr ReprOrValue(Ts &&...args)// NOLINT
             requires std::constructible_from<std::string, Ts...>
           : value{std::in_place_index<1>, std::forward<Ts>(args)...} {};
 
@@ -63,7 +63,7 @@ namespace fsc
             return std::get<0>(value);
         }
 
-        CCL_DECL auto getString() const noexcept -> const std::string &
+        CCL_DECL auto getRepr() const noexcept -> const std::string &
         {
             return std::get<1>(value);
         }
@@ -74,7 +74,7 @@ namespace fsc
                 return fmt::to_string(getValue());
             }
 
-            return getString();
+            return getRepr();
         }
 
         auto setValue(T &&new_value) noexcept -> void
@@ -167,7 +167,10 @@ namespace fsc
     FSC_WRAP_TYPE(Template3, "_FSC_TEMPLATE_3", void);
     FSC_WRAP_TYPE(Template4, "_FSC_TEMPLATE_4", void);
 
-    auto initializeCompilerBuiltin() -> void;
+    namespace builtin
+    {
+        auto initializeCompilerBuiltin() -> void;
+    }
 }// namespace fsc
 
 #endif /* FSC_BUILTIN_TYPES_HPP */

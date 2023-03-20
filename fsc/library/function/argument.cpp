@@ -9,7 +9,7 @@ namespace fsc
 {
     Argument::Argument(std::string arg_name, FscType fsc_type, ArgumentCategory argument_category)
       : name{std::move(arg_name)}
-      , type{std::move(fsc_type)}
+      , type{fsc_type}
       , category{argument_category}
     {}
 

@@ -36,6 +36,7 @@ namespace fsc::ast
         METHOD_CALL,
         FUNCTION_CALL,
         BODY,
+        UNARY_OPERATOR,
         BINARY_OPERATOR,
         PROGRAM,
         CONVERSION,
@@ -100,6 +101,8 @@ namespace fsc::ast
         virtual auto analyze() -> AnalysisReport = 0;
 
         virtual auto optimize(OptimizationLevel /* unused */) -> void;
+
+        virtual auto eval() -> ccl::Optional<NodePtr>;
 
         [[nodiscard]] auto toString() -> std::string;
 

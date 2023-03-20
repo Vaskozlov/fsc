@@ -7,7 +7,7 @@
 namespace fsc::ast::magic
 {
     constexpr inline auto SpecialFunctionsMagic =
-        ccl::StaticFlatmap<std::string_view, MagicFunctionType, 19>{
+        ccl::StaticFlatmap<std::string_view, MagicFunctionType, 21>{
             {"__add__", MagicFunctionType::ADD},
             {"__sub__", MagicFunctionType::SUB},
             {"__mul__", MagicFunctionType::MUL},
@@ -26,9 +26,11 @@ namespace fsc::ast::magic
             {"__greater_equal__", MagicFunctionType::GREATER_EQ},
             {"__copy__", MagicFunctionType::COPY_ASSIGN},
             {"__init__", MagicFunctionType::INIT},
-            {"__del__", MagicFunctionType::DEL}};
+            {"__del__", MagicFunctionType::DEL},
+            {"__invert__", MagicFunctionType::INVERT},
+            {"__logical_not__", MagicFunctionType::LOGICAL_NOT}};
 
-    constexpr inline ccl::StaticFlatmap<MagicFunctionType, std::string_view, 17> MagicToFscName = {
+    constexpr inline ccl::StaticFlatmap<MagicFunctionType, std::string_view, 19> MagicToFscName = {
         {MagicFunctionType::ADD, "__add__"},
         {MagicFunctionType::SUB, "__sub__"},
         {MagicFunctionType::MUL, "__mul__"},
@@ -45,9 +47,11 @@ namespace fsc::ast::magic
         {MagicFunctionType::GREATER, "__greater__"},
         {MagicFunctionType::LESS_EQ, "__less_equal__"},
         {MagicFunctionType::GREATER_EQ, "__greater_equal__"},
-        {MagicFunctionType::COPY_ASSIGN, "__copy__"}};
+        {MagicFunctionType::COPY_ASSIGN, "__copy__"},
+        {MagicFunctionType::INVERT, "__invert__"},
+        {MagicFunctionType::LOGICAL_NOT, "__logical_not__"}};
 
-    constexpr inline ccl::StaticFlatmap<MagicFunctionType, std::string_view, 17> MagicToRepr = {
+    constexpr inline ccl::StaticFlatmap<MagicFunctionType, std::string_view, 19> MagicToRepr = {
         {MagicFunctionType::ADD, "+"},         {MagicFunctionType::SUB, "-"},
         {MagicFunctionType::MUL, "*"},         {MagicFunctionType::DIV, "/"},
         {MagicFunctionType::MOD, "%"},         {MagicFunctionType::COPY_ASSIGN, "="},
@@ -56,7 +60,8 @@ namespace fsc::ast::magic
         {MagicFunctionType::IMOD, "%="},       {MagicFunctionType::EQUAL, "=="},
         {MagicFunctionType::NOT_EQUAL, "!="},  {MagicFunctionType::LESS, "<"},
         {MagicFunctionType::GREATER, ">"},     {MagicFunctionType::LESS_EQ, "<="},
-        {MagicFunctionType::GREATER_EQ, ">="},
+        {MagicFunctionType::GREATER_EQ, ">="}, {MagicFunctionType::INVERT, "~"},
+        {MagicFunctionType::LOGICAL_NOT, "!"},
     };
 }// namespace fsc::ast::magic
 

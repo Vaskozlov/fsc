@@ -1,6 +1,7 @@
 #include "ast/expression/binary_operator.hpp"
 #include "ast/expression/conversion.hpp"
 #include "ast/expression/parenthesized.hpp"
+#include "ast/expression/unary_operator.hpp"
 #include "ast/function/method_call.hpp"
 #include "converters/bool.hpp"
 #include "converters/float.hpp"
@@ -28,6 +29,16 @@ namespace fsc
         return ctx->children.size() == 3 &&
                binary_expressions.contains(ctx->children.at(1)->getText());
     }
+
+    static auto isUnaryOperator(ExpressionContext *ctx) -> bool
+    {
+        static constexpr auto unary_operators =
+            StaticFlatmap<std::string_view, bool, 2>{{"~", true}, {"!", true}};
+
+        return ctx->children.size() == 2 &&
+               unary_operators.contains(ctx->children.at(0)->getText());
+    }
+
 
     auto Visitor::constructParenthesized(ExpressionContext *expr_context) -> ast::NodePtr
     {
@@ -97,6 +108,10 @@ namespace fsc
             node = constructBinaryExpression(ctx);
         }
 
+        else if (isUnaryOperator(ctx)) {
+            node = constructUnaryExpression(ctx);
+        }
+
         else if (ctx->variable_definition() != nullptr) {
             node = constructVariableDefinition(ctx->variable_definition());
         }
@@ -114,6 +129,14 @@ namespace fsc
         }
 
         return node;
+    }
+
+    auto Visitor::constructUnaryExpression(ExpressionContext *ctx) -> ast::NodePtr
+    {
+        const auto &children = ctx->children;
+        auto value = visitAsNode(children.at(1));
+
+        return makeShared<ast::UnaryOperation>(ctx, children.at(0)->getText(), std::move(value));
     }
 
     auto Visitor::constructBinaryExpression(ExpressionContext *ctx) -> ast::NodePtr
