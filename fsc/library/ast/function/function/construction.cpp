@@ -15,7 +15,7 @@ namespace fsc::ast
     Function::Function(
         FscType class_type, std::string_view function_name, std::string_view codegen_name,
         FscType return_type, InitializerList<Argument> function_arguments,
-        FunctionInfo function_info, const ccl::SmallVector<FscType> &function_templates,
+        FunctionInfo function_info, const ccl::Vector<FscType> &function_templates,
         MagicFunctionType magic, ccl::Optional<NodePtr> (*compile_time_function)())
       : arguments{function_arguments}
       , templates{function_templates}

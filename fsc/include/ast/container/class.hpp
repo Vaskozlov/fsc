@@ -12,7 +12,7 @@ namespace fsc::ast
     class Class final : public NodeWrapper<NodeType::CLASS, SemicolonNeed::DO_NOT_NEED, Body>
     {
         ccl::Map<std::string, FscType> memberVariables;
-        ccl::SmallVector<FscType> templates;
+        ccl::Vector<FscType> templates;
         std::string name;
         FscType fscType{Void};
 
@@ -47,7 +47,7 @@ namespace fsc::ast
             return name;
         }
 
-        [[nodiscard]] auto getTemplates() const noexcept -> const ccl::SmallVector<FscType> &
+        [[nodiscard]] auto getTemplates() const noexcept -> const ccl::Vector<FscType> &
         {
             return templates;
         }

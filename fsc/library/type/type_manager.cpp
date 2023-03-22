@@ -6,9 +6,9 @@ using namespace ccl;
 
 namespace fsc
 {
-    static auto checkTemplatePackCorrect(const std::string &template_name) -> SmallVector<FscType>
+    static auto checkTemplatePackCorrect(const std::string &template_name) -> Vector<FscType>
     {
-        auto result = SmallVector<FscType>{};
+        auto result = Vector<FscType>{};
 
         for (auto template_typename : template_name | std::views::split(',')) {
             auto converted_name_view = ccl::string_view{std::string_view{template_typename}};

@@ -62,10 +62,10 @@ namespace fsc
 
             node = makeShared<ast::MethodCall>(
                 expr, "__at__",
-                ccl::SmallVector<Argument>{
+                ccl::Vector<Argument>{
                     Argument{"index", index_expr->getValueType(), ArgumentCategory::IN}},
-                expr->getValueType(), ccl::SmallVector<ast::NodePtr>{index_expr},
-                ccl::SmallVector<FscType>{}, ctx);
+                expr->getValueType(), ccl::Vector<ast::NodePtr>{index_expr}, ccl::Vector<FscType>{},
+                ctx);
         }
 
         else if (ctx->INT() != nullptr) {

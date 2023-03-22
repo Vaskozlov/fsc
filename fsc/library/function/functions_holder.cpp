@@ -67,7 +67,7 @@ namespace fsc::func
         return *findFunction(signature);
     }
 
-    auto FunctionsHolder::get(const std::string &name, const SmallVector<Argument> &arguments) const
+    auto FunctionsHolder::get(const std::string &name, const Vector<Argument> &arguments) const
         -> SharedPtr<ast::Function>
     {
         return get({name, arguments, Void});
@@ -119,7 +119,7 @@ namespace fsc::func
     auto FunctionsHolder::findMagicFunction(SignatureView signature) const ->
         typename FunctionsList::const_iterator
     {
-        auto arguments = SmallVector<Argument>{};
+        auto arguments = Vector<Argument>{};
 
         for (const auto &argument : signature.arguments | sv::drop(1)) {
             arguments.push_back(argument);

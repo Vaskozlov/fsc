@@ -9,9 +9,9 @@ using namespace std::string_view_literals;
 namespace fsc::ast
 {
     FunctionCall::FunctionCall(
-        std::string function_name, const ccl::SmallVector<Argument> &typed_arguments,
-        FscType class_id, const SmallVector<NodePtr> &function_arguments,
-        const ccl::SmallVector<FscType> &templates, BasicContextPtr node_context)
+        std::string function_name, const ccl::Vector<Argument> &typed_arguments, FscType class_id,
+        const Vector<NodePtr> &function_arguments, const ccl::Vector<FscType> &templates,
+        BasicContextPtr node_context)
       : NodeWrapper{node_context}
       , arguments{function_arguments}
       , functionCallTemplates{templates}
