@@ -1,0 +1,10 @@
+{
+  "name": "fsc",
+  "version": "0.0.1",
+  "dependencies": [
+    "boost-test",
+    "boost-program-options",
+    "fmt",
+    "antlr4"
+  ]
+}
