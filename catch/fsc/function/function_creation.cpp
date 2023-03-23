@@ -29,7 +29,7 @@ int main()
 }
 )"sv;
 
-BOOST_AUTO_TEST_CASE(FunctionCreation, *utf::depends_on("Print"))
+TEST_CASE("FunctionCreation", "[FSC]")
 {
-    BOOST_ASSERT(fsc::compareProgramsOutput(FscProgram, CppProgram));
+    REQUIRE(fsc::compareProgramsOutput(FscProgram, CppProgram));
 }

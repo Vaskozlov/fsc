@@ -46,7 +46,7 @@ int main()
 }
 )"sv;
 
-BOOST_AUTO_TEST_CASE(ClassCreation, *utf::depends_on("FunctionCreation"))
+TEST_CASE("ClassCreation", "[FSC]")
 {
-    BOOST_ASSERT(fsc::compareProgramsOutput(FscProgram, CppProgram));
+    REQUIRE(fsc::compareProgramsOutput(FscProgram, CppProgram));
 }

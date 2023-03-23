@@ -11,16 +11,8 @@ add_executable(
 
 target_link_libraries(
         fsc-compiler
-        Boost::program_options
-)
-
-target_link_libraries(
-        fsc-compiler
-        fmt::fmt
-)
-
-target_link_libraries(
-        fsc-compiler
         fsc
+        fmt::fmt
+        cxxopts::cxxopts
 )
 

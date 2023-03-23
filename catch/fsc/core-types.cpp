@@ -25,7 +25,7 @@ int main()
 }
 )"sv;
 
-BOOST_AUTO_TEST_CASE(CoreTypes, *utf::depends_on("MainCompilation"))
+TEST_CASE("CoreTypes", "[FSC]")
 {
-    BOOST_ASSERT(fsc::compareProgramsOutput(FscProgram, CppProgram));
+    REQUIRE(fsc::compareProgramsOutput(FscProgram, CppProgram));
 }

@@ -2,9 +2,9 @@
   "name": "fsc",
   "version": "0.0.1",
   "dependencies": [
-    "boost-test",
-    "boost-program-options",
     "fmt",
+    "catch2",
+    "cxxopts",
     "antlr4"
   ]
 }
