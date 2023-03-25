@@ -78,7 +78,7 @@ namespace fsc
     struct CCL_TRIVIAL_ABI SignatureView
     {
         const std::string &name;
-        const ccl::SmallVector<Argument> &arguments;
+        const ccl::Vector<Argument> &arguments;
         FscType classType;
     };
 

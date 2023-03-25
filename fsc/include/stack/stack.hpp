@@ -53,7 +53,7 @@ namespace fsc
         };
 
         static ScopeStorage globalStorage;
-        ccl::SmallVector<FscType> classScopes;
+        ccl::Vector<FscType> classScopes;
         ccl::Set<ccl::Id> functionsScopes;
         std::deque<Scope> scopes;
         ccl::Vector<ast::NodePtr> functionOnAnalysis;

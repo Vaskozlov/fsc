@@ -17,7 +17,7 @@ int main()
 }
 )"sv;
 
-BOOST_AUTO_TEST_CASE(MainCompilation)
+TEST_CASE("MainCompilation", "[FSC]")
 {
-    BOOST_ASSERT(fsc::compareProgramsOutput(FscProgram, CppProgram));
+    REQUIRE(fsc::compareProgramsOutput(FscProgram, CppProgram));
 }

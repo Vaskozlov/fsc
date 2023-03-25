@@ -26,7 +26,7 @@ int main()
 )"sv;
 
 
-BOOST_AUTO_TEST_CASE(Subtraction, *utf::depends_on("Print"))
+TEST_CASE("Subtraction", "[FSC]")
 {
-    BOOST_ASSERT(fsc::compareProgramsOutput(FscProgram, CppProgram));
+    REQUIRE(fsc::compareProgramsOutput(FscProgram, CppProgram));
 }

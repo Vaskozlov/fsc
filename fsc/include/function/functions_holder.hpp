@@ -66,7 +66,7 @@ namespace fsc::func
         [[nodiscard]] auto get(SignatureView signature) const -> ccl::SharedPtr<ast::Function>;
 
         [[nodiscard]] auto
-            get(const std::string &name, const ccl::SmallVector<Argument> &arguments) const
+            get(const std::string &name, const ccl::Vector<Argument> &arguments) const
             -> ccl::SharedPtr<ast::Function>;
 
     private:

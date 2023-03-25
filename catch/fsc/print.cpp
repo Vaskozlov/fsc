@@ -19,7 +19,7 @@ int main()
 }
 )"sv;
 
-BOOST_AUTO_TEST_CASE(Print, *utf::depends_on("MainCompilation"))
+TEST_CASE("Print", "[FSC]")
 {
-    BOOST_ASSERT(fsc::compareProgramsOutput(FscProgram, CppProgram));
+    REQUIRE(fsc::compareProgramsOutput(FscProgram, CppProgram));
 }

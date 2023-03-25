@@ -8,15 +8,15 @@
 using namespace ccl;
 namespace sv = std::views;
 
-auto fsc::Visitor::parseFunction(FunctionCallContext *ctx) -> std::
-    tuple<std::string, SmallVector<FscType>, SmallVector<Argument>, SmallVector<ast::NodePtr>>
+auto fsc::Visitor::parseFunction(FunctionCallContext *ctx)
+    -> std::tuple<std::string, Vector<FscType>, Vector<Argument>, Vector<ast::NodePtr>>
 {
     const auto &children = ctx->children;
     const auto name = children.at(0)->getText();
     auto *args = children.at(2);
     auto [arguments, values] = processFunctionArguments(as<FunctionParameterContext *>(args));
 
-    auto templates = SmallVector<FscType>{};
+    auto templates = Vector<FscType>{};
     auto *template_context = as<TemplateContext *>(children.at(1));
 
     if (!template_context->children.empty()) {
@@ -57,11 +57,11 @@ auto fsc::Visitor::constructMethodCall(ExpressionContext *ctx) -> ast::NodePtr
 
 
 auto fsc::Visitor::processFunctionArguments(FunctionParameterContext *ctx)
-    -> Pair<SmallVector<Argument>, SmallVector<ast::NodePtr>>
+    -> Pair<Vector<Argument>, Vector<ast::NodePtr>>
 {
     const auto &children = ctx->children;
     auto *argument_list = as<FunctionTypedArgumentsListContext *>(children.at(1));
-    auto result = Pair<SmallVector<Argument>, SmallVector<ast::NodePtr>>{};
+    auto result = Pair<Vector<Argument>, Vector<ast::NodePtr>>{};
     auto &[arguments, nodes] = result;
 
     if (argument_list != nullptr) {

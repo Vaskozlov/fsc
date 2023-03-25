@@ -129,14 +129,13 @@ namespace fsc
         auto constructFunction(FunctionContext *ctx) -> ast::NodePtr;
 
         auto processFunctionArguments(FunctionParameterContext *ctx)
-            -> ccl::Pair<ccl::SmallVector<Argument>, ccl::SmallVector<ast::NodePtr>>;
+            -> ccl::Pair<ccl::Vector<Argument>, ccl::Vector<ast::NodePtr>>;
 
         auto constructFunctionArgument(FunctionArgumentContext *argument_context)
             -> ccl::Pair<Argument, ast::NodePtr>;
 
         auto parseFunction(FunctionCallContext *ctx) -> std::tuple<
-            std::string, ccl::SmallVector<FscType>, ccl::SmallVector<Argument>,
-            ccl::SmallVector<ast::NodePtr>>;
+            std::string, ccl::Vector<FscType>, ccl::Vector<Argument>, ccl::Vector<ast::NodePtr>>;
     };
 
     inline constinit Visitor *GlobalVisitor{nullptr};

@@ -1,22 +1,24 @@
+func pow2<T>(in T value) -> T
+{
+    return value * value
+}
+
 func ownSqrt(in f64 x)
 {
     var left = 0 as f64
     var right = x
 
-    while true
-    {
+    while true {
         let midpoint = (left + right) / 2.0
-        let midpoint_2 = midpoint * midpoint
+        let squared_midpoint = pow2(midpoint)
 
-        if abs(midpoint_2 - x) <= 1.0e-12
-        {
+        if abs(squared_midpoint - x) <= 1.0e-12 {
             return midpoint
         }
 
-        if midpoint_2 > x {
+        if squared_midpoint > x {
             right = midpoint
-        }
-        else {
+        } else {
             left = midpoint
         }
     }

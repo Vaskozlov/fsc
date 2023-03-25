@@ -19,7 +19,7 @@ namespace fsc::ast
     auto Conversion::analyze() -> AnalysisReport
     {
         const auto &function_name = type.getName();
-        const auto arguments = SmallVector<Argument>{Argument{value.get()}};
+        const auto arguments = Vector<Argument>{Argument{value.get()}};
         const auto signature_view = SignatureView{function_name, arguments, Void};
         auto function = func::Functions.get(signature_view);
 

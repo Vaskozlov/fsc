@@ -1,0 +1,10 @@
+{
+  "name": "fsc",
+  "version": "0.0.1",
+  "dependencies": [
+    "fmt",
+    "catch2",
+    "cxxopts",
+    "antlr4"
+  ]
+}

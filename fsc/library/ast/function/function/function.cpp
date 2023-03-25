@@ -17,7 +17,7 @@ namespace fsc::ast
     }
 
     auto Function::checkFunctionArgumentAfterDeductionMatch(
-        const SmallVector<NodePtr> &function_arguments) const noexcept(false) -> void
+        const Vector<NodePtr> &function_arguments) const noexcept(false) -> void
     {
         if (!std::ranges::equal(
                 arguments.begin(), arguments.end(), function_arguments.begin(),
@@ -107,6 +107,6 @@ namespace fsc::ast
             return FscType{fmt::format("{}<{}>", name, fmt::join(templates, ", "))};
         }
 
-        return returnType;
+        return TypeManager::getTrueType(returnType);
     }
 }// namespace fsc::ast

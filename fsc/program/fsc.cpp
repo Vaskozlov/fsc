@@ -1,13 +1,10 @@
 #include "compiler.hpp"
 #include "io.hpp"
-#include <boost/program_options.hpp>
-#include <boost/program_options/option.hpp>
-#include <boost/program_options/parsers.hpp>
 #include <ccl/raii.hpp>
 #include <chrono>
+#include <cxxopts.hpp>
 #include <iostream>
 
-namespace po = boost::program_options;
 using namespace std::chrono_literals;
 
 bool PrintCode = false;
@@ -82,56 +79,41 @@ auto doCompilation() -> int
     return returned_code;
 }
 
-auto parseOptionsAndCompile(int argc, char *argv[]) -> void
+
+auto main(int argc, char *argv[]) -> int// NOLINT
 {
-    po::options_description desc("Allowed options");
+    auto options = cxxopts::Options("fsc", "FSC compiler (https://github.com/Vaskozlov/fsc)");
 
-    desc.add_options()("help,h", "Produce help message");
+    options.add_options()("h,help", "Produce help message")(
+        "s,source", "File to compile", cxxopts::value(Source))(
+        "o,output", "Output filename", cxxopts::value(Output)->default_value("a.out"))(
+        "O,optimization", "Optimization leve",
+        cxxopts::value(OptimizationLevel)->default_value("0"))(
+        "cxx", "C++ compiler",
+        cxxopts::value(CppCompiler))("cxx-flags", "C++ additional flags", cxxopts::value(CppFlags))(
+        "run", "Run program after compilation")("print-code", "Print generated C++ code")(
+        "print-tree", "Print program's tree");
 
-    desc.add_options()("source,s", po::value(&Source), "Fsc file, which will be compiled");
+    options.parse_positional({"s", "o"});
 
-    desc.add_options()("output,o", po::value(&Output), "Name of generated file");
+    auto result = options.parse(argc, argv);
 
-    desc.add_options()(
-        "optimization,O", po::value(&OptimizationLevel),
-        "Optimization level from 0 to 2 (for optimized builds -O1 is recommended)");
-
-    desc.add_options()("cxx", po::value(&CppCompiler), "C++ compiler");
-
-    desc.add_options()(
-        "cxx-flags", po::value(&CppFlags), "C++ additional flags (by default is clang++)");
-
-    desc.add_options()("run", "Run compiled program");
-
-    desc.add_options()("print-code", "Prints translated version of fsc program")(
-        "print-tree", "Prints fsc program's tree");
-
-    po::positional_options_description po;
-    po.add("source", -1);
-
-    po::variables_map vm;
-    po::store(po::command_line_parser(argc, argv).options(desc).positional(po).run(), vm);
-    po::notify(vm);
-
-    if (vm.count("help") == 1) {
-        std::cout << desc << "\n";
-        return;
+    if (result.count("help") == 1) {
+        std::cout << options.help() << "\n";
+        return 1;
     }
 
-    if (vm.count("source") == 0) {
-        std::cout << "Source file has not bees specified." << std::endl;
-        std::cout << "Type --help to see how to use fsc-compiler" << std::endl;
-        return;
+    if (result.count("source") == 0) {
+        fmt::print(
+            "Source file has not bees specified.\n"
+            "Type --help to see how to use fsc-compiler\n");
+        return 1;
     }
 
-    if (vm.count("output") == 0) {
-        Output = "a.out";
-    }
+    PrintCode = (result.count("print-code") != 0);
+    PrintTree = (result.count("print-tree") != 0);
 
-    PrintCode = (vm.count("print-code") != 0);
-    PrintTree = (vm.count("print-tree") != 0);
-
-    if (doCompilation() == 0 && vm.count("run") != 0) {
+    if (doCompilation() == 0 && result.count("run") != 0) {
         if (Output[0] != '/') {
             Output = "./" + Output;
         }
@@ -141,11 +123,6 @@ auto parseOptionsAndCompile(int argc, char *argv[]) -> void
             BackendTime);
         std::system(Output.c_str());
     }
-}
-
-auto main(int argc, char *argv[]) -> int
-{
-    parseOptionsAndCompile(argc, argv);
 
     return 0;
 }

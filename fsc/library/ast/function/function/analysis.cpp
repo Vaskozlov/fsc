@@ -65,11 +65,11 @@ namespace fsc::ast
     }
 
     auto Function::analyzeOnCall(
-        const SmallVector<NodePtr> &function_arguments,
-        const ccl::SmallVector<FscType> &on_call_templates) -> std::pair<FscType, AnalysisReport>
+        const Vector<NodePtr> &function_arguments,
+        const ccl::Vector<FscType> &on_call_templates) -> std::pair<FscType, AnalysisReport>
     {
-        auto remap_types_names = SmallVector<std::string>{};
-        auto remap_types_lock = SmallVector<AcquireTypeMapType>{};
+        auto remap_types_names = Vector<std::string>{};
+        auto remap_types_lock = Vector<AcquireTypeMapType>{};
 
         mapExplicitTemplates(remap_types_names, remap_types_lock, on_call_templates);
         mapImplicitTemplates(remap_types_names, remap_types_lock, function_arguments);
@@ -132,8 +132,7 @@ namespace fsc::ast
         report.updateConstexpr(functionInfo.CONSTEXPR);
     }
 
-    auto Function::deduceReturnType(const SmallVector<std::string> &remap_types_names) const
-        -> FscType
+    auto Function::deduceReturnType(const Vector<std::string> &remap_types_names) const -> FscType
     {
         auto returned_type = getReturnType();
 
@@ -145,8 +144,7 @@ namespace fsc::ast
         return returned_type;
     }
 
-    auto Function::evalCall(const ccl::SmallVector<NodePtr> &passed_arguments)
-        -> ccl::Optional<NodePtr>
+    auto Function::evalCall(const ccl::Vector<NodePtr> &passed_arguments) -> ccl::Optional<NodePtr>
     {
         if (!functionInfo.CONSTEXPR) {
             return std::nullopt;

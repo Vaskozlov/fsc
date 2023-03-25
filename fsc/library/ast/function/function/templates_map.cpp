@@ -5,9 +5,9 @@ using namespace ccl;
 namespace fsc::ast
 {
     auto Function::mapExplicitTemplates(
-        SmallVector<std::string> &remap_types_names,
-        SmallVector<AcquireTypeMapType> &remap_types_lock,
-        const ccl::SmallVector<FscType> &on_call_templates) -> void
+        Vector<std::string> &remap_types_names,
+        Vector<AcquireTypeMapType> &remap_types_lock,
+        const ccl::Vector<FscType> &on_call_templates) -> void
     {
         auto explicit_templates_to_remap = std::min(templates.size(), on_call_templates.size());
 
@@ -19,9 +19,9 @@ namespace fsc::ast
     }
 
     auto Function::mapImplicitTemplates(
-        ccl::SmallVector<std::string> &remap_types_names,
-        ccl::SmallVector<AcquireTypeMapType> &remap_types_lock,
-        const SmallVector<NodePtr> &function_arguments) -> void
+        ccl::Vector<std::string> &remap_types_names,
+        ccl::Vector<AcquireTypeMapType> &remap_types_lock,
+        const Vector<NodePtr> &function_arguments) -> void
     {
         for (auto i = 0ZU; i != arguments.size(); ++i) {
             const auto argument_type = arguments.at(i).getType();

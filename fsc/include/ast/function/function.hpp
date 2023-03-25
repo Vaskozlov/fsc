@@ -61,9 +61,9 @@ namespace fsc::ast
     private:
         static inline constinit auto functionUuidGenerator = std::atomic<ccl::Id>{0};
 
-        ccl::SmallVector<Argument> arguments;
-        ccl::SmallVector<FscType> templates;
-        ccl::SmallVector<FscType> remapTypes;
+        ccl::Vector<Argument> arguments;
+        ccl::Vector<FscType> templates;
+        ccl::Vector<FscType> remapTypes;
         ccl::Map<ccl::Id, FscType> analyzedHashes{};
         ccl::Map<std::string, NodePtr> defaultArguments;
         NodePtr functionBody;
@@ -85,7 +85,7 @@ namespace fsc::ast
         Function(
             FscType class_type, std::string_view function_name, std::string_view codegen_name,
             FscType return_type, ccl::InitializerList<Argument> function_arguments,
-            FunctionInfo function_info, const ccl::SmallVector<FscType> &function_templates = {},
+            FunctionInfo function_info, const ccl::Vector<FscType> &function_templates = {},
             MagicFunctionType magic = MagicFunctionType::NONE,
             ccl::Optional<NodePtr> (*compile_time_function)() = nullptr);
 
@@ -100,7 +100,7 @@ namespace fsc::ast
 
         auto optimize(OptimizationLevel level) -> void final;
 
-        auto evalCall(const ccl::SmallVector<NodePtr> &passed_arguments) -> ccl::Optional<NodePtr>;
+        auto evalCall(const ccl::Vector<NodePtr> &passed_arguments) -> ccl::Optional<NodePtr>;
 
         [[nodiscard]] auto operator==(SignatureView other) const noexcept -> bool;
 
@@ -134,7 +134,7 @@ namespace fsc::ast
             return name;
         }
 
-        [[nodiscard]] auto getArguments() const noexcept -> const ccl::SmallVector<Argument> &
+        [[nodiscard]] auto getArguments() const noexcept -> const ccl::Vector<Argument> &
         {
             return arguments;
         }
@@ -142,9 +142,8 @@ namespace fsc::ast
         [[nodiscard]] auto getReturnType() const -> FscType;
 
         auto analyzeOnCall(
-            const ccl::SmallVector<NodePtr> &function_arguments,
-            const ccl::SmallVector<FscType> &on_call_templates)
-            -> std::pair<FscType, AnalysisReport>;
+            const ccl::Vector<NodePtr> &function_arguments,
+            const ccl::Vector<FscType> &on_call_templates) -> std::pair<FscType, AnalysisReport>;
 
         auto updateReturnType(FscType new_return_type) -> void;
 
@@ -153,17 +152,17 @@ namespace fsc::ast
         auto analyzeReport(const AnalysisReport &report) -> void;
 
         auto mapExplicitTemplates(
-            ccl::SmallVector<std::string> &remap_types_names,
-            ccl::SmallVector<AcquireTypeMapType> &remap_types_lock,
-            const ccl::SmallVector<FscType> &on_call_templates) -> void;
+            ccl::Vector<std::string> &remap_types_names,
+            ccl::Vector<AcquireTypeMapType> &remap_types_lock,
+            const ccl::Vector<FscType> &on_call_templates) -> void;
 
         auto mapImplicitTemplates(
-            ccl::SmallVector<std::string> &remap_types_names,
-            ccl::SmallVector<AcquireTypeMapType> &remap_types_lock,
-            const ccl::SmallVector<NodePtr> &function_arguments) -> void;
+            ccl::Vector<std::string> &remap_types_names,
+            ccl::Vector<AcquireTypeMapType> &remap_types_lock,
+            const ccl::Vector<NodePtr> &function_arguments) -> void;
 
         auto checkFunctionArgumentAfterDeductionMatch(
-            const ccl::SmallVector<NodePtr> &function_arguments) const noexcept(false) -> void;
+            const ccl::Vector<NodePtr> &function_arguments) const noexcept(false) -> void;
 
         auto analyzeClassAfterConstruction() -> AnalysisReport;
 
@@ -173,7 +172,7 @@ namespace fsc::ast
 
         auto modifyBuiltinFunctionReport(AnalysisReport &report) const noexcept -> void;
 
-        virtual auto deduceReturnType(const ccl::SmallVector<std::string> &remap_types_names) const
+        virtual auto deduceReturnType(const ccl::Vector<std::string> &remap_types_names) const
             -> FscType;
 
         auto generateTemplateParameters(ccl::codegen::BasicCodeGenerator &output) const -> void;

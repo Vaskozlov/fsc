@@ -8,18 +8,18 @@ namespace fsc::ast
 {
     class FunctionCall : public NodeWrapper<NodeType::FUNCTION_CALL, SemicolonNeed::NEED>
     {
-        ccl::SmallVector<NodePtr> arguments;
-        ccl::SmallVector<FscType> functionCallTemplates;
+        ccl::Vector<NodePtr> arguments;
+        ccl::Vector<FscType> functionCallTemplates;
         std::string functionName;
-        ccl::SmallVector<Argument> typedArguments;
+        ccl::Vector<Argument> typedArguments;
         FscType classId;
         FscType returnedType{Void};
 
     public:
         FunctionCall(
-            std::string function_name, const ccl::SmallVector<Argument> &typed_arguments,
-            FscType class_id, const ccl::SmallVector<NodePtr> &function_arguments,
-            const ccl::SmallVector<FscType> &templates, BasicContextPtr node_context);
+            std::string function_name, const ccl::Vector<Argument> &typed_arguments,
+            FscType class_id, const ccl::Vector<NodePtr> &function_arguments,
+            const ccl::Vector<FscType> &templates, BasicContextPtr node_context);
 
         auto analyze() -> AnalysisReport override;
 
