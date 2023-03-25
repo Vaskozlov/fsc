@@ -112,6 +112,8 @@ namespace fsc
 
         [[nodiscard]] static auto hash(FscType type) noexcept -> size_t;
 
+        [[nodiscard]] static auto getTrueType(FscType type) -> FscType;
+
     private:
         [[nodiscard]] static auto generateUuid() noexcept -> ccl::Id;
 
@@ -128,8 +130,6 @@ namespace fsc
         static auto map(FscType key, FscType value) -> void;
 
         static auto unmap(FscType key) -> void;
-
-        [[nodiscard]] static auto getTrueType(FscType type) -> FscType;
     };
 
     using AcquireTypeMapType = decltype(TypeManager::acquireTypeMap(FscType{}, FscType{}));

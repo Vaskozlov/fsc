@@ -42,7 +42,7 @@ namespace fsc::ast
                  (variable_definition->isMemberOfClass() &&
                   variable_definition->getVisibility() == Visibility::PRIVATE))) {
                 GlobalVisitor->throwError(
-                    ccl::ExceptionCriticality::SUGGESTION,
+                    ccl::ExceptionCriticality::WARNING,
                     variable_definition->getContext().value(),
                     fmt::format("variable `{}` is never modified", variable_definition->getName()),
                     "consider making it constant");

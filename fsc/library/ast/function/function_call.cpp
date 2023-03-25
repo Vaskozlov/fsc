@@ -95,8 +95,8 @@ namespace fsc::ast
     {
         auto [type, analysis_report] =
             getFunction()->analyzeOnCall(arguments, functionCallTemplates);
-        returnedType = type;
-        return returnedType;
+
+        return type;
     }
 
     auto FunctionCall::codeGen(codegen::BasicCodeGenerator &output) -> void

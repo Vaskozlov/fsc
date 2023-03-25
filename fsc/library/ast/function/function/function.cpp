@@ -107,6 +107,6 @@ namespace fsc::ast
             return FscType{fmt::format("{}<{}>", name, fmt::join(templates, ", "))};
         }
 
-        return returnType;
+        return TypeManager::getTrueType(returnType);
     }
 }// namespace fsc::ast
