@@ -22,7 +22,7 @@ FSC - проект компилятора к собственному языку
 ## Сборка проекта
 
 ```cmake
-https://github.com/Vaskozlov/fsc.git
+git clone https://github.com/Vaskozlov/fsc.git
 cd fsc
 mkdir build
 cd build
@@ -51,4 +51,4 @@ fsc-compiler exam
 fsc-compiler example/fibonacci.fsc --run
 ```
 
-![image](https://user-images.githubusercontent.com/46150969/228609871-6cb3bba1-1222-4ebf-ab36-bf540d54fec5.png)
+![image](https://user-images.githubusercontent.com/46150969/228610779-734de800-f0b8-43db-96b3-4730b584a48e.png)
