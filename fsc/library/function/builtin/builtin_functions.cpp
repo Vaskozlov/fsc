@@ -194,18 +194,6 @@ namespace fsc::builtin
              ThrowingFunction}};
     }
 
-    auto constructFormattingFunctions() -> Vector<Function>
-    {
-        return Vector<Function>{
-            {Void,
-             "format",
-             "",
-             Void,
-             {Argument{"fmt", String, ArgumentCategory::IN}},
-             info::RuntimeOnlyNoexceptFunction,
-             {}}};
-    }
-
     auto constructOutputFunctions() -> Vector<Function>
     {
         return Vector<Function>{
@@ -562,8 +550,8 @@ namespace fsc::builtin
         func::Functions.registerFunctions(
             {constructInt32Operators(), constructInt64Operators(), constructUInt32Operators(),
              constructUInt64Operators(), constructFloat32Operators(), constructFloat64Operators(),
-             constructMathFunctions(), constructFormattingFunctions(), constructOutputFunctions(),
-             constructVectorFunctions(), constructStringOperators()});
+             constructMathFunctions(), constructOutputFunctions(), constructVectorFunctions(),
+             constructStringOperators()});
 
         initialized = true;
     }

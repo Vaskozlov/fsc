@@ -24,7 +24,7 @@ func f<T>(inout T a)
 
 func any<T2>(inout T2 a)
 {
-    print("{}\n", a.test())
+    print(a.test())
 }
 
 func main()
@@ -33,11 +33,11 @@ func main()
     var k = S<f32>(15.34)
     var vec = Vector<i32>(10, 20)
 
-    print("{}\n", t.x)
+    print(t.x)
 
     vec.push_back(10)
 
-    print("{}\n", vec);
+    print(vec);
 
     f(t)
     any(k)

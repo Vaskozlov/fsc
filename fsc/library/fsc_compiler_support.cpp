@@ -4,26 +4,17 @@ namespace fsc
 {
     using namespace std::string_view_literals;
 
-    constexpr std::string_view CompilerFlags =
-        "-std=c++2b -DFMT_HEADER_ONLY=1 -fmodules -fbuiltin-module-map -fimplicit-module-maps "
-        "-fprebuilt-implicit-modules -stdlib=libc++";
+    constexpr std::string_view CompilerFlags = "-std=c++17";
 
     constexpr std::string_view FscProgramsHeader = R"cpp(
-
-#if __clang_major__ >= 15
-import std;
-#else
+#include <algorithm>
 #include <cinttypes>
+#include <cmath>
 #include <concepts>
 #include <cstddef>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cmath>
-#endif
-
-#include <fmt/format.h>
-#include <fmt/ranges.h>
 
 using i32 = int32_t;
 using i64 = int64_t;
@@ -66,7 +57,6 @@ public:
 
     template<typename... Ts>
     constexpr Vector(Ts &&...initial_value)// NOLINT
-        requires std::constructible_from<std::vector<T>, Ts...>
       : std::vector<T>{std::forward<Ts>(initial_value)...}
     {}
 
@@ -87,8 +77,7 @@ public:
     [[nodiscard]] constexpr auto max() const -> const T &
     {
         if (empty()) {
-            throw std::logic_error{
-                fmt::format("Vector<{}>::max vector is empty", typeid(T).name())};
+            throw std::logic_error{"Vector<T>::max vector is empty"};
         }
 
         return *std::max_element(begin(), end());
@@ -97,8 +86,7 @@ public:
     [[nodiscard]] constexpr auto min() const -> const T &
     {
         if (empty()) {
-            throw std::logic_error{
-                fmt::format("Vector<{}>::min vector is empty", typeid(T).name())};
+            throw std::logic_error{"Vector<T>::min vector is empty"};
         }
 
         return *std::min_element(begin(), end());
@@ -129,12 +117,10 @@ public:
 
     constexpr auto sort(bool reverse = false) -> void
     {
-        if (reverse)
-        {
+        if (reverse) {
             std::sort(rbegin(), rend());
-        }
-        else {
-           std::sort(begin(), end());
+        } else {
+            std::sort(begin(), end());
         }
     }
 };
@@ -144,7 +130,6 @@ class String : public std::string
 public:
     template<typename... Ts>
     constexpr String(Ts &&...initial_value)// NOLINT
-        requires std::constructible_from<std::string, Ts...>
       : std::string{std::forward<Ts>(initial_value)...}
     {}
 
@@ -187,7 +172,7 @@ public:
 auto input(String str = {}) -> String
 {
     if (!str.empty()) {
-        fmt::print("{}", str);
+        std::cout << str;
     }
 
     String result;
@@ -195,34 +180,42 @@ auto input(String str = {}) -> String
     return result;
 }
 
-template<typename T, typename... Ts>
-auto forcePrint(T &&arg, Ts &&...args) -> void
+template<typename T>
+auto print(T &&arg) -> void
 {
-    fmt::print(
-        fmt::runtime(std::string("{}") + std::string(" {}") * (sizeof...(Ts)) + '\n'), std::forward<T>(arg),
-        std::forward<Ts>(args)...);
-}
-
-template<typename... Ts>
-auto print(std::string_view fmt, Ts &&...args) -> void
-{
-    if (!fmt.contains('{')) {
-        forcePrint(fmt, std::forward<Ts>(args)...);
-    } else {
-       fmt::print(fmt::runtime(fmt), std::forward<Ts>(args)...);
-    }
+    std::cout << arg << std::endl;
 }
 
 template<typename T, typename... Ts>
 auto print(T &&arg, Ts &&...args) -> void
-    requires (!std::is_same_v<std::remove_cvref_t<T>, String>)
 {
-   forcePrint(std::forward<T>(arg), std::forward<Ts>(args)...);
+    std::cout << arg << ' ';
+    print(std::forward<Ts>(args)...);
 }
 
-constexpr auto format(std::string_view fmt, auto &&...args) -> String
+template<typename Os, typename T>
+auto operator<<(Os &os, const Vector<T> &vec) -> Os &
 {
-    return fmt::format(fmt::runtime(fmt), std::forward<decltype(args)>(args)...);
+    auto begin = std::begin(vec);
+    const auto end = std::end(vec);
+
+    os << '[';
+
+    if (begin == end) {
+        os << ']';
+        return os;
+    }
+
+    os << *begin;
+
+    for (++begin; begin != end; ++begin) {
+        os << ", ";
+        os << *begin;
+    }
+
+    os << ']';
+
+    return os;
 }
 )cpp";
 }// namespace fsc
