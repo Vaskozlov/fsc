@@ -12,15 +12,12 @@ FSC - проект компилятора к собственному языку
 - clang-16
 - msvc-19.33
 
-Используемые библиотеки
+### Зависимости 
 - [antlr4](https://www.antlr.org)
 - [ccl](https://github.com/Vaskozlov/ccl-project)
-
+- [fmt](https://github.com/fmtlib/fmt)
 
 ## Сборка проекта
-Для минимальной сборки проекта необходим cmake (от версии 3.20) и следующие библиотеки:
-- antlr4
-- cxxopts
 
 ```cmake
 mkdir build
