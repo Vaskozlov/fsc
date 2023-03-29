@@ -22,6 +22,8 @@ FSC - проект компилятора к собственному языку
 ## Сборка проекта
 
 ```cmake
+https://github.com/Vaskozlov/fsc.git
+cd fsc
 mkdir build
 cd build
 ```
