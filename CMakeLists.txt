@@ -15,6 +15,8 @@ include(catch/CMakeLists.txt)
 
 include(CPack)
 
+set(CPACK_PACKAGE_HOMEPAGE_URL https://vaskozlov.github.io)
+
 install(TARGETS fsc fsc-compiler
         EXPORT fscTargets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
