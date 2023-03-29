@@ -56,25 +56,25 @@ public:
     using std::vector<T>::rend;
 
     template<typename... Ts>
-    constexpr Vector(Ts &&...initial_value)// NOLINT
+    Vector(Ts &&...initial_value)// NOLINT
       : std::vector<T>{std::forward<Ts>(initial_value)...}
     {}
 
-    constexpr Vector(const std::initializer_list<T> &initializer)// NOLINT
+    Vector(const std::initializer_list<T> &initializer)// NOLINT
       : std::vector<T>{initializer}
     {}
 
-    [[nodiscard]] constexpr auto operator[](size_t index) -> T &
+    [[nodiscard]] auto operator[](size_t index) -> T &
     {
         return at(index);
     }
 
-    [[nodiscard]] constexpr auto operator[](size_t index) const -> const T &
+    [[nodiscard]] auto operator[](size_t index) const -> const T &
     {
         return at(index);
     }
 
-    [[nodiscard]] constexpr auto max() const -> const T &
+    [[nodiscard]] auto max() const -> const T &
     {
         if (empty()) {
             throw std::logic_error{"Vector<T>::max vector is empty"};
@@ -83,7 +83,7 @@ public:
         return *std::max_element(begin(), end());
     }
 
-    [[nodiscard]] constexpr auto min() const -> const T &
+    [[nodiscard]] auto min() const -> const T &
     {
         if (empty()) {
             throw std::logic_error{"Vector<T>::min vector is empty"};
@@ -92,7 +92,7 @@ public:
         return *std::min_element(begin(), end());
     }
 
-    [[nodiscard]] constexpr auto max(const T &default_value) const -> const T &
+    [[nodiscard]] auto max(const T &default_value) const -> const T &
     {
         if (empty()) {
             return default_value;
@@ -101,7 +101,7 @@ public:
         return *std::max_element(begin(), end());
     }
 
-    [[nodiscard]] constexpr auto min(const T &default_value) const -> const T &
+    [[nodiscard]] auto min(const T &default_value) const -> const T &
     {
         if (empty()) {
             return default_value;
@@ -110,12 +110,12 @@ public:
         return *std::min_element(begin(), end());
     }
 
-    constexpr auto swap(size_t first, size_t second) -> void
+    auto swap(size_t first, size_t second) -> void
     {
         std::swap(at(first), at(second));
     }
 
-    constexpr auto sort(bool reverse = false) -> void
+    auto sort(bool reverse = false) -> void
     {
         if (reverse) {
             std::sort(rbegin(), rend());
@@ -129,41 +129,41 @@ class String : public std::string
 {
 public:
     template<typename... Ts>
-    constexpr String(Ts &&...initial_value)// NOLINT
+    String(Ts &&...initial_value)// NOLINT
       : std::string{std::forward<Ts>(initial_value)...}
     {}
 
-    [[nodiscard]] constexpr auto operator[](size_t index) -> char &
+    [[nodiscard]] auto operator[](size_t index) -> char &
     {
         return this->at(index);
     }
 
-    [[nodiscard]] constexpr auto operator[](size_t index) const -> const char &
+    [[nodiscard]] auto operator[](size_t index) const -> const char &
     {
         return this->at(index);
     }
 
-    [[nodiscard]] constexpr auto toI32() const -> i32
+    [[nodiscard]] auto toI32() const -> i32
     {
         return std::stoi(*this);
     }
 
-    [[nodiscard]] constexpr auto toI64() const -> i64
+    [[nodiscard]] auto toI64() const -> i64
     {
         return std::stol(*this);
     }
 
-    [[nodiscard]] constexpr auto toU64() const -> u64
+    [[nodiscard]] auto toU64() const -> u64
     {
         return std::stoul(*this);
     }
 
-    [[nodiscard]] constexpr auto toF32() const -> f32
+    [[nodiscard]] auto toF32() const -> f32
     {
         return std::stof(*this);
     }
 
-    [[nodiscard]] constexpr auto toF64() const -> f64
+    [[nodiscard]] auto toF64() const -> f64
     {
         return std::stod(*this);
     }

@@ -48,8 +48,36 @@ namespace fsc::info
         .CONSTEXPR = true,
         .VISIBILITY = Visibility::PUBLIC};
 
+    constexpr inline auto RuntimeThrowingMethod = ast::FunctionInfo{
+        .NOEXCEPT = false,
+        .IS_METHOD = true,
+        .BUILTIN_FUNCTION = true,
+        .CONSTEXPR = false,
+        .VISIBILITY = Visibility::PUBLIC};
+
+    constexpr inline auto RuntimeThrowingConstMethod = ast::FunctionInfo{
+        .NOEXCEPT = false,
+        .IS_METHOD = true,
+        .CONSTANT_METHOD = true,
+        .BUILTIN_FUNCTION = true,
+        .CONSTEXPR = false,
+        .VISIBILITY = Visibility::PUBLIC};
+
     constexpr inline auto RuntimeOnlyNoexceptFunction =
         ast::FunctionInfo{.NOEXCEPT = true, .CONSTEXPR = false, .VISIBILITY = Visibility::PUBLIC};
+
+    constexpr inline auto RuntimeOnlyNoexceptMethod = ast::FunctionInfo{
+        .NOEXCEPT = true,
+        .CONSTEXPR = false,
+        .IS_METHOD = true,
+        .VISIBILITY = Visibility::PUBLIC};
+
+    constexpr inline auto RuntimeOnlyNoexceptConstMethod = ast::FunctionInfo{
+        .NOEXCEPT = true,
+        .CONSTEXPR = false,
+        .IS_METHOD = true,
+        .CONSTANT_METHOD = true,
+        .VISIBILITY = Visibility::PUBLIC};
 }// namespace fsc::info
 
 #endif /* FSC_DEFAULT_FUNCTION_INFO_HPP */
