@@ -43,3 +43,12 @@ ninja install all
 ```cmake
 cpack -G RPM
 ```
+
+## Пример использования компилятора
+fsc-compiler exam
+
+```bash
+fsc-compiler example/fibonacci.fsc --run
+```
+
+![image](https://user-images.githubusercontent.com/46150969/228609871-6cb3bba1-1222-4ebf-ab36-bf540d54fec5.png)
