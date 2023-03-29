@@ -2,6 +2,7 @@
 #include "function/functions_holder.hpp"
 #include "visitor.hpp"
 #include <ccl/join.hpp>
+#include <range/v3/view.hpp>
 
 using namespace ccl;
 using namespace std::string_view_literals;
@@ -148,7 +149,7 @@ namespace fsc::ast
         const auto expanded_prefix = expandPrefix(prefix, is_left);
         fmt::print("{}Call {}\n", getPrintingPrefix(prefix, is_left), functionName);
 
-        for (const auto &arg : arguments | ccl::views::dropBack(arguments, 1)) {
+        for (const auto &arg : arguments | ranges::views::drop_last(1)) {
             arg->print(expanded_prefix, true);
         }
 

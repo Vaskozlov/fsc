@@ -2,6 +2,7 @@
 #include "filter.hpp"
 #include "function/functions_holder.hpp"
 #include "stack/stack.hpp"
+#include <range/v3/view.hpp>
 
 namespace fsc::ast
 {
@@ -103,7 +104,7 @@ namespace fsc::ast
     auto Function::readArguments(const FscParser::ParametersContext *parameters_context) -> void
     {
         const auto &children = parameters_context->children;
-        auto drop_first_and_last = sv::drop(1) | ccl::views::dropBack(children, 2);
+        auto drop_first_and_last = ranges::views::drop(1) | ranges::views::drop_last(1);
 
         for (auto *child : children | drop_first_and_last) {
             auto *casted_child = ccl::as<FscParser::Typed_arguments_listContext *>(child);

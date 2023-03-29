@@ -1,6 +1,6 @@
 #include "ast/container/body.hpp"
 #include "ast/value/variable_definition.hpp"
-#include <ranges>
+#include <range/v3/view.hpp>
 
 namespace fsc::ast
 {
@@ -90,7 +90,7 @@ namespace fsc::ast
         const auto expanded_prefix = expandPrefix(prefix, is_left);
         fmt::print("{}Body\n", getPrintingPrefix(prefix, is_left));
 
-        for (const auto &node : nodes | ccl::views::dropBack(nodes, 1)) {
+        for (const auto &node : nodes | ranges::views::drop_last(1)) {
             node->print(expanded_prefix, true);
         }
 

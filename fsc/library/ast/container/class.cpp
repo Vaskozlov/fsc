@@ -5,6 +5,7 @@
 #include "stack/stack.hpp"
 #include "type/type.hpp"
 #include <ccl/raii.hpp>
+#include <range/v3/view.hpp>
 
 namespace fsc::ast
 {
@@ -42,7 +43,8 @@ namespace fsc::ast
         const auto class_scope = ProgramStack.acquireClassScope(id_for_class_scope);
         const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
 
-        const auto modifiers = sv::drop(1) | views::dropBack(body_children, 2) | filter::newline;
+        const auto modifiers =
+            ranges::views::drop(1) | ranges::views::drop_last(1) | filter::newline;
 
         for (auto *child : body_children | modifiers) {
             addNode(GlobalVisitor->visitAsNode(child));

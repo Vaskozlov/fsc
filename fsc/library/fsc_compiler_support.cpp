@@ -4,26 +4,17 @@ namespace fsc
 {
     using namespace std::string_view_literals;
 
-    constexpr std::string_view CompilerFlags =
-        "-std=c++2b -DFMT_HEADER_ONLY=1 -fmodules -fbuiltin-module-map -fimplicit-module-maps "
-        "-fprebuilt-implicit-modules -stdlib=libc++";
+    constexpr std::string_view CompilerFlags = "-std=c++17";
 
     constexpr std::string_view FscProgramsHeader = R"cpp(
-
-#if __clang_major__ >= 15
-import std;
-#else
+#include <algorithm>
 #include <cinttypes>
+#include <cmath>
 #include <concepts>
 #include <cstddef>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cmath>
-#endif
-
-#include <fmt/format.h>
-#include <fmt/ranges.h>
 
 using i32 = int32_t;
 using i64 = int64_t;
@@ -65,46 +56,43 @@ public:
     using std::vector<T>::rend;
 
     template<typename... Ts>
-    constexpr Vector(Ts &&...initial_value)// NOLINT
-        requires std::constructible_from<std::vector<T>, Ts...>
+    Vector(Ts &&...initial_value)// NOLINT
       : std::vector<T>{std::forward<Ts>(initial_value)...}
     {}
 
-    constexpr Vector(const std::initializer_list<T> &initializer)// NOLINT
+    Vector(const std::initializer_list<T> &initializer)// NOLINT
       : std::vector<T>{initializer}
     {}
 
-    [[nodiscard]] constexpr auto operator[](size_t index) -> T &
+    [[nodiscard]] auto operator[](size_t index) -> T &
     {
         return at(index);
     }
 
-    [[nodiscard]] constexpr auto operator[](size_t index) const -> const T &
+    [[nodiscard]] auto operator[](size_t index) const -> const T &
     {
         return at(index);
     }
 
-    [[nodiscard]] constexpr auto max() const -> const T &
+    [[nodiscard]] auto max() const -> const T &
     {
         if (empty()) {
-            throw std::logic_error{
-                fmt::format("Vector<{}>::max vector is empty", typeid(T).name())};
+            throw std::logic_error{"Vector<T>::max vector is empty"};
         }
 
         return *std::max_element(begin(), end());
     }
 
-    [[nodiscard]] constexpr auto min() const -> const T &
+    [[nodiscard]] auto min() const -> const T &
     {
         if (empty()) {
-            throw std::logic_error{
-                fmt::format("Vector<{}>::min vector is empty", typeid(T).name())};
+            throw std::logic_error{"Vector<T>::min vector is empty"};
         }
 
         return *std::min_element(begin(), end());
     }
 
-    [[nodiscard]] constexpr auto max(const T &default_value) const -> const T &
+    [[nodiscard]] auto max(const T &default_value) const -> const T &
     {
         if (empty()) {
             return default_value;
@@ -113,7 +101,7 @@ public:
         return *std::max_element(begin(), end());
     }
 
-    [[nodiscard]] constexpr auto min(const T &default_value) const -> const T &
+    [[nodiscard]] auto min(const T &default_value) const -> const T &
     {
         if (empty()) {
             return default_value;
@@ -122,19 +110,17 @@ public:
         return *std::min_element(begin(), end());
     }
 
-    constexpr auto swap(size_t first, size_t second) -> void
+    auto swap(size_t first, size_t second) -> void
     {
         std::swap(at(first), at(second));
     }
 
-    constexpr auto sort(bool reverse = false) -> void
+    auto sort(bool reverse = false) -> void
     {
-        if (reverse)
-        {
+        if (reverse) {
             std::sort(rbegin(), rend());
-        }
-        else {
-           std::sort(begin(), end());
+        } else {
+            std::sort(begin(), end());
         }
     }
 };
@@ -143,42 +129,41 @@ class String : public std::string
 {
 public:
     template<typename... Ts>
-    constexpr String(Ts &&...initial_value)// NOLINT
-        requires std::constructible_from<std::string, Ts...>
+    String(Ts &&...initial_value)// NOLINT
       : std::string{std::forward<Ts>(initial_value)...}
     {}
 
-    [[nodiscard]] constexpr auto operator[](size_t index) -> char &
+    [[nodiscard]] auto operator[](size_t index) -> char &
     {
         return this->at(index);
     }
 
-    [[nodiscard]] constexpr auto operator[](size_t index) const -> const char &
+    [[nodiscard]] auto operator[](size_t index) const -> const char &
     {
         return this->at(index);
     }
 
-    [[nodiscard]] constexpr auto toI32() const -> i32
+    [[nodiscard]] auto toI32() const -> i32
     {
         return std::stoi(*this);
     }
 
-    [[nodiscard]] constexpr auto toI64() const -> i64
+    [[nodiscard]] auto toI64() const -> i64
     {
         return std::stol(*this);
     }
 
-    [[nodiscard]] constexpr auto toU64() const -> u64
+    [[nodiscard]] auto toU64() const -> u64
     {
         return std::stoul(*this);
     }
 
-    [[nodiscard]] constexpr auto toF32() const -> f32
+    [[nodiscard]] auto toF32() const -> f32
     {
         return std::stof(*this);
     }
 
-    [[nodiscard]] constexpr auto toF64() const -> f64
+    [[nodiscard]] auto toF64() const -> f64
     {
         return std::stod(*this);
     }
@@ -187,7 +172,7 @@ public:
 auto input(String str = {}) -> String
 {
     if (!str.empty()) {
-        fmt::print("{}", str);
+        std::cout << str;
     }
 
     String result;
@@ -195,34 +180,42 @@ auto input(String str = {}) -> String
     return result;
 }
 
-template<typename T, typename... Ts>
-auto forcePrint(T &&arg, Ts &&...args) -> void
+template<typename T>
+auto print(T &&arg) -> void
 {
-    fmt::print(
-        fmt::runtime(std::string("{}") + std::string(" {}") * (sizeof...(Ts)) + '\n'), std::forward<T>(arg),
-        std::forward<Ts>(args)...);
-}
-
-template<typename... Ts>
-auto print(std::string_view fmt, Ts &&...args) -> void
-{
-    if (!fmt.contains('{')) {
-        forcePrint(fmt, std::forward<Ts>(args)...);
-    } else {
-       fmt::print(fmt::runtime(fmt), std::forward<Ts>(args)...);
-    }
+    std::cout << arg << std::endl;
 }
 
 template<typename T, typename... Ts>
 auto print(T &&arg, Ts &&...args) -> void
-    requires (!std::is_same_v<std::remove_cvref_t<T>, String>)
 {
-   forcePrint(std::forward<T>(arg), std::forward<Ts>(args)...);
+    std::cout << arg << ' ';
+    print(std::forward<Ts>(args)...);
 }
 
-constexpr auto format(std::string_view fmt, auto &&...args) -> String
+template<typename Os, typename T>
+auto operator<<(Os &os, const Vector<T> &vec) -> Os &
 {
-    return fmt::format(fmt::runtime(fmt), std::forward<decltype(args)>(args)...);
+    auto begin = std::begin(vec);
+    const auto end = std::end(vec);
+
+    os << '[';
+
+    if (begin == end) {
+        os << ']';
+        return os;
+    }
+
+    os << *begin;
+
+    for (++begin; begin != end; ++begin) {
+        os << ", ";
+        os << *begin;
+    }
+
+    os << ']';
+
+    return os;
 }
 )cpp";
 }// namespace fsc

@@ -14,7 +14,7 @@ func main()
     while i != 20
     {
         var result = fibonacci(i)
-        print("{}: {}\n", i, result)
+        print(i, result)
         i += 1
     }
 

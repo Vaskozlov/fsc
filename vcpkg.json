@@ -5,6 +5,7 @@
     "fmt",
     "catch2",
     "cxxopts",
-    "antlr4"
+    "antlr4",
+    "range-v3"
   ]
 }
