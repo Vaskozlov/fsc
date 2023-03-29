@@ -68,15 +68,15 @@ namespace fsc::info
 
     constexpr inline auto RuntimeOnlyNoexceptMethod = ast::FunctionInfo{
         .NOEXCEPT = true,
-        .CONSTEXPR = false,
         .IS_METHOD = true,
+        .CONSTEXPR = false,
         .VISIBILITY = Visibility::PUBLIC};
 
     constexpr inline auto RuntimeOnlyNoexceptConstMethod = ast::FunctionInfo{
         .NOEXCEPT = true,
-        .CONSTEXPR = false,
         .IS_METHOD = true,
         .CONSTANT_METHOD = true,
+        .CONSTEXPR = false,
         .VISIBILITY = Visibility::PUBLIC};
 }// namespace fsc::info
 
