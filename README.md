@@ -36,7 +36,7 @@ ninja
 ninja install all
 ```
 
-Также имеется возможность собрать rpm пакет при помощи CPack
+Также имеется возможность сборки rpm пакет при помощи CPack
 
 ```cmake
 cpack -G RPM
