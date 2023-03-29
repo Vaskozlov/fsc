@@ -3,6 +3,7 @@
 #include "type/antlr-types.hpp"
 #include "visitor.hpp"
 #include <ccl/ccl.hpp>
+#include <range/v3/view.hpp>
 
 namespace fsc::ast
 {
@@ -72,7 +73,7 @@ namespace fsc::ast
         fmt::print("{}If statement\n", getPrintingPrefix(prefix, is_left));
         ifNode->print(expanded_prefix, (!elifNodes.empty()) or (elseNode != nullptr));
 
-        for (const auto &node : elifNodes | ccl::views::dropBack(elifNodes)) {
+        for (const auto &node : elifNodes | ranges::views::drop_last(1)) {
             node->print(expanded_prefix, true);
         }
 

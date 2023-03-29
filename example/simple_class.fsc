@@ -13,7 +13,6 @@ func pow2<T>(in T x)
     return x * x
 }
 
-
 func main()
 {
     pow2<i32>(10)

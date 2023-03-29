@@ -1,6 +1,6 @@
 #include "ast/basic_node.hpp"
 #include "type/type.hpp"
-#include <ccl/handler/cmd_handler.hpp>
+#include <ccl/handler/cmd.hpp>
 #include <Token.h>
 
 using namespace ccl;

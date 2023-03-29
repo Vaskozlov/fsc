@@ -2,6 +2,7 @@
 #include "filter.hpp"
 #include "stack/stack.hpp"
 #include "type/type.hpp"
+#include <range/v3/view.hpp>
 #include <type/antlr-types.hpp>
 
 namespace fsc
@@ -15,7 +16,8 @@ namespace fsc
         auto body = makeShared<ast::Body>();
 
         const auto stack_scope = ProgramStack.acquireStackScope(ScopeType::SOFT);
-        const auto modifiers = sv::drop(1) | views::dropBack(ctx->children, 2) | filter::newline;
+        const auto modifiers =
+            ranges::views::drop(1) | ranges::views::drop_last(1) | filter::newline;
 
         for (auto *child : children | modifiers) {
             body->addNode(visitAsNode(child));

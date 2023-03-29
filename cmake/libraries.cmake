@@ -1,5 +1,6 @@
 find_package(Catch2 CONFIG QUIET)
 find_package(cxxopts CONFIG REQUIRED)
+find_package(range-v3 CONFIG REQUIRED)
 
 find_package(Threads REQUIRED)
 find_package(fmt CONFIG REQUIRED)
