@@ -17,6 +17,8 @@ FSC - проект компилятора к собственному языку
 - [ccl](https://github.com/Vaskozlov/ccl-project)
 - [fmt](https://github.com/fmtlib/fmt)
 
+! Все зависимости могут быть установлены при помощи vcpkg
+
 ## Сборка проекта
 
 ```cmake
