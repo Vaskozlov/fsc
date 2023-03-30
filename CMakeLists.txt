@@ -5,6 +5,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 add_compile_definitions(CCL_DEBUG=1)
 add_subdirectory(ccl EXCLUDE_FROM_ALL SYSTEM)
+set(CCL_WSHADOW OFF)
 
 include(project-options)
 include(compile-options)
