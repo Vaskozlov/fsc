@@ -22,7 +22,7 @@ FSC - проект компилятора к собственному языку
 ## Сборка проекта
 
 ```cmake
-git clone https://github.com/Vaskozlov/fsc.git
+git clone --recurse-submodules https://github.com/Vaskozlov/fsc.git
 cd fsc
 mkdir build && cd build
 ```
