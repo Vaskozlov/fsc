@@ -33,6 +33,12 @@ cmake .. -G Ninja
 ninja
 ```
 
+При использовании vcpkg:
+```cmake
+cmake .. -G Ninja -DCMAKE_TOOLCHAIN_FILE=`путь до vcpkg + scripts/buildsystems/vcpkg.cmake`
+ninja
+```
+
 ## Установка
 ```cmake
 ninja install all
