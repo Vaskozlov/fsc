@@ -7,7 +7,6 @@
 namespace fsc::ast
 {
     using namespace ccl;
-    namespace sv = std::views;
 
     Function::Function(BasicContextPtr node_context)
       : NodeWrapper{node_context}
