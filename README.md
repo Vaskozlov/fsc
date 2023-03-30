@@ -32,14 +32,14 @@ mkdir build && cd build
 ```
 
 ```bash
-cmake .. -G Ninja -DCCL_WSHADOW=OFF
+cmake .. -G Ninja
 ninja
 ```
 
 При использовании vcpkg:
 
 ```bash
-cmake .. -G Ninja -DCCL_WSHADOW=OFF -DCMAKE_TOOLCHAIN_FILE=`путь до vcpkg + scripts/buildsystems/vcpkg.cmake`
+cmake .. -G Ninja -DCMAKE_TOOLCHAIN_FILE=`путь до vcpkg + scripts/buildsystems/vcpkg.cmake`
 ninja
 ```
 
