@@ -4,6 +4,7 @@
 #include <ccl/handler/cmd.hpp>
 #include <ccl/text/iterator_exception.hpp>
 #include <ccl/text/location.hpp>
+#include <ranges>
 #include <type/antlr-types.hpp>
 
 using namespace std::string_view_literals;

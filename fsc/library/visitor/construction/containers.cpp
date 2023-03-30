@@ -8,7 +8,6 @@
 namespace fsc
 {
     using namespace ccl;
-    namespace sv = std::views;
 
     auto Visitor::constructBody(BodyContext *ctx) -> ast::NodePtr
     {

@@ -6,7 +6,6 @@
 #include "visitor.hpp"
 
 using namespace ccl;
-namespace sv = std::views;
 
 auto fsc::Visitor::parseFunction(FunctionCallContext *ctx)
     -> std::tuple<std::string, Vector<FscType>, Vector<Argument>, Vector<ast::NodePtr>>

@@ -1,6 +1,7 @@
 #include "type/type_manager.hpp"
 #include "ast/container/class.hpp"
 #include "function/functions_holder.hpp"
+#include <ranges>
 
 using namespace ccl;
 
