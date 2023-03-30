@@ -1,6 +1,8 @@
 #ifndef FSC_DEBUG_HPP
 #define FSC_DEBUG_HPP
 
+#include <string_view>
+
 using namespace std::string_view_literals;
 
 namespace fsc
