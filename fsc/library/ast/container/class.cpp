@@ -11,7 +11,6 @@ namespace fsc::ast
 {
     using namespace ccl;
     using namespace std::string_view_literals;
-    namespace sv = std::views;
 
     Class::Class(std::string class_name)
       : name{std::move(class_name)}

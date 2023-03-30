@@ -22,14 +22,19 @@ FSC - проект компилятора к собственному языку
 ## Сборка проекта
 
 ```cmake
-git clone https://github.com/Vaskozlov/fsc.git
+git clone --recurse-submodules https://github.com/Vaskozlov/fsc.git
 cd fsc
-mkdir build
-cd build
+mkdir build && cd build
 ```
 
 ```cmake
 cmake .. -G Ninja
+ninja
+```
+
+При использовании vcpkg:
+```cmake
+cmake .. -G Ninja -DCMAKE_TOOLCHAIN_FILE=`путь до vcpkg + scripts/buildsystems/vcpkg.cmake`
 ninja
 ```
 
