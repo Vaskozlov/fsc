@@ -6,15 +6,17 @@ using namespace std::literals;
 DEBUG_VAR constexpr static FscProgram = R"(
 func main() -> i32
 {
-    print("{}\n", 10)
+    print(10)
     return 0
 }
 )"sv;
 
 DEBUG_VAR constexpr static CppProgram = R"(
+#include <iostream>
+
 int main()
 {
-    fmt::print("{}\n", 10);
+    std::cout << 10 << std::endl;;
     return 0;
 }
 )"sv;

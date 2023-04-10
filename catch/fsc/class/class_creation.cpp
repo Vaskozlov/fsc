@@ -25,17 +25,19 @@ func main() -> i32
 )"sv;
 
 DEBUG_VAR constexpr static CppProgram = R"(
+#include <iostream>
+
 class S
 {
 public:
     S()
     {
-        fmt::print("S has been constructed\n");
+        std::cout << "S has been constructed" << std::endl;
     }
 
     ~S()
     {
-        fmt::print("S has been deleted\n");
+        std::cout << "S has been deleted" << std::endl;
     }
 };
 
