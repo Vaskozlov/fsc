@@ -3,7 +3,7 @@
 namespace fsc
 {
     FscBuiltinType<ReprOrValue<ccl::f32>>::FscBuiltinType(ReprOrValue<ccl::f32> initializer)
-      : FscTypeInterface{FscFloat32::typeId}
+      : FscTypeInterface{FscFloat32::getTypeId()}
       , value{std::move(initializer)}
     {}
 
@@ -11,7 +11,7 @@ namespace fsc
     {
         auto result = value.toString();
 
-        if (!result.contains('.')) {
+        if (result.find('.') == std::string::npos) {
             result += ".0";
         }
 
@@ -24,7 +24,7 @@ namespace fsc
     }
 
     FscBuiltinType<ReprOrValue<ccl::f64>>::FscBuiltinType(ReprOrValue<ccl::f64> initializer)
-      : FscTypeInterface{FscFloat64::typeId}
+      : FscTypeInterface{FscFloat64::getTypeId()}
       , value{std::move(initializer)}
     {}
 
@@ -32,7 +32,7 @@ namespace fsc
     {
         auto result = value.toString();
 
-        if (!result.contains('.')) {
+        if (result.find('.') == std::string::npos) {
             result += ".0";
         }
 
@@ -45,7 +45,7 @@ namespace fsc
     }
 
     FscBuiltinType<FscChar>::FscBuiltinType(FscChar initializer)
-      : FscTypeInterface{FscChar::typeId}
+      : FscTypeInterface{FscChar::getTypeId()}
       , value{initializer}
     {}
 
@@ -60,7 +60,7 @@ namespace fsc
     }
 
     FscBuiltinType<FscString>::FscBuiltinType(FscString initializer)
-      : FscTypeInterface{FscString::typeId}
+      : FscTypeInterface{FscString::getTypeId()}
       , value{std::move(initializer)}
     {}
 
@@ -75,7 +75,7 @@ namespace fsc
     }
 
     FscBuiltinType<FscBool>::FscBuiltinType(FscBool initializer)
-      : FscTypeInterface{FscBool::typeId}
+      : FscTypeInterface{FscBool::getTypeId()}
       , value{initializer}
     {}
 

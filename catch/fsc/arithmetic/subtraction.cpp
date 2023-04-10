@@ -6,20 +6,22 @@ using namespace std::literals;
 DEBUG_VAR constexpr static FscProgram = R"(
 func main() -> i32
 {
-    print("{}\n", 10 - 10)
-    print("{}\n", 10.15151 - 10.15151)
-    print("{}\n", 10.15151F64 - 10.15151F64)
+    print(10 - 10)
+    print(10.15151 - 10.15151)
+    print(10.15151F64 - 10.15151F64)
 
     return 0
 }
 )"sv;
 
 DEBUG_VAR constexpr static CppProgram = R"(
+#include <iostream>
+
 int main()
 {
-    fmt::print("{}\n", 10 - 10);
-    fmt::print("{}\n", 10.15151F - 10.15151F);
-    fmt::print("{}\n", 10.15151 - 10.15151);
+    std::cout <<  10 - 10 << std::endl;
+    std::cout <<  10.15151F - 10.15151F << std::endl;
+    std::cout <<  10.15151 - 10.15151 << std::endl;
 
     return 0;
 }

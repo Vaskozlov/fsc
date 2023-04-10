@@ -1,24 +1,24 @@
 #include "type/type_manager.hpp"
 #include "ast/container/class.hpp"
 #include "function/functions_holder.hpp"
-#include <ranges>
+#include <range/v3/view.hpp>
 
 using namespace ccl;
 
 namespace fsc
 {
-    static auto checkTemplatePackCorrect(const std::string &template_name) -> Vector<FscType>
+    static auto checkTemplatePackCorrect(const std::string &templates) -> Vector<FscType>
     {
         auto result = Vector<FscType>{};
 
-        for (auto template_typename : template_name | std::views::split(',')) {
-            auto converted_name_view = ccl::string_view{std::string_view{template_typename}};
+        for (auto rng : ranges::split_view(templates, ',')) {
+            auto template_name = ccl::string_view{&*rng.begin(), as<size_t>(ranges::distance(rng))};
 
-            while (converted_name_view[0] == ' ') {
-                converted_name_view = {converted_name_view.begin() + 1, converted_name_view.end()};
+            while (template_name[0] == ' ') {
+                template_name = {template_name.begin() + 1, template_name.end()};
             }
 
-            auto converted_name = std::string{converted_name_view};
+            auto converted_name = std::string{template_name};
 
             while (converted_name.back() == ' ') {
                 converted_name.pop_back();
@@ -392,7 +392,7 @@ namespace fsc
             const auto new_type = createNewType(type_name, {});
             auto &instantiated_templates_map = getInstantiatedTemplates()[new_type];
 
-            for (auto i = 0ZU; i != templates.size(); ++i) {
+            for (auto i = as<size_t>(0); i != templates.size(); ++i) {
                 instantiated_templates_map.emplace(class_templates[i], templates[i]);
             }
 

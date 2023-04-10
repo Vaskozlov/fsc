@@ -20,7 +20,10 @@ namespace fsc::ast
     auto MethodCall::analyze() -> AnalysisReport
     {
         auto expression_analysis = expression->analyze();
+
+        expression_analysis.addToModified(expression);
         expression_analysis.merge(FunctionCall::analyze());
+
         return expression_analysis;
     }
 

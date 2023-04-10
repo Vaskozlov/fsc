@@ -24,7 +24,7 @@ namespace fsc
 
     public:
         explicit FscBuiltinType(Int initializer)
-          : FscTypeInterface{Int::typeId}
+          : FscTypeInterface{Int::getTypeId()}
           , value{initializer}
         {}
 
@@ -73,7 +73,7 @@ namespace fsc
     {
     public:
         explicit FscBuiltinType()
-          : FscTypeInterface{VoidType::typeId}
+          : FscTypeInterface{VoidType::getTypeId()}
         {}
 
         [[nodiscard]] auto toString() const -> std::string final

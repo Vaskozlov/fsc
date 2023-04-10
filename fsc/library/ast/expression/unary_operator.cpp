@@ -60,7 +60,7 @@ namespace fsc::ast
                     break;
 
                 default:
-                    std::unreachable();
+                    ccl::unreachable();
                 }
 
                 return report;

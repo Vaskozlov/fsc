@@ -13,9 +13,9 @@
     public:                                                                                        \
         Fsc##TypeName() = default;                                                                 \
                                                                                                    \
-        CCL_PERFECT_FORWARDING(FSC_T, StoredType)                                                  \
-        Fsc##TypeName(FSC_T &&initial_value)                                                       \
-          : FscTypeWrapper{std::forward<FSC_T>(initial_value)}                                     \
+        template<typename FSC_T = StoredType>                                                      \
+        Fsc##TypeName(FSC_T initial_value)                                                         \
+          : FscTypeWrapper{std::move(initial_value)}                                               \
         {}                                                                                         \
     };                                                                                             \
                                                                                                    \
@@ -101,7 +101,10 @@ namespace fsc
     template<ccl::ConstString String>
     struct FscTypeWrapper<String, void>
     {
-        inline constinit static ccl::Id typeId = 0;
+        [[nodiscard]] static auto getTypeId() noexcept -> ccl::Id
+        {
+            return typeId;
+        }
 
         static auto initialize(TypeInfo type_info, CreationType creation_type) -> void
         {
@@ -109,13 +112,26 @@ namespace fsc
                          static_cast<std::string>(String), type_info, creation_type)
                          .getId();
         }
+
+    private:
+        inline constinit static ccl::Id typeId = 0;
     };
 
     template<ccl::ConstString String, typename T>
     struct FscTypeWrapper
     {
     public:
-        inline constinit static ccl::Id typeId = 0;
+        FscTypeWrapper() = default;
+
+        CCL_PERFECT_FORWARDING(U, T)
+        explicit FscTypeWrapper(U &&initial_value)
+          : value{std::forward<U>(initial_value)}
+        {}
+
+        [[nodiscard]] static auto getTypeId() noexcept -> ccl::Id
+        {
+            return typeId;
+        }
 
         static auto initialize(TypeInfo type_info, CreationType creation_type) -> void
         {
@@ -126,12 +142,8 @@ namespace fsc
 
         T value;
 
-        FscTypeWrapper() = default;
-
-        CCL_PERFECT_FORWARDING(U, T)
-        explicit FscTypeWrapper(U &&initial_value)
-          : value{std::forward<U>(initial_value)}
-        {}
+    private:
+        inline constinit static ccl::Id typeId = 0;
     };
 
     struct VoidType : FscTypeWrapper<"void", void>

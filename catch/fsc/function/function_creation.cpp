@@ -11,12 +11,14 @@ func test()
 
 func main() -> i32
 {
-    print("{}\n", test())
+    print(test())
     return 0
 }
 )"sv;
 
 DEBUG_VAR constexpr static CppProgram = R"(
+#include <iostream>
+
 int test()
 {
     return 10;
@@ -24,7 +26,7 @@ int test()
 
 int main()
 {
-    fmt::print("{}\n", test());
+    std::cout << test() << std::endl;
     return 0;
 }
 )"sv;

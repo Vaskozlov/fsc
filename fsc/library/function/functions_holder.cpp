@@ -5,12 +5,11 @@
 #include "stack/stack.hpp"
 #include <algorithm>
 #include <ccl/ccl.hpp>
-#include <ranges>
+#include <range/v3/view.hpp>
 
 namespace fsc::func
 {
     using namespace ccl;
-    namespace sv = std::views;
 
     static auto isMagicFunction(SignatureView signature) noexcept -> bool
     {
@@ -121,7 +120,7 @@ namespace fsc::func
     {
         auto arguments = Vector<Argument>{};
 
-        for (const auto &argument : signature.arguments | sv::drop(1)) {
+        for (const auto &argument : signature.arguments | ranges::views::drop(1)) {
             arguments.push_back(argument);
         }
 
