@@ -63,7 +63,7 @@ auto doCompilation() -> int
     }
 
     if (OptimizationLevel == 0) {
-        system_command += "-fsanitize=address,undefined,leak -g -fno-omit-frame-pointer -O0";
+        system_command += "-fsanitize=address,undefined -g -fno-omit-frame-pointer -O0";
     } else if (OptimizationLevel == 1) {
         system_command += "-fsanitize-minimal-runtime -g -fno-omit-frame-pointer -O2";
     } else {

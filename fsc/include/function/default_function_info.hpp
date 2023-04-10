@@ -51,6 +51,7 @@ namespace fsc::info
     constexpr inline auto RuntimeThrowingMethod = ast::FunctionInfo{
         .NOEXCEPT = false,
         .IS_METHOD = true,
+        .CONSTANT_METHOD=false,
         .BUILTIN_FUNCTION = true,
         .CONSTEXPR = false,
         .VISIBILITY = Visibility::PUBLIC};
@@ -69,6 +70,7 @@ namespace fsc::info
     constexpr inline auto RuntimeOnlyNoexceptMethod = ast::FunctionInfo{
         .NOEXCEPT = true,
         .IS_METHOD = true,
+        .BUILTIN_FUNCTION=true,
         .CONSTEXPR = false,
         .VISIBILITY = Visibility::PUBLIC};
 
@@ -76,6 +78,7 @@ namespace fsc::info
         .NOEXCEPT = true,
         .IS_METHOD = true,
         .CONSTANT_METHOD = true,
+        .BUILTIN_FUNCTION=true,
         .CONSTEXPR = false,
         .VISIBILITY = Visibility::PUBLIC};
 }// namespace fsc::info

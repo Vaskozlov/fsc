@@ -28,7 +28,7 @@ namespace fsc
         writeToFile(cpp_filename, fsc::FscProgramsHeader, cpp_program);
 
         const auto compiler_command = fmt::format(
-            "UBSAN_OPTIONS=print_stacktrace=1 clang++ {} -fsanitize=address,undefined,leak -g "
+            "UBSAN_OPTIONS=print_stacktrace=1 clang++ {} -fsanitize=address,undefined -g "
             "-fno-omit-frame-pointer -O0 {} -o {}",
             CompilerFlags, cpp_filename, compiled_filename);
 
