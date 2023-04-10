@@ -46,7 +46,7 @@ namespace fsc
         template<ccl::ConstString String, typename T>
         // NOLINTNEXTLINE
         FscType(const FscTypeWrapper<String, T> &derived_type) noexcept
-          : typeId{derived_type.typeId}
+          : typeId{derived_type.getTypeId()}
         {}
 
         explicit FscType(const std::string &type_name) noexcept(false);
@@ -119,7 +119,7 @@ struct fmt::formatter<fsc::FscType> : fmt::formatter<std::string>
 
 namespace fsc
 {
-    auto hashTypes(ccl::Iterable auto &&container) -> ccl::Id
+    auto hashTypes(const ccl::Iterable auto &container) -> ccl::Id
         requires std::is_same_v<std::remove_cvref_t<decltype(*container.begin())>, FscType>
     {
         constexpr static ccl::Id hash_magic = 31;

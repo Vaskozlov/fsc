@@ -4,7 +4,7 @@
 #include <ccl/handler/cmd.hpp>
 #include <ccl/text/iterator_exception.hpp>
 #include <ccl/text/location.hpp>
-#include <ranges>
+#include <range/v3/view.hpp>
 #include <type/antlr-types.hpp>
 
 using namespace std::string_view_literals;
@@ -13,11 +13,15 @@ namespace fsc
 {
     static auto splitTextIntoLines(const std::string &text) -> ccl::Vector<std::string>
     {
-        auto split_lines = std::ranges::views::split(text, '\n');
+        auto split_lines =
+            text | ranges::views::split('\n') | ranges::views::transform([](auto &&rng) {
+                return std::string_view(&*rng.begin(), ccl::as<size_t>(ranges::distance(rng)));
+            });
+
         auto result = ccl::Vector<std::string>{};
 
         for (auto line : split_lines) {
-            result.emplace_back(std::string_view{line});
+            result.emplace_back(line);
         }
 
         return result;
@@ -47,9 +51,9 @@ namespace fsc
             ccl::AnalysisStage::PARSING,
             location,
             length,
-            inputAsLines.at(location.getLine() - 1),
-            message,
-            suggestion};
+            ccl::as<ccl::string_view>(inputAsLines.at(location.getLine() - 1)),
+            ccl::as<std::string>(message),
+            ccl::as<std::string>(suggestion)};
 
         handler.handle(iterator_exception);
 

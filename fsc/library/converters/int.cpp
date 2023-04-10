@@ -15,7 +15,7 @@ namespace fsc::converter
     {
         repr.pop_back();
 
-        auto result = 0ZU;
+        auto result = as<size_t>(0);
 
         if (repr.starts_with(BinaryBegin)) {
             result = std::stoull(repr.substr(BinaryBegin.size()), nullptr, 2);
@@ -42,7 +42,7 @@ namespace fsc::converter
             return toUInt(repr, value_context);
         }
 
-        auto result = 0Z;
+        auto result = as<ssize_t>(0);
 
         if (repr.starts_with(BinaryBegin)) {
             result = std::stoll(repr.substr(BinaryBegin.size()), nullptr, 2);

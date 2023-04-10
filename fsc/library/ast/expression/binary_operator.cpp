@@ -68,7 +68,7 @@ namespace fsc::ast
                     break;
 
                 default:
-                    std::unreachable();
+                    ccl::unreachable();
                 }
 
                 switch (function_arguments.at(1).getCategory()) {
@@ -82,7 +82,7 @@ namespace fsc::ast
                     break;
 
                 default:
-                    std::unreachable();
+                    ccl::unreachable();
                 }
 
                 return report;

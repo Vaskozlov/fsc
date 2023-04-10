@@ -23,7 +23,7 @@ namespace fsc::ast
         }
 
         if (classType != Void) {
-            auto uuid = functionUuid * std::max(1ZU, hashTypes(templates));
+            auto uuid = functionUuid * std::max<size_t>(1, hashTypes(templates));
 
             if (ProgramStack.hasFunctionInCallTree(uuid)) {
                 return {};
@@ -113,7 +113,7 @@ namespace fsc::ast
 
     auto Function::analyzeFunctionAfterTemplatesRemap() -> AnalysisReport
     {
-        auto uuid = functionUuid * std::max(1ZU, hashTypes(templates));
+        auto uuid = functionUuid * std::max<size_t>(1, hashTypes(templates));
 
         if (ProgramStack.hasFunctionInCallTree(uuid)) {
             return {};
@@ -151,7 +151,7 @@ namespace fsc::ast
         }
 
         auto function_scope = ProgramStack.acquireStackScope(ScopeType::HARD);
-        for (auto i = 0ZU; i != arguments.size(); ++i) {
+        for (auto i = ccl::as<size_t>(0); i != arguments.size(); ++i) {
             auto variable = makeShared<Variable>(arguments[i].toVariable());
 
             if (auto value = std::dynamic_pointer_cast<Value>(passed_arguments[i]);

@@ -60,7 +60,7 @@ namespace fsc::ast
         auto function_to_call = getFunction();
         const auto &function_arguments = function_to_call->getArguments();
 
-        for (auto i = 0ZU; i != arguments.size(); ++i) {
+        for (auto i = ccl::as<size_t>(0); i != arguments.size(); ++i) {
             report.merge(arguments[i]->analyze());
 
             if (i >= function_arguments.size()) {
@@ -80,7 +80,7 @@ namespace fsc::ast
                 break;
 
             default:
-                std::unreachable();
+                ccl::unreachable();
             }
         }
 
