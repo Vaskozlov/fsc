@@ -196,7 +196,7 @@ namespace fsc::builtin
              "std::putchar",
              Void,
              {{"value", Int32, ArgumentCategory::IN}},
-             FunctionInfo{.NOEXCEPT = true, .CONSTEXPR = false, .VISIBILITY = Visibility::PUBLIC}},
+             RuntimeOnlyNoexceptFunction},
             {Void,
              "print",
              "",
@@ -209,6 +209,19 @@ namespace fsc::builtin
                  .CONSTEXPR = false,
                  .VISIBILITY = Visibility::PUBLIC},
              {}},
+        };
+    }
+
+    auto constructInputFunctions() -> Vector<Function>
+    {
+        return Vector<Function>{
+            {Void, "input", "", String, {}, RuntimeOnlyNoexceptFunction},
+            {Void,
+             "input",
+             "",
+             String,
+             {{"message", String, ArgumentCategory::IN}},
+             RuntimeOnlyNoexceptFunction},
         };
     }
 
@@ -544,8 +557,8 @@ namespace fsc::builtin
         func::Functions.registerFunctions(
             {constructInt32Operators(), constructInt64Operators(), constructUInt32Operators(),
              constructUInt64Operators(), constructFloat32Operators(), constructFloat64Operators(),
-             constructMathFunctions(), constructOutputFunctions(), constructVectorFunctions(),
-             constructStringOperators()});
+             constructMathFunctions(), constructInputFunctions(), constructOutputFunctions(),
+             constructVectorFunctions(), constructStringOperators()});
 
         initialized = true;
     }

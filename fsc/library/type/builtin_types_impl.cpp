@@ -66,7 +66,7 @@ namespace fsc
 
     auto FscBuiltinType<FscString>::toString() const -> std::string
     {
-        return fmt::format("String{{{}}}", value.value);
+        return fmt::format("String{{ {} }}", value.value);
     }
 
     auto FscBuiltinType<FscString>::getValue() const -> std::any

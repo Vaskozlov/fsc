@@ -11,7 +11,7 @@ namespace fsc
     {
         auto result = Vector<FscType>{};
 
-        for (auto rng : ranges::split_view(templates, ',')) {
+        for (auto rng : templates | ranges::views::split(',')) {
             auto template_name = ccl::string_view{&*rng.begin(), as<size_t>(ranges::distance(rng))};
 
             while (template_name[0] == ' ') {
@@ -245,7 +245,7 @@ namespace fsc
     auto TypeManager::addFscClass(ast::NodePtr class_node) -> void
     {
         const auto &fsc_class = class_node->as<ast::Class>();
-        getFscClasses().emplace(fsc_class.getType(), std::move(class_node));
+        getFscClasses().try_emplace(fsc_class.getType(), std::move(class_node));
     }
 
     auto TypeManager::addMemberVariable(FscType type, ast::NodePtr variable_node) -> void
@@ -255,7 +255,7 @@ namespace fsc
         const auto &variable = ccl::as<ast::Variable &>(*variable_node);
         auto &class_variables = getTypesMemberVariables().at(type);
 
-        class_variables.emplace(variable.getName(), std::move(variable_node));
+        class_variables.try_emplace(variable.getName(), std::move(variable_node));
     }
 
     auto TypeManager::hasMemberVariable(FscType type, const std::string &variable_name) -> bool
@@ -320,7 +320,7 @@ namespace fsc
         if (member_variable_name == "this") {
             // TODO: check for const reference
             return makeShared<ast::Variable>(
-                nullptr, "*this", type, ast::VariableFlags{.reference = true});
+                nullptr, "*this", ccl::toLazy(type), ast::VariableFlags{.reference = true});
         }
 
         return getTypesMemberVariables().at(type).at(member_variable_name);
@@ -346,10 +346,10 @@ namespace fsc
         const auto type = FscType{generateUuid(), std::in_place};
         const auto creation_lock = std::scoped_lock{type_registration_mutex};
 
-        getTypeByName().emplace(type_name, type);
-        getTypenameById().emplace(type.getId(), type_name);
-        getTypeInfo().emplace(type, type_flags);
-        getTypesMemberVariables().insert({type, {}});
+        getTypeByName().try_emplace(type_name, type);
+        getTypenameById().try_emplace(type.getId(), type_name);
+        getTypeInfo().try_emplace(type, type_flags);
+        getTypesMemberVariables().try_emplace(type);
         postCreationSetupForTemplates(type, creation_type);
 
         return type;
