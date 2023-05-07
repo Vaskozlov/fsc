@@ -282,10 +282,14 @@ namespace fsc
         return fsc_classes.at(type);
     }
 
-    auto TypeManager::getInstantiatedTemplate(FscType fsc_class, FscType type) -> FscType
+    auto TypeManager::convertToClassPrivateInstantiatedTemplate(FscType fsc_class, FscType type) -> FscType
     {
         fsc_class = getTrueType(fsc_class);
         type = getTrueType(type);
+
+        if (!getInstantiatedTemplates().contains(fsc_class)) {
+            return type;
+        }
 
         const auto &instantiated_templates = getInstantiatedTemplates().at(fsc_class);
 

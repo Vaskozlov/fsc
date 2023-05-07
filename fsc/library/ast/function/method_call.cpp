@@ -29,7 +29,7 @@ namespace fsc::ast
 
     auto MethodCall::getValueType() -> FscType
     {
-        return TypeManager::getInstantiatedTemplate(
+        return TypeManager::convertToClassPrivateInstantiatedTemplate(
             expression->getValueType(), FunctionCall::getValueType());
     }
 

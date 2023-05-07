@@ -80,7 +80,8 @@ namespace fsc
 
         [[nodiscard]] static auto getFscClass(FscType type) -> ast::NodePtr;
 
-        [[nodiscard]] static auto getInstantiatedTemplate(FscType fsc_class, FscType type)
+        [[nodiscard]] static auto
+            convertToClassPrivateInstantiatedTemplate(FscType fsc_class, FscType type)
             -> FscType;
 
         [[nodiscard]] static auto getBaseTypeOfInstantiatedTemplate(FscType type) -> FscType;

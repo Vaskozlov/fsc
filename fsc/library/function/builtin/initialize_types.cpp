@@ -41,5 +41,8 @@ namespace fsc::builtin
 
         TypeManager::addFscClass(ccl::makeShared<ast::Class>(
             VectorTemplate, "Vector", ccl::InitializerList<FscType>{Template1}));
+
+        TypeManager::addFscClass(
+            ccl::makeShared<ast::Class>(String, "String", ccl::InitializerList<FscType>{}));
     }
 }// namespace fsc::builtin
