@@ -64,19 +64,19 @@ namespace fsc::ast
             report.merge(arguments[i]->analyze());
 
             if (i >= function_arguments.size()) {
-                report.addToRead(arguments[i]);
+                report.addToReadVariables(arguments[i]);
                 continue;
             }
 
             switch (function_arguments[i].getCategory()) {
             case ArgumentCategory::IN:
             case ArgumentCategory::COPY:
-                report.addToRead(arguments[i]);
+                report.addToReadVariables(arguments[i]);
                 break;
 
             case ArgumentCategory::INOUT:
             case ArgumentCategory::OUT:
-                report.addToModified(arguments[i]);
+                report.addToModifiedVariables(arguments[i]);
                 break;
 
             default:

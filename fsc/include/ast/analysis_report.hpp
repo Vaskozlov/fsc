@@ -25,8 +25,8 @@ namespace fsc::ast
 
         auto updateConstexpr(bool is_constexpr) -> void;
         auto updateNoexcept(bool is_noexcept) -> void;
-        auto addToRead(const NodePtr &node) -> void;
-        auto addToModified(const NodePtr &node) -> void;
+        auto addToReadVariables(const NodePtr &node) -> void;
+        auto addToModifiedVariables(const NodePtr &node) -> void;
 
         auto merge(AnalysisReport &&other) -> void;
 

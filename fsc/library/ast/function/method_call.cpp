@@ -21,7 +21,7 @@ namespace fsc::ast
     {
         auto expression_analysis = expression->analyze();
 
-        expression_analysis.addToModified(expression);
+        expression_analysis.addToModifiedVariables(expression);
         expression_analysis.merge(FunctionCall::analyze());
 
         return expression_analysis;

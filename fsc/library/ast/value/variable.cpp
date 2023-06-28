@@ -19,7 +19,7 @@ namespace fsc::ast
     auto Variable::analyze() -> AnalysisReport
     {
         auto report = AnalysisReport{};
-        report.addToRead(shared_from_this());
+        report.addToReadVariables(shared_from_this());
         return report;
     }
 

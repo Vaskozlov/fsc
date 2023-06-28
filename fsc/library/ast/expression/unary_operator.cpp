@@ -51,12 +51,12 @@ namespace fsc::ast
 
                 switch (function_arguments.at(0).getCategory()) {
                 case ArgumentCategory::IN:
-                    report.addToRead(value);
+                    report.addToReadVariables(value);
                     break;
 
                 case ArgumentCategory::OUT:
                 case ArgumentCategory::INOUT:
-                    report.addToModified(value);
+                    report.addToModifiedVariables(value);
                     break;
 
                 default:

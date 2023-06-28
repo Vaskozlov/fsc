@@ -47,7 +47,7 @@ namespace fsc::ast
         header->isConstexpr &= is_constexpr;
     }
 
-    auto AnalysisReport::addToRead(const NodePtr &node) -> void
+    auto AnalysisReport::addToReadVariables(const NodePtr &node) -> void
     {
         const auto variable = std::dynamic_pointer_cast<Variable>(node);
 
@@ -60,7 +60,7 @@ namespace fsc::ast
         header->readVariables.emplace(variable->getUuid());
     }
 
-    auto AnalysisReport::addToModified(const NodePtr &node) -> void
+    auto AnalysisReport::addToModifiedVariables(const NodePtr &node) -> void
     {
         const auto variable = std::dynamic_pointer_cast<Variable>(node);
 
