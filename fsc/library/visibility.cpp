@@ -7,6 +7,10 @@ namespace fsc
     static auto genMethodVisibility(Visibility visibility, ccl::codegen::BasicCodeGenerator &output)
         -> void
     {
+        if (visibility == Visibility::EXPORT) {
+            throw std::logic_error("Export visibility is not available at the moment");
+        }
+
         switch (visibility) {
         case Visibility::PUBLIC:
             output << "public:"sv;
@@ -15,9 +19,6 @@ namespace fsc
         case Visibility::PROTECTED:
             output << "protected:"sv;
             break;
-
-        case Visibility::EXPORT:
-            throw std::logic_error("Export visibility is not available at the moment");
 
         default:
             output << "private: "sv;
