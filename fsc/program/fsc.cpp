@@ -27,21 +27,15 @@ auto doCompilation() -> int
         fmt::print("Unable to find source file at a given location: {}\n", Source);
     }
 
-    std::ifstream stream(Source);
-
-    if (!stream.is_open()) {
-        fmt::print("{} is not a valid file\n", Source);
-        return 1;
-    }
 
     const auto optimization_level = OptimizationLevel == 0 ? fsc::ast::OptimizationLevel::NONE
                                                            : fsc::ast::OptimizationLevel::FAST;
 
     auto begin = std::chrono::high_resolution_clock::now();
 
-    const auto code = fsc::compile(Source, stream, optimization_level, PrintTree);
+    const auto code = fsc::compile(Source, optimization_level, PrintTree);
 
-    FrontendTime = (std::chrono::high_resolution_clock::now() - begin) / 1ms;
+    FrontendTime = (std::chrono::high_resolution_clock::now() - begin) / 1us;
 
     if (PrintCode) {
         fmt::print("{}\n", code);
@@ -119,7 +113,7 @@ auto main(int argc, char *argv[]) -> int// NOLINT
         }
 
         fmt::print(
-            "Frontend time: {} ms, backend time: {} ms, running program...\n\n", FrontendTime,
+            "Frontend time: {} us, backend time: {} ms, running program...\n\n", FrontendTime,
             BackendTime);
         std::system(Output.c_str());
     }

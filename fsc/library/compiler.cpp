@@ -3,27 +3,30 @@
 #include "FscParser.h"
 #include "type/builtin_types.hpp"
 #include "visitor.hpp"
+#include <ccl/future.hpp>
+#include "io.hpp"
 
 using namespace ccl;
 
 namespace fsc
 {
     auto compile(
-        std::string_view filename, std::ifstream &stream, ast::OptimizationLevel optimization_level,
+        const std::filesystem::path &filename, ast::OptimizationLevel optimization_level,
         bool print_tree) -> std::string
     {
-        builtin::initializeCompilerBuiltin();
+        auto builtin_initialization = std::jthread(builtin::initializeCompilerBuiltin);
 
-        auto input = antlr4::ANTLRInputStream{stream};
+        auto input = antlr4::ANTLRInputStream{fsc::readFile(filename)};
         auto lexer = FscLexer{&input};
         auto token_stream = antlr4::CommonTokenStream{&lexer};
 
         auto parser = FscParser{&token_stream};
         auto *tree = parser.program();
 
-        auto visitor = fsc::Visitor{filename, input};
+        auto visitor = fsc::Visitor{filename.string(), input};
         GlobalVisitor = &visitor;
 
+        builtin_initialization.join();
         visitor.visit(tree);
 
         visitor.analyze();

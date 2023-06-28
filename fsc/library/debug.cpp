@@ -57,14 +57,7 @@ namespace fsc
             }};
 
         writeToFile(fsc_filename, fsc_program);
-
-        std::ifstream stream(fsc_filename);
-
-        if (!stream.is_open()) {
-            fmt::print("{} is not a valid file\n", fsc_filename);
-        }
-
-        return compileCppProgram(fsc::compile(fsc_filename, stream, ast::OptimizationLevel::NONE));
+        return compileCppProgram(fsc::compile(fsc_filename, ast::OptimizationLevel::NONE));
     }
 
     auto compareProgramsOutput(std::string_view fsc_program, std::string_view cpp_program) -> bool
