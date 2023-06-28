@@ -1,0 +1,32 @@
+func isTriangle()
+{
+    var data = Vector<f64>()
+    var i = 0 as u64
+
+    while i != 3U
+    {
+        data.push_back(input().toF64())
+        i += 1U
+    }
+
+    data.sort()
+
+    if data.min() < 0.0 {
+        print("A side of the triangle can not be less than 0")
+    }
+
+    elif data[0U] + data[1U] <= data[2U] {
+        print("It is not a triangle, because one of the sides is not greater than the sum of the other two sides.")
+    }
+
+    else {
+        print("It is a triangle")
+    }
+}
+
+func main()
+{
+    isTriangle()
+
+    return 0
+}
