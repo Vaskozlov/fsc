@@ -16,8 +16,6 @@ namespace fsc
         auto out = std::ofstream{filename};
 
         const auto file_tracker = ccl::Raii(
-            []() {
-            },
             [&out]() {
                 out.close();
             });
@@ -30,7 +28,7 @@ namespace fsc
         std::filesystem::remove(filename);
     }
 
-    auto readFile(const std::filesystem::path &path) -> std::string;
+    auto readFile(const std::filesystem::path &path) noexcept(false) -> std::string;
 }// namespace fsc
 
 #endif /* FSC_IO_HPP */

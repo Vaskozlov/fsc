@@ -7,9 +7,7 @@ namespace fsc
         auto stream = std::ifstream(path);
 
         if (!stream.is_open()) {
-            fmt::print("Error: cannot open file {}\n", path.string());
-            std::cout.flush();
-            throw std::invalid_argument("Failed to open file");
+            throw std::invalid_argument(fmt::format("Failed to open file {}", path.string()));
         }
 
         auto buffer = std::stringstream{};
