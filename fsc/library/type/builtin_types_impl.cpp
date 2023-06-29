@@ -12,10 +12,11 @@ namespace fsc
         auto result = value.toString();
 
         if (result.find('.') == std::string::npos) {
-            result += ".0";
+            result.append(".0");
         }
 
-        return result + "F";
+        result.push_back('F');
+        return result;
     }
 
     auto FscBuiltinType<ReprOrValue<ccl::f32>>::getValue() const -> std::any
@@ -33,7 +34,7 @@ namespace fsc
         auto result = value.toString();
 
         if (result.find('.') == std::string::npos) {
-            result += ".0";
+            result.append(".0");
         }
 
         return result;

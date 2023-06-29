@@ -154,8 +154,8 @@ namespace fsc
         }
 
         getTemplatedTypes().emplace(key);
-        getTypeByName().emplace(key.getName(), value);
-        getRemapTypes().emplace(key.getId(), value);
+        getTypeByName().try_emplace(key.getName(), value);
+        getRemapTypes().try_emplace(key.getId(), value);
     }
 
     auto TypeManager::unmap(FscType key) -> void
