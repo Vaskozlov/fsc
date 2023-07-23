@@ -13,6 +13,7 @@ namespace fsc::converter
 
     static auto toUInt(std::string repr, BasicContextPtr value_context) -> SharedPtr<ast::Value>
     {
+        CCL_ASSERT(repr.back() == 'U');
         repr.pop_back();
 
         auto result = as<size_t>(0);

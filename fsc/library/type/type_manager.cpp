@@ -12,17 +12,9 @@ namespace fsc
         auto result = Vector<FscType>{};
 
         for (auto rng : templates | ranges::views::split(',')) {
-            auto template_name = ccl::string_view{&*rng.begin(), as<size_t>(ranges::distance(rng))};
-
-            while (template_name[0] == ' ') {
-                template_name = {template_name.begin() + 1, template_name.end()};
-            }
-
-            auto converted_name = std::string{template_name};
-
-            while (converted_name.back() == ' ') {
-                converted_name.pop_back();
-            }
+            const auto template_name =
+                ccl::string_view{&*rng.begin(), as<size_t>(ranges::distance(rng))};
+            auto converted_name = std::string{template_name.strip(" ")};
 
             if (!TypeManager::exists(converted_name)) {
                 throw std::invalid_argument{fmt::format("{} is not a valid type", template_name)};
@@ -282,7 +274,8 @@ namespace fsc
         return fsc_classes.at(type);
     }
 
-    auto TypeManager::convertToClassPrivateInstantiatedTemplate(FscType fsc_class, FscType type) -> FscType
+    auto TypeManager::convertToClassPrivateInstantiatedTemplate(FscType fsc_class, FscType type)
+        -> FscType
     {
         fsc_class = getTrueType(fsc_class);
         type = getTrueType(type);
