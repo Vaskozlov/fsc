@@ -11,6 +11,17 @@ add_executable(
         ${FSC_CATCH_OBJECTS}
 )
 
+ccl_set_project_warnings(
+        fsc-catch
+        ${CCL_STRICT_COMPILATION}
+        ""
+        ""
+        ""
+        ""
+        ${CCL_HARDENING}
+        ${CCL_LIBCPP}
+)
+
 set_source_files_properties(
         catch/runner.cpp PRIVATE
         PROPERTIES SKIP_PRECOMPILE_HEADERS ON

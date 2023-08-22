@@ -1,5 +1,5 @@
 if (Catch2_FOUND)
-    include(catch/catch2_found.cmake)
+    include(catch/Catch2Found.cmake)
 else ()
     message(WARNING "Disabling tests, because Catch2 has not been found. You can install it via vcpkg")
 endif ()

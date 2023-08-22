@@ -6,6 +6,17 @@ file(
 
 add_library(fsc STATIC ${FSC_OBJECTS})
 
+ccl_set_project_warnings(
+        fsc
+        ${CCL_STRICT_COMPILATION}
+        ""
+        ""
+        ""
+        ""
+        ${CCL_HARDENING}
+        ${CCL_LIBCPP}
+)
+
 add_dependencies(fsc antlr4_static)
 add_dependencies(fsc ccl)
 
