@@ -14,7 +14,8 @@ namespace fsc
         const std::filesystem::path &filename, ast::OptimizationLevel optimization_level,
         bool print_tree) -> std::string
     {
-        auto builtin_initialization = std::jthread(builtin::initializeCompilerBuiltin);
+        auto builtin_initialization = std::thread(builtin::initializeCompilerBuiltin);
+        auto join_thread = ccl::Raii([&builtin_initialization](){builtin_initialization.join();});
 
         auto input = antlr4::ANTLRInputStream{fsc::readFile(filename)};
         auto lexer = FscLexer{&input};
