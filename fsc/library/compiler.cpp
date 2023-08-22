@@ -1,10 +1,10 @@
 #include "compiler.hpp"
 #include "FscLexer.h"
 #include "FscParser.h"
+#include "io.hpp"
 #include "type/builtin_types.hpp"
 #include "visitor.hpp"
 #include <ccl/future.hpp>
-#include "io.hpp"
 
 using namespace ccl;
 
@@ -15,7 +15,11 @@ namespace fsc
         bool print_tree) -> std::string
     {
         auto builtin_initialization = std::thread(builtin::initializeCompilerBuiltin);
-        auto join_thread = ccl::Raii([&builtin_initialization](){builtin_initialization.join();});
+        auto join_thread = ccl::Raii([&builtin_initialization]() {
+            if (builtin_initialization.joinable()) {
+                builtin_initialization.join();
+            }
+        });
 
         auto input = antlr4::ANTLRInputStream{fsc::readFile(filename)};
         auto lexer = FscLexer{&input};
